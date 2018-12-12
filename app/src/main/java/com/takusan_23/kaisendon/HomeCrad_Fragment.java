@@ -36,6 +36,7 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -1391,8 +1393,6 @@ public class HomeCrad_Fragment extends Fragment {
         });
 
 
-
-
         LinearLayout multiaccount_LinearLayout = new LinearLayout(setting_linearLayout.getContext());
         multiaccount_LinearLayout.setOrientation(LinearLayout.VERTICAL);
         ImageView multiaccount_setting_ImageView = new ImageView(setting_linearLayout.getContext());
@@ -1408,24 +1408,123 @@ public class HomeCrad_Fragment extends Fragment {
 
         //ポップアップメニューを展開する
         MenuBuilder menuBuilder = new MenuBuilder(getContext());
-        MenuInflater menu_inflater = new MenuInflater(getContext());
-        menuBuilder.add("にゃーん");
+        PopupMenu popupMenu = new PopupMenu(getContext(), multiaccount_LinearLayout);
+
+        //menuBuilder.add("にゃーん");
         MenuPopupHelper optionsMenu = new MenuPopupHelper(getContext(), menuBuilder, multiaccount_LinearLayout);
         optionsMenu.setForceShowIcon(true);
 
-        multiaccount_LinearLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                optionsMenu.show();
+        //マルチアカウントを取ってくる
+        //マルチアカウント
+        //配列を使えば幸せになれそう！！！
+        ArrayList<String> multi_account_instance = new ArrayList<>();
+        ArrayList<String> multi_account_access_token = new ArrayList<>();
+
+        //とりあえずPreferenceに書き込まれた値を
+        String instance_instance_string = pref_setting.getString("instance_list", "");
+        String account_instance_string = pref_setting.getString("access_list", "");
+        if (!instance_instance_string.equals("")) {
+            try {
+                JSONArray instance_array = new JSONArray(instance_instance_string);
+                JSONArray access_array = new JSONArray(account_instance_string);
+                for (int i = 0; i < instance_array.length(); i++) {
+                    multi_account_access_token.add(access_array.getString(i));
+                    multi_account_instance.add(instance_array.getString(i));
+                }
+            } catch (Exception e) {
+
             }
-        });
+        }
+
+        if (multi_account_instance.size() >= 1) {
+            for (int count = 0; count < multi_account_instance.size(); count++) {
+                String multi_instance = multi_account_instance.get(count);
+                String multi_access_token = multi_account_access_token.get(count);
+                //読み込みってテキスト変更
+                multiaccount_settig_TextView.setText(R.string.loading);
+                int finalCount = count;
+                new AsyncTask<String, Void, String>() {
+                    @Override
+                    protected String doInBackground(String... string) {
+                        MastodonClient client = new MastodonClient.Builder(multi_instance, new OkHttpClient.Builder(), new Gson())
+                                .accessToken(multi_access_token)
+                                .build();
+
+                        try {
+                            Account main_accounts = new Accounts(client).getVerifyCredentials().execute();
+
+                            long account_id = main_accounts.getId();
+                            String display_name = main_accounts.getDisplayName();
+                            String account_id_string = main_accounts.getUserName();
+                            String profile = main_accounts.getNote();
+                            String avater_url = main_accounts.getAvatar();
+
+                            //menuBuilder.add(display_name + "(" + account_id_string + " / " + multi_instance + ")");
+                            //第二引数　ID　にカウントを渡している
+                            menuBuilder.add(0, finalCount, 0, display_name + "(" + account_id_string + " / " + multi_instance + ")");
+
+                        } catch (Mastodon4jRequestException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+
+                    protected void onPostExecute(String result) {
+                        //UIスレッドに戻ったらテキストを変更する
+                        multiaccount_settig_TextView.setText(R.string.account_chenge);
+                    }
+                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
 
 
+            //押したら表示
+            multiaccount_LinearLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //追加中に押したら落ちるから回避
+                    if (menuBuilder.size() == multi_account_instance.size()) {
+                        optionsMenu.show();
+                        menuBuilder.setCallback(new MenuBuilder.Callback() {
+                            @Override
+                            public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
 
+                                //ItemIdにマルチアカウントのカウントを入れている
+                                int position = menuItem.getItemId();
+
+                                String multi_instance = multi_account_instance.get(position);
+                                String multi_access_token = multi_account_access_token.get(position);
+
+                                SharedPreferences.Editor editor = pref_setting.edit();
+                                editor.putString("main_instance", multi_instance);
+                                editor.putString("main_token", multi_access_token);
+                                editor.apply();
+
+                                //アプリ再起動
+                                Intent intent = new Intent(getContext(), Home.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+
+                                return false;
+                            }
+
+                            @Override
+                            public void onMenuModeChange(MenuBuilder menuBuilder) {
+
+                            }
+                        });
+
+                    } else {
+                        Toast.makeText(getContext(), R.string.loading, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+            setting_main.addView(multiaccount_LinearLayout);
+
+        }
 
 
         //ボタン一覧にいれる
-        setting_main.addView(multiaccount_LinearLayout);
         setting_main.addView(setting_theme_linearLayout);
         setting_main.addView(setting_notification_linearLayout);
         setting_main.addView(timeline_toast_linearLayout);

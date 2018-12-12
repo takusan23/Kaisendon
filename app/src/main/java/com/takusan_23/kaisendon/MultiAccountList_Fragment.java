@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -95,6 +96,7 @@ public class MultiAccountList_Fragment extends Fragment {
         String main_access_token = pref_setting.getString("main_token", "");
         String main_instance = pref_setting.getString("main_instance", "");
 
+        Handler mHandler = new Handler();
 
         //マルチアカウント
         //配列を使えば幸せになれそう！！！
@@ -117,12 +119,14 @@ public class MultiAccountList_Fragment extends Fragment {
             }
         }
 
-        for (int count = 0; count < multi_account_instance.size(); count ++){
+        final ListItem[] listItem = {new ListItem()};
+
+        for (int count = 0; count < multi_account_instance.size(); count++) {
             String multi_instance = multi_account_instance.get(count);
             String multi_access_token = multi_account_access_token.get(count);
-            new AsyncTask<String, Void, String>() {
+            new AsyncTask<String, Void, ListItem>() {
                 @Override
-                protected String doInBackground(String... string) {
+                protected ListItem doInBackground(String... string) {
                     MastodonClient client = new MastodonClient.Builder(multi_instance, new OkHttpClient.Builder(), new Gson())
                             .accessToken(multi_access_token)
                             .build();
@@ -137,34 +141,24 @@ public class MultiAccountList_Fragment extends Fragment {
                         String avater_url = main_accounts.getAvatar();
 
                         String now_account = null;
-                        if (multi_access_token.equals(main_access_token)){
+                        if (multi_access_token.equals(main_access_token)) {
                             now_account = "now_account";
                         }
 
-                        ListItem listItem = new ListItem(now_account, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null,null,null,null);
+                        listItem[0] = new ListItem(now_account, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null, null, null, null);
 
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                adapter.add(listItem);
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                ListView listView = (ListView) view.findViewById(R.id.accountlist_listview);
-                                listView.setAdapter(adapter);
-                            }
-                        });
 
                     } catch (Mastodon4jRequestException e) {
                         e.printStackTrace();
                     }
-                    return null;
+                    return listItem[0];
                 }
 
-                protected void onPostExecute(String result) {
+                protected void onPostExecute(ListItem result) {
+                    adapter.add(result);
+                    adapter.notifyDataSetChanged();
+                    ListView listView = (ListView) view.findViewById(R.id.accountlist_listview);
+                    listView.setAdapter(adapter);
                     snackbar.dismiss();
                 }
 
@@ -228,7 +222,7 @@ public class MultiAccountList_Fragment extends Fragment {
                                 editor.putString("instance_list", instance_array.toString());
                                 editor.putString("access_list", access_array.toString());
                                 editor.apply();
-                                Toast.makeText(getContext(),"削除しました", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "削除しました", Toast.LENGTH_SHORT).show();
 
 
                                 //アプリ再起動

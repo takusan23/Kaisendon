@@ -305,7 +305,13 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 //アバター画像非表示モードでもレイアウトは残しておくように
                 notification_layout = true;
                 //アニメーションアイコン
-                setSVGAnimationIcon(R.drawable.notification_to_star, R.drawable.ic_star_black_24dp, holder);
+                //friends.nicoモードかな？
+                if (friends_nico_check_box){
+                    setSVGAnimationIcon(R.drawable.notification_to_star, R.drawable.ic_star_black_24dp, holder);
+                }else {
+                    holder.notification_icon.setImageResource(R.drawable.nicoru);
+                    holder.avaterImageview_linearLayout.addView(holder.notification_icon, 0);
+                }
             }
             //ふぉろー
             if (item.getInfo().contains("Notification_follow")) {
@@ -853,11 +859,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         //friends.nicoようにアンケートも実装するぞ！
         //アンケートっぽいトゥートを見つける
 
-        if (item.getTitle().
-
-                contains("friends.nico アンケート"))
-
-        {
+        if (item.getTitle().contains("friends.nico アンケート")) {
             System.out.println("アンケート発見 : " + String.valueOf(item.getID()));
 
             //!で条件を反転させる
@@ -1273,9 +1275,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         //ボタン非表示モード
         boolean button_hidden = pref_setting.getBoolean("pref_timeline_button", false);
-        if (button_hidden)
-
-        {
+        if (button_hidden) {
 
             LinearLayout button_layout = holder.button_linearLayout;
             button_layout.removeView(nicoru);

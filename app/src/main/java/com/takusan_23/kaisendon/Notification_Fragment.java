@@ -763,13 +763,28 @@ public class Notification_Fragment extends Fragment {
                                             }
 
                                             //アバター絵文字
-                                            JSONArray avater_emoji = toot_status.getJSONArray("profile_emojis");
-                                            for (int a = 0; a < avater_emoji.length(); a++) {
-                                                JSONObject jsonObject = avater_emoji.getJSONObject(a);
-                                                String emoji_name = jsonObject.getString("shortcode");
-                                                String emoji_url = jsonObject.getString("url");
-                                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                                toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
+                                            try {
+                                                JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
+                                                for (int a = 0; a < avater_emoji.length(); a++) {
+                                                    JSONObject jsonObject = avater_emoji.getJSONObject(a);
+                                                    String emoji_name = jsonObject.getString("shortcode");
+                                                    String emoji_url = jsonObject.getString("url");
+                                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                                    toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                    account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                }
+
+                                                //ユーザーネームの方のアバター絵文字
+                                                JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
+                                                for (int a = 0; a < account_avater_emoji.length(); a++) {
+                                                    JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
+                                                    String emoji_name = jsonObject.getString("shortcode");
+                                                    String emoji_url = jsonObject.getString("url");
+                                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                                    account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                }
+                                            }catch (JSONException e){
+
                                             }
 
                                             //ユーザーネームの方の絵文字
@@ -782,15 +797,6 @@ public class Notification_Fragment extends Fragment {
                                                 account = account.replace(":" + emoji_name + ":", custom_emoji_src);
                                             }
 
-                                            //ユーザーネームの方のアバター絵文字
-                                            JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
-                                            for (int a = 0; a < account_avater_emoji.length(); a++) {
-                                                JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
-                                                String emoji_name = jsonObject.getString("shortcode");
-                                                String emoji_url = jsonObject.getString("url");
-                                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                                account = account.replace(":" + emoji_name + ":", custom_emoji_src);
-                                            }
 
 
                                             ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);

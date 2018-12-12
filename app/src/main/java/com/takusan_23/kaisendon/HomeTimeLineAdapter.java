@@ -310,6 +310,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                     setSVGAnimationIcon(R.drawable.notification_to_star, R.drawable.ic_star_black_24dp, holder);
                 }else {
                     holder.notification_icon.setImageResource(R.drawable.nicoru);
+                    if (holder.notification_icon.getParent() != null) {
+                        ((ViewGroup) holder.notification_icon.getParent()).removeView(holder.notification_icon);
+                    }
                     holder.avaterImageview_linearLayout.addView(holder.notification_icon, 0);
                 }
             }

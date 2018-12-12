@@ -1,0 +1,332 @@
+<resources>
+    <string name="app_name">Kaisendon</string>
+    <string name="first_message">" Please enter your instance name (eg friends.nico)"</string>
+    <string name="title_activity_home">Home</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="login_nemu">Login</string>
+    <string name="toot">Toot!</string>
+    <string name="imananisiteru">Toot</string>
+    <string name="public_time_line">Public TimeLine</string>
+    <string name="user">User</string>
+    <string name="nagaoshi_toot">Long Touch Toot!</string>
+    <string name="nicoru">nicoru</string>
+    <string name="setting">Setting</string>
+    <string name="setting_mastodon_instance">Mastodon Instance</string>
+    <string name="setting_mastodon_accesstoken">Mastodon AccessToken</string>
+    <string name="setting_advance_setting">Advance Setting</string>
+    <string name="setting_mastodon_instance_info">Instance Change</string>
+    <string name="setting_mastodon_accesstoken_info">need AccessToken</string>
+    <string name="setting_instance_change_info">Instance Change Option</string>
+    <string name="setting_instance_change">Instance Change Option</string>
+    <string name="setting_friends_nico_mode">friends.nico Mode Dissemble</string>
+    <string name="setting_friends_nico_mode_info">nicoru dissemble etc</string>
+    <string name="setting_app_theme">App Theme</string>
+    <string name="setting_app_theme_dark_theme">Dark Theme</string>
+    <string name="setting_app_theme_dark_theme_info">Dark Theme Change</string>
+    <string name="setting_app_theme_oled_theme">OLED Theme</string>
+    <string name="setting_app_theme_oled_theme_info">OLED Theme Change</string>
+    <string name="confirmation">Confirmation</string>
+    <string name="toot_dialog">Toot OK?</string>
+    <string name="cancel">Cancel</string>
+    <string name="setting_toot_dialog">Toot Dialog</string>
+    <string name="setting_toot_dialog_info">Toot Dialog</string>
+    <string name="setting_dialog">Dialog Setting</string>
+    <string name="setting_timeline_toot_dialog">LimeTine Toot</string>
+    <string name="setting_timeline_toot_dialog_info">TimeLine Toot Dialog</string>
+    <string name="setting_nicoru_dialog">Favorite(nicoru) Dialog</string>
+    <string name="setting_nicoru_dialog_info">Favorite(nicoru) Dialog</string>
+    <string name="setting_boost_dialog">Boost Dialog</string>
+    <string name="setting_boost_dialog_info">Boost Dialog</string>
+    <string name="boost_button">Boost</string>
+    <string name="dialog_boost">Dialog Boost</string>
+    <string name="dialog_boost_info">Dialog Boost</string>
+    <string name="dialog_favorite">Dialog Favotite</string>
+    <string name="dialog_favorite_info">Dialog Favorite</string>
+    <string name="dialog_nicoru">Dialog nicoru</string>
+    <string name="dialog_nicoru_info">Dialog nicoru</string>
+    <string name="boost_message">Boost :</string>
+    <string name="setting_avater_get">Avater Hidden</string>
+    <string name="setting_avater_get_info">Data Sever</string>
+    <string name="setting_no_sleep">Sleep Disable</string>
+    <string name="setting_no_sleep_info">Sleep Disable</string>
+    <string name="setting_no_sleep_timeline">Sleep Disable Pubic TimeLine</string>
+    <string name="setting_no_sleep_timeline_info">TimeLine Sleep Disable</string>
+    <string name="setting_avater_gif">Avater Gif</string>
+    <string name="setting_avater_gif_info">Avater Gif Dissable</string>
+    <string name="setting_font">Font Setting</string>
+    <string name="setting_fontsize_timeline">Timeline FontSize</string>
+    <string name="setting_fontsize_timeline_info">Timeline FontSize</string>
+    <string name="setting_fontsize_user">Username Fontsize</string>
+    <string name="setting_fontsize_user_info">Username Fontsize</string>
+    <string name="setting_fontsize_client">ClientName Fontsize</string>
+    <string name="setting_fontsize_client_info">ClientName Fontsize</string>
+    <string name="notifications">Notifications</string>
+    <string name="setting_font_color">Font Color</string>
+    <string name="setting_font_color_info">Font Color</string>
+    <string name="setting_font_color_toot_info">Font Color Toot</string>
+    <string name="setting_font_color_toot">Font Color Toot</string>
+    <string name="setting_font_color_client_info">Font Color Client</string>
+    <string name="setting_font_color_client">Font Color Client</string>
+    <string name="setting_fontcolor_theme">Theme FontColor</string>
+    <string name="setting_fontcolor_theme_info">Theme FontColor</string>
+    <string name="home">Home</string>
+    <string name="Web">App</string>
+    <string name="account">Account</string>
+    <string name="follow">Follow</string>
+    <string name="follower">Follower</string>
+    <string name="setting_chrome_custom_tabs_info">Will it read faster?</string>
+    <string name="setting_chrome_custom_tabs">Chrome Custom Tabs Enable</string>
+    <string name="setting_avater_wifi_get_info">Avater Wi-Fi Connection</string>
+    <string name="setting_avater_wifi_get">Wi-Fi get Avater</string>
+    <string name="multipain_ui">MultiPain UI</string>
+    <string name="setting_multipain_pannel_info">MultiPain Panel add 2 Panel</string>
+    <string name="setting_multipain_pannel">MultiPain Ui Pannel</string>
+    <string name="setting_follow_dialog_info">Follow Dialog</string>
+    <string name="setting_follow_dialog">Follow Dialog</string>
+    <string name="setting_drawer_avater_header_hidden_info">Drawer User Icon and Header Hidden</string>
+    <string name="setting_drawer_avater_header_hidden">Mobile Deta Sever</string>
+    <string name="login_button">login</string>
+    <string name="second_message">Please Code</string>
+    <string name="preference_button">Save</string>
+    <string name="toot_text">Toot</string>
+    <string name="setting_toot_media_hidden_info">Mobile Deta Save（Media Touch Show）</string>
+    <string name="setting_toot_media_hidden">Toot Media Hidden</string>
+    <string name="setting_button_icon_info">Button Icon Only</string>
+    <string name="setting_button_icon">Button Icon Only</string>
+    <string name="setting_emoji_compatibility">Emoji Compatibility</string>
+    <string name="setting_emoji_compatibility_info">Android latest emoji(time lag)</string>
+    <string name="setting_timeline">TimeLine Setting</string>
+    <string name="setting_timeline_button">Timeline Button Hidden</string>
+    <string name="setting_timeline_button_info">Timeline Button Hidden</string>
+    <string name="menu">Menu</string>
+    <string name="federated_timeline">Federated TimeLine</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="instance_info">Instance Info</string>
+    <string name="setting_notification_info">App Lunch or Background Only</string>
+    <string name="setting_notification">Notification Stream Toast</string>
+    <string name="instance_name">Instance Name</string>
+    <string name="instance_description">Description</string>
+    <string name="instance_user_count">User Count</string>
+    <string name="instance_status_count">Status Count</string>
+    <string name="instance_statistics">Statistics</string>
+    <string name="instance_statistics_status">Status</string>
+    <string name="instance_statistics_login">Active</string>
+    <string name="instance_statistics_registrations">Registrations</string>
+    <string name="last_week">Last Week</string>
+    <string name="setting_notification_vibrate_info">Notification Vibrate</string>
+    <string name="setting_notification_vibrate">Notification Vibrate</string>
+    <string name="setting_notification_tile">Notification Setting</string>
+    <string name="today">Today</string>
+    <string name="loading">Loading</string>
+    <string name="homecard">HomeCard</string>
+    <string name="setting_home_homecard_info">App TopPage to HomeCard</string>
+    <string name="setting_home_homecard">App Lunch HomeCard</string>
+    <string name="quick_setting">Quick Setting</string>
+    <string name="setting_theme">Theme</string>
+    <string name="change">Change</string>
+    <string name="nomal">Nomal</string>
+    <string name="title_activity_scrolling_user">ScrollingUser</string>
+    <string name="large_text">
+        "Material is the metaphor.\n\n"
+
+        "A material metaphor is the unifying theory of a rationalized space and a system of motion."
+        "The material is grounded in tactile reality, inspired by the study of paper and ink, yet "
+        "technologically advanced and open to imagination and magic.\n"
+        "Surfaces and edges of the material provide visual cues that are grounded in reality. The "
+        "use of familiar tactile attributes helps users quickly understand affordances. Yet the "
+        "flexibility of the material creates new affordances that supercede those in the physical "
+        "world, without breaking the rules of physics.\n"
+        "The fundamentals of light, surface, and movement are key to conveying how objects move, "
+        "interact, and exist in space and in relation to each other. Realistic lighting shows "
+        "seams, divides space, and indicates moving parts.\n\n"
+
+        "Bold, graphic, intentional.\n\n"
+
+        "The foundational elements of print based design typography, grids, space, scale, color, "
+        "and use of imagery guide visual treatments. These elements do far more than please the "
+        "eye. They create hierarchy, meaning, and focus. Deliberate color choices, edge to edge "
+        "imagery, large scale typography, and intentional white space create a bold and graphic "
+        "interface that immerse the user in the experience.\n"
+        "An emphasis on user actions makes core functionality immediately apparent and provides "
+        "waypoints for the user.\n\n"
+
+        "Motion provides meaning.\n\n"
+
+        "Motion respects and reinforces the user as the prime mover. Primary user actions are "
+        "inflection points that initiate motion, transforming the whole design.\n"
+        "All action takes place in a single environment. Objects are presented to the user without "
+        "breaking the continuity of experience even as they transform and reorganize.\n"
+        "Motion is meaningful and appropriate, serving to focus attention and maintain continuity. "
+        "Feedback is subtle yet clear. Transitions are efﬁcient yet coherent.\n\n"
+
+        "3D world.\n\n"
+
+        "The material environment is a 3D space, which means all objects have x, y, and z "
+        "dimensions. The z-axis is perpendicularly aligned to the plane of the display, with the "
+        "positive z-axis extending towards the viewer. Every sheet of material occupies a single "
+        "position along the z-axis and has a standard 1dp thickness.\n"
+        "On the web, the z-axis is used for layering and not for perspective. The 3D world is "
+        "emulated by manipulating the y-axis.\n\n"
+
+        "Light and shadow.\n\n"
+
+        "Within the material environment, virtual lights illuminate the scene. Key lights create "
+        "directional shadows, while ambient light creates soft shadows from all angles.\n"
+        "Shadows in the material environment are cast by these two light sources. In Android "
+        "development, shadows occur when light sources are blocked by sheets of material at "
+        "various positions along the z-axis. On the web, shadows are depicted by manipulating the "
+        "y-axis only. The following example shows the card with a height of 6dp.\n\n"
+
+        "Resting elevation.\n\n"
+
+        "All material objects, regardless of size, have a resting elevation, or default elevation "
+        "that does not change. If an object changes elevation, it should return to its resting "
+        "elevation as soon as possible.\n\n"
+
+        "Component elevations.\n\n"
+
+        "The resting elevation for a component type is consistent across apps (e.g., FAB elevation "
+        "does not vary from 6dp in one app to 16dp in another app).\n"
+        "Components may have different resting elevations across platforms, depending on the depth "
+        "of the environment (e.g., TV has a greater depth than mobile or desktop).\n\n"
+
+        "Responsive elevation and dynamic elevation offsets.\n\n"
+
+        "Some component types have responsive elevation, meaning they change elevation in response "
+        "to user input (e.g., normal, focused, and pressed) or system events. These elevation "
+        "changes are consistently implemented using dynamic elevation offsets.\n"
+        "Dynamic elevation offsets are the goal elevation that a component moves towards, relative "
+        "to the component’s resting state. They ensure that elevation changes are consistent "
+        "across actions and component types. For example, all components that lift on press have "
+        "the same elevation change relative to their resting elevation.\n"
+        "Once the input event is completed or cancelled, the component will return to its resting "
+        "elevation.\n\n"
+
+        "Avoiding elevation interference.\n\n"
+
+        "Components with responsive elevations may encounter other components as they move between "
+        "their resting elevations and dynamic elevation offsets. Because material cannot pass "
+        "through other material, components avoid interfering with one another any number of ways, "
+        "whether on a per component basis or using the entire app layout.\n"
+        "On a component level, components can move or be removed before they cause interference. "
+        "For example, a floating action button (FAB) can disappear or move off screen before a "
+        "user picks up a card, or it can move if a snackbar appears.\n"
+        "On the layout level, design your app layout to minimize opportunities for interference. "
+        "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
+        "when a user tries to pick up one of cards.\n\n"
+    </string>
+    <string name="follow_suggestions">Follow Suggestions</string>
+    <string name="all">All</string>
+    <string name="toast">Toast only</string>
+    <string name="vibration">Vibration only</string>
+    <string name="mute">Mute</string>
+    <string name="add_image">Add Image</string>
+    <string name="favourite_list">Favourite List</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="dialog_bookmark_info">add Bookmark?</string>
+    <string name="setting_bookmark_dialog_info">Bookmark Dialog Show?</string>
+    <string name="setting_bookmark_dialog">Bookmark Dialog Show</string>
+    <string name="add_Bookmark">Add Bookmark</string>
+    <string name="setting_enquate_info">Enquate Dialog</string>
+    <string name="setting_enquate">Enquate Dialog</string>
+    <string name="enquate_dialog">Enquate ?</string>
+    <string name="enquate">Enquate</string>
+    <string name="this_week">This Week</string>
+    <string name="copy">Copy</string>
+    <string name="setting_client_name_info">It is necessary to reacquire access token</string>
+    <string name="setting_client_name">Client Name Change</string>
+    <string name="multi_account">add Multi Account</string>
+    <string name="account_chenge">Account Change</string>
+    <string name="timeline_toast_home">Home Toast</string>
+    <string name="timeline_toast_public_timeline">Local Toast</string>
+    <string name="timeline_toast_disable">Disable</string>
+    <string name="notification_LocalTimeline_Toast">Showing local timeline in toast</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="time">Time</string>
+    <string name="setting_time_japan_info">It changes the format for Japan or displays the time added by 9 hours.</string>
+    <string name="setting_time_japan">Make time to Japan specification</string>
+    <string name="notification_LocalTimeline_Notification">Showing Localtimeline in Notification</string>
+    <string name="timeline_notification_public">Notification Timeline</string>
+    <string name="setting_background_image">Background Image</string>
+    <string name="First">initial</string>
+    <string name="background_image_change">Background Image Change</string>
+    <string name="background_image_delete">Background Image Delete</string>
+    <string name="background_image_on">Background Image On</string>
+    <string name="background_image_off">Background Image OFF</string>
+    <string name="permission_dialog_titile">Grant Permisson</string>
+    <string name="permission_dialog_message">In order to display the background image, you need read access to the storage.</string>
+    <string name="permission_ok">Permission</string>
+    <string name="permission_block">Permisson not allowed</string>
+    <string name="please_reselect">Please reopen</string>
+    <string name="background_imageview_center">Fit image to screen</string>
+    <string name="background_imageview_center_not">Do not fit images on screen.</string>
+    <string name="background_image_transparency_titile">Background Image Transparency</string>
+    <string name="background_image_transparency_message">Please set the transparency. (Initial value: 1.0) (from 0.1 to 1.0)</string>
+    <string name="ok">OK</string>
+    <string name="search">Search</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="setting_cutom_emoji_info">Deprecated as it is under development</string>
+    <string name="setting_custom_emoji">Enable custom emoticons</string>
+    <string name="multi_account_text">Please press and hold to delete account.</string>
+    <string name="setting_networkchange_info">Notify by SnackBar when changing the network.</string>
+    <string name="setting_networkchange">Notify network change</string>
+    <string name="network_change">Network changed</string>
+    <string name="ReStart">Restart the application</string>
+    <string name="setting_timeFormat_check_info">You can customize time notation.</string>
+    <string name="setting_timeFormat_check">Customize time notation</string>
+    <string name="setting_timeFormat_text_info">Please input in Java date format.</string>
+    <string name="setting_timeFormat_text">Enter date format</string>
+    <string name="setting_time_add_info">Please enter the time to advance according to the time zone. (Initial: 9)</string>
+    <string name="setting_time_add">Fit to the time zone</string>
+    <string name="setting_subTitle_show_info">Display the account name and instance in the title bar subtitle.</string>
+    <string name="setting_subTitle_show">Display account name etc in subtitle</string>
+    <string name="setting_start_fragment_info">Please select what to display at startup.</string>
+    <string name="setting_start_fragment">Change the screen displayed at startup</string>
+    <string name="Now_Playing_Dialog_title">Please enter application name</string>
+    <string name="Now_Playing_Dialog_message">Mechanism: It gets notification of the name you entered.</string>
+    <string name="NowPlaying">Now Playing</string>
+    <string name="listenerservice_dialog_title">Please be sure to be able to read notifications</string>
+    <string name="listenerservice_dialog_message">Press OK to display the permission screen. The mechanism reads the notice and extracts the song from the contents of the notice.</string>
+    <string name="custom_streaming">Custom Streaming</string>
+    <string name="setting_multipain_upper_right">Change upper right (left) screen</string>
+    <string name="setting_multipain_upper_right_info">You can change the screen in the upper right (left).</string>
+    <string name="CustomStreaming_Choose">Please select the API to stream</string>
+    <string name="custom_streaming_setting">Custom Streaming Settings</string>
+    <string name="setting_custom_streaming_home_color">Set the background color of the home timeline</string>
+    <string name="setting_custom_streaming_notification_color">Set background color of notification</string>
+    <string name="setting_custom_streaming_local_color">Set the background color of the local timeline</string>
+    <string name="setting_custom_streaming_color_message">Please enter in color code. Transparency can be used by adding after #. (Initial value: home # 1Aff0000, notification 1A008000, local 1A0000ff)</string>
+    <string name="visibility_public">Public</string>
+    <string name="visibility_unlisted">Unlisted</string>
+    <string name="visibility_private">Private</string>
+    <string name="visibility_direct">Direct</string>
+    <string name="show_image">Show Image</string>
+    <string name="setting_one_hand_mode_title">One Hand Mode</string>
+    <string name="setting_one_hand_mode_message">Replace the dialog with a snack bar.</string>
+    <string name="account_delete_title">Delete account</string>
+    <string name="account_delete_message">Delete the account.</string>
+    <string name="bookmark_delete_title">Delete bookmark</string>
+    <string name="bookmark_delete_message">Can I delete this tote from bookmarks?</string>
+    <string name="image_upload_storage_permisson">You need read access to storage to post images.</string>
+    <string name="other">Other</string>
+    <string name="license">License</string>
+    <string name="direct_message">DirectMessage</string>
+    <string name="delete">Delete</string>
+    <string name="bookmark_isempty">Nothing is registered in the bookmark.</string>
+    <string name="vote">Vote</string>
+    <string name="setting_timeline_reblog_color_title">Change the color of the boosted toot</string>
+    <string name="setting_timeline_reblog_color_message">Please enter in color code. (Initial value: # 008000)</string>
+    <string name="browser">Browser</string>
+    <string name="setting_svg_animation_title">Disable SVG animation</string>
+    <string name="setting_svg_animation_message">Disable SVG animation (There is no problem even if it is disabled).</string>
+
+</resources>

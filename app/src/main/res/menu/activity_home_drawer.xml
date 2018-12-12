@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/login_menu"
+            android:icon="@drawable/ic_lock_black_24dp"
+            android:title="@string/login_nemu" />
+        <item
+            android:id="@+id/multi_account_menu"
+            android:icon="@drawable/ic_transfer_within_a_station_black_24dp"
+            android:title="@string/account_chenge" />
+
+        <item
+            android:id="@+id/homecard_menu"
+            android:icon="@drawable/ic_view_day_black_24dp"
+            android:title="@string/homecard" />
+        <item
+            android:id="@+id/account_menu"
+            android:icon="@drawable/ic_sentiment_neutral_black_24dp"
+            android:title="@string/account" />
+        <item
+            android:id="@+id/home_timeline"
+            android:icon="@drawable/ic_home_black_24dp"
+            android:title="@string/home" />
+        <item
+            android:id="@+id/notifications"
+            android:icon="@drawable/ic_notifications_black_24dp"
+            android:title="@string/notifications" />
+        <item
+            android:id="@+id/public_time_line_menu"
+            android:icon="@drawable/ic_train_black_24dp"
+            android:title="@string/public_time_line" />
+        <item
+            android:id="@+id/federated_time_line_menu"
+            android:icon="@drawable/ic_flight_black_24dp"
+            android:title="@string/federated_timeline" />
+        <item
+            android:id="@+id/search_menu"
+            android:icon="@drawable/ic_search_black_24dp"
+            android:title="tootsearch" />
+        <item
+            android:id="@+id/bookmark"
+            android:icon="@drawable/ic_book_black_24dp"
+            android:title="@string/bookmark" />
+        <item
+            android:id="@+id/favourite_list"
+            android:icon="@drawable/ic_favorite_black_24dp"
+            android:title="@string/favourite_list" />
+        <item
+            android:id="@+id/direct_message_menu"
+            android:icon="@drawable/ic_assignment_ind_black_24dp"
+            android:title="@string/direct_message" />
+        <item
+            android:id="@+id/follow_suggestions"
+            android:icon="@drawable/ic_person_add_black_24dp"
+            android:title="@string/follow_suggestions" />
+        <item
+            android:id="@+id/custom_streaming_nemu"
+            android:icon="@drawable/ic_extension_black_24dp"
+            android:title="@string/custom_streaming" />
+        <item
+            android:id="@+id/instance_info_menu"
+            android:icon="@drawable/ic_info_outline_black_24dp"
+            android:title="@string/instance_info" />
+
+    </group>
+
+    <item android:title="@string/multipain_ui">
+        <menu>
+            <item
+                android:id="@+id/multipain_ui"
+                android:icon="@drawable/ic_view_agenda_black_24dp"
+                android:title="@string/multipain_ui" />
+        </menu>
+    </item>
+
+    <item android:title="@string/other">
+        <menu>
+            <item
+                android:id="@+id/setting"
+                android:icon="@drawable/ic_menu_manage"
+                android:title="@string/setting" />
+            <item
+                android:id="@+id/licence_menu"
+                android:icon="@drawable/ic_import_contacts_black_24dp"
+                android:title="@string/license" />
+            <item
+                android:id="@+id/nav_send"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Send" />
+        </menu>
+    </item>
+
+</menu>

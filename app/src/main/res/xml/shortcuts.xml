@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_create_black_24dp_black"
+        android:shortcutDisabledMessage="@string/toot"
+        android:shortcutId="toot_shortcut"
+        android:shortcutLongLabel="@string/toot"
+        android:shortcutShortLabel="@string/toot">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.takusan_23.kaisendon.TootActivity"
+            android:targetPackage="com.takusan_23.kaisendon" />
+
+        <categories android:name="android.shortcut.conversation" />
+
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_view_day_black_24dp"
+        android:shortcutDisabledMessage="@string/homecard"
+        android:shortcutId="homecard_shortcut"
+        android:shortcutLongLabel="@string/homecard"
+        android:shortcutShortLabel="@string/homecard">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.takusan_23.kaisendon.Home"
+            android:targetPackage="com.takusan_23.kaisendon">
+
+            <extra
+                android:name="home_card"
+                android:value="true"
+                />
+
+        </intent>
+
+    </shortcut>
+
+</shortcuts>

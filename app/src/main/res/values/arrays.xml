@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="start_fragment_list">
+        <item>@string/homecard</item>
+        <item>@string/home</item>
+        <item>@string/notifications</item>
+        <item>@string/public_time_line</item>
+        <item>@string/federated_timeline</item>
+        <item>@string/custom_streaming</item>
+        <item>Null</item>
+    </string-array>
+    <string-array name="start_fragment_values">
+        <item>HomeCard</item>
+        <item>Home</item>
+        <item>Notification</item>
+        <item>Local</item>
+        <item>Federated</item>
+        <item>Streaming</item>
+        <item>Start</item>
+    </string-array>
+
+</resources>

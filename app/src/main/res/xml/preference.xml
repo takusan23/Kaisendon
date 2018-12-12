@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--設定-->
+
+    <PreferenceCategory
+        android:key="preference_setting"
+        android:title="@string/setting">
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_friends_nico_mode"
+            android:summary="@string/setting_friends_nico_mode_info"
+            android:title="@string/setting_friends_nico_mode" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_avater"
+            android:summary="@string/setting_avater_get_info"
+            android:title="@string/setting_avater_get" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_drawer_avater"
+            android:summary="@string/setting_drawer_avater_header_hidden_info"
+            android:title="@string/setting_drawer_avater_header_hidden" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_toot_media"
+            android:summary="@string/setting_toot_media_hidden_info"
+            android:title="@string/setting_toot_media_hidden" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_custom_emoji"
+            android:summary="@string/setting_cutom_emoji_info"
+            android:title="@string/setting_custom_emoji" />
+
+        <CheckBoxPreference
+            android:layout_height="wrap_content"
+            android:defaultValue="true"
+            android:key="pref_avater_wifi"
+            android:summary="@string/setting_avater_wifi_get_info"
+            android:title="@string/setting_avater_wifi_get" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_avater_gif"
+            android:summary="@string/setting_avater_gif_info"
+            android:title="@string/setting_avater_gif" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_chrome_custom_tabs"
+            android:summary="@string/setting_chrome_custom_tabs_info"
+            android:title="@string/setting_chrome_custom_tabs" />
+
+        <ListPreference
+            android:defaultValue="HomeCard"
+            android:entries="@array/start_fragment_list"
+            android:entryValues="@array/start_fragment_values"
+            android:key="pref_startFragment"
+            android:summary="@string/setting_start_fragment_info"
+            android:title="@string/setting_start_fragment" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_networkchange"
+            android:summary="@string/setting_networkchange_info"
+            android:title="@string/setting_networkchange" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_subtitle_show"
+            android:summary="@string/setting_subTitle_show_info"
+            android:title="@string/setting_subTitle_show" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_svg_animation"
+            android:summary="@string/setting_svg_animation_message"
+            android:title="@string/setting_svg_animation_title" />
+
+    </PreferenceCategory>
+
+
+    <!--通知設定-->
+
+    <PreferenceCategory
+        android:key="preference_setting"
+        android:title="@string/setting_notification_tile">
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_notification_toast"
+            android:summary="@string/setting_notification_info"
+            android:title="@string/setting_notification" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:dependency="pref_notification_toast"
+            android:key="pref_notification_vibrate"
+            android:summary="@string/setting_notification_vibrate_info"
+            android:title="@string/setting_notification_vibrate" />
+
+    </PreferenceCategory>
+
+
+    <!--て～～ま設定-->
+
+    <PreferenceCategory
+        android:key="preference_setting"
+        android:title="@string/setting_app_theme">
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_dark_theme"
+            android:summary="@string/setting_app_theme_dark_theme_info"
+            android:title="@string/setting_app_theme_dark_theme" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:dependency="pref_dark_theme"
+            android:key="pref_oled_mode"
+            android:summary="@string/setting_app_theme_oled_theme_info"
+            android:title="@string/setting_app_theme_oled_theme" />
+
+    </PreferenceCategory>
+
+    <!--ダイアログを出すかどうか-->
+
+    <PreferenceCategory
+        android:key="preference_setting"
+        android:title="@string/setting_dialog">
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_toot_dialog"
+            android:summary="@string/setting_toot_dialog_info"
+            android:title="@string/setting_toot_dialog" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_timeline_toot_dialog"
+            android:summary="@string/setting_timeline_toot_dialog_info"
+            android:title="@string/setting_timeline_toot_dialog" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_nicoru_dialog"
+            android:summary="@string/setting_nicoru_dialog_info"
+            android:title="@string/setting_nicoru_dialog" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_boost_dialog"
+            android:summary="@string/setting_boost_dialog_info"
+            android:title="@string/setting_boost_dialog" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_bookmark_dialog"
+            android:summary="@string/setting_bookmark_dialog_info"
+            android:title="@string/setting_bookmark_dialog" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_follow_dialog"
+            android:summary="@string/setting_follow_dialog_info"
+            android:title="@string/setting_follow_dialog" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_enquete_dialog"
+            android:summary="@string/setting_enquate_info"
+            android:title="@string/setting_enquate" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_one_hand_mode"
+            android:summary="@string/setting_one_hand_mode_message"
+            android:title="@string/setting_one_hand_mode_title" />
+
+    </PreferenceCategory>
+
+
+    <!--タイムライン設定-->
+
+    <PreferenceCategory
+        android:key="preference_setting"
+        android:title="@string/setting_timeline">
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_button_icon"
+            android:summary="@string/setting_button_icon_info"
+            android:title="@string/setting_button_icon" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_emoji_compatibility"
+            android:summary="@string/setting_emoji_compatibility_info"
+            android:title="@string/setting_emoji_compatibility" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_timeline_button"
+            android:summary="@string/setting_timeline_button_info"
+            android:title="@string/setting_timeline_button" />
+
+<!--
+        <EditTextPreference
+            android:defaultValue="#008000"
+            android:key="pref_timeline_reblog"
+            android:summary="@string/setting_timeFormat_text_info"
+            android:title="@string/setting_timeFormat_text" />
+-->
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_custom_time_format"
+            android:summary="@string/setting_timeFormat_check_info"
+            android:title="@string/setting_timeFormat_check_info" />
+
+        <EditTextPreference
+            android:defaultValue="yyyy/MM/dd HH:mm:ss.SSS"
+            android:dependency="pref_custom_time_format"
+            android:key="pref_custom_time_format_text"
+            android:summary="@string/setting_timeFormat_text_info"
+            android:title="@string/setting_timeFormat_text" />
+
+        <EditTextPreference
+            android:defaultValue="9"
+            android:dependency="pref_custom_time_format"
+            android:key="pref_time_add"
+            android:summary="@string/setting_time_add_info"
+            android:title="@string/setting_time_add" />
+
+    </PreferenceCategory>
+
+
+    <!--フォント変更-->
+
+    <PreferenceCategory
+        android:key="preference_setting"
+        android:title="@string/setting_font">
+
+        <EditTextPreference
+            android:defaultValue="18"
+            android:key="pref_fontsize_timeline"
+            android:summary="@string/setting_fontsize_timeline_info"
+            android:title="@string/setting_fontsize_timeline" />
+
+        <EditTextPreference
+            android:defaultValue="18"
+            android:key="pref_fontsize_user"
+            android:summary="@string/setting_fontsize_user_info"
+            android:title="@string/setting_fontsize_user" />
+
+        <EditTextPreference
+            android:defaultValue="18"
+            android:key="pref_fontsize_client"
+            android:summary="@string/setting_fontsize_client_info"
+            android:title="@string/setting_fontsize_client" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_fontcolor_setting"
+            android:summary="@string/setting_fontcolor_theme_info"
+            android:title="@string/setting_fontcolor_theme" />
+
+        <EditTextPreference
+            android:defaultValue="#000000"
+            android:dependency="pref_fontcolor_setting"
+            android:key="pref_fontcolor"
+            android:summary="@string/setting_font_color_info"
+            android:title="@string/setting_font_color" />
+
+        <EditTextPreference
+            android:defaultValue="#000000"
+            android:dependency="pref_fontcolor_setting"
+            android:key="pref_fontcolor_toot"
+            android:summary="@string/setting_font_color_toot_info"
+            android:title="@string/setting_font_color_toot" />
+
+        <EditTextPreference
+            android:defaultValue="#000000"
+            android:dependency="pref_fontcolor_setting"
+            android:key="pref_fontcolor_client"
+            android:summary="@string/setting_font_color_client_info"
+            android:title="@string/setting_font_color_client" />
+
+    </PreferenceCategory>
+
+
+    <!--スリープ設定-->
+
+    <PreferenceCategory
+        android:key="preference_setting"
+        android:title="@string/setting_no_sleep">
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_no_sleep"
+            android:summary="@string/setting_no_sleep_info"
+            android:title="@string/setting_no_sleep" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:dependency="pref_no_sleep"
+            android:key="pref_no_sleep_timeline"
+            android:summary="@string/setting_no_sleep_timeline_info"
+            android:title="@string/setting_no_sleep_timeline" />
+
+    </PreferenceCategory>
+
+
+    <!--マルチペインUI設定-->
+    <PreferenceCategory
+        android:key="preference_setting"
+        android:title="@string/multipain_ui">
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_multipain_pannel_4"
+            android:summary="@string/setting_multipain_pannel_info"
+            android:title="@string/setting_multipain_pannel" />
+
+        <ListPreference
+            android:defaultValue="true"
+            android:entries="@array/start_fragment_list"
+            android:entryValues="@array/start_fragment_values"
+            android:key="pref_multipain_upper_right"
+            android:summary="@string/setting_multipain_upper_right_info"
+            android:title="@string/setting_multipain_upper_right" />
+
+
+    </PreferenceCategory>
+
+    <!--カスタムストリーミング-->
+
+    <PreferenceCategory
+        android:key="preference_setting"
+        android:title="@string/custom_streaming_setting">
+
+        <EditTextPreference
+            android:defaultValue="#1Aff0000"
+            android:key="pref_custom_streaming_home_color"
+            android:summary="@string/setting_custom_streaming_color_message"
+            android:title="@string/setting_custom_streaming_home_color" />
+
+        <EditTextPreference
+            android:defaultValue="#1A008000"
+            android:key="pref_custom_streaming_notification_color"
+            android:summary="@string/setting_custom_streaming_color_message"
+            android:title="@string/setting_custom_streaming_notification_color" />
+
+        <EditTextPreference
+            android:defaultValue="#1A0000ff"
+            android:key="pref_custom_streaming_local_color"
+            android:summary="@string/setting_custom_streaming_color_message"
+            android:title="@string/setting_custom_streaming_local_color" />
+
+
+    </PreferenceCategory>
+
+
+    <!--高度な設定-->
+
+    <PreferenceCategory
+        android:key="preference_setting"
+        android:title="@string/setting_advance_setting">
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_advanced_setting"
+            android:summary="@string/setting_advance_setting"
+            android:title="@string/setting_advance_setting"/>
+
+        <EditTextPreference
+            android:dependency="pref_advanced_setting"
+            android:key="pref_client_name"
+            android:summary="@string/setting_client_name_info"
+            android:title="@string/setting_client_name" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:dependency="pref_advanced_setting"
+            android:key="pref_advanced_setting_instance_change"
+            android:summary="@string/setting_instance_change_info"
+            android:title="@string/setting_instance_change" />
+
+        <EditTextPreference
+            android:defaultValue="friends.nico"
+            android:dependency="pref_advanced_setting_instance_change"
+            android:key="pref_mastodon_instance"
+            android:summary="@string/setting_mastodon_instance_info"
+            android:title="@string/setting_mastodon_instance" />
+        　　　　
+        <EditTextPreference
+            android:dependency="pref_advanced_setting_instance_change"
+            android:key="pref_mastodon_accesstoken"
+            android:summary="@string/setting_mastodon_accesstoken_info"
+            android:title="@string/setting_mastodon_accesstoken" />
+
+
+    </PreferenceCategory>
+    ...
+</PreferenceScreen>

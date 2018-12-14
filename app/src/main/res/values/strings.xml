@@ -328,5 +328,7 @@
     <string name="browser">Browser</string>
     <string name="setting_svg_animation_title">Disable SVG animation</string>
     <string name="setting_svg_animation_message">Disable SVG animation (There is no problem even if it is disabled).</string>
+    <string name="setting_use_streamingapi_title">Use the Streaming API</string>
+    <string name="setting_use_streamingapi_message">New Toot will be loaded in real time.</string>
 
 </resources>

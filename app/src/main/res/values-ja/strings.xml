@@ -225,5 +225,7 @@
     <string name="browser">ブラウザー</string>
     <string name="setting_svg_animation_title">SVGアニメを無効化します</string>
     <string name="setting_svg_animation_message">SVGアニメを無効にします（無効にしても問題はありません）。</string>
+    <string name="setting_use_streamingapi_title">ストリーミングAPIを利用する</string>
+    <string name="setting_use_streamingapi_message">青い鳥では終了したリアルタイム更新ができます。</string>
 
 </resources>

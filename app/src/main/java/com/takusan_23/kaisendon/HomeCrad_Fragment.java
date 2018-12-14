@@ -14,7 +14,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
@@ -27,7 +26,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.CardView;
@@ -35,23 +33,18 @@ import android.text.Html;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,10 +61,12 @@ import com.sys1yagi.mastodon4j.api.entity.Account;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
 import com.sys1yagi.mastodon4j.api.entity.Emoji;
 import com.sys1yagi.mastodon4j.api.entity.Notification;
+import com.sys1yagi.mastodon4j.api.entity.Status;
 import com.sys1yagi.mastodon4j.api.entity.auth.AccessToken;
 import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Accounts;
 import com.sys1yagi.mastodon4j.api.method.Notifications;
+import com.sys1yagi.mastodon4j.api.method.Public;
 import com.sys1yagi.mastodon4j.api.method.Streaming;
 import com.sys1yagi.mastodon4j.api.method.Timelines;
 
@@ -854,10 +849,13 @@ public class HomeCrad_Fragment extends Fragment {
                         .accessToken(finalAccessToken)
                         .useStreamingApi()
                         .build();
-                Handler handler = new Handler() {
 
-                    @Override
-                    public void onStatus(@NotNull com.sys1yagi.mastodon4j.api.entity.Status status) {
+
+                Public public_timeline = new Public(client);
+
+                try {
+                    Pageable<com.sys1yagi.mastodon4j.api.entity.Status> statuses = public_timeline.getLocalPublic(new Range(null, null, 40)).doOnJson(System.out::println).execute();
+                    statuses.getPart().forEach(status -> {
                         //System.out.println(status.getContent());
                         String toot_text = status.getContent();
                         String user = status.getAccount().getUserName();
@@ -921,33 +919,16 @@ public class HomeCrad_Fragment extends Fragment {
                                 }
                                 localtime_listview.setSelectionFromTop(position, y);
 
-
                             }
                         });
-                    }
-
-                    @Override
-                    public void onNotification(@NotNull Notification notification) {/* no op */}
-
-                    @Override
-                    public void onDelete(long id) {/* no op */}
-                };
-                Streaming streaming = new Streaming(client);
-                try {
-                    shutdownable = streaming.localPublic(handler);
-                    Thread.sleep(10000L);
-                    //shutdownable.shutdown();
+                    });
                 } catch (Mastodon4jRequestException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 return null;
             }
 
             protected void onPostExecute(String result) {
-
-                return;
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
@@ -1091,18 +1072,12 @@ public class HomeCrad_Fragment extends Fragment {
         boolean setting_notification_toast = pref_setting.getBoolean("pref_notification_toast", true);
         boolean setting_notification_vibrate = pref_setting.getBoolean("pref_notification_vibrate", true);
         int notificaiton_count = 1;
-        if (setting_notification_toast && setting_notification_vibrate) {
+        if (setting_notification_toast) {
             //両方
             notificaiton_count = 1;
-        } else if (setting_notification_toast) {
-            //トースト
-            notificaiton_count = 2;
-        } else if (setting_notification_vibrate) {
-            //バイブレーション
-            notificaiton_count = 3;
         } else {
             //無効化
-            notificaiton_count = 4;
+            notificaiton_count = 2;
         }
         System.out.println("ああああ" + String.valueOf(notificaiton_count));
 
@@ -1110,20 +1085,10 @@ public class HomeCrad_Fragment extends Fragment {
         //すべて
         if (notificaiton_count == 1) {
             setting_notification_imageView.setImageResource(R.drawable.ic_notifications_active_black_24dp);
-            setting_notification_textview.setText(R.string.all);
-        }
-        //トースト
-        if (notificaiton_count == 2) {
-            setting_notification_imageView.setImageResource(R.drawable.ic_announcement_black_24dp);
-            setting_notification_textview.setText(R.string.toast);
-        }
-        //バイブレーション
-        if (notificaiton_count == 3) {
-            setting_notification_imageView.setImageResource(R.drawable.ic_vibration_black_24dp);
-            setting_notification_textview.setText(R.string.vibration);
+            setting_notification_textview.setText(R.string.notifications);
         }
         //無効
-        if (notificaiton_count == 4) {
+        if (notificaiton_count == 2) {
             setting_notification_imageView.setImageResource(R.drawable.ic_notifications_off_black_24dp);
             setting_notification_textview.setText(R.string.mute);
         }
@@ -1139,31 +1104,11 @@ public class HomeCrad_Fragment extends Fragment {
                     editor.putBoolean("pref_notification_vibrate", true);
                     editor.apply();
                     setting_notification_imageView.setImageResource(R.drawable.ic_notifications_active_black_24dp);
-                    setting_notification_textview.setText(R.string.all);
-                    finalNotificaiton_count[0]++;
-                }
-                //トースト
-                else if (finalNotificaiton_count[0] == 2) {
-                    SharedPreferences.Editor editor = pref_setting.edit();
-                    editor.putBoolean("pref_notification_toast", true);
-                    editor.putBoolean("pref_notification_vibrate", false);
-                    editor.apply();
-                    setting_notification_imageView.setImageResource(R.drawable.ic_announcement_black_24dp);
-                    setting_notification_textview.setText(R.string.toast);
-                    finalNotificaiton_count[0]++;
-                }
-                //バイブレーション
-                else if (finalNotificaiton_count[0] == 3) {
-                    SharedPreferences.Editor editor = pref_setting.edit();
-                    editor.putBoolean("pref_notification_toast", false);
-                    editor.putBoolean("pref_notification_vibrate", true);
-                    editor.apply();
-                    setting_notification_imageView.setImageResource(R.drawable.ic_vibration_black_24dp);
-                    setting_notification_textview.setText(R.string.vibration);
+                    setting_notification_textview.setText(R.string.notifications);
                     finalNotificaiton_count[0]++;
                 }
                 //無効
-                else if (finalNotificaiton_count[0] == 4) {
+                else if (finalNotificaiton_count[0] == 2) {
                     SharedPreferences.Editor editor = pref_setting.edit();
                     editor.putBoolean("pref_notification_toast", false);
                     editor.putBoolean("pref_notification_vibrate", false);

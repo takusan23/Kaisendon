@@ -330,5 +330,24 @@
     <string name="setting_svg_animation_message">Disable SVG animation (There is no problem even if it is disabled).</string>
     <string name="setting_use_streamingapi_title">Use the Streaming API</string>
     <string name="setting_use_streamingapi_message">New Toot will be loaded in real time.</string>
+    <string name="loading_home">Getting home</string>
+    <string name="loading_public_timeline">Acquiring Local Timeline</string>
+    <string name="loading_federated_timeline">Acquiring Federated timeline</string>
+    <string name="loading_notification">Getting Notification</string>
+    <string name="loading_tootserch">Searching</string>
+    <string name="loading_boobkmark">Fetching bookmarks</string>
+    <string name="loading_favoutite_list">Fetching favorite list</string>
+    <string name="loading_direct_message">Acquiring direct message</string>
+    <string name="loading_suggestions">Acquiring follow-up suggestion user</string>
+    <string name="loading_instance_info">Acquiring instance information</string>
+    <string name="loading_instance_list">Acquiring Instance List</string>
+    <string name="loading_clientid_clientsecret">Retrieving client ID and client secret</string>
+    <string name="code_copy">Please copy the authorization code</string>
+    <string name="favourite_add_message">Would you like to add it to favorites?</string>
+    <string name="favoutire">Favourite</string>
+    <string name="boost_ok">Boosted</string>
+    <string name="favourite_add">I registered as favorite</string>
+    <string name="add_loading">Preparing additional reading</string>
+    <string name="toot_ok">I did a Toot</string>
 
 </resources>

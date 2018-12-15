@@ -23,14 +23,18 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.sys1yagi.mastodon4j.MastodonClient;
+import com.sys1yagi.mastodon4j.api.Handler;
 import com.sys1yagi.mastodon4j.api.Pageable;
 import com.sys1yagi.mastodon4j.api.Range;
+import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
 import com.sys1yagi.mastodon4j.api.entity.Emoji;
 import com.sys1yagi.mastodon4j.api.entity.Notification;
 import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Notifications;
+import com.sys1yagi.mastodon4j.api.method.Streaming;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,6 +83,12 @@ public class Notification_Fragment extends Fragment {
     String media_url_2 = null;
     String media_url_3 = null;
     String media_url_4 = null;
+
+    Shutdownable shutdownable;
+
+    SharedPreferences pref_setting;
+
+    int scrollPosition = 30;
 
 
     @Override
@@ -147,6 +157,10 @@ public class Notification_Fragment extends Fragment {
 
         boolean friends_nico_check_box = pref_setting.getBoolean("pref_friends_nico_mode", false);
 
+        SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_notification);
+
+        ListView listView = view.findViewById(R.id.notifications_list);
+
         //くるくる
 /*
         dialog = new ProgressDialog(getContext());
@@ -179,406 +193,787 @@ public class Notification_Fragment extends Fragment {
 
         String finalInstance = Instance;
 
-        //非同期通信
-        //通知を取得
-        AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
 
-            @Override
-            protected String doInBackground(String... string) {
+        //ストリーミングAPI
+        if (pref_setting.getBoolean("pref_streaming_api", true)) {
+            //引っ張って更新するやつ無効
+            swipeRefreshLayout.setEnabled(false);
 
-                MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson())
-                        .accessToken(finalAccessToken)
-                        .useStreamingApi()
-                        .build();
+            String finalInstance1 = Instance;
+            String finalAccessToken1 = AccessToken;
+            new AsyncTask<String, String, String>() {
 
-                Notifications notifications = new Notifications(client);
+                @Override
+                protected String doInBackground(String... string) {
 
+                    MastodonClient client = new MastodonClient.Builder(finalInstance1, new OkHttpClient.Builder(), new Gson())
+                            .accessToken(finalAccessToken1)
+                            .useStreamingApi()
+                            .build();
 
-                try {
+                    Handler handler = new Handler() {
 
-                    Pageable<Notification> statuses = notifications.getNotifications(new Range(null, null, 30), null).execute();
+                        @Override
+                        public void onStatus(@NotNull com.sys1yagi.mastodon4j.api.entity.Status status) {
 
-                    statuses.getPart().forEach(status -> {
-
-                        account = status.getAccount().getDisplayName();
-                        type = status.getType();
-                        //time = status.getCreatedAt();
-                        avater_url = status.getAccount().getAvatar();
-                        user_id = status.getAccount().getUserName();
-                        user_acct = status.getAccount().getAcct();
-
-                        account_id = status.getAccount().getId();
-
-                        String toot_id_string = null;
-
-                        //Followの通知のときにgetContent()するとNullでえらーでるのでtry/catch処理
-                        try {
-                            toot = status.getStatus().getContent();
-                            toot_id = status.getStatus().getId();
-                            toot_id_string = String.valueOf(toot_id);
-                        } catch (NullPointerException e) {
-                            toot = "";
-                            toot_id = 0;
-                            toot_id_string = String.valueOf(toot_id);
                         }
 
-                        boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
-                        if (japan_timeSetting) {
-                            //時差計算？
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-                            //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
-                            //日本用フォーマット
-                            SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+                        @Override
+                        public void onNotification(@NotNull Notification notification) {
+                            account = notification.getAccount().getDisplayName();
+                            type = notification.getType();
+                            //time = status.getCreatedAt();
+                            avater_url = notification.getAccount().getAvatar();
+                            user_id = notification.getAccount().getUserName();
+                            user_acct = notification.getAccount().getAcct();
+
+                            account_id = notification.getAccount().getId();
+
+                            String toot_id_string = null;
+
+                            //Followの通知のときにgetContent()するとNullでえらーでるのでtry/catch処理
                             try {
-                                Date date = simpleDateFormat.parse(status.getCreatedAt());
-                                Calendar calendar = Calendar.getInstance();
-                                calendar.setTime(date);
-                                //9時間足して日本時間へ
-                                calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
-                                //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                                time = japanDateFormat.format(calendar.getTime());
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            time = status.getCreatedAt();
-                        }
-
-                        //カスタム絵文字
-                        try {
-                            //本文
-                            List<Emoji> emoji_List = status.getStatus().getEmojis();
-                            emoji_List.forEach(emoji -> {
-                                String emoji_name = emoji.getShortcode();
-                                String emoji_url = emoji.getUrl();
-                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
-                            });
-
-                        } catch (NullPointerException e) {
-                            toot = "";
-                            toot_id = 0;
-                            toot_id_string = String.valueOf(toot_id);
-                        }
-
-                        //DisplayNameのほう
-                        List<Emoji> account_emoji_List = status.getAccount().getEmojis();
-                        account_emoji_List.forEach(emoji -> {
-                            String emoji_name = emoji.getShortcode();
-                            String emoji_url = emoji.getUrl();
-                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                            account = account.replace(":" + emoji_name + ":", custom_emoji_src);
-                        });
-
-
-                        Locale locale = Locale.getDefault();
-                        boolean jp = locale.equals(Locale.JAPAN);
-
-                        if (type.equals("mention")) {
-                            if (jp){
-                                type = "返信しました";
-                            }
-                            layout_type = "Notification_mention";
-                        }
-                        if (type.equals("reblog")) {
-                            if (jp){
-                                type = "ブーストしました";
-                            }
-                            layout_type = "Notification_reblog";
-                        }
-                        if (type.equals("favourite")) {
-                            if (jp) {
-                                if (friends_nico_check_box) {
-                                    type = "お気に入りしました";
-                                } else {
-                                    type = "二コりました";
-                                }
-                                layout_type = "Notification_favourite";
-                            }
-                        }
-                        if (type.equals("follow")) {
-                            if (jp){
-                                type = "フォローしました";
-                            }
-                            layout_type = "Notification_follow";
-                        }
-
-                        String[] mediaURL = {null, null, null, null};
-                        //めでぃあ
-                        //配列に入れる形で
-                        try {
-                            final int[] i = {0};
-                            List<Attachment> list = status.getStatus().getMediaAttachments();
-                            list.forEach(media -> {
-                                mediaURL[i[0]] = media.getUrl();
-                                i[0]++;
-                            });
-                            //配列から文字列に
-                            media_url_1 = mediaURL[0];
-                            media_url_2 = mediaURL[1];
-                            media_url_3 = mediaURL[2];
-                            media_url_4 = mediaURL[3];
-                        } catch (NullPointerException e) {
-                            //配列から文字列に
-                            media_url_1 = null;
-                            media_url_2 = null;
-                            media_url_3 = null;
-                            media_url_4 = null;
-                        }
-
-
-                        ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                adapter.add(listItem);
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-
-
-                        //UI変更
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (getActivity() != null) {
-
-                                    ListView listView = (ListView) view.findViewById(R.id.notifications_list);
-
-                                    listView.setAdapter(adapter);
-                                }
+                                toot = notification.getStatus().getContent();
+                                toot_id = notification.getStatus().getId();
+                                toot_id_string = String.valueOf(toot_id);
+                            } catch (NullPointerException e) {
+                                toot = "";
+                                toot_id = 0;
+                                toot_id_string = String.valueOf(toot_id);
                             }
 
-                        });
-
-                    });
-
-                } catch (Mastodon4jRequestException e) {
-
-                    e.printStackTrace();
-
-                }
-
-
-                return null;
-            }
-
-            protected void onPostExecute(String result) {
-
-                //くるくるを終了
-                //dialog.dismiss();
-                snackbar.dismiss();
-
-                HomeTimeLineAdapter adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_list);
-            }
-
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-
-        //引っ張って更新するやつ
-        SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_notification);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-
-            @Override
-            public void onRefresh() {
-                adapter.clear();
-                snackbar.show();
-                AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
-
-                    @Override
-                    protected String doInBackground(String... string) {
-
-                        MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson())
-                                .accessToken(finalAccessToken)
-                                .useStreamingApi()
-                                .build();
-
-                        Notifications notifications = new Notifications(client);
-
-                        notifications.getNotifications(new Range(null, null, 30));
-
-                        try {
-
-                            Pageable<Notification> statuses = notifications.getNotifications(new Range(null, null, 30), null).execute();
-
-                            statuses.getPart().forEach(status -> {
-
-                                account = status.getAccount().getDisplayName();
-                                type = status.getType();
-                                time = status.getCreatedAt();
-                                avater_url = status.getAccount().getAvatar();
-                                user_id = status.getAccount().getUserName();
-                                user_acct = status.getAccount().getAcct();
-
-                                account_id = status.getAccount().getId();
-
-                                String toot_id_string = null;
-
-                                //Followの通知のときにgetContent()するとNullでえらーでるのでtry/catch処理
+                            boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
+                            if (japan_timeSetting) {
+                                //時差計算？
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+                                //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+                                //日本用フォーマット
+                                SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
                                 try {
-                                    toot = status.getStatus().getContent();
-                                    toot_id = status.getStatus().getId();
-                                    toot_id_string = String.valueOf(toot_id);
-                                } catch (NullPointerException e) {
-                                    toot = "";
-                                    toot_id = 0;
-                                    toot_id_string = String.valueOf(toot_id);
+                                    Date date = simpleDateFormat.parse(notification.getCreatedAt());
+                                    Calendar calendar = Calendar.getInstance();
+                                    calendar.setTime(date);
+                                    //9時間足して日本時間へ
+                                    calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                                    //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                                    time = japanDateFormat.format(calendar.getTime());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
                                 }
+                            } else {
+                                time = notification.getCreatedAt();
+                            }
 
-                                boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
-                                if (japan_timeSetting) {
-                                    //時差計算？
-                                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-                                    //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
-                                    //日本用フォーマット
-                                    SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
-                                    try {
-                                        Date date = simpleDateFormat.parse(status.getCreatedAt());
-                                        Calendar calendar = Calendar.getInstance();
-                                        calendar.setTime(date);
-                                        //9時間足して日本時間へ
-                                        calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
-                                        //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                                        time = japanDateFormat.format(calendar.getTime());
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    time = status.getCreatedAt();
-                                }
-
-
-                                //カスタム絵文字
-                                try {
-                                    List<Emoji> emoji_List = status.getStatus().getEmojis();
-                                    emoji_List.forEach(emoji -> {
-                                        String emoji_name = emoji.getShortcode();
-                                        String emoji_url = emoji.getUrl();
-                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                        toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
-                                    });
-                                } catch (NullPointerException e) {
-                                    toot = "";
-                                    toot_id = 0;
-                                    toot_id_string = String.valueOf(toot_id);
-                                }
-
-                                //DisplayNameのほう
-                                List<Emoji> account_emoji_List = status.getAccount().getEmojis();
-                                account_emoji_List.forEach(emoji -> {
+                            //カスタム絵文字
+                            try {
+                                //本文
+                                List<Emoji> emoji_List = notification.getStatus().getEmojis();
+                                emoji_List.forEach(emoji -> {
                                     String emoji_name = emoji.getShortcode();
                                     String emoji_url = emoji.getUrl();
                                     String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                    toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
                                 });
 
-                                Locale locale = Locale.getDefault();
-                                boolean jp = locale.equals(Locale.JAPAN);
+                            } catch (NullPointerException e) {
+                                toot = "";
+                                toot_id = 0;
+                                toot_id_string = String.valueOf(toot_id);
+                            }
 
-                                if (type.equals("mention")) {
-                                    if (jp){
-                                        type = "返信しました";
-                                    }
-                                    layout_type = "Notification_mention";
-                                }
-                                if (type.equals("reblog")) {
-                                    if (jp){
-                                        type = "ブーストしました";
-                                    }
-                                    layout_type = "Notification_reblog";
-                                }
-                                if (type.equals("favourite")) {
-                                    if (jp) {
-                                        if (friends_nico_check_box) {
-                                            type = "お気に入りしました";
-                                        } else {
-                                            type = "二コりました";
-                                        }
-                                        layout_type = "Notification_favourite";
-                                    }
-                                }
-                                if (type.equals("follow")) {
-                                    if (jp){
-                                        type = "フォローしました";
-                                    }
-                                    layout_type = "Notification_follow";
-                                }
-
-                                String[] mediaURL = {null, null, null, null};
-                                //めでぃあ
-                                //配列に入れる形で
-                                try {
-                                    final int[] i = {0};
-                                    List<Attachment> list = status.getStatus().getMediaAttachments();
-                                    list.forEach(media -> {
-                                        mediaURL[i[0]] = media.getUrl();
-                                        i[0]++;
-                                    });
-                                    //配列から文字列に
-                                    media_url_1 = mediaURL[0];
-                                    media_url_2 = mediaURL[1];
-                                    media_url_3 = mediaURL[2];
-                                    media_url_4 = mediaURL[3];
-                                } catch (NullPointerException e) {
-                                    //配列から文字列に
-                                    media_url_1 = null;
-                                    media_url_2 = null;
-                                    media_url_3 = null;
-                                    media_url_4 = null;
-                                }
+                            //DisplayNameのほう
+                            List<Emoji> account_emoji_List = notification.getAccount().getEmojis();
+                            account_emoji_List.forEach(emoji -> {
+                                String emoji_name = emoji.getShortcode();
+                                String emoji_url = emoji.getUrl();
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                            });
 
 
-                                ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+                            Locale locale = Locale.getDefault();
+                            boolean jp = locale.equals(Locale.JAPAN);
 
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        adapter.add(listItem);
-                                        adapter.notifyDataSetChanged();
+                            if (type.equals("mention")) {
+                                if (jp) {
+                                    type = "返信しました";
+                                }
+                                layout_type = "Notification_mention";
+                            }
+                            if (type.equals("reblog")) {
+                                if (jp) {
+                                    type = "ブーストしました";
+                                }
+                                layout_type = "Notification_reblog";
+                            }
+                            if (type.equals("favourite")) {
+                                if (jp) {
+                                    if (friends_nico_check_box) {
+                                        type = "お気に入りしました";
+                                    } else {
+                                        type = "二コりました";
                                     }
+                                    layout_type = "Notification_favourite";
+                                }
+                            }
+                            if (type.equals("follow")) {
+                                if (jp) {
+                                    type = "フォローしました";
+                                }
+                                layout_type = "Notification_follow";
+                            }
+
+                            String[] mediaURL = {null, null, null, null};
+                            //めでぃあ
+                            //配列に入れる形で
+                            try {
+                                final int[] i = {0};
+                                List<Attachment> list = notification.getStatus().getMediaAttachments();
+                                list.forEach(media -> {
+                                    mediaURL[i[0]] = media.getUrl();
+                                    i[0]++;
                                 });
+                                //配列から文字列に
+                                media_url_1 = mediaURL[0];
+                                media_url_2 = mediaURL[1];
+                                media_url_3 = mediaURL[2];
+                                media_url_4 = mediaURL[3];
+                            } catch (NullPointerException e) {
+                                //配列から文字列に
+                                media_url_1 = null;
+                                media_url_2 = null;
+                                media_url_3 = null;
+                                media_url_4 = null;
+                            }
 
 
-                                //UI変更
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
+                            ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter.insert(listItem,0);
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+
+
+                            //UI変更
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (getActivity() != null) {
 
                                         ListView listView = (ListView) view.findViewById(R.id.notifications_list);
 
                                         listView.setAdapter(adapter);
                                     }
-
-
-                                });
+                                }
 
                             });
-
-                        } catch (Mastodon4jRequestException e) {
-
-                            e.printStackTrace();
-
                         }
 
 
-                        return null;
-                    }
+                        @Override
+                        public void onDelete(long l) {
 
-                    protected void onPostExecute(String result) {
-                        snackbar.dismiss();
+                        }
+                    };
+                    Streaming streaming = new Streaming(client);
+                    try {
+                        shutdownable = streaming.user(handler);
+                        //Thread.sleep(10000L);
+                        //shutdownable.shutdown();
+                    } catch (Mastodon4jRequestException e) {
+                        e.printStackTrace();
                     }
-
-                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                if (swipeRefreshLayout.isRefreshing()) {
-                    swipeRefreshLayout.setRefreshing(false);
+                    return null;
                 }
-            }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-        });
+            //ストリーミング前の通知取得
+            //もういい！okhttpで実装する！！
+
+            String max_id_url = "https://" + finalInstance + "/api/v1/notifications/?access_token=" + finalAccessToken;
+            //パラメータを設定
+            HttpUrl.Builder max_id_builder = HttpUrl.parse(max_id_url).newBuilder();
+            max_id_builder.addQueryParameter("limit", "40");
+            max_id_builder.addQueryParameter("max_id", max_id);
+            String max_id_final_url = max_id_builder.build().toString();
+
+            //作成
+            Request max_id_request = new Request.Builder()
+                    .url(max_id_final_url)
+                    .get()
+                    .build();
+
+            //GETリクエスト
+            OkHttpClient max_id_client = new OkHttpClient();
+            max_id_client.newCall(max_id_request).enqueue(new Callback() {
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String response_string = response.body().string();
+                    JSONArray jsonArray = null;
+                    try {
+                        jsonArray = new JSONArray(response_string);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
+                            JSONObject toot_account = toot_jsonObject.getJSONObject("account");
+                            JSONObject toot_status = toot_jsonObject.getJSONObject("status");
+                            toot = toot_status.getString("content");
+                            user_id = toot_account.getString("username");
+                            account = toot_account.getString("display_name");
+                            time = toot_jsonObject.getString("created_at");
+                            type = toot_jsonObject.getString("type");
+                            String toot_id_string = null;
+                            toot_id_string = toot_status.getString("id");
+
+                            avater_url = toot_account.getString("avatar");
+
+                            account_id = toot_account.getLong("id");
+
+                            List<Attachment> attachment = Collections.singletonList(new Attachment());
 
 
-        ListView listView = view.findViewById(R.id.notifications_list);
+                            final String[] medias = new String[1];
+
+                            final String[] media_url = {null};
+
+                            Locale locale = Locale.getDefault();
+                            boolean jp = locale.equals(Locale.JAPAN);
+
+                            if (type.equals("mention")) {
+                                if (jp) {
+                                    type = "返信しました";
+                                }
+                                layout_type = "Notification_mention";
+                            }
+                            if (type.equals("reblog")) {
+                                if (jp) {
+                                    type = "ブーストしました";
+                                }
+                                layout_type = "Notification_reblog";
+                            }
+                            if (type.equals("favourite")) {
+                                if (jp) {
+                                    if (friends_nico_check_box) {
+                                        type = "お気に入りしました";
+                                    } else {
+                                        type = "二コりました";
+                                    }
+                                    layout_type = "Notification_favourite";
+                                }
+                            }
+                            if (type.equals("follow")) {
+                                if (jp) {
+                                    type = "フォローしました";
+                                }
+                                layout_type = "Notification_follow";
+                            }
+
+
+                            JSONArray media_array = toot_status.getJSONArray("media_attachments");
+                            if (!media_array.isNull(0)) {
+                                media_url_1 = media_array.getJSONObject(0).getString("url");
+                            }
+                            if (!media_array.isNull(1)) {
+                                media_url_2 = media_array.getJSONObject(1).getString("url");
+                            }
+                            if (!media_array.isNull(2)) {
+                                media_url_3 = media_array.getJSONObject(2).getString("url");
+                            }
+                            if (!media_array.isNull(3)) {
+                                media_url_4 = media_array.getJSONObject(3).getString("url");
+
+                            }
+
+                            //絵文字
+                            JSONArray emoji = toot_status.getJSONArray("emojis");
+                            for (int e = 0; e < emoji.length(); e++) {
+                                JSONObject jsonObject = emoji.getJSONObject(e);
+                                String emoji_name = jsonObject.getString("shortcode");
+                                String emoji_url = jsonObject.getString("url");
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
+                            }
+
+                            //アバター絵文字
+                            try {
+                                JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
+                                for (int a = 0; a < avater_emoji.length(); a++) {
+                                    JSONObject jsonObject = avater_emoji.getJSONObject(a);
+                                    String emoji_name = jsonObject.getString("shortcode");
+                                    String emoji_url = jsonObject.getString("url");
+                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                    toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
+                                    account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                }
+
+                                //ユーザーネームの方のアバター絵文字
+                                JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
+                                for (int a = 0; a < account_avater_emoji.length(); a++) {
+                                    JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
+                                    String emoji_name = jsonObject.getString("shortcode");
+                                    String emoji_url = jsonObject.getString("url");
+                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                    account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                }
+                            } catch (JSONException e) {
+
+                            }
+
+                            //ユーザーネームの方の絵文字
+                            JSONArray account_emoji = toot_account.getJSONArray("emojis");
+                            for (int e = 0; e < account_emoji.length(); e++) {
+                                JSONObject jsonObject = account_emoji.getJSONObject(e);
+                                String emoji_name = jsonObject.getString("shortcode");
+                                String emoji_url = jsonObject.getString("url");
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                            }
+
+
+                            ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter.add(listItem);
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listView.setAdapter(adapter);
+                                    snackbar.dismiss();
+                                    //listView.setSelection(scrollPosition);
+                                }
+                            });
+                            media_url_1 = null;
+                            media_url_2 = null;
+                            media_url_3 = null;
+                            media_url_4 = null;
+                            layout_type = null;
+
+                        }
+                        //最後のIDを更新する
+                        JSONObject last_toot = jsonArray.getJSONObject(29);
+                        max_id = last_toot.getString("id");
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } else {
+            AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
+
+                @Override
+                protected String doInBackground(String... string) {
+
+                    MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson())
+                            .accessToken(finalAccessToken)
+                            .useStreamingApi()
+                            .build();
+
+                    Notifications notifications = new Notifications(client);
+
+
+                    try {
+
+                        Pageable<Notification> statuses = notifications.getNotifications(new Range(null, null, 30), null).execute();
+
+                        statuses.getPart().forEach(status -> {
+
+                            account = status.getAccount().getDisplayName();
+                            type = status.getType();
+                            //time = status.getCreatedAt();
+                            avater_url = status.getAccount().getAvatar();
+                            user_id = status.getAccount().getUserName();
+                            user_acct = status.getAccount().getAcct();
+
+                            account_id = status.getAccount().getId();
+
+                            String toot_id_string = null;
+
+                            //Followの通知のときにgetContent()するとNullでえらーでるのでtry/catch処理
+                            try {
+                                toot = status.getStatus().getContent();
+                                toot_id = status.getStatus().getId();
+                                toot_id_string = String.valueOf(toot_id);
+                            } catch (NullPointerException e) {
+                                toot = "";
+                                toot_id = 0;
+                                toot_id_string = String.valueOf(toot_id);
+                            }
+
+                            boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
+                            if (japan_timeSetting) {
+                                //時差計算？
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+                                //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+                                //日本用フォーマット
+                                SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+                                try {
+                                    Date date = simpleDateFormat.parse(status.getCreatedAt());
+                                    Calendar calendar = Calendar.getInstance();
+                                    calendar.setTime(date);
+                                    //9時間足して日本時間へ
+                                    calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                                    //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                                    time = japanDateFormat.format(calendar.getTime());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                time = status.getCreatedAt();
+                            }
+
+                            //カスタム絵文字
+                            try {
+                                //本文
+                                List<Emoji> emoji_List = status.getStatus().getEmojis();
+                                emoji_List.forEach(emoji -> {
+                                    String emoji_name = emoji.getShortcode();
+                                    String emoji_url = emoji.getUrl();
+                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                    toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
+                                });
+
+                            } catch (NullPointerException e) {
+                                toot = "";
+                                toot_id = 0;
+                                toot_id_string = String.valueOf(toot_id);
+                            }
+
+                            //DisplayNameのほう
+                            List<Emoji> account_emoji_List = status.getAccount().getEmojis();
+                            account_emoji_List.forEach(emoji -> {
+                                String emoji_name = emoji.getShortcode();
+                                String emoji_url = emoji.getUrl();
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                            });
+
+
+                            Locale locale = Locale.getDefault();
+                            boolean jp = locale.equals(Locale.JAPAN);
+
+                            if (type.equals("mention")) {
+                                if (jp) {
+                                    type = "返信しました";
+                                }
+                                layout_type = "Notification_mention";
+                            }
+                            if (type.equals("reblog")) {
+                                if (jp) {
+                                    type = "ブーストしました";
+                                }
+                                layout_type = "Notification_reblog";
+                            }
+                            if (type.equals("favourite")) {
+                                if (jp) {
+                                    if (friends_nico_check_box) {
+                                        type = "お気に入りしました";
+                                    } else {
+                                        type = "二コりました";
+                                    }
+                                    layout_type = "Notification_favourite";
+                                }
+                            }
+                            if (type.equals("follow")) {
+                                if (jp) {
+                                    type = "フォローしました";
+                                }
+                                layout_type = "Notification_follow";
+                            }
+
+                            String[] mediaURL = {null, null, null, null};
+                            //めでぃあ
+                            //配列に入れる形で
+                            try {
+                                final int[] i = {0};
+                                List<Attachment> list = status.getStatus().getMediaAttachments();
+                                list.forEach(media -> {
+                                    mediaURL[i[0]] = media.getUrl();
+                                    i[0]++;
+                                });
+                                //配列から文字列に
+                                media_url_1 = mediaURL[0];
+                                media_url_2 = mediaURL[1];
+                                media_url_3 = mediaURL[2];
+                                media_url_4 = mediaURL[3];
+                            } catch (NullPointerException e) {
+                                //配列から文字列に
+                                media_url_1 = null;
+                                media_url_2 = null;
+                                media_url_3 = null;
+                                media_url_4 = null;
+                            }
+
+
+                            ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter.add(listItem);
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+
+
+                            //UI変更
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (getActivity() != null) {
+
+                                        ListView listView = (ListView) view.findViewById(R.id.notifications_list);
+
+                                        listView.setAdapter(adapter);
+                                    }
+                                }
+
+                            });
+
+                        });
+
+                    } catch (Mastodon4jRequestException e) {
+
+                        e.printStackTrace();
+
+                    }
+
+
+                    return null;
+                }
+
+                protected void onPostExecute(String result) {
+
+                    //くるくるを終了
+                    //dialog.dismiss();
+                    snackbar.dismiss();
+
+                    HomeTimeLineAdapter adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_list);
+                }
+
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+            //引っ張って更新するやつ
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+                @Override
+                public void onRefresh() {
+                    adapter.clear();
+                    snackbar.show();
+                    AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
+
+                        @Override
+                        protected String doInBackground(String... string) {
+
+                            MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson())
+                                    .accessToken(finalAccessToken)
+                                    .useStreamingApi()
+                                    .build();
+
+                            Notifications notifications = new Notifications(client);
+
+                            notifications.getNotifications(new Range(null, null, 30));
+
+                            try {
+
+                                Pageable<Notification> statuses = notifications.getNotifications(new Range(null, null, 30), null).execute();
+
+                                statuses.getPart().forEach(status -> {
+
+                                    account = status.getAccount().getDisplayName();
+                                    type = status.getType();
+                                    time = status.getCreatedAt();
+                                    avater_url = status.getAccount().getAvatar();
+                                    user_id = status.getAccount().getUserName();
+                                    user_acct = status.getAccount().getAcct();
+
+                                    account_id = status.getAccount().getId();
+
+                                    String toot_id_string = null;
+
+                                    //Followの通知のときにgetContent()するとNullでえらーでるのでtry/catch処理
+                                    try {
+                                        toot = status.getStatus().getContent();
+                                        toot_id = status.getStatus().getId();
+                                        toot_id_string = String.valueOf(toot_id);
+                                    } catch (NullPointerException e) {
+                                        toot = "";
+                                        toot_id = 0;
+                                        toot_id_string = String.valueOf(toot_id);
+                                    }
+
+                                    boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
+                                    if (japan_timeSetting) {
+                                        //時差計算？
+                                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+                                        //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+                                        //日本用フォーマット
+                                        SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+                                        try {
+                                            Date date = simpleDateFormat.parse(status.getCreatedAt());
+                                            Calendar calendar = Calendar.getInstance();
+                                            calendar.setTime(date);
+                                            //9時間足して日本時間へ
+                                            calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                                            //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                                            time = japanDateFormat.format(calendar.getTime());
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                    } else {
+                                        time = status.getCreatedAt();
+                                    }
+
+
+                                    //カスタム絵文字
+                                    try {
+                                        List<Emoji> emoji_List = status.getStatus().getEmojis();
+                                        emoji_List.forEach(emoji -> {
+                                            String emoji_name = emoji.getShortcode();
+                                            String emoji_url = emoji.getUrl();
+                                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                            toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
+                                        });
+                                    } catch (NullPointerException e) {
+                                        toot = "";
+                                        toot_id = 0;
+                                        toot_id_string = String.valueOf(toot_id);
+                                    }
+
+                                    //DisplayNameのほう
+                                    List<Emoji> account_emoji_List = status.getAccount().getEmojis();
+                                    account_emoji_List.forEach(emoji -> {
+                                        String emoji_name = emoji.getShortcode();
+                                        String emoji_url = emoji.getUrl();
+                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                        account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                    });
+
+                                    Locale locale = Locale.getDefault();
+                                    boolean jp = locale.equals(Locale.JAPAN);
+
+                                    if (type.equals("mention")) {
+                                        if (jp) {
+                                            type = "返信しました";
+                                        }
+                                        layout_type = "Notification_mention";
+                                    }
+                                    if (type.equals("reblog")) {
+                                        if (jp) {
+                                            type = "ブーストしました";
+                                        }
+                                        layout_type = "Notification_reblog";
+                                    }
+                                    if (type.equals("favourite")) {
+                                        if (jp) {
+                                            if (friends_nico_check_box) {
+                                                type = "お気に入りしました";
+                                            } else {
+                                                type = "二コりました";
+                                            }
+                                            layout_type = "Notification_favourite";
+                                        }
+                                    }
+                                    if (type.equals("follow")) {
+                                        if (jp) {
+                                            type = "フォローしました";
+                                        }
+                                        layout_type = "Notification_follow";
+                                    }
+
+                                    String[] mediaURL = {null, null, null, null};
+                                    //めでぃあ
+                                    //配列に入れる形で
+                                    try {
+                                        final int[] i = {0};
+                                        List<Attachment> list = status.getStatus().getMediaAttachments();
+                                        list.forEach(media -> {
+                                            mediaURL[i[0]] = media.getUrl();
+                                            i[0]++;
+                                        });
+                                        //配列から文字列に
+                                        media_url_1 = mediaURL[0];
+                                        media_url_2 = mediaURL[1];
+                                        media_url_3 = mediaURL[2];
+                                        media_url_4 = mediaURL[3];
+                                    } catch (NullPointerException e) {
+                                        //配列から文字列に
+                                        media_url_1 = null;
+                                        media_url_2 = null;
+                                        media_url_3 = null;
+                                        media_url_4 = null;
+                                    }
+
+
+                                    ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            adapter.add(listItem);
+                                            adapter.notifyDataSetChanged();
+                                        }
+                                    });
+
+
+                                    //UI変更
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+
+                                            ListView listView = (ListView) view.findViewById(R.id.notifications_list);
+
+                                            listView.setAdapter(adapter);
+                                        }
+
+
+                                    });
+
+                                });
+
+                            } catch (Mastodon4jRequestException e) {
+
+                                e.printStackTrace();
+
+                            }
+
+
+                            return null;
+                        }
+
+                        protected void onPostExecute(String result) {
+                            snackbar.dismiss();
+                        }
+
+                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    if (swipeRefreshLayout.isRefreshing()) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }
+
+            });
+
+        }
+
+
+        //非同期通信
+        //通知を取得
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -586,7 +981,8 @@ public class Notification_Fragment extends Fragment {
             }
 
             @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
+                                 int totalItemCount) {
                 if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount) {
                     Snackbar snackbar_ = Snackbar.make(view, "追加読み込み準備中", Snackbar.LENGTH_LONG);
                     snackbar_.show();
@@ -637,7 +1033,7 @@ public class Notification_Fragment extends Fragment {
                         if (max_id != null) {
 
                             //SnackBer表示
-                            Snackbar maxid_snackbar = Snackbar.make(view, "ホームを取得中 \r\n /api/v1/notifications \r\n max_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
+                            Snackbar maxid_snackbar = Snackbar.make(view, "通知を取得中 \r\n /api/v1/notifications \r\n max_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
                             ViewGroup snackBer_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
                             //SnackBerを複数行対応させる
                             TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
@@ -651,7 +1047,6 @@ public class Notification_Fragment extends Fragment {
                             maxid_snackbar.show();
 
 
-                            //最後のトゥートIDを持ってくる
                             //もういい！okhttpで実装する！！
                             String max_id_url = "https://" + finalInstance + "/api/v1/notifications/?access_token=" + finalAccessToken;
                             //パラメータを設定
@@ -708,13 +1103,13 @@ public class Notification_Fragment extends Fragment {
                                             boolean jp = locale.equals(Locale.JAPAN);
 
                                             if (type.equals("mention")) {
-                                                if (jp){
+                                                if (jp) {
                                                     type = "返信しました";
                                                 }
                                                 layout_type = "Notification_mention";
                                             }
                                             if (type.equals("reblog")) {
-                                                if (jp){
+                                                if (jp) {
                                                     type = "ブーストしました";
                                                 }
                                                 layout_type = "Notification_reblog";
@@ -730,7 +1125,7 @@ public class Notification_Fragment extends Fragment {
                                                 }
                                             }
                                             if (type.equals("follow")) {
-                                                if (jp){
+                                                if (jp) {
                                                     type = "フォローしました";
                                                 }
                                                 layout_type = "Notification_follow";
@@ -783,7 +1178,7 @@ public class Notification_Fragment extends Fragment {
                                                     String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
                                                     account = account.replace(":" + emoji_name + ":", custom_emoji_src);
                                                 }
-                                            }catch (JSONException e){
+                                            } catch (JSONException e) {
 
                                             }
 
@@ -796,7 +1191,6 @@ public class Notification_Fragment extends Fragment {
                                                 String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
                                                 account = account.replace(":" + emoji_name + ":", custom_emoji_src);
                                             }
-
 
 
                                             ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
@@ -839,7 +1233,17 @@ public class Notification_Fragment extends Fragment {
                 }
             }
         });
+    }
 
-
+    //フラグメントが外されたときに呼ばれる
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        System.out.println("終了");
+//        asyncTask.cancel(true);
+        //ストリーミング終了
+        if (shutdownable != null) {
+            shutdownable.shutdown();
+        }
     }
 }

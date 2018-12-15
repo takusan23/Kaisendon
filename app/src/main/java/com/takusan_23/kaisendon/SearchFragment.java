@@ -108,7 +108,7 @@ public class SearchFragment extends Fragment {
 
         //くるくる
         //ProgressDialog API 26から非推奨に
-        Snackbar snackbar = Snackbar.make(view, "トゥート検索中 \r\n Powered by tootsearch", Snackbar.LENGTH_INDEFINITE);
+        Snackbar snackbar = Snackbar.make(view, getString(R.string.loading_tootserch)+" : " +"\r\n Powered by tootsearch", Snackbar.LENGTH_INDEFINITE);
         ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
         TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);

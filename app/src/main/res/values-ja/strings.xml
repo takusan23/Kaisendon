@@ -227,5 +227,24 @@
     <string name="setting_svg_animation_message">SVGアニメを無効にします（無効にしても問題はありません）。</string>
     <string name="setting_use_streamingapi_title">ストリーミングAPIを利用する</string>
     <string name="setting_use_streamingapi_message">青い鳥では終了したリアルタイム更新ができます。</string>
+    <string name="loading_home">ホームを取得中</string>
+    <string name="loading_public_timeline">ローカルタイムラインを取得中</string>
+    <string name="loading_federated_timeline">連合タイムラインを取得中</string>
+    <string name="loading_notification">通知を取得中</string>
+    <string name="loading_tootserch">検索中</string>
+    <string name="loading_boobkmark">ブックマークを読み込み中</string>
+    <string name="loading_favoutite_list">お気に入りリストを取得中</string>
+    <string name="loading_direct_message">ダイレクトメッセージを取得中</string>
+    <string name="loading_suggestions">フォロー推奨ユーザーを取得中</string>
+    <string name="loading_instance_info">インスタンス情報を取得中</string>
+    <string name="loading_instance_list">インスタンスリストを取得中</string>
+    <string name="loading_clientid_clientsecret">クライアントID、クライアントシークレットを取得中</string>
+    <string name="code_copy">認証コードをコピーしてください</string>
+    <string name="favourite_add_message">お気に入りに登録しますか？</string>
+    <string name="favoutire">お気に入り</string>
+    <string name="boost_ok">ブーストしました</string>
+    <string name="favourite_add">お気に入りに登録しました</string>
+    <string name="add_loading">追加読み込み準備中</string>
+    <string name="toot_ok">トゥートしました</string>
 
 </resources>

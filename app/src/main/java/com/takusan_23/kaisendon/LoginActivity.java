@@ -218,7 +218,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //読み込み中
-                Snackbar snackbar = Snackbar.make(v, "クライアントID、クライアントシークレットを取得中 \r\n /api/v1/apps", Snackbar.LENGTH_INDEFINITE);
+                Snackbar snackbar = Snackbar.make(v, getString(R.string.loading_clientid_clientsecret)+"\r\n /api/v1/apps", Snackbar.LENGTH_INDEFINITE);
                 ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
                 //SnackBerを複数行対応させる
                 TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
@@ -271,7 +271,7 @@ public class LoginActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(LoginActivity.this, "認証コードをコピーしてください", Toast.LENGTH_LONG).show();
+                                Toast.makeText(LoginActivity.this, R.string.code_copy, Toast.LENGTH_LONG).show();
                             }
                         });
 
@@ -466,6 +466,7 @@ public class LoginActivity extends AppCompatActivity {
 
                             System.out.println("マルチアカウント : " + pref_setting.getString("token2", ""));
 
+/*
                             // 別スレッドを実行
                             new Thread(new Runnable() {
                                 @Override
@@ -477,6 +478,7 @@ public class LoginActivity extends AppCompatActivity {
                                     Looper.loop();
                                 }
                             }).start();
+*/
 
                         } catch (Mastodon4jRequestException e) {
                             e.printStackTrace();
@@ -491,7 +493,7 @@ public class LoginActivity extends AppCompatActivity {
                         //設定プリファレンス
                         SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
                         SharedPreferences pref = getSharedPreferences("preferences", MODE_PRIVATE);
-                        Toast.makeText(getApplicationContext(), "プリファレンス : " + pref_setting.getString("main_token", ""), Toast.LENGTH_SHORT).show();
+                       //Toast.makeText(getApplicationContext(), "プリファレンス : " + pref_setting.getString("main_token", ""), Toast.LENGTH_SHORT).show();
 
                         //HomeCardへ画面を戻す
                         Intent homecard = new Intent(LoginActivity.this, Home.class);

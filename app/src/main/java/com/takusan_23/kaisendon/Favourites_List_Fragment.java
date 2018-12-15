@@ -98,7 +98,7 @@ public class Favourites_List_Fragment extends Fragment {
             nicoru_favourite = getString(R.string.dialog_favorite);
             getActivity().setTitle(getString(R.string.favourite_list));
         } else {
-            nicoru_favourite = "ニコったリスト";
+            nicoru_favourite = "ニコった";
             getActivity().setTitle("ニコったリスト");
         }
 

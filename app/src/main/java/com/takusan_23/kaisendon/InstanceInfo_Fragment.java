@@ -126,7 +126,7 @@ public class InstanceInfo_Fragment extends Fragment {
 */
         //くるくる
         //ProgressDialog API 26から非推奨に
-        Snackbar snackbar = Snackbar.make(view, "インスタンス情報取得中 \r\n /api/v1/instance \r\n /api/v1/instance/activity", Snackbar.LENGTH_INDEFINITE);
+        Snackbar snackbar = Snackbar.make(view, getString(R.string.loading_instance_info)+"\r\n /api/v1/instance \r\n /api/v1/instance/activity", Snackbar.LENGTH_INDEFINITE);
         ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
         TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);

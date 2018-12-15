@@ -143,7 +143,6 @@ public class Public_TimeLine_Fragment extends Fragment {
 
         HomeTimeLineAdapter adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_list);
 
-
         //アクセストークンを変更してる場合のコード
         //アクセストークン
         String AccessToken = null;
@@ -199,7 +198,7 @@ public class Public_TimeLine_Fragment extends Fragment {
 
         //くるくる
         //ProgressDialog API 26から非推奨に
-        Snackbar snackbar = Snackbar.make(view, "ローカルタイムラインを取得中 \r\n /api/v1/streaming/public/local", Snackbar.LENGTH_INDEFINITE);
+        Snackbar snackbar = Snackbar.make(view, getString(R.string.loading_public_timeline) + "\r\n /api/v1/streaming/public/local", Snackbar.LENGTH_INDEFINITE);
         ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
         TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
@@ -222,11 +221,11 @@ public class Public_TimeLine_Fragment extends Fragment {
         SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.localtimeline_swiperefreh);
 
 
-        //通知にタイムライン表示している場合は削除する
+        //通知領域にタイムライン表示している場合は削除する
         if (pref_setting.getInt("timeline_toast_check", 0) == 1) {
             SharedPreferences.Editor editor = pref_setting.edit();
             editor.putInt("timeline_toast_check", 0);
-            editor.commit();
+            editor.apply();
             notification_timeline_first_setting = true;
         }
 
@@ -261,7 +260,6 @@ public class Public_TimeLine_Fragment extends Fragment {
                             toot_text = status.getContent();
                             user = status.getAccount().getUserName();
                             user_name = status.getAccount().getDisplayName();
-                            user_use_client = status.getApplication().getName();
                             toot_id = status.getId();
                             toot_id_string = String.valueOf(toot_id);
                             //toot_time = status.getCreatedAt();
@@ -362,17 +360,17 @@ public class Public_TimeLine_Fragment extends Fragment {
                                     adapter.insert(listItem[0], 0);
 
                                     // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
-
                                     int pos = listView.getFirstVisiblePosition();
                                     int top = 0;
                                     if (listView.getChildCount() > 0) {
                                         top = listView.getChildAt(0).getTop();
                                     }
-                                    adapter.notifyDataSetChanged();
                                     listView.setAdapter(adapter);
                                     System.out.println("TOP == " + top);
                                     // 要素追加前の状態になるようセットする
+                                    adapter.notifyDataSetChanged();
                                     listView.setSelectionFromTop(pos + 1, top);
+
 
                                     //一番上なら追いかける
                                     if (pos <= 1) {
@@ -380,6 +378,7 @@ public class Public_TimeLine_Fragment extends Fragment {
                                             @Override
                                             public void run() {
                                                 listView.smoothScrollToPosition(-10);
+                                                //listView.setSelectionFromTop(index, top_);
                                             }
                                         });
                                         System.out.println("ねてた");
@@ -403,11 +402,9 @@ public class Public_TimeLine_Fragment extends Fragment {
                     Streaming streaming = new Streaming(client);
                     try {
                         shutdownable = streaming.localPublic(handler);
-                        Thread.sleep(10000L);
+                        //Thread.sleep(10000L);
                         //shutdownable.shutdown();
                     } catch (Mastodon4jRequestException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
 
@@ -422,9 +419,8 @@ public class Public_TimeLine_Fragment extends Fragment {
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
             //ストリーミング前のトゥート取得
-
             //SnackBer表示
-            Snackbar maxid_snackbar = Snackbar.make(view, "ローカルタイムライン取得中 \r\n /api/v1/timelines/public \r\nmax_id=" + max_id + "\r\n" + "local=true", Snackbar.LENGTH_INDEFINITE);
+            Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_public_timeline) + "\r\n /api/v1/timelines/public \r\nmax_id=" + max_id + "\r\n" + "local=true", Snackbar.LENGTH_INDEFINITE);
             ViewGroup maxid_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
             //SnackBerを複数行対応させる
             TextView maxid_textView = (TextView) maxid_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
@@ -438,7 +434,6 @@ public class Public_TimeLine_Fragment extends Fragment {
             maxid_snackbar.show();
 
 
-            //最後のトゥートIDを持ってくる
             //もういい！okhttpで実装する！！
             String max_id_url = "https://" + finalInstance + "/api/v1/timelines/public";
             //パラメータを設定
@@ -958,7 +953,7 @@ public class Public_TimeLine_Fragment extends Fragment {
                 if (totalItemCount == firstVisibleItem + visibleItemCount && adapter != null) {
                     // Toast.makeText(getContext(),"最後",Toast.LENGTH_SHORT).show();
 
-                    Snackbar snackbar_ = Snackbar.make(view, "追加読み込み準備中", Snackbar.LENGTH_LONG);
+                    Snackbar snackbar_ = Snackbar.make(view, R.string.add_loading, Snackbar.LENGTH_LONG);
                     snackbar_.show();
                     if (snackbar_.isShown()) {
                         System.out.println("最後だよ");
@@ -1006,7 +1001,7 @@ public class Public_TimeLine_Fragment extends Fragment {
                         if (max_id != null) {
 
                             //SnackBer表示
-                            Snackbar maxid_snackbar = Snackbar.make(view, "ローカルタイムライン取得中 \r\n /api/v1/timelines/home \r\n max_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
+                            Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_public_timeline) + "\r\n /api/v1/timelines/home \r\n max_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
                             ViewGroup snackBer_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
                             //SnackBerを複数行対応させる
                             TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
@@ -1240,37 +1235,27 @@ public class Public_TimeLine_Fragment extends Fragment {
                     alertDialog.setPositiveButton(R.string.toot, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
                             final String toot_text = toot_text_edit.getText().toString();
-
-
                             new AsyncTask<String, Void, String>() {
 
                                 @Override
                                 protected String doInBackground(String... params) {
-                                    AccessToken accessToken = new AccessToken();
-                                    accessToken.setAccessToken(finalAccessToken1);
-
-                                    MastodonClient client = new MastodonClient.Builder("friends.nico", new OkHttpClient.Builder(), new Gson()).accessToken(accessToken.getAccessToken()).build();
+                                    MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson()).accessToken(finalAccessToken).build();
 
                                     RequestBody requestBody = new FormBody.Builder()
                                             .add("status", toot_text)
                                             .build();
-
-                                    System.out.println("=====" + client.post("statuses", requestBody));
+                                    client.post("statuses", requestBody);
 
                                     return toot_text;
                                 }
 
                                 @Override
                                 protected void onPostExecute(String result) {
-                                    Toast.makeText(getContext(), "トゥートしました : " + result, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), getString(R.string.toot_ok) + " : " + result, Toast.LENGTH_SHORT).show();
                                 }
-
                             }.execute();
                             toot_text_edit.setText(""); //投稿した後に入力フォームを空にする
-
-
                         }
                     });
                     alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -1280,7 +1265,6 @@ public class Public_TimeLine_Fragment extends Fragment {
                         }
                     });
                     alertDialog.create().show();
-
                 } else {
 
                     final String toot_text = toot_text_edit.getText().toString();
@@ -1289,186 +1273,28 @@ public class Public_TimeLine_Fragment extends Fragment {
 
                         @Override
                         protected String doInBackground(String... params) {
-                            AccessToken accessToken = new AccessToken();
-                            accessToken.setAccessToken(finalAccessToken1);
-
-                            MastodonClient client = new MastodonClient.Builder("friends.nico", new OkHttpClient.Builder(), new Gson()).accessToken(accessToken.getAccessToken()).build();
+                            MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson()).accessToken(finalAccessToken).build();
 
                             RequestBody requestBody = new FormBody.Builder()
                                     .add("status", toot_text)
                                     .build();
-
-                            System.out.println("=====" + client.post("statuses", requestBody));
+                            client.post("statuses", requestBody);
 
                             return toot_text;
                         }
 
                         @Override
                         protected void onPostExecute(String result) {
-                            Toast.makeText(getContext(), "トゥートしました : " + result, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), getString(R.string.toot_ok) + " : " + result, Toast.LENGTH_SHORT).show();
                         }
-
                     }.execute();
                     toot_text_edit.setText(""); //投稿した後に入力フォームを空にする
                 }
-
                 return false;
             }
         });
-
-
-/*
-        //最後に行ったら追加読み込み
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                System.out.println("結果 : " + String.valueOf(totalItemCount)+"/"+ String.valueOf(firstVisibleItem)+"/"+String.valueOf(visibleItemCount));
-                if (totalItemCount == firstVisibleItem + visibleItemCount) {
-                    Snackbar snackbar_ = Snackbar.make(view, "追加読み込み準備中", Snackbar.LENGTH_LONG);
-                    snackbar_.show();
-                    if (snackbar_.isShown()) {
-                        System.out.println("最後だよ");
-
-
-                        if (max_id != null) {
-
-*/
-/*
-                            //SnackBer表示
-                            Snackbar maxid_snackbar = Snackbar.make(view, "ローカルタイムライン取得中 \r\n /api/v1/timelines/public \r\nmax_id=" + max_id + "\r\n" + "local=true", Snackbar.LENGTH_INDEFINITE);
-                            ViewGroup snackBer_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
-                            //SnackBerを複数行対応させる
-                            TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
-                            snackBer_textView.setMaxLines(4);
-                            //複数行対応させたおかげでずれたので修正
-                            ProgressBar progressBar = new ProgressBar(getContext());
-                            LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                            progressBer_layoutParams.gravity = Gravity.CENTER;
-                            progressBar.setLayoutParams(progressBer_layoutParams);
-                            snackBer_viewGrop.addView(progressBar, 0);
-                            maxid_snackbar.show();
-
-
-                            //最後のトゥートIDを持ってくる
-                            //もういい！okhttpで実装する！！
-                            String max_id_url = "https://" + finalInstance + "/api/v1/timelines/public";
-                            //パラメータを設定
-                            HttpUrl.Builder max_id_builder = HttpUrl.parse(max_id_url).newBuilder();
-                            max_id_builder.addQueryParameter("local", "true");
-                            max_id_builder.addQueryParameter("limit", "40");
-                            max_id_builder.addQueryParameter("max_id", max_id);
-                            String max_id_final_url = max_id_builder.build().toString();
-
-                            //作成
-                            Request max_id_request = new Request.Builder()
-                                    .url(max_id_final_url)
-                                    .get()
-                                    .build();
-
-                            //GETリクエスト
-                            OkHttpClient max_id_client = new OkHttpClient();
-                            max_id_client.newCall(max_id_request).enqueue(new Callback() {
-
-                                @Override
-                                public void onFailure(Call call, IOException e) {
-
-                                }
-
-                                @Override
-                                public void onResponse(Call call, Response response) throws IOException {
-                                    String response_string = response.body().string();
-                                    JSONArray jsonArray = null;
-                                    try {
-                                        jsonArray = new JSONArray(response_string);
-                                        for (int i = 0; i < jsonArray.length(); i++) {
-                                            JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
-                                            JSONObject toot_account = toot_jsonObject.getJSONObject("account");
-                                            toot_text = toot_jsonObject.getString("content");
-                                            user = toot_account.getString("username");
-                                            user_name = toot_account.getString("display_name");
-                                            //toot_time = toot_jsonObject.getString("created_at");
-
-                                            //                       user_use_client = status.getApplication().getName();
-                                            //toot_id = toot_jsonObject.getString("id");
-                                            toot_id_string = toot_jsonObject.getString("id");
-
-                                            user_avater_url = toot_account.getString("avatar");
-
-                                            account_id = toot_account.getInt("id");
-
-                                            boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
-                                            if (japan_timeSetting) {
-                                                //時差計算？
-                                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-                                                //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
-                                                //日本用フォーマット
-                                                SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text","yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
-                                                try {
-                                                    Date date = simpleDateFormat.parse(toot_jsonObject.getString("created_at"));
-                                                    Calendar calendar = Calendar.getInstance();
-                                                    calendar.setTime(date);
-                                                    //9時間足して日本時間へ
-                                                    calendar.add(Calendar.HOUR, + Integer.valueOf(pref_setting.getString("pref_time_add","9")));
-                                                    //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                                                    toot_time = japanDateFormat.format(calendar.getTime());
-                                                } catch (ParseException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            } else {
-                                                toot_time = toot_jsonObject.getString("created_at");
-                                            }
-
-
-                                            ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, null);
-
-
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    adapter.add(listItem);
-                                                    adapter.notifyDataSetChanged();
-                                                }
-                                            });
-
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    ListView listView = (ListView) view.findViewById(R.id.home_timeline);
-                                                    listView.setAdapter(adapter);
-                                                    maxid_snackbar.dismiss();
-                                                }
-                                            });
-
-                                        }
-                                        //最後のIDを更新する
-                                        JSONObject last_toot = jsonArray.getJSONObject(39);
-                                        max_id = last_toot.getString("id");
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-*//*
-
-
-
-                        }
-                    }
-                }
-            }
-        });
-*/
-
-
     }
 
-    //AsyncTask終了
     //フラグメントが外されたときに呼ばれる
     @Override
     public void onDetach() {
@@ -1481,7 +1307,7 @@ public class Public_TimeLine_Fragment extends Fragment {
         }
 
         //通知にタイムライン表示している場合は削除する
-        if (notification_timeline_first_setting == true) {
+        if (notification_timeline_first_setting) {
             SharedPreferences.Editor editor = pref_setting.edit();
             editor.putInt("timeline_toast_check", 1);
             editor.commit();

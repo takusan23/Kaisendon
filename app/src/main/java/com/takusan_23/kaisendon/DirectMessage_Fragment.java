@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
@@ -21,8 +22,17 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
+import com.sys1yagi.mastodon4j.MastodonClient;
+import com.sys1yagi.mastodon4j.api.Handler;
+import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
+import com.sys1yagi.mastodon4j.api.entity.Notification;
+import com.sys1yagi.mastodon4j.api.entity.Status;
+import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
+import com.sys1yagi.mastodon4j.api.method.Streaming;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,6 +83,9 @@ public class DirectMessage_Fragment extends Fragment {
 
     int scrollPosition = 0;
 
+    Shutdownable shutdownable;
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -121,6 +134,7 @@ public class DirectMessage_Fragment extends Fragment {
 
         getActivity().setTitle(R.string.direct_message);
 
+        SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipe_refresh);
 
         //背景
         ImageView background_imageView = view.findViewById(R.id.hometimeline_background_imageview);
@@ -145,16 +159,7 @@ public class DirectMessage_Fragment extends Fragment {
         }
 
 
-        //くるくる
-        //ProgressDialog API 26から非推奨に
-/*
-        dialog = new ProgressDialog(getContext());
-        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog.setMessage("ホームを取得中 \r\n /api/v1/timelines/home");
-        dialog.show();
-*/
-
-        Snackbar snackbar = Snackbar.make(view, "ダイレクトメッセージを取得中 \r\n /api/v1/timelines/direct", Snackbar.LENGTH_INDEFINITE);
+        Snackbar snackbar = Snackbar.make(view, getString(R.string.loading_direct_message)+"\r\n /api/v1/timelines/direct", Snackbar.LENGTH_INDEFINITE);
         ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
         TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
@@ -168,16 +173,6 @@ public class DirectMessage_Fragment extends Fragment {
         snackbar.show();
 
 
-
-
-/*
-
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        ProgressBar progressBar = new ProgressBar(getContext());
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setCustomView(progressBar);
-
-*/
-        //toolbar.addView(progressBar, 100,100);
 
 
         String finalAccessToken = AccessToken;
@@ -520,7 +515,6 @@ public class DirectMessage_Fragment extends Fragment {
 
 
         //引っ張って更新するやつ
-        SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
         swipeRefreshLayout.setColorSchemeColors(Color.parseColor("#BBDEFB"), Color.parseColor("#90CAF9"), Color.parseColor("#42A5F5"), Color.parseColor("#1565C0"));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 
@@ -863,7 +857,7 @@ public class DirectMessage_Fragment extends Fragment {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount) {
-                    Snackbar snackbar_ = Snackbar.make(view, "追加読み込み準備中", Snackbar.LENGTH_LONG);
+                    Snackbar snackbar_ = Snackbar.make(view, R.string.add_loading, Snackbar.LENGTH_LONG);
                     snackbar_.show();
                     if (snackbar_.isShown()) {
                         System.out.println("最後だよ");
@@ -912,7 +906,7 @@ public class DirectMessage_Fragment extends Fragment {
                         if (max_id != null) {
 
                             //SnackBer表示
-                            Snackbar maxid_snackbar = Snackbar.make(view, "ダイレクトメッセージを取得中 \r\n /api/v1/timelines/direct \r\n max_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
+                            Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_direct_message)+"\r\n /api/v1/timelines/direct \r\n max_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
                             ViewGroup snackBer_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
                             //SnackBerを複数行対応させる
                             TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);

@@ -3,6 +3,7 @@ package com.takusan_23.kaisendon;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -28,13 +30,19 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.sys1yagi.mastodon4j.MastodonClient;
+import com.sys1yagi.mastodon4j.api.Handler;
 import com.sys1yagi.mastodon4j.api.Pageable;
 import com.sys1yagi.mastodon4j.api.Range;
+import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
+import com.sys1yagi.mastodon4j.api.entity.Emoji;
+import com.sys1yagi.mastodon4j.api.entity.Notification;
 import com.sys1yagi.mastodon4j.api.entity.Status;
 import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
+import com.sys1yagi.mastodon4j.api.method.Streaming;
 import com.sys1yagi.mastodon4j.api.method.Timelines;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -84,7 +92,13 @@ public class Home_Fragment extends Fragment {
 
     int count = 0;
 
-    int scrollPosition = 0;
+    Shutdownable shutdownable;
+
+    SharedPreferences pref_setting;
+
+    int scrollPosition = 30;
+
+    boolean notification_timeline_first_setting = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -101,17 +115,16 @@ public class Home_Fragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         //設定のプリファレンス
-        SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
 
         //絵文字用SharedPreferences
         SharedPreferences pref_emoji = Preference_ApplicationContext.getContext().getSharedPreferences("preferences_emoji", Context.MODE_PRIVATE);
 
-        //UIスレッド
-        final android.os.Handler handler_1 = new android.os.Handler();
-
         ArrayList<ListItem> toot_list = new ArrayList<>();
 
         HomeTimeLineAdapter adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_list);
+
+        ListView listView = (ListView) view.findViewById(R.id.home_timeline);
 
         //アクセストークンを変更してる場合のコード
         //アクセストークン
@@ -160,6 +173,14 @@ public class Home_Fragment extends Fragment {
             background_imageView.setAlpha(pref_setting.getFloat("transparency", 1.0f));
         }
 
+        //通知にタイムライン表示している場合は削除する
+        if (pref_setting.getInt("timeline_toast_check", 0) == 1) {
+            SharedPreferences.Editor editor = pref_setting.edit();
+            editor.putInt("timeline_toast_check", 0);
+            editor.commit();
+            notification_timeline_first_setting = true;
+        }
+
 
         //くるくる
         //ProgressDialog API 26から非推奨に
@@ -170,7 +191,7 @@ public class Home_Fragment extends Fragment {
         dialog.show();
 */
 
-        Snackbar snackbar = Snackbar.make(view, "ホームを取得中 \r\n /api/v1/timelines/home", Snackbar.LENGTH_INDEFINITE);
+        Snackbar snackbar = Snackbar.make(view, getString(R.string.loading_home)+"\r\n /api/v1/timelines/home", Snackbar.LENGTH_INDEFINITE);
         ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
         TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
@@ -183,121 +204,295 @@ public class Home_Fragment extends Fragment {
         snackBer_viewGrop.addView(progressBar, 0);
         snackbar.show();
 
-
-
-
-/*
-
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        ProgressBar progressBar = new ProgressBar(getContext());
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setCustomView(progressBar);
-
-*/
-        //toolbar.addView(progressBar, 100,100);
-
-
         String finalAccessToken = AccessToken;
 
         String finalInstance = Instance;
 
-        String url = "https://" + finalInstance + "/api/v1/timelines/home/?access_token=" + finalAccessToken;
-        //パラメータを設定
-        HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
-        builder.addQueryParameter("limit", "40");
-        String final_url = builder.build().toString();
-        //作成
-        Request max_id_request = new Request.Builder()
-                .url(final_url)
-                .get()
-                .build();
+        final ListItem[] listItem = new ListItem[1];
 
-        //GETリクエスト
-        OkHttpClient max_id_client = new OkHttpClient();
-        max_id_client.newCall(max_id_request).enqueue(new Callback() {
+        SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipe_refresh);
 
-            @Override
-            public void onFailure(Call call, IOException e) {
 
-            }
+        //ストリーミングAPI
+        if (pref_setting.getBoolean("pref_streaming_api", true)) {
+            //引っ張って更新するやつ無効
+            swipeRefreshLayout.setEnabled(false);
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String response_string = response.body().string();
-                JSONArray jsonArray = null;
-                try {
-                    jsonArray = new JSONArray(response_string);
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
-                        JSONObject toot_account = toot_jsonObject.getJSONObject("account");
-                        JSONArray media_array = toot_jsonObject.getJSONArray("media_attachments");
-                        toot_text = toot_jsonObject.getString("content");
-                        user = toot_account.getString("username");
-                        user_name = toot_account.getString("display_name");
-                        toot_time = toot_jsonObject.getString("created_at");
-                        String type = null;
+            new AsyncTask<String, String, String>() {
+                @Override
+                protected String doInBackground(String... string) {
 
-                        //クライアント名がある？ない？
-                        try {
-                            JSONObject application = toot_jsonObject.getJSONObject("application");
-                            user_use_client = application.getString("name");
-                        } catch (JSONException e) {
-                            user_use_client = toot_jsonObject.getString("application");
+                    MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson())
+                            .accessToken(finalAccessToken)
+                            .useStreamingApi()
+                            .build();
+                    Handler handler = new Handler() {
+
+                        @Override
+                        public void onStatus(@NotNull com.sys1yagi.mastodon4j.api.entity.Status status) {
+
+                            System.out.println("てすと : " + status.getContent());
+                            toot_text = status.getContent();
+                            user = status.getAccount().getUserName();
+                            user_name = status.getAccount().getDisplayName();
+                            user_use_client = null;
+                            toot_id = status.getId();
+                            toot_id_string = String.valueOf(toot_id);
+                            //toot_time = status.getCreatedAt();
+                            account_id = status.getAccount().getId();
+
+                            //ユーザーのアバター取得
+                            user_avater_url = status.getAccount().getAvatar();
+
+                            //一番最初のIDを控える
+                            if (max_id == null) {
+                                max_id = toot_id_string;
+                            }
+
+                            //クライアント名
+                            try {
+                                user_use_client = status.getApplication().getName();
+                            } catch (NullPointerException e) {
+                                user_use_client = null;
+                            }
+
+                            System.out.println("IDだよ : " + max_id);
+
+
+                            boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
+                            if (japan_timeSetting) {
+                                //時差計算？
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+                                //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+                                //日本用フォーマット
+                                SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+                                try {
+                                    Date date = simpleDateFormat.parse(status.getCreatedAt());
+                                    Calendar calendar = Calendar.getInstance();
+                                    calendar.setTime(date);
+                                    //9時間足して日本時間へ
+                                    calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                                    //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                                    toot_time = japanDateFormat.format(calendar.getTime());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                toot_time = status.getCreatedAt();
+                            }
+
+                            String[] mediaURL = {null, null, null, null};
+                            //めでぃあ
+                            //配列に入れる形で
+                            final int[] i = {0};
+                            List<Attachment> list = status.getMediaAttachments();
+                            list.forEach(media -> {
+                                mediaURL[i[0]] = media.getUrl();
+                                i[0]++;
+                            });
+
+                            //System.out.println("配列 : " + Arrays.asList(mediaURL));
+
+                            //配列から文字列に
+                            media_url_1 = mediaURL[0];
+                            media_url_2 = mediaURL[1];
+                            media_url_3 = mediaURL[2];
+                            media_url_4 = mediaURL[3];
+
+
+                            //カスタム絵文字
+                            List<Emoji> emoji_List = status.getEmojis();
+                            emoji_List.forEach(emoji -> {
+                                String emoji_name = emoji.getShortcode();
+                                String emoji_url = emoji.getUrl();
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                            });
+
+                            //DisplayNameカスタム絵文字
+                            List<Emoji> account_emoji_List = status.getAccount().getEmojis();
+                            account_emoji_List.forEach(emoji -> {
+                                String emoji_name = emoji.getShortcode();
+                                String emoji_url = emoji.getUrl();
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                            });
+
+                            Bitmap bmp = null;
+                            //BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);  // 今回はサンプルなのでデフォルトのAndroid Iconを利用
+                            ImageButton nicoru_button = null;
+
+                            if (getActivity() != null) {
+                                listItem[0] = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                            }
+
+                            if (getActivity() == null)
+                                return;
+
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    //adapter.add(listItem);
+                                    adapter.insert(listItem[0], 0);
+
+                                    // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
+
+                                    int pos = listView.getFirstVisiblePosition();
+                                    int top = 0;
+                                    if (listView.getChildCount() > 0) {
+                                        top = listView.getChildAt(0).getTop();
+                                    }
+                                    listView.setAdapter(adapter);
+                                    System.out.println("TOP == " + top);
+                                    // 要素追加前の状態になるようセットする
+                                    adapter.notifyDataSetChanged();
+                                    listView.setSelectionFromTop(pos + 1, top);
+
+
+                                    //一番上なら追いかける
+                                    if (pos <= 1) {
+                                        listView.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                listView.smoothScrollToPosition(-10);
+                                                //listView.setSelectionFromTop(index, top_);
+                                            }
+                                        });
+                                        System.out.println("ねてた");
+                                    }
+                                    int finalTop = top;
+
+                                    //くるくるを終了
+                                    //dialog.dismiss();
+                                    snackbar.dismiss();
+                                }
+                            });
                         }
 
-/*
-                        try {
-                            JSONObject reblog = toot_account.getJSONObject("reblog");
-                            type = "ReBlog";
-                        }catch (JSONException e){
+                        @Override
+                        public void onNotification(@NotNull Notification notification) {/* no op */}
 
-                        }
-*/
+                        @Override
+                        public void onDelete(long id) {/* no op */}
+                    };
 
-                        //                       user_use_client = status.getApplication().getName();
-                        //toot_id = toot_jsonObject.getString("id");
-                        toot_id_string = toot_jsonObject.getString("id");
+                    Streaming streaming = new Streaming(client);
+                    try {
+                        shutdownable = streaming.user(handler);
+                        //Thread.sleep(10000L);
+                        //shutdownable.shutdown();
+                    } catch (Mastodon4jRequestException e) {
+                        e.printStackTrace();
+                    }
 
-                        user_avater_url = toot_account.getString("avatar");
+                    return toot_text;
 
-                        account_id = toot_account.getInt("id");
+                }
 
-                        List<Attachment> attachment = Collections.singletonList(new Attachment());
+                protected void onPostExecute(String result) {
+
+                    return;
+                }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+            //ストリーミング前のトゥート取得
+            //SnackBer表示
+            Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_home)+"\r\n /api/v1/timelines/home \r\nmax_id=" + max_id + "\r\n" + "local=true", Snackbar.LENGTH_INDEFINITE);
+            ViewGroup maxid_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+            //SnackBerを複数行対応させる
+            TextView maxid_textView = (TextView) maxid_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+            maxid_textView.setMaxLines(4);
+            //複数行対応させたおかげでずれたので修正
+            ProgressBar maxid_progressBar = new ProgressBar(getContext());
+            LinearLayout.LayoutParams maxid_progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            maxid_progressBer_layoutParams.gravity = Gravity.CENTER;
+            maxid_progressBar.setLayoutParams(maxid_progressBer_layoutParams);
+            maxid_viewGrop.addView(maxid_progressBar, 0);
+            maxid_snackbar.show();
 
 
-                        final String[] medias = new String[1];
+            //ストリーミング前のトゥート取得
+            //パラメータを設定
+            String url = "https://" + finalInstance + "/api/v1/timelines/home/?access_token=" + finalAccessToken;
+            HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
+            builder.addQueryParameter("limit", "40");
+            builder.addQueryParameter("max_id", max_id);
+            String final_url = builder.build().toString();
+            //作成
+            Request request = new Request.Builder()
+                    .url(final_url)
+                    .get()
+                    .build();
 
-                        final String[] media_url = {null};
+            //GETリクエスト
+            OkHttpClient client = new OkHttpClient();
+            client.newCall(request).enqueue(new Callback() {
 
-                        if (!media_array.isNull(0)) {
-                            media_url_1 = media_array.getJSONObject(0).getString("url");
-                        }
-                        if (!media_array.isNull(1)) {
-                            media_url_2 = media_array.getJSONObject(1).getString("url");
-                        }
-                        if (!media_array.isNull(2)) {
-                            media_url_3 = media_array.getJSONObject(2).getString("url");
-                        }
-                        if (!media_array.isNull(3)) {
-                            media_url_4 = media_array.getJSONObject(3).getString("url");
-                        }
-                        //System.out.println("これかあ！ ： " + media_url_1 + " / " + media_url_2  + " / " + media_url_3 + " / " + media_url_4);
+                @Override
+                public void onFailure(Call call, IOException e) {
 
-                        //絵文字
-                        JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
-                        for (int e = 0; e < emoji.length(); e++) {
-                            JSONObject jsonObject = emoji.getJSONObject(e);
-                            String emoji_name = jsonObject.getString("shortcode");
-                            String emoji_url = jsonObject.getString("url");
-                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                            toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
-                            user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                        }
+                }
 
-                        //アバター絵文字
-                        try {
-                            JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
-                            for (int a = 0; a < avater_emoji.length(); a++) {
-                                JSONObject jsonObject = avater_emoji.getJSONObject(a);
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String response_string = response.body().string();
+                    JSONArray jsonArray = null;
+                    try {
+                        jsonArray = new JSONArray(response_string);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
+                            JSONObject toot_account = toot_jsonObject.getJSONObject("account");
+                            JSONArray media_array = toot_jsonObject.getJSONArray("media_attachments");
+                            toot_text = toot_jsonObject.getString("content");
+                            user = toot_account.getString("username");
+                            user_name = toot_account.getString("display_name");
+                            toot_time = toot_jsonObject.getString("created_at");
+                            String type = null;
+
+                            //クライアント名がある？ない？
+                            try {
+                                JSONObject application = toot_jsonObject.getJSONObject("application");
+                                user_use_client = application.getString("name");
+                            } catch (JSONException e) {
+                                user_use_client = toot_jsonObject.getString("application");
+                            }
+
+
+                            //user_use_client = status.getApplication().getName();
+                            //toot_id = toot_jsonObject.getString("id");
+                            toot_id_string = toot_jsonObject.getString("id");
+
+                            user_avater_url = toot_account.getString("avatar");
+
+                            account_id = toot_account.getInt("id");
+
+                            List<Attachment> attachment = Collections.singletonList(new Attachment());
+
+
+                            final String[] medias = new String[1];
+
+                            final String[] media_url = {null};
+
+                            if (!media_array.isNull(0)) {
+                                media_url_1 = media_array.getJSONObject(0).getString("url");
+                            }
+                            if (!media_array.isNull(1)) {
+                                media_url_2 = media_array.getJSONObject(1).getString("url");
+                            }
+                            if (!media_array.isNull(2)) {
+                                media_url_3 = media_array.getJSONObject(2).getString("url");
+                            }
+                            if (!media_array.isNull(3)) {
+                                media_url_4 = media_array.getJSONObject(3).getString("url");
+                            }
+                            //System.out.println("これかあ！ ： " + media_url_1 + " / " + media_url_2  + " / " + media_url_3 + " / " + media_url_4);
+
+                            //絵文字
+                            JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
+                            for (int e = 0; e < emoji.length(); e++) {
+                                JSONObject jsonObject = emoji.getJSONObject(e);
                                 String emoji_name = jsonObject.getString("shortcode");
                                 String emoji_url = jsonObject.getString("url");
                                 String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
@@ -305,325 +500,11 @@ public class Home_Fragment extends Fragment {
                                 user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                             }
 
-                            //ユーザーネームの方のアバター絵文字
-                            JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
-                            for (int a = 0; a < account_avater_emoji.length(); a++) {
-                                JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
-                                String emoji_name = jsonObject.getString("shortcode");
-                                String emoji_url = jsonObject.getString("url");
-                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                            }
-                        }catch (JSONException e){
-
-                        }
-
-                        //ユーザーネームの方の絵文字
-                        JSONArray account_emoji = toot_account.getJSONArray("emojis");
-                        for (int e = 0; e < account_emoji.length(); e++) {
-                            JSONObject jsonObject = account_emoji.getJSONObject(e);
-                            String emoji_name = jsonObject.getString("shortcode");
-                            String emoji_url = jsonObject.getString("url");
-                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                            user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                        }
-
-
-
-                        ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
-
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                adapter.add(listItem);
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                ListView listView = (ListView) view.findViewById(R.id.home_timeline);
-                                listView.setAdapter(adapter);
-                                snackbar.dismiss();
-                                //maxid_snackbar.dismiss();
-                                //listView.setSelection(scrollPosition);
-                            }
-                        });
-                        media_url_1 = null;
-                        media_url_2 = null;
-                        media_url_3 = null;
-                        media_url_4 = null;
-                        type = null;
-
-                    }
-                    //最後のIDを更新する
-                    JSONObject last_toot = jsonArray.getJSONObject(39);
-                    max_id = last_toot.getString("id");
-
-                    //更新用に最初のIDを控える
-                    JSONObject first_toot = jsonArray.getJSONObject(0);
-                    min_id = first_toot.getString("id");
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-
-/*
-        //非同期通信
-        AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
-            @Override
-            protected String doInBackground(String... string) {
-
-                MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson())
-                        .accessToken(finalAccessToken)
-                        .useStreamingApi()
-                        .build();
-
-                Timelines timelines = new Timelines(client);
-                Range range = new Range(null, null, 40);
-
-                ArrayList<ListItem> toot_list = new ArrayList<>();
-
-                try {
-                    Pageable<com.sys1yagi.mastodon4j.api.entity.Status> statuses = timelines.getHome(range)
-                            .execute();
-                    statuses.getPart().forEach(status -> {
-
-
-
-*/
-/*
-                        System.out.println("=============");
-                        System.out.println(status.getAccount().getDisplayName());
-                        System.out.println(status.getContent());
-                        System.out.println(status.isReblogged());
-*//*
-
-
-
-                        toot_text = status.getContent();
-                        user = status.getAccount().getAcct();
-                        user_name = status.getAccount().getDisplayName();
-                        try {
-                            user_use_client = status.getApplication().getName();
-                        } catch (NullPointerException e) {
-                            user_use_client = null;
-                        }
-                        //toot_time = status.getCreatedAt();
-
-                        toot_id = status.getId();
-                        toot_id_string = String.valueOf(toot_id);
-
-                        account_id = status.getAccount().getId();
-
-                        user_avater_url = status.getAccount().getAvatar();
-
-                        String[] medias = {null, null, null, null};
-*/
-/*
-                        medias[0] = "https://www.google.co.jp/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png";
-                        medias[1] = "https://pbs.twimg.com/profile_images/1026695015140012032/ZT1or2k5_400x400.jpg";
-                        medias[2] = "https://pbs.twimg.com/media/Djmc9cJUcAEoNJ-.jpg";
-                        medias[3] = "https://pbs.twimg.com/tweet_video_thumb/Di6kwc8U4AEOXtf.jpg";
-*//*
-
-
-                        final String[] media_url = {null};
-                        //めでぃあ
-                        List<Attachment> list = status.getMediaAttachments();
-                        list.forEach(media -> {
-
-                            if (media_url_1 != null) {
-                                media_url_1 = media.getUrl();
-                            } else if (media_url_2 != null) {
-                                media_url_2 = media.getUrl();
-                            } else if (media_url_3 != null) {
-                                media_url_3 = media.getUrl();
-                            } else if (media_url_4 != null) {
-                                media_url_4 = media.getUrl();
-                            }
-
-                            int i = 0;
-                            //medias[i] = media.getUrl();
-                            i++;
-                            media_url[0] = media.getUrl();
-                        });
-                        System.out.println("画像リンク : " + media_url_1);
-                        System.out.println("画像リンク : " + media_url_2);
-                        System.out.println("画像リンク : " + media_url_3);
-                        System.out.println("画像リンク : " + media_url_4);
-
-                        boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
-                        if (japan_timeSetting) {
-                            //時差計算？
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-                            //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
-                            //日本用フォーマット
-                            SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+                            //アバター絵文字
                             try {
-                                Date date = simpleDateFormat.parse(status.getCreatedAt());
-                                Calendar calendar = Calendar.getInstance();
-                                calendar.setTime(date);
-                                //9時間足して日本時間へ
-                                calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
-                                //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                                toot_time = japanDateFormat.format(calendar.getTime());
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            toot_time = status.getCreatedAt();
-                        }
-
-
-                        //ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, medias);
-
-                        //通知が行くように
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //adapter.add(listItem);
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                ListView listView = (ListView) view.findViewById(R.id.home_timeline);
-
-                                listView.setAdapter(adapter);
-
-                            }
-                        });
-
-                    });
-
-                } catch (Mastodon4jRequestException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-
-            protected void onPostExecute(String result) {
-
-                //くるくるを終了
-                //dialog.dismiss();
-                snackbar.dismiss();
-
-                HomeTimeLineAdapter adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_list);
-
-                //これを書かないとListViewがエラーNullだよって言うから書こうね
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged();
-                }
-
-
-                return;
-            }
-        };
-*/
-
-
-        //引っ張って更新するやつ
-        SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
-        swipeRefreshLayout.setColorSchemeColors(Color.parseColor("#BBDEFB"), Color.parseColor("#90CAF9"), Color.parseColor("#42A5F5"), Color.parseColor("#1565C0"));
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-
-            @Override
-            public void onRefresh() {
-
-                adapter.clear();
-                snackbar.show();
-
-                //最後のトゥートIDを持ってくる
-                //もういい！okhttpで実装する！！
-                String max_id_url = "https://" + finalInstance + "/api/v1/timelines/home/?access_token=" + finalAccessToken;
-                //パラメータを設定
-                HttpUrl.Builder max_id_builder = HttpUrl.parse(max_id_url).newBuilder();
-                max_id_builder.addQueryParameter("limit", "40");
-                //max_id_builder.addQueryParameter("since_id", min_id);
-                String max_id_final_url = max_id_builder.build().toString();
-
-                //作成
-                Request max_id_request = new Request.Builder()
-                        .url(max_id_final_url)
-                        .get()
-                        .build();
-
-                //GETリクエスト
-                OkHttpClient max_id_client = new OkHttpClient();
-                max_id_client.newCall(max_id_request).enqueue(new Callback() {
-
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        String response_string = response.body().string();
-                        JSONArray jsonArray = null;
-                        try {
-                            jsonArray = new JSONArray(response_string);
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
-                                JSONObject toot_account = toot_jsonObject.getJSONObject("account");
-                                toot_text = toot_jsonObject.getString("content");
-                                user = toot_account.getString("username");
-                                user_name = toot_account.getString("display_name");
-                                toot_time = toot_jsonObject.getString("created_at");
-                                String type = null;
-
-                                //クライアント名がある？ない？
-                                try {
-                                    JSONObject application = toot_jsonObject.getJSONObject("application");
-                                    user_use_client = application.getString("name");
-                                } catch (JSONException e) {
-                                    user_use_client = toot_jsonObject.getString("application");
-                                }
-
-
-                                //                       user_use_client = status.getApplication().getName();
-                                //toot_id = toot_jsonObject.getString("id");
-                                toot_id_string = toot_jsonObject.getString("id");
-
-                                user_avater_url = toot_account.getString("avatar");
-
-                                account_id = toot_account.getInt("id");
-
-                                List<Attachment> attachment = Collections.singletonList(new Attachment());
-
-
-                                final String[] medias = new String[1];
-
-                                final String[] media_url = {null};
-
-                                JSONArray media_array = toot_jsonObject.getJSONArray("media_attachments");
-                                if (!media_array.isNull(0)) {
-                                    media_url_1 = media_array.getJSONObject(0).getString("url");
-                                }
-                                if (!media_array.isNull(1)) {
-                                    media_url_2 = media_array.getJSONObject(1).getString("url");
-                                }
-                                if (!media_array.isNull(2)) {
-                                    media_url_3 = media_array.getJSONObject(2).getString("url");
-                                }
-                                if (!media_array.isNull(3)) {
-                                    media_url_4 = media_array.getJSONObject(3).getString("url");
-                                }
-
-
-                                //絵文字
-                                JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
-                                for (int e = 0; e < emoji.length(); e++) {
-                                    JSONObject jsonObject = emoji.getJSONObject(e);
+                                JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
+                                for (int a = 0; a < avater_emoji.length(); a++) {
+                                    JSONObject jsonObject = avater_emoji.getJSONObject(a);
                                     String emoji_name = jsonObject.getString("shortcode");
                                     String emoji_url = jsonObject.getString("url");
                                     String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
@@ -631,11 +512,327 @@ public class Home_Fragment extends Fragment {
                                     user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                 }
 
-                                //アバター絵文字
-                                try {
-                                    JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
-                                    for (int a = 0; a < avater_emoji.length(); a++) {
-                                        JSONObject jsonObject = avater_emoji.getJSONObject(a);
+                                //ユーザーネームの方のアバター絵文字
+                                JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
+                                for (int a = 0; a < account_avater_emoji.length(); a++) {
+                                    JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
+                                    String emoji_name = jsonObject.getString("shortcode");
+                                    String emoji_url = jsonObject.getString("url");
+                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                }
+                            } catch (JSONException e) {
+
+                            }
+
+                            //ユーザーネームの方の絵文字
+                            JSONArray account_emoji = toot_account.getJSONArray("emojis");
+                            for (int e = 0; e < account_emoji.length(); e++) {
+                                JSONObject jsonObject = account_emoji.getJSONObject(e);
+                                String emoji_name = jsonObject.getString("shortcode");
+                                String emoji_url = jsonObject.getString("url");
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                            }
+
+
+                            ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter.add(listItem);
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ListView listView = (ListView) view.findViewById(R.id.home_timeline);
+                                    listView.setAdapter(adapter);
+                                    snackbar.dismiss();
+                                    //maxid_snackbar.dismiss();
+                                    //listView.setSelection(scrollPosition);
+                                }
+                            });
+                            media_url_1 = null;
+                            media_url_2 = null;
+                            media_url_3 = null;
+                            media_url_4 = null;
+                            type = null;
+
+                        }
+                        //最後のIDを更新する
+                        JSONObject last_toot = jsonArray.getJSONObject(39);
+                        max_id = last_toot.getString("id");
+
+                        //更新用に最初のIDを控える
+                        JSONObject first_toot = jsonArray.getJSONObject(0);
+                        min_id = first_toot.getString("id");
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+        } else {
+            String url = "https://" + finalInstance + "/api/v1/timelines/home/?access_token=" + finalAccessToken;
+            //パラメータを設定
+            HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
+            builder.addQueryParameter("limit", "40");
+            String final_url = builder.build().toString();
+            //作成
+            Request max_id_request = new Request.Builder()
+                    .url(final_url)
+                    .get()
+                    .build();
+
+            //GETリクエスト
+            OkHttpClient max_id_client = new OkHttpClient();
+            max_id_client.newCall(max_id_request).enqueue(new Callback() {
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String response_string = response.body().string();
+                    JSONArray jsonArray = null;
+                    try {
+                        jsonArray = new JSONArray(response_string);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
+                            JSONObject toot_account = toot_jsonObject.getJSONObject("account");
+                            JSONArray media_array = toot_jsonObject.getJSONArray("media_attachments");
+                            toot_text = toot_jsonObject.getString("content");
+                            user = toot_account.getString("username");
+                            user_name = toot_account.getString("display_name");
+                            toot_time = toot_jsonObject.getString("created_at");
+                            String type = null;
+
+                            //クライアント名がある？ない？
+                            try {
+                                JSONObject application = toot_jsonObject.getJSONObject("application");
+                                user_use_client = application.getString("name");
+                            } catch (JSONException e) {
+                                user_use_client = toot_jsonObject.getString("application");
+                            }
+
+                            //user_use_client = status.getApplication().getName();
+                            //toot_id = toot_jsonObject.getString("id");
+                            toot_id_string = toot_jsonObject.getString("id");
+
+                            user_avater_url = toot_account.getString("avatar");
+
+                            account_id = toot_account.getInt("id");
+
+                            List<Attachment> attachment = Collections.singletonList(new Attachment());
+
+
+                            final String[] medias = new String[1];
+
+                            final String[] media_url = {null};
+
+                            if (!media_array.isNull(0)) {
+                                media_url_1 = media_array.getJSONObject(0).getString("url");
+                            }
+                            if (!media_array.isNull(1)) {
+                                media_url_2 = media_array.getJSONObject(1).getString("url");
+                            }
+                            if (!media_array.isNull(2)) {
+                                media_url_3 = media_array.getJSONObject(2).getString("url");
+                            }
+                            if (!media_array.isNull(3)) {
+                                media_url_4 = media_array.getJSONObject(3).getString("url");
+                            }
+                            //System.out.println("これかあ！ ： " + media_url_1 + " / " + media_url_2  + " / " + media_url_3 + " / " + media_url_4);
+
+                            //絵文字
+                            JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
+                            for (int e = 0; e < emoji.length(); e++) {
+                                JSONObject jsonObject = emoji.getJSONObject(e);
+                                String emoji_name = jsonObject.getString("shortcode");
+                                String emoji_url = jsonObject.getString("url");
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                                user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                            }
+
+                            //アバター絵文字
+                            try {
+                                JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
+                                for (int a = 0; a < avater_emoji.length(); a++) {
+                                    JSONObject jsonObject = avater_emoji.getJSONObject(a);
+                                    String emoji_name = jsonObject.getString("shortcode");
+                                    String emoji_url = jsonObject.getString("url");
+                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                    toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                }
+
+                                //ユーザーネームの方のアバター絵文字
+                                JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
+                                for (int a = 0; a < account_avater_emoji.length(); a++) {
+                                    JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
+                                    String emoji_name = jsonObject.getString("shortcode");
+                                    String emoji_url = jsonObject.getString("url");
+                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                }
+                            } catch (JSONException e) {
+
+                            }
+
+                            //ユーザーネームの方の絵文字
+                            JSONArray account_emoji = toot_account.getJSONArray("emojis");
+                            for (int e = 0; e < account_emoji.length(); e++) {
+                                JSONObject jsonObject = account_emoji.getJSONObject(e);
+                                String emoji_name = jsonObject.getString("shortcode");
+                                String emoji_url = jsonObject.getString("url");
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                            }
+
+
+                            ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter.add(listItem);
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ListView listView = (ListView) view.findViewById(R.id.home_timeline);
+                                    listView.setAdapter(adapter);
+                                    snackbar.dismiss();
+                                    //maxid_snackbar.dismiss();
+                                    //listView.setSelection(scrollPosition);
+                                }
+                            });
+                            media_url_1 = null;
+                            media_url_2 = null;
+                            media_url_3 = null;
+                            media_url_4 = null;
+                            type = null;
+
+                        }
+                        //最後のIDを更新する
+                        JSONObject last_toot = jsonArray.getJSONObject(39);
+                        max_id = last_toot.getString("id");
+
+                        //更新用に最初のIDを控える
+                        JSONObject first_toot = jsonArray.getJSONObject(0);
+                        min_id = first_toot.getString("id");
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            //引っ張って更新するやつ
+            swipeRefreshLayout.setColorSchemeColors(Color.parseColor("#BBDEFB"), Color.parseColor("#90CAF9"), Color.parseColor("#42A5F5"), Color.parseColor("#1565C0"));
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+                @Override
+                public void onRefresh() {
+
+                    adapter.clear();
+                    snackbar.show();
+
+                    //最後のトゥートIDを持ってくる
+                    //もういい！okhttpで実装する！！
+                    String max_id_url = "https://" + finalInstance + "/api/v1/timelines/home/?access_token=" + finalAccessToken;
+                    //パラメータを設定
+                    HttpUrl.Builder max_id_builder = HttpUrl.parse(max_id_url).newBuilder();
+                    max_id_builder.addQueryParameter("limit", "40");
+                    //max_id_builder.addQueryParameter("since_id", min_id);
+                    String max_id_final_url = max_id_builder.build().toString();
+
+                    //作成
+                    Request max_id_request = new Request.Builder()
+                            .url(max_id_final_url)
+                            .get()
+                            .build();
+
+                    //GETリクエスト
+                    OkHttpClient max_id_client = new OkHttpClient();
+                    max_id_client.newCall(max_id_request).enqueue(new Callback() {
+
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            String response_string = response.body().string();
+                            JSONArray jsonArray = null;
+                            try {
+                                jsonArray = new JSONArray(response_string);
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
+                                    JSONObject toot_account = toot_jsonObject.getJSONObject("account");
+                                    toot_text = toot_jsonObject.getString("content");
+                                    user = toot_account.getString("username");
+                                    user_name = toot_account.getString("display_name");
+                                    toot_time = toot_jsonObject.getString("created_at");
+                                    String type = null;
+
+                                    //クライアント名がある？ない？
+                                    try {
+                                        JSONObject application = toot_jsonObject.getJSONObject("application");
+                                        user_use_client = application.getString("name");
+                                    } catch (JSONException e) {
+                                        user_use_client = toot_jsonObject.getString("application");
+                                    }
+
+
+                                    //                       user_use_client = status.getApplication().getName();
+                                    //toot_id = toot_jsonObject.getString("id");
+                                    toot_id_string = toot_jsonObject.getString("id");
+
+                                    user_avater_url = toot_account.getString("avatar");
+
+                                    account_id = toot_account.getInt("id");
+
+                                    List<Attachment> attachment = Collections.singletonList(new Attachment());
+
+
+                                    final String[] medias = new String[1];
+
+                                    final String[] media_url = {null};
+
+                                    JSONArray media_array = toot_jsonObject.getJSONArray("media_attachments");
+                                    if (!media_array.isNull(0)) {
+                                        media_url_1 = media_array.getJSONObject(0).getString("url");
+                                    }
+                                    if (!media_array.isNull(1)) {
+                                        media_url_2 = media_array.getJSONObject(1).getString("url");
+                                    }
+                                    if (!media_array.isNull(2)) {
+                                        media_url_3 = media_array.getJSONObject(2).getString("url");
+                                    }
+                                    if (!media_array.isNull(3)) {
+                                        media_url_4 = media_array.getJSONObject(3).getString("url");
+                                    }
+
+
+                                    //絵文字
+                                    JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
+                                    for (int e = 0; e < emoji.length(); e++) {
+                                        JSONObject jsonObject = emoji.getJSONObject(e);
                                         String emoji_name = jsonObject.getString("shortcode");
                                         String emoji_url = jsonObject.getString("url");
                                         String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
@@ -643,215 +840,90 @@ public class Home_Fragment extends Fragment {
                                         user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                     }
 
-                                    //ユーザーネームの方のアバター絵文字
-                                    JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
-                                    for (int a = 0; a < account_avater_emoji.length(); a++) {
-                                        JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
+                                    //アバター絵文字
+                                    try {
+                                        JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
+                                        for (int a = 0; a < avater_emoji.length(); a++) {
+                                            JSONObject jsonObject = avater_emoji.getJSONObject(a);
+                                            String emoji_name = jsonObject.getString("shortcode");
+                                            String emoji_url = jsonObject.getString("url");
+                                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                            toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                                            user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                        }
+
+                                        //ユーザーネームの方のアバター絵文字
+                                        JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
+                                        for (int a = 0; a < account_avater_emoji.length(); a++) {
+                                            JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
+                                            String emoji_name = jsonObject.getString("shortcode");
+                                            String emoji_url = jsonObject.getString("url");
+                                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                            user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                        }
+                                    } catch (JSONException e) {
+
+                                    }
+
+                                    //ユーザーネームの方の絵文字
+                                    JSONArray account_emoji = toot_account.getJSONArray("emojis");
+                                    for (int e = 0; e < account_emoji.length(); e++) {
+                                        JSONObject jsonObject = account_emoji.getJSONObject(e);
                                         String emoji_name = jsonObject.getString("shortcode");
                                         String emoji_url = jsonObject.getString("url");
                                         String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
                                         user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                     }
-                                }catch (JSONException e){
+
+                                    ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+
+
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            adapter.add(listItem);
+                                            adapter.notifyDataSetChanged();
+                                        }
+                                    });
+
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            listView.setAdapter(adapter);
+                                            snackbar.dismiss();
+                                            //listView.setSelection(scrollPosition);
+                                        }
+                                    });
+                                    media_url_1 = null;
+                                    media_url_2 = null;
+                                    media_url_3 = null;
+                                    media_url_4 = null;
+                                    type = null;
 
                                 }
 
-                                //ユーザーネームの方の絵文字
-                                JSONArray account_emoji = toot_account.getJSONArray("emojis");
-                                for (int e = 0; e < account_emoji.length(); e++) {
-                                    JSONObject jsonObject = account_emoji.getJSONObject(e);
-                                    String emoji_name = jsonObject.getString("shortcode");
-                                    String emoji_url = jsonObject.getString("url");
-                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                                }
-
-                                ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                //最後のIDを更新する
+                                JSONObject last_toot = jsonArray.getJSONObject(39);
+                                max_id = last_toot.getString("id");
 
 
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        adapter.add(listItem);
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
-
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        ListView listView = (ListView) view.findViewById(R.id.home_timeline);
-                                        listView.setAdapter(adapter);
-                                        snackbar.dismiss();
-                                        //listView.setSelection(scrollPosition);
-                                    }
-                                });
-                                media_url_1 = null;
-                                media_url_2 = null;
-                                media_url_3 = null;
-                                media_url_4 = null;
-                                type = null;
-
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-
-                            //最後のIDを更新する
-                            JSONObject last_toot = jsonArray.getJSONObject(39);
-                            max_id = last_toot.getString("id");
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
+                    });
+
+
+                    if (swipeRefreshLayout.isRefreshing()) {
+                        swipeRefreshLayout.setRefreshing(false);
                     }
-                });
-
-
-
-
-/*
-                AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
-
-                    @Override
-                    protected String doInBackground(String... string) {
-
-                        snackbar.show();
-
-                        MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson())
-                                .accessToken(finalAccessToken)
-                                .build();
-
-                        Timelines timelines = new Timelines(client);
-
-                        //limitに40を指定して40件取得できるように
-                        Range range = new Range(null, null, 40);
-
-                        ArrayList<ListItem> toot_list = new ArrayList<>();
-
-
-                        try {
-                            Pageable<com.sys1yagi.mastodon4j.api.entity.Status> statuses = timelines.getHome(range)
-                                    .execute();
-                            statuses.getPart().forEach(status -> {
-
-*/
-/*
-
-                                System.out.println("=============");
-                                System.out.println(status.getAccount().getDisplayName());
-                                System.out.println(status.getContent());
-                                System.out.println(status.isReblogged());
-
-*//*
-
-
-                                toot_text = status.getContent();
-                                user = status.getAccount().getUserName();
-                                user_name = status.getAccount().getDisplayName();
-                                //toot_time = status.getCreatedAt();
-
-                                //                       user_use_client = status.getApplication().getName();
-                                toot_id = status.getId();
-                                toot_id_string = String.valueOf(toot_id);
-
-                                user_avater_url = status.getAccount().getAvatar();
-
-                                account_id = status.getAccount().getId();
-
-                                List<Attachment> attachment = Collections.singletonList(new Attachment());
-
-
-                                final String[] medias = new String[1];
-
-                                final String[] media_url = {null};
-                                //めでぃあ
-                                List<Attachment> list = status.getMediaAttachments();
-                                list.forEach(media -> {
-
-                                    media_url[0] = media.getUrl();
-
-                                });
-
-                                boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
-                                if (japan_timeSetting) {
-                                    //時差計算？
-                                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-                                    //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
-                                    //日本用フォーマット
-                                    SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
-                                    try {
-                                        Date date = simpleDateFormat.parse(status.getCreatedAt());
-                                        Calendar calendar = Calendar.getInstance();
-                                        calendar.setTime(date);
-                                        //9時間足して日本時間へ
-                                        calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
-                                        //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                                        toot_time = japanDateFormat.format(calendar.getTime());
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    toot_time = status.getCreatedAt();
-                                }
-
-                                //ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, null);
-
-                                //メディア用
-                                ListMediaItem listMediaItem = new ListMediaItem(media_url[0], media_url[0], media_url[0], media_url[0]);
-
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        //adapter.add(listItem);
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
-
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        ListView listView = (ListView) view.findViewById(R.id.home_timeline);
-                                        listView.setAdapter(adapter);
-                                    }
-                                });
-
-                            });
-                        } catch (Mastodon4jRequestException e) {
-                            e.printStackTrace();
-                        }
-
-                        return null;
-                    }
-
-                    protected void onPostExecute(String result) {
-
-                        //くるくるを終了
-                        //dialog.dismiss();
-                        snackbar.dismiss();
-
-*/
-/*
-                        HomeTimeLineAdapter adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_list);
-
-                        //これを書かないとListViewがエラーNullだよって言うから書こうね
-                        if (adapter != null) {
-                            adapter.notifyDataSetChanged();
-                        }
-*//*
-
-
-                        return;
-                    }
-                };
-*/
-
-                if (swipeRefreshLayout.isRefreshing()) {
-                    swipeRefreshLayout.setRefreshing(false);
                 }
-            }
-        });
+            });
+
+        }
 
 
-        ListView listView = (ListView) view.findViewById(R.id.home_timeline);
+        //最後になったら追加読込するやつ
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -861,7 +933,7 @@ public class Home_Fragment extends Fragment {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount) {
-                    Snackbar snackbar_ = Snackbar.make(view, "追加読み込み準備中", Snackbar.LENGTH_LONG);
+                    Snackbar snackbar_ = Snackbar.make(view, R.string.add_loading, Snackbar.LENGTH_LONG);
                     snackbar_.show();
                     if (snackbar_.isShown()) {
                         System.out.println("最後だよ");
@@ -910,7 +982,7 @@ public class Home_Fragment extends Fragment {
                         if (max_id != null) {
 
                             //SnackBer表示
-                            Snackbar maxid_snackbar = Snackbar.make(view, "ホームを取得中 \r\n /api/v1/timelines/home \r\n max_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
+                            Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_home)+"\r\n /api/v1/timelines/home \r\n max_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
                             ViewGroup snackBer_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
                             //SnackBerを複数行対応させる
                             TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
@@ -970,7 +1042,6 @@ public class Home_Fragment extends Fragment {
                                             } catch (JSONException e) {
                                                 user_use_client = toot_jsonObject.getString("application");
                                             }
-
 
 
                                             //                       user_use_client = status.getApplication().getName();
@@ -1034,7 +1105,7 @@ public class Home_Fragment extends Fragment {
                                                     String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
                                                     user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                                 }
-                                            }catch (JSONException e){
+                                            } catch (JSONException e) {
 
                                             }
 
@@ -1047,7 +1118,6 @@ public class Home_Fragment extends Fragment {
                                                 String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
                                                 user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                             }
-
 
 
                                             ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
@@ -1067,6 +1137,8 @@ public class Home_Fragment extends Fragment {
                                                     ListView listView = (ListView) view.findViewById(R.id.home_timeline);
                                                     listView.setAdapter(adapter);
                                                     maxid_snackbar.dismiss();
+                                                    listView.setSelection(scrollPosition);
+
                                                     //listView.setSelection(scrollPosition);
                                                 }
                                             });
@@ -1079,6 +1151,7 @@ public class Home_Fragment extends Fragment {
                                         //最後のIDを更新する
                                         JSONObject last_toot = jsonArray.getJSONObject(39);
                                         max_id = last_toot.getString("id");
+                                        scrollPosition += 30;
 
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -1093,5 +1166,23 @@ public class Home_Fragment extends Fragment {
 
     }
 
+    //フラグメントが外されたときに呼ばれる
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        System.out.println("終了");
+//        asyncTask.cancel(true);
+        //ストリーミング終了
+        if (shutdownable != null) {
+            shutdownable.shutdown();
+        }
+
+        //通知にタイムライン表示している場合は削除する
+        if (notification_timeline_first_setting) {
+            SharedPreferences.Editor editor = pref_setting.edit();
+            editor.putInt("timeline_toast_check", 1);
+            editor.commit();
+        }
+    }
 
 }

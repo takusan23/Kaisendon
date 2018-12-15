@@ -342,8 +342,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         boolean nicoru_dialog_chack = pref_setting.getBoolean("pref_friends_nico_mode", false);
         if (nicoru_dialog_chack) {
-            favorite_message = "お気に入り";
-            favorite_title = "お気に入りに登録しますか";
+            favorite_message = getContext().getString(R.string.favoutire);
+            favorite_title = getContext().getString(R.string.favourite_add_message);
         } else {
             favorite_message = "ニコる";
             favorite_title = "ニコりますか";
@@ -1569,9 +1569,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 }
             });
 
-        } else
-
-        {
+        } else {
 
         }
 
@@ -1759,7 +1757,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             @Override
             protected void onPostExecute(String result) {
                 if (endPoint.contains("Replace")) {
-                    Toast.makeText(getContext(), "ブーストしました " + result, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getContext().getString(R.string.boost_ok) + result, Toast.LENGTH_SHORT).show();
                 }
                 if (endPoint.contains("favourite")) {
                     Toast.makeText(getContext(), nicoru_text + result, Toast.LENGTH_SHORT).show();

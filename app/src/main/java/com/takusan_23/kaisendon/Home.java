@@ -487,17 +487,9 @@ public class Home extends AppCompatActivity
                     Streaming streaming = new Streaming(client);
                     try {
                         Shutdownable shutdownable = streaming.user(handler);
-                        Thread.sleep(10000L);
+                        //Thread.sleep(10000L);
                         //shutdownable.shutdown();
-                    } catch (
-                            Mastodon4jRequestException e)
-
-                    {
-                        e.printStackTrace();
-                    } catch (
-                            InterruptedException e)
-
-                    {
+                    } catch (Mastodon4jRequestException e) {
                         e.printStackTrace();
                     }
                     return toot_text;

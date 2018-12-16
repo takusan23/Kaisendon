@@ -96,8 +96,12 @@ public class UserActivity extends AppCompatActivity {
 
     int follow;
     int follower;
+    int status_count;
 
     private ProgressDialog dialog;
+
+    //フォロー/フォローしてない
+    boolean following = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -204,17 +208,17 @@ public class UserActivity extends AppCompatActivity {
 //        dialog.show();
 
         View view = findViewById(android.R.id.content);
-        Snackbar snackbar = Snackbar.make(view, "ユーザー情報を取得中 \r\n /api/v1/accounts", Snackbar.LENGTH_INDEFINITE);
+        Snackbar snackbar = Snackbar.make(view, getString(R.string.loading_user_info) + "\r\n /api/v1/accounts", Snackbar.LENGTH_INDEFINITE);
         ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
         TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
         snackBer_textView.setMaxLines(2);
         //複数行対応させたおかげでずれたので修正
         ProgressBar progressBar = new ProgressBar(UserActivity.this);
-        LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         progressBer_layoutParams.gravity = Gravity.CENTER;
         progressBar.setLayoutParams(progressBer_layoutParams);
-        snackBer_viewGrop.addView(progressBar,0);
+        snackBer_viewGrop.addView(progressBar, 0);
         snackbar.show();
 
 
@@ -236,7 +240,7 @@ public class UserActivity extends AppCompatActivity {
                 d.addLevel(0, 0, empty);
                 d.setBounds(0, 0, empty.getIntrinsicWidth(), empty.getIntrinsicHeight());
 
-                new LoadImage().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,source,d);
+                new LoadImage().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, source, d);
 
                 return d;
             }
@@ -265,6 +269,7 @@ public class UserActivity extends AppCompatActivity {
 
                     follow = accounts.getFollowingCount();
                     follower = accounts.getFollowersCount();
+                    status_count = accounts.getStatusesCount();
 
 
                     //時刻表記を直す
@@ -297,92 +302,57 @@ public class UserActivity extends AppCompatActivity {
                     String second_profile_text = null;
                     Pattern pattern = Pattern.compile("\\:.+?\\:");
                     Matcher matcher = pattern.matcher(profile_text);
-                    if (matcher.find()) {
-                        first_profile_text = matcher.group();
-                        second_profile_text = first_profile_text.replaceAll("\\:", "");
-                        System.out.println("できた！！！ : " + second_profile_text);
 
 
-                        String finalFirst_profile_text = profile;
-                        String finalSecond_profile_text = second_profile_text;
-
-                        //@マークが有るかどうかでカスタム絵文字・そうでないかを分ける
-                        //Matcher attoma_ku = Pattern.compile(toot_text).matcher("[@]");
-
-
-
-                        //カスタム絵文字
-                        Account account_emoji = new Accounts(client).getAccount(account_id).doOnJson(jsonAccount -> {
-                            try {
-                                JSONObject jsonObject = new JSONObject(jsonAccount);
-                                JSONArray emojis = jsonObject.getJSONArray("emojis");
-                                for (int i = 0; i < emojis.length(); i++) {
-                                    JSONObject emojisJSONObject = emojis.getJSONObject(i);
-                                    String emoji_url = emojisJSONObject.getString("url");
-                                    custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    System.out.println("リンク : " + custom_emoji_src);
-                                    //final_toot_text = toot_text.replaceAll("\\:", custom_emoji_src);
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            if (custom_emoji_src != null) {
-                                final_toot_text = finalFirst_profile_text.replaceAll("\\:.+?\\:", "<img src=\'" + "https://d2zoeobnny43zx.cloudfront.net/custom_emojis/images/000/002/580/original/74da2858dcb13aa9.png" + "\'>");
-                            }
-                            System.out.println("でーん : " + final_toot_text);
-                            custom_emoji_src = null;
-                        }).execute();
-
-
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                displayname_textview.setText(display_name);
-                                displayname_textview.setTextSize(20);
-                                id_textview.setText("@" + remote + "\r\n" + create_at);
-                                if (pref_setting.getBoolean("pref_custom_emoji", false)) {
-                                    try {
-                                        profile_textview.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
-                                    } catch (NullPointerException e) {
-                                        profile_textview.setText(Html.fromHtml(profile, Html.FROM_HTML_MODE_COMPACT));
-                                    }
-                                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            displayname_textview.setText(display_name);
+                            displayname_textview.setTextSize(20);
+                            id_textview.setText("@" + remote + "\r\n" + create_at);
+                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                try {
+                                    profile_textview.setText((Html.fromHtml(profile, toot_imageGetter, null)));
+                                } catch (NullPointerException e) {
                                     profile_textview.setText(Html.fromHtml(profile, Html.FROM_HTML_MODE_COMPACT));
                                 }
-
-                                follow_button.setText("フォロー : " + String.valueOf(follow));
-                                follower_button.setText("フォロワー : " + String.valueOf(follower));
-
-                                //タイトル
-                                setTitle(display_name);
-
-                                boolean setting_avater_gif = pref_setting.getBoolean("pref_avater_gif", false);
-                                if (setting_avater_gif) {
-
-                                    //GIFアニメ再生させない
-                                    Picasso.get()
-                                            .load(avater_url)
-                                            .into(avater);
-
-                                    Picasso.get()
-                                            .load(heander_url)
-                                            .into(header);
-
-                                } else {
-
-                                    //GIFアニメを再生
-                                    Glide.with(UserActivity.this)
-                                            .load(avater_url)
-                                            .into(avater);
-
-                                    Glide.with(UserActivity.this)
-                                            .load(heander_url)
-                                            .into(header);
-                                }
+                            } else {
+                                profile_textview.setText(Html.fromHtml(profile, Html.FROM_HTML_MODE_COMPACT));
                             }
-                        });
-                    }
+
+                            follow_button.setText(getString(R.string.follow) + " : " + String.valueOf(follow));
+                            follower_button.setText(getString(R.string.follower) + " : " + String.valueOf(follower));
+                            toot_button.setText(getString(R.string.toot) + " : " + String.valueOf(status_count));
+
+                            //タイトル
+                            setTitle(display_name);
+
+                            boolean setting_avater_gif = pref_setting.getBoolean("pref_avater_gif", false);
+                            if (setting_avater_gif) {
+
+                                //GIFアニメ再生させない
+                                Picasso.get()
+                                        .load(avater_url)
+                                        .into(avater);
+
+                                Picasso.get()
+                                        .load(heander_url)
+                                        .into(header);
+
+                            } else {
+
+                                //GIFアニメを再生
+                                Glide.with(UserActivity.this)
+                                        .load(avater_url)
+                                        .into(avater);
+
+                                Glide.with(UserActivity.this)
+                                        .load(heander_url)
+                                        .into(header);
+                            }
+                        }
+                    });
+
 
                     //正規表現にマッチしなかった場合
                     if (!matcher.find()) {
@@ -394,7 +364,7 @@ public class UserActivity extends AppCompatActivity {
                                 id_textview.setText("@" + remote + "\r\n" + create_at);
                                 if (pref_setting.getBoolean("pref_custom_emoji", false)) {
                                     try {
-                                        profile_textview.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
+                                        profile_textview.setText((Html.fromHtml(profile, toot_imageGetter, null)));
                                     } catch (NullPointerException e) {
                                         profile_textview.setText(Html.fromHtml(profile, Html.FROM_HTML_MODE_COMPACT));
                                     }
@@ -402,8 +372,8 @@ public class UserActivity extends AppCompatActivity {
                                     profile_textview.setText(Html.fromHtml(profile, Html.FROM_HTML_MODE_COMPACT));
                                 }
 
-                                follow_button.setText("フォロー : " + String.valueOf(follow));
-                                follower_button.setText("フォロワー : " + String.valueOf(follower));
+                                follow_button.setText(getString(R.string.follow) + " : " + String.valueOf(follow));
+                                follower_button.setText(getString(R.string.follower) + " : " + String.valueOf(follower));
 
                                 //タイトル
                                 setTitle(display_name);
@@ -434,72 +404,43 @@ public class UserActivity extends AppCompatActivity {
                             }
                         });
                     }
-                        //friends.nicoモードかな？
-                        boolean frenico_mode = pref_setting.getBoolean("setting_friends_nico_mode", true);
-                        //Chrome Custom Tab
-                        boolean chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
+                    //friends.nicoモードかな？
+                    boolean frenico_mode = pref_setting.getBoolean("setting_friends_nico_mode", true);
+                    //Chrome Custom Tab
+                    boolean chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
 
-                        final String[] nico_url = {null};
+                    final String[] nico_url = {null};
 
-                        //Json解析して"nico_url"取得
-                        Account account_nico_url = new Accounts(client).getAccount(account_id).doOnJson(jsonString -> {
-                                    //System.out.println(jsonString);
-                                    //String string_ = "{\"int array\":[100,200,300],\"boolean\":true,\"string\":\"string\",\"object\":{\"object_1\":1,\"object_3\":3,\"object_2\":2},\"null\":null,\"array\":[1,2,3],\"long\":18000305032230531,\"int\":100,\"double\":10.5}";
-                                    JSONObject jsonObject = null;
-                                    try {
-                                        jsonObject = new JSONObject(jsonString);
+                    //Json解析して"nico_url"取得
+                    Account account_nico_url = new Accounts(client).getAccount(account_id).doOnJson(jsonString -> {
+                                //System.out.println(jsonString);
+                                //String string_ = "{\"int array\":[100,200,300],\"boolean\":true,\"string\":\"string\",\"object\":{\"object_1\":1,\"object_3\":3,\"object_2\":2},\"null\":null,\"array\":[1,2,3],\"long\":18000305032230531,\"int\":100,\"double\":10.5}";
+                                JSONObject jsonObject = null;
+                                try {
+                                    jsonObject = new JSONObject(jsonString);
 
-                                        nico_url[0] = jsonObject.getString("nico_url");
+                                    nico_url[0] = jsonObject.getString("nico_url");
 
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-                        ).execute();
 
-
-                        try {
-                            //URLあるよ
-                            if (frenico_mode && !nico_url[0].equals("null")) {
-                                //ニコニコURLへ
-                                Button button = findViewById(R.id.button3);
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        button.setText("ニコニコ");
-                                    }
-                                });
-
-                                button.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        if (chrome_custom_tabs) {
-
-                                            String custom = CustomTabsHelper.getPackageNameToUse(UserActivity.this);
-
-                                            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
-                                            CustomTabsIntent customTabsIntent = builder.build();
-                                            customTabsIntent.intent.setPackage(custom);
-                                            customTabsIntent.launchUrl((Activity) UserActivity.this, Uri.parse(nico_url[0]));
-                                            //無効
-                                        } else {
-                                            Uri uri = Uri.parse(nico_url[0]);
-                                            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                                            startActivity(intent);
-                                        }
-                                    }
-                                });
                             }
-                            //URLなかった
-                        } catch (RuntimeException e) {
+                    ).execute();
+
+
+                    try {
+                        //URLあるよ
+                        if (frenico_mode && !nico_url[0].equals("null")) {
+                            //ニコニコURLへ
                             Button button = findViewById(R.id.button3);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    button.setText("Web");
+                                    button.setText("ニコニコ");
                                 }
                             });
+
                             button.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
@@ -510,82 +451,111 @@ public class UserActivity extends AppCompatActivity {
                                         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
                                         CustomTabsIntent customTabsIntent = builder.build();
                                         customTabsIntent.intent.setPackage(custom);
-                                        customTabsIntent.launchUrl((Activity) UserActivity.this, Uri.parse("https://" + finalInstance + "/" + "@" + user_account_id));
+                                        customTabsIntent.launchUrl((Activity) UserActivity.this, Uri.parse(nico_url[0]));
                                         //無効
                                     } else {
                                         Uri uri = Uri.parse(nico_url[0]);
-                                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://" + finalInstance + "/" + "@" + user_account_id));
+                                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                                         startActivity(intent);
                                     }
                                 }
                             });
                         }
+                        //URLなかった
+                    } catch (RuntimeException e) {
+                        Button button = findViewById(R.id.button3);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                button.setText("Web");
+                            }
+                        });
+                        button.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (chrome_custom_tabs) {
+
+                                    String custom = CustomTabsHelper.getPackageNameToUse(UserActivity.this);
+
+                                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                                    CustomTabsIntent customTabsIntent = builder.build();
+                                    customTabsIntent.intent.setPackage(custom);
+                                    customTabsIntent.launchUrl((Activity) UserActivity.this, Uri.parse("https://" + finalInstance + "/" + "@" + user_account_id));
+                                    //無効
+                                } else {
+                                    Uri uri = Uri.parse(nico_url[0]);
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://" + finalInstance + "/" + "@" + user_account_id));
+                                    startActivity(intent);
+                                }
+                            }
+                        });
+                    }
 
 
-                        //補足情報
-                        //Json解析
-                        Account fields_attributes_account = new Accounts(client).getAccount(account_id).doOnJson(fields_attributes_account_jsonString -> {
-                                    JSONObject jsonObject = null;
-                                    try {
-                                        jsonObject = new JSONObject(fields_attributes_account_jsonString);
+                    //補足情報
+                    //Json解析
+                    Account fields_attributes_account = new Accounts(client).getAccount(account_id).doOnJson(fields_attributes_account_jsonString -> {
+                                JSONObject jsonObject = null;
+                                try {
+                                    jsonObject = new JSONObject(fields_attributes_account_jsonString);
 
-                                        //補足情報取得
-                                        //補足情報まで案内
-                                        JSONArray fields = jsonObject.getJSONArray("fields");
-                                        //同じコードを書きたくない？のでwhileつかう
-                                        int count = 0;
-                                        while (count <= fields.length()) {
+                                    //補足情報取得
+                                    //補足情報まで案内
+                                    JSONArray fields = jsonObject.getJSONArray("fields");
+                                    //同じコードを書きたくない？のでwhileつかう
+                                    int count = 0;
+                                    while (count <= fields.length()) {
 
-                                            JSONObject fields_attributes_account_jsonObject = fields.getJSONObject(count);
-                                            //名前を取得
-                                            String name = fields_attributes_account_jsonObject.getString("name");
-                                            //情報
-                                            String value = fields_attributes_account_jsonObject.getString("value");
-                                            //レイアウトをつくる
-                                            //調子悪いのでUIスレッドで
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    LinearLayout fields_attributes_content = new LinearLayout(UserActivity.this);
-                                                    fields_attributes_content.setOrientation(LinearLayout.HORIZONTAL);
-                                                    //テキストビュー
-                                                    TextView fields_attributes_name_textview = new TextView(UserActivity.this);
-                                                    TextView fields_attributes_value_textview = new TextView(UserActivity.this);
-                                                    LinearLayout.LayoutParams fields_attributes_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                                                    fields_attributes_params.weight = 1;
-                                                    LinearLayout.LayoutParams fields_attributes_params_2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                                                    fields_attributes_params_2.weight = 2;
-                                                    //名前
-                                                    fields_attributes_name_textview.setAutoLinkMask(Linkify.ALL);
-                                                    fields_attributes_name_textview.setText(Html.fromHtml(name, Html.FROM_HTML_MODE_COMPACT));
-                                                    fields_attributes_name_textview.setTextSize(18);
-                                                    //fields_attributes_name_textview.setBackgroundColor(Color.parseColor("#999999"));
-                                                    fields_attributes_name_textview.setLayoutParams(fields_attributes_params_2);
-                                                    //説明
-                                                    fields_attributes_value_textview.setAutoLinkMask(Linkify.ALL);
-                                                    fields_attributes_value_textview.setText(Html.fromHtml(value, Html.FROM_HTML_MODE_COMPACT));
-                                                    fields_attributes_value_textview.setTextSize(18);
-                                                    //fields_attributes_value_textview.setBackgroundColor(Color.parseColor("#cccccc"));
-                                                    fields_attributes_value_textview.setLayoutParams(fields_attributes_params);
-                                                    //空白
-                                                    Space sp = new Space(UserActivity.this);
-                                                    //セット
-                                                    fields_attributes_content.addView(fields_attributes_name_textview);
-                                                    fields_attributes_content.addView(fields_attributes_value_textview);
-                                                    fields_attributes_linearLayout.addView(fields_attributes_content);
-                                                    fields_attributes_linearLayout.addView(sp, new LinearLayout.LayoutParams(20, 1));
-                                                }
-                                            });
-                                            count++;
-                                        }
-
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
+                                        JSONObject fields_attributes_account_jsonObject = fields.getJSONObject(count);
+                                        //名前を取得
+                                        String name = fields_attributes_account_jsonObject.getString("name");
+                                        //情報
+                                        String value = fields_attributes_account_jsonObject.getString("value");
+                                        //レイアウトをつくる
+                                        //調子悪いのでUIスレッドで
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                LinearLayout fields_attributes_content = new LinearLayout(UserActivity.this);
+                                                fields_attributes_content.setOrientation(LinearLayout.HORIZONTAL);
+                                                //テキストビュー
+                                                TextView fields_attributes_name_textview = new TextView(UserActivity.this);
+                                                TextView fields_attributes_value_textview = new TextView(UserActivity.this);
+                                                LinearLayout.LayoutParams fields_attributes_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                                                fields_attributes_params.weight = 1;
+                                                LinearLayout.LayoutParams fields_attributes_params_2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                                                fields_attributes_params_2.weight = 2;
+                                                //名前
+                                                fields_attributes_name_textview.setAutoLinkMask(Linkify.ALL);
+                                                fields_attributes_name_textview.setText(Html.fromHtml(name, Html.FROM_HTML_MODE_COMPACT));
+                                                fields_attributes_name_textview.setTextSize(18);
+                                                //fields_attributes_name_textview.setBackgroundColor(Color.parseColor("#999999"));
+                                                fields_attributes_name_textview.setLayoutParams(fields_attributes_params_2);
+                                                //説明
+                                                fields_attributes_value_textview.setAutoLinkMask(Linkify.ALL);
+                                                fields_attributes_value_textview.setText(Html.fromHtml(value, Html.FROM_HTML_MODE_COMPACT));
+                                                fields_attributes_value_textview.setTextSize(18);
+                                                //fields_attributes_value_textview.setBackgroundColor(Color.parseColor("#cccccc"));
+                                                fields_attributes_value_textview.setLayoutParams(fields_attributes_params);
+                                                //空白
+                                                Space sp = new Space(UserActivity.this);
+                                                //セット
+                                                fields_attributes_content.addView(fields_attributes_name_textview);
+                                                fields_attributes_content.addView(fields_attributes_value_textview);
+                                                fields_attributes_linearLayout.addView(fields_attributes_content);
+                                                fields_attributes_linearLayout.addView(sp, new LinearLayout.LayoutParams(20, 1));
+                                            }
+                                        });
+                                        count++;
                                     }
 
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-                        ).execute();
+
+                            }
+                    ).execute();
 
                 } catch (Mastodon4jRequestException e) {
                     e.printStackTrace();
@@ -640,16 +610,27 @@ public class UserActivity extends AppCompatActivity {
                             boolean followed_by = jsonObject.getBoolean("followed_by");
                             boolean blocking = jsonObject.getBoolean("blocking");
                             boolean muting = jsonObject.getBoolean("muting");
+                            following = jsonObject.getBoolean("following");
 
                             String follow = null;
                             String block = null;
                             String mute = null;
+                            String follow_back = getString(R.string.follow_back_not);
+
+                            if (followed_by) {
+                                follow_back = getString(R.string.follow_back);
+                            }
 
 
+                            String finalFollow_back = follow_back;
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    user_info_textView.setText("フォロバ : " + yes_no_check(followed_by, follow, UserActivity.this) + "\r\n" + "ブロック : " + yes_no_check(blocking, block, UserActivity.this) + " / " + "ミュート : " + yes_no_check(muting, mute, UserActivity.this));
+                                    user_info_textView.setText(finalFollow_back + "\r\n" + getString(R.string.block) + " : " + yes_no_check(blocking, block, UserActivity.this) + " / " + getString(R.string.mute) + " : " + yes_no_check(muting, mute, UserActivity.this));
+                                    //フォロー中ってテキスト変更
+                                    if (following) {
+                                        follow_request_button.setText(R.string.following);
+                                    }
                                 }
                             });
 
@@ -667,39 +648,36 @@ public class UserActivity extends AppCompatActivity {
 
 
         //ボタンクリック
-        follow_button.setOnClickListener(new View.OnClickListener()
-
-        {
+        follow_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent follow = new Intent(UserActivity.this, UserFollowActivity.class);
-                follow.putExtra("account_id", account_id);
-                follow.putExtra("follow_follower", 1);
-                startActivity(follow);
+                Intent follow_intent = new Intent(UserActivity.this, UserFollowActivity.class);
+                follow_intent.putExtra("account_id", account_id);
+                follow_intent.putExtra("follow_follower", 1);
+                follow_intent.putExtra("count", follow);
+                startActivity(follow_intent);
             }
         });
 
-        follower_button.setOnClickListener(new View.OnClickListener()
-
-        {
+        follower_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent follower = new Intent(UserActivity.this, UserFollowActivity.class);
-                follower.putExtra("account_id", account_id);
-                follower.putExtra("follow_follower", 2);
-                startActivity(follower);
+                Intent follower_intent = new Intent(UserActivity.this, UserFollowActivity.class);
+                follower_intent.putExtra("account_id", account_id);
+                follower_intent.putExtra("follow_follower", 2);
+                follower_intent.putExtra("count", follower);
+                startActivity(follower_intent);
             }
         });
 
-        toot_button.setOnClickListener(new View.OnClickListener()
-
-        {
+        toot_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent follower = new Intent(UserActivity.this, UserFollowActivity.class);
-                follower.putExtra("account_id", account_id);
-                follower.putExtra("follow_follower", 3);
-                startActivity(follower);
+                Intent toot_intent = new Intent(UserActivity.this, UserFollowActivity.class);
+                toot_intent.putExtra("account_id", account_id);
+                toot_intent.putExtra("follow_follower", 3);
+                toot_intent.putExtra("count", status_count);
+                startActivity(toot_intent);
             }
         });
 
@@ -707,144 +685,271 @@ public class UserActivity extends AppCompatActivity {
         //フォローする
         String finalInstance1 = Instance;
         String finalAccessToken1 = AccessToken;
-        follow_request_button.setOnClickListener(new View.OnClickListener()
-
-        {
+        follow_request_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //フォローダイアログを出す？
                 boolean follow_dialog = pref_setting.getBoolean("pref_follow_dialog", false);
 
-                if (follow_dialog) {
-                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserActivity.this);
-                    alertDialog.setTitle(R.string.confirmation);
-                    alertDialog.setMessage(display_name + "(@ " + user_account_id + ")" + "をフォローしますか？ \r\n /api/v1/follows" + "(" + remote + ")");
-                    alertDialog.setPositiveButton(R.string.follow, new DialogInterface.OnClickListener() {
+                //フォロー（フォロー中かを反転している）
+                if (!following) {
+                    if (follow_dialog) {
+                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserActivity.this);
+                        alertDialog.setTitle(R.string.confirmation);
+                        alertDialog.setMessage(display_name + "(@ " + user_account_id + ")" + getString(R.string.follow_message) + "\r\n /api/v1/follows" + "(" + remote + ")");
+                        alertDialog.setPositiveButton(R.string.follow, new DialogInterface.OnClickListener() {
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                            AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
+                                AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
 
-                                @Override
-                                protected String doInBackground(String... string) {
-                                    com.sys1yagi.mastodon4j.api.entity.auth.AccessToken accessToken = new AccessToken();
-                                    accessToken.setAccessToken(finalAccessToken);
+                                    @Override
+                                    protected String doInBackground(String... string) {
+                                        com.sys1yagi.mastodon4j.api.entity.auth.AccessToken accessToken = new AccessToken();
+                                        accessToken.setAccessToken(finalAccessToken);
 
-                                    //非同期通信
-                                    MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson())
-                                            .accessToken(finalAccessToken)
-                                            .build();
+                                        //非同期通信
+                                        MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson())
+                                                .accessToken(finalAccessToken)
+                                                .build();
+
+                                        //リモートフォロー用のURL取得
+                                        try {
+                                            Account accounts = new Accounts(client).getAccount(account_id).execute();
+
+                                            remote = accounts.getAcct();
+                                            follow_id = accounts.getId();
+                                            display_name = accounts.getDisplayName();
+
+                                            //Account follow = new Follows(client).postRemoteFollow("takusan_23@pawoo.net").execute();
+                                        } catch (Mastodon4jRequestException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                        //リモートフォローかそうじゃないか
+                                        //@があるかどうか
+                                        Matcher m = Pattern.compile("[@]").matcher(remote);
+                                        if (m.find()) {
+                                            System.out.println("@@@@@@@@@@@@@");
+                                            //フォロー処理
+                                            try {
+                                                Account follow = new Follows(client).postRemoteFollow(remote).execute();
+                                            } catch (Mastodon4jRequestException e) {
+                                                e.printStackTrace();
+                                            }
+
+                                        } else {
+                                            System.out.println("-------------------");
+                                            try {
+                                                Relationship accounts = new Accounts(client).postFollow(follow_id).execute();
+                                            } catch (Mastodon4jRequestException e) {
+                                                e.printStackTrace();
+                                            }
+
+                                        }
 
 
-                                    //リモートフォロー用のURL取得
+                                        return display_name;
+                                    }
 
+                                    @Override
+                                    protected void onPostExecute(String result) {
+                                        Toast.makeText(UserActivity.this, getString(R.string.follow_message) + " : " + result, Toast.LENGTH_SHORT).show();
+                                    }
+
+                                }.execute();
+
+
+                            }
+                        });
+                        //フォローしない
+                        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        });
+                        alertDialog.create().show();
+
+                    } else {
+
+                        AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
+
+                            @Override
+                            protected String doInBackground(String... string) {
+                                //非同期通信
+                                MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson()).accessToken(finalAccessToken).build();
+
+
+                                //リモートフォロー用のURL取得
+                                try {
+
+                                    Account accounts = new Accounts(client).getAccount(account_id).execute();
+                                    remote = accounts.getAcct();
+                                    follow_id = accounts.getId();
+
+                                } catch (Mastodon4jRequestException e) {
+                                    e.printStackTrace();
+                                }
+
+                                //リモートフォローかそうじゃないか
+                                //@があるかどうか
+                                Matcher m = Pattern.compile(remote).matcher("[@]");
+                                if (m.find()) {
                                     try {
-                                        Account accounts = new Accounts(client).getAccount(account_id).execute();
-
-                                        remote = accounts.getAcct();
-                                        follow_id = accounts.getId();
-                                        display_name = accounts.getDisplayName();
-
-                                        //Account follow = new Follows(client).postRemoteFollow("takusan_23@pawoo.net").execute();
+                                        Account follow = new Follows(client).postRemoteFollow(remote).execute();
                                     } catch (Mastodon4jRequestException e) {
                                         e.printStackTrace();
                                     }
+                                } else {
+                                    try {
+                                        Relationship accounts = new Accounts(client).postFollow(follow_id).execute();
+                                    } catch (Mastodon4jRequestException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
 
-                                    //リモートフォローかそうじゃないか
-                                    //@があるかどうか
-                                    Matcher m = Pattern.compile("[@]").matcher(remote);
-                                    if (m.find()) {
-                                        System.out.println("@@@@@@@@@@@@@");
+                                return display_name;
+                            }
 
+                            @Override
+                            protected void onPostExecute(String result) {
+                                Toast.makeText(UserActivity.this, getString(R.string.follow_message) + " : " + result, Toast.LENGTH_SHORT).show();
+                            }
+                        }.execute();
+                    }
+                } else {
+                    //フォロー外し
+                    if (follow_dialog) {
+                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserActivity.this);
+                        alertDialog.setTitle(R.string.confirmation);
+                        alertDialog.setMessage(display_name + "(@ " + user_account_id + ")" + getString(R.string.unfollow_message) + "\r\n /api/v1/follows" + "(" + remote + ")");
+                        alertDialog.setPositiveButton(R.string.follow, new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
+
+                                    @Override
+                                    protected String doInBackground(String... string) {
+                                        com.sys1yagi.mastodon4j.api.entity.auth.AccessToken accessToken = new AccessToken();
+                                        accessToken.setAccessToken(finalAccessToken);
+
+                                        //非同期通信
+                                        MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson())
+                                                .accessToken(finalAccessToken)
+                                                .build();
+
+                                        //リモートフォロー用のURL取得
                                         try {
-                                            Account follow = new Follows(client).postRemoteFollow(remote).execute();
+                                            Account accounts = new Accounts(client).getAccount(account_id).execute();
+
+                                            remote = accounts.getAcct();
+                                            follow_id = accounts.getId();
+                                            display_name = accounts.getDisplayName();
+
+                                            //Account follow = new Follows(client).postRemoteFollow("takusan_23@pawoo.net").execute();
                                         } catch (Mastodon4jRequestException e) {
                                             e.printStackTrace();
                                         }
 
-                                    } else {
-                                        System.out.println("-------------------");
+                                        //リモートフォローかそうじゃないか
+                                        //@があるかどうか
+                                        Matcher m = Pattern.compile("[@]").matcher(remote);
+                                        if (m.find()) {
+                                            System.out.println("@@@@@@@@@@@@@");
+                                            //フォロー解除処理
+                                            try {
+                                                Relationship accounts = new Accounts(client).postUnFollow(follow_id).execute();
+                                            } catch (Mastodon4jRequestException e) {
+                                                e.printStackTrace();
+                                            }
 
+                                        } else {
+                                            System.out.println("-------------------");
+                                            try {
+                                                Relationship accounts = new Accounts(client).postUnFollow(follow_id).execute();
+                                            } catch (Mastodon4jRequestException e) {
+                                                e.printStackTrace();
+                                            }
 
-                                        try {
-                                            Relationship accounts = new Accounts(client).postFollow(follow_id).execute();
-                                        } catch (Mastodon4jRequestException e) {
-                                            e.printStackTrace();
                                         }
 
+
+                                        return display_name;
                                     }
 
+                                    @Override
+                                    protected void onPostExecute(String result) {
+                                        Toast.makeText(UserActivity.this, getString(R.string.unfollow_ok) + " : " + result, Toast.LENGTH_SHORT).show();
+                                    }
 
-                                    return display_name;
-                                }
-
-                                @Override
-                                protected void onPostExecute(String result) {
-                                    Toast.makeText(UserActivity.this, "フォローしました : " + result, Toast.LENGTH_SHORT).show();
-                                }
-
-                            }.execute();
+                                }.execute();
 
 
-                        }
-                    });
-                    //フォローしない
-                    alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    });
-                    alertDialog.create().show();
-
-                } else {
-
-                    AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
-
-                        @Override
-                        protected String doInBackground(String... string) {
-                            //非同期通信
-                            MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson()).accessToken(finalAccessToken).build();
-
-
-                            //リモートフォロー用のURL取得
-                            try {
-
-                                Account accounts = new Accounts(client).getAccount(account_id).execute();
-                                remote = accounts.getAcct();
-                                follow_id = accounts.getId();
-
-                            } catch (Mastodon4jRequestException e) {
-                                e.printStackTrace();
                             }
+                        });
+                        //フォローしない
+                        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                            //リモートフォローかそうじゃないか
-                            //@があるかどうか
-                            Matcher m = Pattern.compile(remote).matcher("[@]");
-                            if (m.find()) {
+                            }
+                        });
+                        alertDialog.create().show();
+
+                    } else {
+
+                        AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
+
+                            @Override
+                            protected String doInBackground(String... string) {
+                                //非同期通信
+                                MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson()).accessToken(finalAccessToken).build();
+
+
+                                //リモートフォロー用のURL取得
                                 try {
-                                    Account follow = new Follows(client).postRemoteFollow(remote).execute();
+
+                                    Account accounts = new Accounts(client).getAccount(account_id).execute();
+                                    remote = accounts.getAcct();
+                                    follow_id = accounts.getId();
+
                                 } catch (Mastodon4jRequestException e) {
                                     e.printStackTrace();
                                 }
-                            } else {
-                                try {
-                                    Relationship accounts = new Accounts(client).postFollow(follow_id).execute();
-                                } catch (Mastodon4jRequestException e) {
-                                    e.printStackTrace();
+
+                                //リモートフォローかそうじゃないか
+                                //@があるかどうか
+                                Matcher m = Pattern.compile(remote).matcher("[@]");
+                                if (m.find()) {
+                                    try {
+                                        Relationship accounts = new Accounts(client).postUnFollow(follow_id).execute();
+                                    } catch (Mastodon4jRequestException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    try {
+                                        Relationship accounts = new Accounts(client).postUnFollow(follow_id).execute();
+                                    } catch (Mastodon4jRequestException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
+
+                                return display_name;
                             }
 
-                            return display_name;
-                        }
+                            @Override
+                            protected void onPostExecute(String result) {
+                                Toast.makeText(UserActivity.this, getString(R.string.unfollow_ok) + " : " + result, Toast.LENGTH_SHORT).show();
+                            }
+                        }.execute();
+                    }
 
-                        @Override
-                        protected void onPostExecute(String result) {
-                            Toast.makeText(UserActivity.this, "フォローしました : " + result, Toast.LENGTH_SHORT).show();
-                        }
-                    }.execute();
                 }
+
             }
         });
 

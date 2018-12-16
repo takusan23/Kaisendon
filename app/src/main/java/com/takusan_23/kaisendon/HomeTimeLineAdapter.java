@@ -724,9 +724,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         FragmentTransaction ft = ((FragmentActivity) parent.getContext()).getSupportFragmentManager().beginTransaction();
         Fragment fragment = new User_Fragment();
         View finalConvertView = convertView;
-        thumbnail.setOnClickListener(new View.OnClickListener()
-
-        {
+        thumbnail.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -755,9 +753,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         //ブックマーク関係
         boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", false);
         holder.bookmark_button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_bookmark_border_black_24dp, 0, 0, 0);
-        holder.bookmark_button.setOnClickListener(new View.OnClickListener()
-
-        {
+        holder.bookmark_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (bookmark_delete) {

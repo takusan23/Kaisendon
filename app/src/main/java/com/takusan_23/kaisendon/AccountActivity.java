@@ -32,6 +32,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Space;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
@@ -247,6 +248,7 @@ public class AccountActivity extends AppCompatActivity {
                     account_id_button = account.getId();
 
 
+
                     //時刻表記を直す
                     boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
                     if (japan_timeSetting) {
@@ -271,73 +273,6 @@ public class AccountActivity extends AppCompatActivity {
                     }
 
 
-
-                    //カスタム絵文字
-                    String profile_text = Html.fromHtml(profile, Html.FROM_HTML_MODE_COMPACT).toString();
-                    String first_profile_text = null;
-                    String second_profile_text = null;
-                    Pattern pattern = Pattern.compile("\\:.+?\\:");
-                    Matcher matcher = pattern.matcher(profile_text);
-                    if (matcher.find()) {
-                        first_profile_text = matcher.group();
-                        second_profile_text = first_profile_text.replaceAll("\\:", "");
-                        System.out.println("できた！！！ : " + second_profile_text);
-
-                        String finalFirst_profile_text = profile;
-                        String finalSecond_profile_text = second_profile_text;
-
-
-                        //@絵文字探し
-                        Pattern pattern1 = Pattern.compile("[@]");
-                        Matcher matcher1 = pattern1.matcher(finalFirst_profile_text);
-                        if (matcher1.find()) {
-                            System.out.println("あったよ");
-                            avater_emoji = true;
-                        }
-
-
-                        //カスタム絵文字
-                        Account account_emoji = new Accounts(client).getVerifyCredentials().doOnJson(jsonAccount -> {
-                            try {
-                                JSONObject jsonObject = new JSONObject(jsonAccount);
-                                JSONArray emojis = jsonObject.getJSONArray("emojis");
-                                for (int i = 0; i < emojis.length(); i++) {
-                                    JSONObject emojisJSONObject = emojis.getJSONObject(i);
-                                    String emoji_url = emojisJSONObject.getString("url");
-                                    custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    System.out.println("リンク : " + custom_emoji_src);
-                                    //final_toot_text = toot_text.replaceAll("\\:", custom_emoji_src);
-                                }
-
-                                //アイコン絵文字あるよ
-                                if (avater_emoji == true) {
-                                    JSONArray avater_emoji_jsonArray = jsonObject.getJSONArray("profile_emojis");
-                                    for (int i = 0; i < avater_emoji_jsonArray.length(); i++) {
-                                        JSONObject emojisJSONObject = avater_emoji_jsonArray.getJSONObject(i);
-                                        String emoji_url = emojisJSONObject.getString("url");
-                                        avater_custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                        System.out.println("リンク : " + avater_custom_emoji_src);
-                                    }
-                                }
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            if (custom_emoji_src != null || avater_custom_emoji_src != null) {
-                                //finalFirst_profile_text はプロフィール画像ね
-                                final_toot_text = finalFirst_profile_text.replaceAll("\\:\\@.+?\\:", avater_custom_emoji_src);
-                                final_toot_text = final_toot_text.replaceAll("\\:.+?\\:", custom_emoji_src);
-
-                            }
-
-                            custom_emoji_src = null;
-                            avater_custom_emoji_src = null;
-
-                        }).execute();
-
-                    }else {
-
-                    }
                     //@マークが有るかどうかでカスタム絵文字・そうでないかを分ける
                     //Matcher attoma_ku = Pattern.compile(toot_text).matcher("[@]");
  /*                       if (finalSecond_profile_text != null) {
@@ -394,7 +329,7 @@ public class AccountActivity extends AppCompatActivity {
                         id_textview.setText("@" + user_account_id + "@" + finalInstance + "\r\n" + create_at);
                         if (pref_setting.getBoolean("pref_custom_emoji", false)) {
                             try {
-                                profile_textview.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
+                                profile_textview.setText((Html.fromHtml(profile, toot_imageGetter, null)));
                             } catch (NullPointerException e) {
                                 profile_textview.setText(Html.fromHtml(profile, Html.FROM_HTML_MODE_COMPACT));
                             }
@@ -619,9 +554,7 @@ public class AccountActivity extends AppCompatActivity {
             }
         });
 
-        follower_button.setOnClickListener(new View.OnClickListener()
-
-        {
+        follower_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent follower = new Intent(AccountActivity.this, UserFollowActivity.class);
@@ -631,9 +564,7 @@ public class AccountActivity extends AppCompatActivity {
             }
         });
 
-        toot_button.setOnClickListener(new View.OnClickListener()
-
-        {
+        toot_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent follower = new Intent(AccountActivity.this, UserFollowActivity.class);
@@ -642,36 +573,6 @@ public class AccountActivity extends AppCompatActivity {
                 startActivity(follower);
             }
         });
-
-        //Bitmap back_icon = BitmapFactory.decodeResource(getResources(), R.drawable.baseline_arrow_back_black_24dp);
-
-/*
-        //実験用
-        Button button = findViewById(R.id.button3);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setShowTitle(true).setCloseButtonIcon(back_icon);
-                CustomTabsIntent customTabsIntent = builder.build();
-                customTabsIntent.launchUrl(getApplicationContext(), Uri.parse("https://" + finalInstance + "/" + "@" + user_account_id));
-            }
-        });
-
-*/
-
-        AsyncTask<String, Void, String> asyncTask_nico = new AsyncTask<String, Void, String>() {
-
-            @Override
-            protected String doInBackground(String... string) {
-                MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson())
-                        .accessToken(finalAccessToken)
-                        .build();
-
-
-                return null;
-            }
-        }.execute();
-
 
     }
 

@@ -126,7 +126,7 @@
     <string name="all">すべて</string>
     <string name="toast">トーストのみ</string>
     <string name="vibration">バイブのみ</string>
-    <string name="mute">無効</string>
+    <string name="mute">ミュート</string>
     <string name="add_image">画像追加</string>
     <string name="favourite_list">お気に入りリスト</string>
     <string name="bookmark">ブックマーク</string>
@@ -246,5 +246,17 @@
     <string name="favourite_add">お気に入りに登録しました</string>
     <string name="add_loading">追加読み込み準備中</string>
     <string name="toot_ok">トゥートしました</string>
+    <string name="following">フォロー中</string>
+    <string name="follow_back">フォローされています</string>
+    <string name="follow_back_not">フォローされていません</string>
+    <string name="Mute">ミュート</string>
+    <string name="block">ブロック</string>
+    <string name="follow_message">フォローしますか？</string>
+    <string name="follow_ok">フォローしました</string>
+    <string name="unfollow_message">フォロー解除しますか？</string>
+    <string name="unfollow_ok">フォロー解除しました</string>
+    <string name="loading_follow">フォロー取得中</string>
+    <string name="loading_follower">フォロワー取得中</string>
+    <string name="loading_toot">トゥート取得中</string>
 
 </resources>

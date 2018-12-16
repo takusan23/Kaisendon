@@ -349,5 +349,18 @@
     <string name="favourite_add">I registered as favorite</string>
     <string name="add_loading">Preparing additional reading</string>
     <string name="toot_ok">I did a Toot</string>
+    <string name="following">following</string>
+    <string name="loading_user_info">Retrieving user information</string>
+    <string name="follow_back">Following</string>
+    <string name="follow_back_not">I am not following</string>
+    <string name="block">Block</string>
+    <string name="Mute">Mute</string>
+    <string name="follow_message">Would you like to follow?</string>
+    <string name="follow_ok">Followed</string>
+    <string name="unfollow_message">Would you like to unfollow?</string>
+    <string name="unfollow_ok">Following canceled</string>
+    <string name="loading_follow">Fetching</string>
+    <string name="loading_follower">Fetching followers</string>
+    <string name="loading_toot">Acquiring Toot</string>
 
 </resources>

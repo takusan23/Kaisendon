@@ -108,6 +108,10 @@ public class Public_TimeLine_Fragment extends Fragment {
 
     int scrollPosition = 30;
 
+    int position;
+    int y;
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -559,6 +563,8 @@ public class Public_TimeLine_Fragment extends Fragment {
                                 user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                             }
 
+
+
                             ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
 
@@ -722,6 +728,27 @@ public class Public_TimeLine_Fragment extends Fragment {
                                 user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                             }
 
+                            boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
+                            if (japan_timeSetting) {
+                                //時差計算？
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+                                //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+                                //日本用フォーマット
+                                SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+                                try {
+                                    Date date = simpleDateFormat.parse(toot_jsonObject.getString("created_at"));
+                                    Calendar calendar = Calendar.getInstance();
+                                    calendar.setTime(date);
+                                    //9時間足して日本時間へ
+                                    calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                                    //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                                    toot_time = japanDateFormat.format(calendar.getTime());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                toot_time = toot_jsonObject.getString("created_at");
+                            }
 
                             ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
@@ -895,6 +922,28 @@ public class Public_TimeLine_Fragment extends Fragment {
                                         user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                     }
 
+                                    boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
+                                    if (japan_timeSetting) {
+                                        //時差計算？
+                                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+                                        //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+                                        //日本用フォーマット
+                                        SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+                                        try {
+                                            Date date = simpleDateFormat.parse(toot_jsonObject.getString("created_at"));
+                                            Calendar calendar = Calendar.getInstance();
+                                            calendar.setTime(date);
+                                            //9時間足して日本時間へ
+                                            calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                                            //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                                            toot_time = japanDateFormat.format(calendar.getTime());
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                    } else {
+                                        toot_time = toot_jsonObject.getString("created_at");
+                                    }
+
 
                                     ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
@@ -952,6 +1001,8 @@ public class Public_TimeLine_Fragment extends Fragment {
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (totalItemCount == firstVisibleItem + visibleItemCount && adapter != null) {
                     // Toast.makeText(getContext(),"最後",Toast.LENGTH_SHORT).show();
+                    position = listView.getFirstVisiblePosition();
+                    y = listView.getChildAt(0).getTop();
 
                     Snackbar snackbar_ = Snackbar.make(view, R.string.add_loading, Snackbar.LENGTH_LONG);
                     snackbar_.show();
@@ -1139,6 +1190,27 @@ public class Public_TimeLine_Fragment extends Fragment {
                                                 user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                             }
 
+                                            boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
+                                            if (japan_timeSetting) {
+                                                //時差計算？
+                                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+                                                //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+                                                //日本用フォーマット
+                                                SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+                                                try {
+                                                    Date date = simpleDateFormat.parse(toot_jsonObject.getString("created_at"));
+                                                    Calendar calendar = Calendar.getInstance();
+                                                    calendar.setTime(date);
+                                                    //9時間足して日本時間へ
+                                                    calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                                                    //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                                                    toot_time = japanDateFormat.format(calendar.getTime());
+                                                } catch (ParseException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            } else {
+                                                toot_time = toot_jsonObject.getString("created_at");
+                                            }
 
                                             ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
@@ -1155,7 +1227,8 @@ public class Public_TimeLine_Fragment extends Fragment {
                                                 @Override
                                                 public void run() {
                                                     listView.setAdapter(adapter);
-                                                    listView.setSelection(scrollPosition);
+                                                    listView.setSelectionFromTop(position, y);
+                                                    //listView.setSelection(scrollPosition);
                                                     maxid_snackbar.dismiss();
                                                     System.out.println("カウント " + String.valueOf(scrollPosition));
                                                     //listView.setSelection(scrollPosition);

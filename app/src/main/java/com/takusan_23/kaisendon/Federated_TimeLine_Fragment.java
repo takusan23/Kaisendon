@@ -979,7 +979,7 @@ public class Federated_TimeLine_Fragment extends Fragment {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (totalItemCount == firstVisibleItem + visibleItemCount && adapter != null) {
+                if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount) {
                     // Toast.makeText(getContext(),"最後",Toast.LENGTH_SHORT).show();
                     position = listView.getFirstVisiblePosition();
                     y = listView.getChildAt(0).getTop();

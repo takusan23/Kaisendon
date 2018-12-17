@@ -258,5 +258,8 @@
     <string name="loading_follow">フォロー取得中</string>
     <string name="loading_follower">フォロワー取得中</string>
     <string name="loading_toot">トゥート取得中</string>
+    <string name="notification_timeline">通知TL</string>
+    <string name="setting_notification_timeline_title">通知タイムラインで利用するタイムライン設定</string>
+    <string name="setting_notification_timeline_message">取得タイムラインを変更できます</string>
 
 </resources>

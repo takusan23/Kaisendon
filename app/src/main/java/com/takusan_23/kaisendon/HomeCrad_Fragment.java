@@ -1147,7 +1147,7 @@ public class HomeCrad_Fragment extends Fragment {
         if (timeline_toast_count[0] == 0) {
             timeline_toast_textView.setText(R.string.timeline_toast_disable);
         } else if (timeline_toast_count[0] == 1) {
-            timeline_toast_textView.setText(R.string.timeline_notification_public);
+            timeline_toast_textView.setText(R.string.notification_timeline);
         }
 
         timeline_toast_imageView.setOnClickListener(new View.OnClickListener() {
@@ -1177,7 +1177,7 @@ public class HomeCrad_Fragment extends Fragment {
                     SharedPreferences.Editor editor = pref_setting.edit();
                     editor.putInt("timeline_toast_check", 1);
                     editor.commit();
-                    timeline_toast_textView.setText(R.string.timeline_notification_public);
+                    timeline_toast_textView.setText(R.string.notification_timeline);
                     timeline_toast_count[0] = 0;
 
                 }

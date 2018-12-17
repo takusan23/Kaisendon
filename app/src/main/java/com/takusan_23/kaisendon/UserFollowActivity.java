@@ -3,6 +3,7 @@ package com.takusan_23.kaisendon;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.http.SslCertificate;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
@@ -40,6 +41,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -478,7 +481,7 @@ public class UserFollowActivity extends AppCompatActivity {
 
                 Headers headers = response.headers();
 
-                //System.out.println("リンクヘッダー？ : " + headers.get("link"));
+                System.out.println("リンクヘッダー？ : " + headers.get("link"));
 
                 JSONArray jsonArray = null;
                 try {

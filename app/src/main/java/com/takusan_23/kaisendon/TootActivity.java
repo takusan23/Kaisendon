@@ -209,7 +209,7 @@ public class TootActivity extends AppCompatActivity {
                             })
                             .setNegativeButton(getString(R.string.cancel), null)
                             .show();
-                }else{
+                } else {
 
                     Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
                     photoPickerIntent.setType("image/*");
@@ -574,6 +574,18 @@ public class TootActivity extends AppCompatActivity {
                             .show();
                 }
 
+            }
+        });
+
+        //長押しで設定画面に飛ばす
+        now_playing_button.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
+                startActivity(intent);
+
+                return false;
             }
         });
 

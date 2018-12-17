@@ -362,5 +362,8 @@
     <string name="loading_follow">Fetching</string>
     <string name="loading_follower">Fetching followers</string>
     <string name="loading_toot">Acquiring Toot</string>
+    <string name="notification_timeline">Notification TimeLine</string>
+    <string name="setting_notification_timeline_title">Notification timeline timeline change</string>
+    <string name="setting_notification_timeline_message">You can change the acquisition timeline.</string>
 
 </resources>

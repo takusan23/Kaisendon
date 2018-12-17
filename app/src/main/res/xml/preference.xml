@@ -82,6 +82,15 @@
             android:summary="@string/setting_svg_animation_message"
             android:title="@string/setting_svg_animation_title" />
 
+        <ListPreference
+            android:defaultValue="Home"
+            android:entries="@array/notification_timeline_list"
+            android:entryValues="@array/notification_timeline_values"
+            android:key="pref_notification_timeline"
+            android:summary="@string/setting_notification_timeline_message"
+            android:title="@string/setting_notification_timeline_title" />
+
+
     </PreferenceCategory>
 
 

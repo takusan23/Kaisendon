@@ -690,12 +690,17 @@ public class Home extends AppCompatActivity
                     };
                     Streaming streaming = new Streaming(client);
                     try {
-                        Shutdownable shutdownable = streaming.localPublic(handler);
-                        Thread.sleep(10000L);
-                        //shutdownable.shutdown();
+                        if (pref_setting.getString("pref_notification_timeline", "Home").contains("Home")) {
+                            Shutdownable shutdownable = streaming.user(handler);
+                        }
+                        if (pref_setting.getString("pref_notification_timeline", "Home").contains("Local")) {
+                            Shutdownable shutdownable = streaming.localPublic(handler);
+                        }
+                        if (pref_setting.getString("pref_notification_timeline", "Home").contains("Federated")) {
+                            Shutdownable shutdownable = streaming.federatedPublic(handler);
+                        }
+
                     } catch (Mastodon4jRequestException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
 

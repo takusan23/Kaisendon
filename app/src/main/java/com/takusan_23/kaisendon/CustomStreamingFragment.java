@@ -275,23 +275,26 @@ public class CustomStreamingFragment extends Fragment {
                                                     }
 
                                                     //カスタム絵文字
-                                                    List<Emoji> emoji_List = status.getEmojis();
-                                                    emoji_List.forEach(emoji ->{
-                                                        String emoji_name = emoji.getShortcode();
-                                                        String emoji_url = emoji.getUrl();
-                                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                                        toot_text =  toot_text.replace(":"+emoji_name+":",custom_emoji_src);
-                                                        System.out.println("結果 : " + toot_text);
-                                                    });
+                                                    if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                                        List<Emoji> emoji_List = status.getEmojis();
+                                                        emoji_List.forEach(emoji -> {
+                                                            String emoji_name = emoji.getShortcode();
+                                                            String emoji_url = emoji.getUrl();
+                                                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                                            toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                            System.out.println("結果 : " + toot_text);
+                                                        });
 
-                                                    //DisplayNameカスタム絵文字
-                                                    List<Emoji> account_emoji_List = status.getAccount().getEmojis();
-                                                    account_emoji_List.forEach(emoji ->{
-                                                        String emoji_name = emoji.getShortcode();
-                                                        String emoji_url = emoji.getUrl();
-                                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                                        user_name =  user_name.replace(":"+emoji_name+":",custom_emoji_src);
-                                                    });
+                                                        //DisplayNameカスタム絵文字
+                                                        List<Emoji> account_emoji_List = status.getAccount().getEmojis();
+                                                        account_emoji_List.forEach(emoji -> {
+                                                            String emoji_name = emoji.getShortcode();
+                                                            String emoji_url = emoji.getUrl();
+                                                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                                            user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                        });
+                                                    }
+
 
                                                     Bitmap bmp = null;
                                                     //BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);  // 今回はサンプルなのでデフォルトのAndroid Iconを利用
@@ -433,23 +436,26 @@ public class CustomStreamingFragment extends Fragment {
 
 
                                                         //カスタム絵文字
-                                                        List<Emoji> emoji_List = status.getEmojis();
-                                                        emoji_List.forEach(emoji ->{
-                                                            String emoji_name = emoji.getShortcode();
-                                                            String emoji_url = emoji.getUrl();
-                                                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                                            toot_text =  toot_text.replace(":"+emoji_name+":",custom_emoji_src);
-                                                            System.out.println("結果 : " + toot_text);
-                                                        });
+                                                        if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                                            List<Emoji> emoji_List = status.getEmojis();
+                                                            emoji_List.forEach(emoji -> {
+                                                                String emoji_name = emoji.getShortcode();
+                                                                String emoji_url = emoji.getUrl();
+                                                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                                                toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                                System.out.println("結果 : " + toot_text);
+                                                            });
 
-                                                        //DisplayNameカスタム絵文字
-                                                        List<Emoji> account_emoji_List = status.getAccount().getEmojis();
-                                                        account_emoji_List.forEach(emoji ->{
-                                                            String emoji_name = emoji.getShortcode();
-                                                            String emoji_url = emoji.getUrl();
-                                                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                                            user_name =  user_name.replace(":"+emoji_name+":",custom_emoji_src);
-                                                        });
+                                                            //DisplayNameカスタム絵文字
+                                                            List<Emoji> account_emoji_List = status.getAccount().getEmojis();
+                                                            account_emoji_List.forEach(emoji -> {
+                                                                String emoji_name = emoji.getShortcode();
+                                                                String emoji_url = emoji.getUrl();
+                                                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                                                user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                            });
+                                                        }
+
 
                                                         //一番最初のIDを控える
                                                         if (max_id == null) {
@@ -486,7 +492,7 @@ public class CustomStreamingFragment extends Fragment {
                                                         ListItem listItem = null;
                                                         //自分の住んでるインスタンス以外のトゥートを表示するためのいｆ
                                                         //if (user.contains("@")) {
-                                                            listItem = new ListItem("custom_home", toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                                        listItem = new ListItem("custom_home", toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
                                                         //}
 
                                                         if (getActivity() == null)
@@ -595,24 +601,27 @@ public class CustomStreamingFragment extends Fragment {
                                                         }
 
                                                         //カスタム絵文字
-                                                        List<Emoji> emoji_List = notification.getStatus().getEmojis();
-                                                        emoji_List.forEach(emoji ->{
-                                                            String emoji_name = emoji.getShortcode();
-                                                            System.out.println("結果 : " + emoji_name);
-                                                            String emoji_url = emoji.getUrl();
-                                                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                                            toot_text =  toot_text.replace(":"+emoji_name+":",custom_emoji_src);
-                                                            System.out.println("結果 : " + toot_text);
-                                                        });
+                                                        if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                                            List<Emoji> emoji_List = notification.getStatus().getEmojis();
+                                                            emoji_List.forEach(emoji -> {
+                                                                String emoji_name = emoji.getShortcode();
+                                                                System.out.println("結果 : " + emoji_name);
+                                                                String emoji_url = emoji.getUrl();
+                                                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                                                toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                                System.out.println("結果 : " + toot_text);
+                                                            });
 
-                                                        //DisplayNameカスタム絵文字
-                                                        List<Emoji> account_emoji_List = notification.getAccount().getEmojis();
-                                                        account_emoji_List.forEach(emoji ->{
-                                                            String emoji_name = emoji.getShortcode();
-                                                            String emoji_url = emoji.getUrl();
-                                                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                                            user_name =  user_name.replace(":"+emoji_name+":",custom_emoji_src);
-                                                        });
+                                                            //DisplayNameカスタム絵文字
+                                                            List<Emoji> account_emoji_List = notification.getAccount().getEmojis();
+                                                            account_emoji_List.forEach(emoji -> {
+                                                                String emoji_name = emoji.getShortcode();
+                                                                String emoji_url = emoji.getUrl();
+                                                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                                                user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                            });
+                                                        }
+
 
 
                                                         ListItem listItem = new ListItem("custom_notification", toot_text, user_name + " @" + user + " / " + type, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, null, null, null, null);
@@ -751,6 +760,7 @@ public class CustomStreamingFragment extends Fragment {
         });
 
     }
+
     @Override
     public void onDetach() {
         super.onDetach();

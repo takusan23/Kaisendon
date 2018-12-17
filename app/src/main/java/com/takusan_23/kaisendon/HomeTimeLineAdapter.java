@@ -306,9 +306,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 notification_layout = true;
                 //アニメーションアイコン
                 //friends.nicoモードかな？
-                if (friends_nico_check_box){
+                if (friends_nico_check_box) {
                     setSVGAnimationIcon(R.drawable.notification_to_star, R.drawable.ic_star_black_24dp, holder);
-                }else {
+                } else {
                     holder.notification_icon.setImageResource(R.drawable.nicoru);
                     if (holder.notification_icon.getParent() != null) {
                         ((ViewGroup) holder.notification_icon.getParent()).removeView(holder.notification_icon);
@@ -1752,8 +1752,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
             @Override
             protected void onPostExecute(String result) {
-                if (endPoint.contains("Replace")) {
-                    Toast.makeText(getContext(), getContext().getString(R.string.boost_ok) + result, Toast.LENGTH_SHORT).show();
+                if (endPoint.contains("reblog")) {
+                    Toast.makeText(getContext(), getContext().getString(R.string.boost_ok) + " : " + result, Toast.LENGTH_SHORT).show();
                 }
                 if (endPoint.contains("favourite")) {
                     Toast.makeText(getContext(), nicoru_text + result, Toast.LENGTH_SHORT).show();

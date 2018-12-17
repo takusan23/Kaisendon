@@ -19,4 +19,16 @@
         <item>Start</item>
     </string-array>
 
+    <string-array name="notification_timeline_list">
+        <item>@string/home</item>
+        <item>@string/public_time_line</item>
+        <item>@string/federated_timeline</item>
+    </string-array>
+
+    <string-array name="notification_timeline_values">
+        <item>Home</item>
+        <item>Local</item>
+        <item>Federated</item>
+    </string-array>
+
 </resources>

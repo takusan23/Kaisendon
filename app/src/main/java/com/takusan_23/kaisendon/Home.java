@@ -172,6 +172,27 @@ public class Home extends AppCompatActivity
             }
         }
 
+
+/*
+        //ウィジェットから起動
+        try {
+            if (getIntent().getBooleanExtra("Home",false)){
+                FragmentChange(new Home_Fragment());
+            }
+            if (getIntent().getBooleanExtra("Notification",false)){
+                FragmentChange(new Notification_Fragment());
+            }
+            if (getIntent().getBooleanExtra("Local",false)){
+                FragmentChange(new Public_TimeLine_Fragment());
+            }
+            if (getIntent().getBooleanExtra("Federated",false)){
+                FragmentChange(new Federated_TimeLine_Fragment());
+            }
+        }catch (RuntimeException e){
+            e.printStackTrace();
+        }
+*/
+
 /*
         //絵文字用SharedPreferences
         SharedPreferences pref_emoji = Preference_ApplicationContext.getContext().getSharedPreferences("preferences_emoji", Context.MODE_PRIVATE);

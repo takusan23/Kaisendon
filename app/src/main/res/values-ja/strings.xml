@@ -261,5 +261,10 @@
     <string name="notification_timeline">通知TL</string>
     <string name="setting_notification_timeline_title">通知タイムラインで利用するタイムライン設定</string>
     <string name="setting_notification_timeline_message">取得タイムラインを変更できます</string>
+    <string name="widget_setting">ウィジェット設定</string>
+    <string name="setting_widget_image_title">ウィジェットTLでの画像読み込み</string>
+    <string name="setting_widget_image_message">ウィジェットTLでの画像読み込みをします。通信量に気をつけて</string>
+    <string name="setting_widget_load_title">ウィジェットTLで読み込むタイムライン</string>
+    <string name="setting_widget_load_message">ウィジェットTLで読み込むタイムラインを選択してください。</string>
 
 </resources>

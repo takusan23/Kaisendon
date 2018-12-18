@@ -365,5 +365,10 @@
     <string name="notification_timeline">Notification TimeLine</string>
     <string name="setting_notification_timeline_title">Notification timeline timeline change</string>
     <string name="setting_notification_timeline_message">You can change the acquisition timeline.</string>
+    <string name="widget_setting">Widget settings</string>
+    <string name="setting_widget_image_title">Image loading with widget TL</string>
+    <string name="setting_widget_image_message">We will load images with widget TL. Take care of traffic</string>
+    <string name="setting_widget_load_message">Timeline to read with widget TL</string>
+    <string name="setting_widget_load_title">Please select the timeline to read with widget TL.</string>
 
 </resources>

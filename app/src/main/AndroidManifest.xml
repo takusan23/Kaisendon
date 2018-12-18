@@ -146,15 +146,21 @@
                 </activity>
         -->
 
+
         <receiver android:name=".NewAppWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <!-- クリックした際のアクションを設定しておく -->
+                <action android:name="kaisendon.widget.Public" />
             </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/new_app_widget_info" />
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/new_app_widget_info" />
         </receiver>
+
+        <service
+            android:name=".WidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+
     </application>
 
 </manifest>

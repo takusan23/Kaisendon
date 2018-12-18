@@ -1,18 +1,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#E6ffffff"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="@dimen/widget_margin">
 
     <ImageView
         android:id="@+id/widget_listview_layout_imageview"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        app:srcCompat="@drawable/ic_android_black_24dp" />
 
     <TextView
-        android:id="@+id/widget_listview_layout_button"
+        android:id="@+id/widget_listview_layout_textview"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="JSONパース失敗　T_T"
+        android:textSize="18sp" />
 
 </LinearLayout>

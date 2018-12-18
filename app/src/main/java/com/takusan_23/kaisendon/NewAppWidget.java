@@ -24,6 +24,9 @@ public class NewAppWidget extends AppWidgetProvider {
         //ブロードキャスト先を指定（明示的ブロードキャスト）
         //マニフェストにも記入しないと動かないので注意
 
+
+
+/*
         //ローカルトースト
         Intent toot_Broadcast = new Intent(context, BroadcastReciver_Widget_ToastTimeline.class);
         //アカウントペーじ
@@ -34,6 +37,7 @@ public class NewAppWidget extends AppWidgetProvider {
         views.setOnClickPendingIntent(R.id.widegt_1, PendingIntent.getActivity(context, 0, account_Intent, PendingIntent.FLAG_UPDATE_CURRENT));
         views.setOnClickPendingIntent(R.id.widegt_2, PendingIntent.getActivity(context, 0, toot_Intent, PendingIntent.FLAG_UPDATE_CURRENT));
         views.setOnClickPendingIntent(R.id.widegt_3, PendingIntent.getBroadcast(context, 0, toot_Broadcast, PendingIntent.FLAG_UPDATE_CURRENT));
+*/
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
@@ -44,6 +48,9 @@ public class NewAppWidget extends AppWidgetProvider {
         // There may be multiple widgets active, so update all of them
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
+
+            Intent remoteViewsFactoryIntent = new Intent(context,WidgetService.class);
+
         }
     }
 

@@ -15,14 +15,17 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Load" />
+            android:drawableStart="@drawable/ic_refresh_black_24dp"
+            android:gravity="center"
+            android:text="@string/loading_button" />
 
         <Button
             android:id="@+id/widget_button_toot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Toot" />
+            android:drawableStart="@drawable/ic_create_black_24dp_black"
+            android:text="@string/toot" />
 
     </LinearLayout>
 

@@ -71,7 +71,7 @@ public class NewAppWidget extends AppWidgetProvider {
             PendingIntent notification_localtimeline_pendingIntent = PendingIntent.getBroadcast(ctx, 1, notification_localtimeline_toot, PendingIntent.FLAG_UPDATE_CURRENT);
             //トゥート
             android.support.v4.app.RemoteInput remoteInput = new android.support.v4.app.RemoteInput.Builder("Toot_Text")
-                    .setLabel("今なにしてる？")
+                    .setLabel(ctx.getString(R.string.imananisiteru))
                     .build();
 
             NotificationCompat.Action notification_toot_action = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_send

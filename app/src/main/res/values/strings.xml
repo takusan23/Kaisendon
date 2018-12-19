@@ -370,5 +370,6 @@
     <string name="setting_widget_image_message">We will load images with widget TL. Take care of traffic</string>
     <string name="setting_widget_load_message">Timeline to read with widget TL</string>
     <string name="setting_widget_load_title">Please select the timeline to read with widget TL.</string>
+    <string name="loading_button">Loading</string>
 
 </resources>

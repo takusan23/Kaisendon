@@ -266,5 +266,6 @@
     <string name="setting_widget_image_message">ウィジェットTLでの画像読み込みをします。通信量に気をつけて</string>
     <string name="setting_widget_load_title">ウィジェットTLで読み込むタイムライン</string>
     <string name="setting_widget_load_message">ウィジェットTLで読み込むタイムラインを選択してください。</string>
+    <string name="loading_button">読み込み</string>
 
 </resources>

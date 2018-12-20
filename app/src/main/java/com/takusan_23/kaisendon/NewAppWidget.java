@@ -11,10 +11,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.widget.RemoteViews;
@@ -24,6 +27,8 @@ import com.google.gson.Gson;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Statuses;
+
+import org.chromium.customtabsclient.shared.CustomTabsHelper;
 
 import java.sql.Time;
 import java.util.ArrayList;
@@ -75,7 +80,7 @@ public class NewAppWidget extends AppWidgetProvider {
                     .build();
 
             NotificationCompat.Action notification_toot_action = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_send
-                    , "今なにしてる？", notification_localtimeline_pendingIntent)
+                    , ctx.getString(R.string.imananisiteru), notification_localtimeline_pendingIntent)
                     .addRemoteInput(remoteInput)
                     .build();
 
@@ -132,6 +137,27 @@ public class NewAppWidget extends AppWidgetProvider {
                 notificationManager.cancel(R.string.notification_LocalTimeline_Notification);
             }
         }
+        
+        if (intent.getBooleanExtra("ListViewClick",false)){
+            String mediaURL = intent.getStringExtra("URL");
+            boolean chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
+            //カスタムタグ有効
+            if (chrome_custom_tabs) {
+                Bitmap back_icon = BitmapFactory.decodeResource(ctx.getApplicationContext().getResources(), R.drawable.ic_action_arrow_back);
+                String custom = CustomTabsHelper.getPackageNameToUse(ctx);
+                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                CustomTabsIntent customTabsIntent = builder.build();
+                customTabsIntent.intent.setPackage(custom);
+                customTabsIntent.launchUrl(ctx, Uri.parse(mediaURL));
+                //無効
+            } else {
+                Uri uri = Uri.parse(mediaURL);
+                Intent intent_url = new Intent(Intent.ACTION_VIEW, uri);
+                ctx.startActivity(intent_url);
+            }
+
+        }
+        
 /*
 
         if (intent.getBooleanExtra("Open", false)) {

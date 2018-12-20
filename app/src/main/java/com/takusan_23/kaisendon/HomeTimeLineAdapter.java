@@ -1221,16 +1221,12 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         //アイコンオンリー
         boolean button_icon = pref_setting.getBoolean("pref_button_icon", false);
-        if (button_icon)
-
-        {
+        if (button_icon) {
             boost_button.setText("");
             nicoru.setText("");
             web_button.setText("");
             holder.bookmark_button.setText("");
-        } else
-
-        {
+        } else {
 
         }
 

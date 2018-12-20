@@ -57,8 +57,8 @@ public class NewAppWidget extends AppWidgetProvider {
             setOnButtonClickPendingIntent_Toot(ctx, rv, appWidgetId);
 
             Intent URLJumpIntent = new Intent(ctx, NewAppWidget.class);
-            PendingIntent URLJumpPendingIntent = PendingIntent.getBroadcast(ctx,30,URLJumpIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-            rv.setPendingIntentTemplate(R.id.widget_listview,URLJumpPendingIntent);
+            PendingIntent URLJumpPendingIntent = PendingIntent.getBroadcast(ctx, 30, URLJumpIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            rv.setPendingIntentTemplate(R.id.widget_listview, URLJumpPendingIntent);
 
             manager.updateAppWidget(appWidgetId, rv);
         }
@@ -84,7 +84,7 @@ public class NewAppWidget extends AppWidgetProvider {
                     .build();
 
             NotificationCompat.Action notification_toot_action = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_send
-                    , ctx.getString(R.string.imananisiteru), notification_localtimeline_pendingIntent)
+                    ,ctx.getString(R.string.imananisiteru), notification_localtimeline_pendingIntent)
                     .addRemoteInput(remoteInput)
                     .build();
 
@@ -100,7 +100,7 @@ public class NewAppWidget extends AppWidgetProvider {
                             .addAction(notification_toot_action).build();
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(ctx);
-            notificationManager.notify(0, newMessageNotification);
+            notificationManager.notify(R.string.add_widget, newMessageNotification);
         }
         Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
         if (remoteInput != null) {
@@ -138,11 +138,11 @@ public class NewAppWidget extends AppWidgetProvider {
                 }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
                 Toast.makeText(ctx, ctx.getString(R.string.toot_ok) + " : " + charSequence, Toast.LENGTH_SHORT).show();
-                notificationManager.cancel(R.string.notification_LocalTimeline_Notification);
+                notificationManager.cancel(R.string.add_widget);
             }
         }
-        
-        if (intent.getBooleanExtra("ListViewClick",false)){
+
+        if (intent.getBooleanExtra("ListViewClick", false)) {
             String mediaURL = intent.getStringExtra("URL");
             pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
             boolean chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);

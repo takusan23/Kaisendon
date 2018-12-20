@@ -90,6 +90,11 @@
             android:summary="@string/setting_notification_timeline_message"
             android:title="@string/setting_notification_timeline_title" />
 
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_no_sleep"
+            android:summary="@string/setting_no_sleep_info"
+            android:title="@string/setting_no_sleep" />
 
     </PreferenceCategory>
 
@@ -326,7 +331,8 @@
     </PreferenceCategory>
 
 
-    <!--スリープ設定-->
+<!--
+    &lt;!&ndash;スリープ設定&ndash;&gt;
 
     <PreferenceCategory
         android:key="preference_setting"
@@ -347,6 +353,7 @@
 
     </PreferenceCategory>
 
+-->
 
     <!--マルチペインUI設定-->
     <PreferenceCategory

@@ -53,7 +53,7 @@
     <string name="setting_avater_get">Avater Hidden</string>
     <string name="setting_avater_get_info">Data Sever</string>
     <string name="setting_no_sleep">Sleep Disable</string>
-    <string name="setting_no_sleep_info">Sleep Disable</string>
+    <string name="setting_no_sleep_info">You can disable sleep</string>
     <string name="setting_no_sleep_timeline">Sleep Disable Pubic TimeLine</string>
     <string name="setting_no_sleep_timeline_info">TimeLine Sleep Disable</string>
     <string name="setting_avater_gif">Avater Gif</string>
@@ -371,5 +371,7 @@
     <string name="setting_widget_load_message">Timeline to read with widget TL</string>
     <string name="setting_widget_load_title">Please select the timeline to read with widget TL.</string>
     <string name="loading_button">Loading</string>
+    <string name="media_delete">Do you want to delete the image?</string>
+    <string name="delete_ok">Delete</string>
 
 </resources>

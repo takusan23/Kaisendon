@@ -3,9 +3,12 @@ package com.takusan_23.kaisendon;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -70,8 +73,32 @@ public class WidgetService extends RemoteViewsService {
             //ここでListViewに追加する
             RemoteViews remoteViews = null;
             remoteViews = new RemoteViews(getApplicationContext().getPackageName(), R.layout.widget_listview_layout);
-
+            pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
+            //URL
             String toot_url = null;
+            //画像を表示するかの判断]
+            boolean avater_show = false;
+            //通信量節約
+            boolean setting_avater_hidden = pref_setting.getBoolean("pref_avater", false);
+            boolean setting_avater_wifi = pref_setting.getBoolean("pref_avater_wifi", true);
+            //Wi-Fi接続状況確認
+            ConnectivityManager connectivityManager =
+                    (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+            //Wi-Fi
+            if (setting_avater_wifi) {
+                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                    avater_show = true;
+                }
+                //Wi-Fi no Connection
+                else {
+                    avater_show = false;
+                }
+            } else {
+                avater_show = false;
+            }
+
 
             //ここで追加
             try {
@@ -82,11 +109,12 @@ public class WidgetService extends RemoteViewsService {
                     String account = jsonArray.getJSONObject(position).getJSONObject("account").getString("acct");
                     String display_name = jsonArray.getJSONObject(position).getJSONObject("account").getString("display_name");
                     String avater_url = jsonArray.getJSONObject(position).getJSONObject("account").getString("avatar");
+                    toot_url = jsonArray.getJSONObject(position).getJSONObject("status").getString("url");
 
-                    remoteViews.setTextViewText(R.id.widget_listview_layout_textview, Html.fromHtml(type + "\r\n" + display_name + " / @" + account + "\r\n" + content, Html.FROM_HTML_MODE_COMPACT));
+                    remoteViews.setTextViewText(R.id.widget_listview_item_linearLayout, Html.fromHtml(type + "\r\n" + display_name + " / @" + account + "\r\n" + content, Html.FROM_HTML_MODE_COMPACT));
 
                     //Glideは神！！！！！！！！！！！！！！！！！！！！！！！！！！！
-                    if (pref_setting.getBoolean("pref_widget_image", true)) {
+                    if (avater_show) {
                         try {
                             Bitmap bitmap = Glide.with(getApplicationContext()).asBitmap().load(avater_url).submit(100, 100).get();
                             remoteViews.setImageViewBitmap(R.id.widget_listview_layout_imageview, bitmap);
@@ -100,11 +128,12 @@ public class WidgetService extends RemoteViewsService {
                     String account = jsonArray.getJSONObject(position).getJSONObject("account").getString("acct");
                     String display_name = jsonArray.getJSONObject(position).getJSONObject("account").getString("display_name");
                     String avater_url = jsonArray.getJSONObject(position).getJSONObject("account").getString("avatar");
+                    toot_url = jsonArray.getJSONObject(position).getString("url");
 
                     remoteViews.setTextViewText(R.id.widget_listview_layout_textview, Html.fromHtml(display_name + " / @" + account + "\r\n" + content, Html.FROM_HTML_MODE_COMPACT));
 
                     //Glideは神！！！！！！！！！！！！！！！！！！！！！！！！！！！
-                    if (pref_setting.getBoolean("pref_widget_image", true)) {
+                    if (avater_show) {
                         try {
                             Bitmap bitmap = Glide.with(getApplicationContext()).asBitmap().load(avater_url).submit(100, 100).get();
                             remoteViews.setImageViewBitmap(R.id.widget_listview_layout_imageview, bitmap);
@@ -116,18 +145,11 @@ public class WidgetService extends RemoteViewsService {
 
 
                 //ListViewの項目をクリックできるようにする
-                Intent btnClickIntent = new Intent(getApplicationContext(), NewAppWidget.class);
+                Intent btnClickIntent = new Intent(getApplicationContext(),NewAppWidget.class);
                 btnClickIntent.putExtra("URL",toot_url);
                 btnClickIntent.putExtra("ListViewClick", true);
 
-                PendingIntent btnClickPendingIntent = PendingIntent.getBroadcast(
-                        getApplicationContext(),
-                        28,
-                        btnClickIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-
-                remoteViews.setOnClickPendingIntent(R.id.widget_listview_item_linearLayout,btnClickPendingIntent);
+                remoteViews.setOnClickFillInIntent(R.id.widget_listview_layout_textview,btnClickIntent);
 
 
             } catch (JSONException e) {

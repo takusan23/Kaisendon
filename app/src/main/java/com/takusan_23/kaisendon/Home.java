@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
@@ -348,7 +349,7 @@ public class Home extends AppCompatActivity
                             if (setting_avater_hidden) {
 
                                 avater_imageView.setImageResource(R.drawable.ic_person_black_24dp);
-                                header_imageView.setImageResource(R.drawable.ic_launcher_background);
+                                header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"));
 
                             }
                             //Wi-Fi
@@ -386,7 +387,7 @@ public class Home extends AppCompatActivity
                             } else {
 
                                 avater_imageView.setImageResource(R.drawable.ic_person_black_24dp);
-                                header_imageView.setImageResource(R.drawable.side_nav_bar);
+                                header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"));
 
                             }
 
@@ -791,7 +792,7 @@ public class Home extends AppCompatActivity
 */
 
         //スリープ無効？
-        boolean setting_sleep = pref_setting.getBoolean("pref_no_sleep_timeline", false);
+        boolean setting_sleep = pref_setting.getBoolean("pref_no_sleep", false);
         if (setting_sleep) {
             //常時点灯
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

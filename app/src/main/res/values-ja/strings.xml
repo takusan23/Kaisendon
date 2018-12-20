@@ -50,7 +50,7 @@
     <string name="setting_avater_get">アバターを非表示</string>
     <string name="setting_avater_get_info">通信量節約のためにアバター画像を取得しない</string>
     <string name="setting_no_sleep">スリープを無効</string>
-    <string name="setting_no_sleep_info">スリープを無効化設定を利用できます</string>
+    <string name="setting_no_sleep_info">スリープを無効にできます</string>
     <string name="setting_no_sleep_timeline">タイムラインアクセス時はスリープを無効</string>
     <string name="setting_no_sleep_timeline_info">タイムラインアクセス時はスリープを無効化します</string>
     <string name="setting_avater_gif">GIFアバター画像を静止画にする</string>
@@ -267,5 +267,7 @@
     <string name="setting_widget_load_title">ウィジェットTLで読み込むタイムライン</string>
     <string name="setting_widget_load_message">ウィジェットTLで読み込むタイムラインを選択してください。</string>
     <string name="loading_button">読み込み</string>
+    <string name="media_delete">画像を削除しますか？</string>
+    <string name="delete_ok">削除</string>
 
 </resources>

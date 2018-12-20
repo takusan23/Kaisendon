@@ -588,8 +588,6 @@ public class TootActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-
     }
 
 
@@ -740,190 +738,194 @@ public class TootActivity extends AppCompatActivity {
         LinearLayout add_image_linearLayout = findViewById(R.id.media_linearLayout);
         ImageView background_imageView = findViewById(R.id.activity_toot_background_imageview);
 
-        if (requestCode == 1)
-            if (resultCode == Activity.RESULT_OK) {
-                Uri selectedImage = data.getData();
+        if (media_ids.size() < 4) {
+            if (requestCode == 1)
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri selectedImage = data.getData();
 
-                String filePath = getPath(selectedImage);
-                String file_extn = filePath.substring(filePath.lastIndexOf(".") + 1);
-                File file = new File(filePath);
-                String finalPath = "file:\\\\" + filePath;
+                    String filePath = getPath(selectedImage);
+                    String file_extn = filePath.substring(filePath.lastIndexOf(".") + 1);
+                    File file = new File(filePath);
+                    String finalPath = "file:\\\\" + filePath;
 
-                //image_name_tv.setText(filePath);
+                    //image_name_tv.setText(filePath);
 
-                if (file_extn.equals("img") || file_extn.equals("jpg") || file_extn.equals("jpeg") || file_extn.equals("gif") || file_extn.equals("png")) {
-                    System.out.println("パス : " + finalPath.replaceAll("\\\\", "/"));
-                    System.out.println("拡張子 : " + file_extn);
-                    System.out.println("ファイル名 : " + file.getName());
+                    if (file_extn.equals("img") || file_extn.equals("jpg") || file_extn.equals("jpeg") || file_extn.equals("gif") || file_extn.equals("png")) {
+                        System.out.println("パス : " + finalPath.replaceAll("\\\\", "/"));
+                        System.out.println("拡張子 : " + file_extn);
+                        System.out.println("ファイル名 : " + file.getName());
 
-                    //動的にレイアウト作成
-                    ImageView add_image_imageview = new ImageView(this);
-                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(200, 200);
-                    add_image_imageview.setLayoutParams(layoutParams);
-                    add_image_linearLayout.addView(add_image_imageview);
-                    add_image_imageview.setImageURI(selectedImage);
-
-
-                    //画像を投げるだけ
-                    AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
-                        @Override
-                        protected String doInBackground(String... string) {
-                            String AccessToken = null;
-                            String instance = null;
-                            //設定のプリファレンス
-                            SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(getContext());
-                            boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
-                            if (accessToken_boomelan) {
-                                AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
-                                instance = pref_setting.getString("pref_mastodon_instance", "");
-                            } else {
-                                AccessToken = pref_setting.getString("main_token", "");
-                                instance = pref_setting.getString("main_instance", "");
-                            }
+                        //動的にレイアウト作成
+                        ImageView add_image_imageview = new ImageView(this);
+                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(200, 200);
+                        add_image_imageview.setLayoutParams(layoutParams);
+                        add_image_linearLayout.addView(add_image_imageview);
+                        add_image_imageview.setImageURI(selectedImage);
 
 
-                            /*
-                             *  ここから　MultiPartBody/FormDataをつかった画像POST
-                             *  念願の画像POSTです！！！！！！！！！！！
-                             *
-                             */
-
-                            //くるくる
-                            View view = findViewById(android.R.id.content);
-                            Snackbar snackbar = Snackbar.make(view, "画像アップロード中 \r\n /api/v1/media", Snackbar.LENGTH_INDEFINITE);
-                            ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
-                            //SnackBerを複数行対応させる
-                            TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
-                            snackBer_textView.setMaxLines(2);
-                            //複数行対応させたおかげでずれたので修正
-                            ProgressBar progressBar = new ProgressBar(TootActivity.this);
-                            LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                            progressBer_layoutParams.gravity = Gravity.CENTER;
-                            progressBar.setLayoutParams(progressBer_layoutParams);
-                            snackBer_viewGrop.addView(progressBar, 0);
-                            snackbar.show();
-
-
-                            OkHttpClient okHttpClient = new OkHttpClient();
-
-                            String url_link = "https://" + instance + "/api/v1/media/";
-
-                            RequestBody requestBody = new MultipartBody.Builder()
-                                    .setType(MultipartBody.FORM)
-                                    .addFormDataPart("file", file.getName(), RequestBody.create(MediaType.parse("image/" + file_extn), file))
-                                    .addFormDataPart("access_token", AccessToken)
-                                    .build();
-
-                            Request request = new Request.Builder()
-                                    .url(url_link)
-                                    .post(requestBody)
-                                    .build();
-
-                            String request_string = "";
-
-                            okHttpClient.newCall(request).enqueue(new Callback() {
-                                @Override
-                                public void onFailure(Call call, IOException e) {
-
+                        //画像を投げるだけ
+                        AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
+                            @Override
+                            protected String doInBackground(String... string) {
+                                String AccessToken = null;
+                                String instance = null;
+                                //設定のプリファレンス
+                                SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(getContext());
+                                boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
+                                if (accessToken_boomelan) {
+                                    AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
+                                    instance = pref_setting.getString("pref_mastodon_instance", "");
+                                } else {
+                                    AccessToken = pref_setting.getString("main_token", "");
+                                    instance = pref_setting.getString("main_instance", "");
                                 }
 
-                                @Override
-                                public void onResponse(Call call, Response response) throws IOException {
-                                    String response_string = response.body().string();
-                                    System.out.println("レスポンス : " + response_string);
+                                View view = findViewById(android.R.id.content);
+                                LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(response_string);
-                                        long media_id_long = jsonObject.getLong("id");
-                                        media_ids.add(media_id_long);
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                snackbar.dismiss();
-                                            }
-                                        });
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
+                                /*
+                                 *  ここから　MultiPartBody/FormDataをつかった画像POST
+                                 *  念願の画像POSTです！！！！！！！！！！！
+                                 *
+                                 */
+
+                                //くるくる
+
+                                Snackbar snackbar = Snackbar.make(view, "画像アップロード中 \r\n /api/v1/media", Snackbar.LENGTH_INDEFINITE);
+                                ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                                //SnackBerを複数行対応させる
+                                TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+                                snackBer_textView.setMaxLines(2);
+                                //複数行対応させたおかげでずれたので修正
+                                ProgressBar progressBar = new ProgressBar(TootActivity.this);
+                                progressBer_layoutParams.gravity = Gravity.CENTER;
+                                progressBar.setLayoutParams(progressBer_layoutParams);
+                                snackBer_viewGrop.addView(progressBar, 0);
+                                snackbar.show();
+
+
+                                OkHttpClient okHttpClient = new OkHttpClient();
+
+                                String url_link = "https://" + instance + "/api/v1/media/";
+
+                                RequestBody requestBody = new MultipartBody.Builder()
+                                        .setType(MultipartBody.FORM)
+                                        .addFormDataPart("file", file.getName(), RequestBody.create(MediaType.parse("image/" + file_extn), file))
+                                        .addFormDataPart("access_token", AccessToken)
+                                        .build();
+
+                                Request request = new Request.Builder()
+                                        .url(url_link)
+                                        .post(requestBody)
+                                        .build();
+
+                                String request_string = "";
+
+                                okHttpClient.newCall(request).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+
                                     }
 
-                                }
-                            });
-                            Button toot_button = findViewById(R.id.toot);
-                            TextView toot_textbox = findViewById(R.id.toot_text_public);
-                            MastodonClient client = new MastodonClient.Builder(instance, new OkHttpClient.Builder(), new Gson()).accessToken(AccessToken).build();
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        String response_string = response.body().string();
+                                        System.out.println("レスポンス : " + response_string);
 
-                            //くるくる
-                            Snackbar snackbar_status = Snackbar.make(view, "トゥート！ \r\n/api/v1/statuses", Snackbar.LENGTH_INDEFINITE);
-                            ViewGroup snackBer_viewGrop_status = (ViewGroup) snackbar_status.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
-                            //SnackBerを複数行対応させる
-                            TextView snackBer_textView_status = (TextView) snackBer_viewGrop_status.findViewById(android.support.design.R.id.snackbar_text);
-                            snackBer_textView_status.setMaxLines(2);
-                            //複数行対応させたおかげでずれたので修正
-                            ProgressBar progressBar_status = new ProgressBar(TootActivity.this);
-                            LinearLayout.LayoutParams progressBer_layoutParams_status = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                            progressBer_layoutParams_status.gravity = Gravity.CENTER;
-                            progressBar_status.setLayoutParams(progressBer_layoutParams);
-                            snackBer_viewGrop_status.addView(progressBar_status, 0);
-
-                            toot_button.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    //ダイアログ出すかどうか
-                                    boolean accessToken_boomelan = pref_setting.getBoolean("pref_toot_dialog", false);
-                                    if (accessToken_boomelan) {
-                                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(TootActivity.this);
-                                        alertDialog.setTitle(R.string.confirmation);
-                                        alertDialog.setMessage(R.string.toot_dialog);
-                                        alertDialog.setPositiveButton(R.string.toot, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                new AsyncTask<String, String, String>() {
-                                                    @Override
-                                                    protected String doInBackground(String... params) {
-                                                        try {
-                                                            new Statuses(client).postStatus(toot_textbox.getText().toString(), null, media_ids, false, null, visibility).execute();
-                                                        } catch (Mastodon4jRequestException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                        return toot_textbox.getText().toString();
-                                                    }
-
-                                                    @Override
-                                                    protected void onPostExecute(String result) {
-                                                        Toast.makeText(getApplicationContext(), "トゥートしました : " + result, Toast.LENGTH_SHORT).show();
-                                                    }
-                                                }.execute();
-                                            }
-                                        });
-                                        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                            }
-                                        });
-                                        alertDialog.create().show();
-                                    } else {
-                                        new AsyncTask<String, String, String>() {
-                                            @Override
-                                            protected String doInBackground(String... params) {
-                                                try {
-                                                    new Statuses(client).postStatus(toot_textbox.getText().toString(), null, media_ids, false, null, visibility).execute();
-                                                } catch (Mastodon4jRequestException e) {
-                                                    e.printStackTrace();
+                                        try {
+                                            JSONObject jsonObject = new JSONObject(response_string);
+                                            long media_id_long = jsonObject.getLong("id");
+                                            media_ids.add(media_id_long);
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    snackbar.dismiss();
+                                                    add_image_imageview.setTag(media_ids.size());
                                                 }
-                                                return toot_textbox.getText().toString();
-                                            }
+                                            });
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
 
-                                            @Override
-                                            protected void onPostExecute(String result) {
-                                                Toast.makeText(getApplicationContext(), "トゥートしました : " + result, Toast.LENGTH_SHORT).show();
-                                            }
-                                        }.execute();
                                     }
-                                }
-                            });
+                                });
+
+                                Button toot_button = findViewById(R.id.toot);
+                                TextView toot_textbox = findViewById(R.id.toot_text_public);
+                                MastodonClient client = new MastodonClient.Builder(instance, new OkHttpClient.Builder(), new Gson()).accessToken(AccessToken).build();
+
+                                //くるくる
+                                Snackbar snackbar_status = Snackbar.make(view, "トゥート！ \r\n/api/v1/statuses", Snackbar.LENGTH_INDEFINITE);
+                                ViewGroup snackBer_viewGrop_status = (ViewGroup) snackbar_status.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                                //SnackBerを複数行対応させる
+                                TextView snackBer_textView_status = (TextView) snackBer_viewGrop_status.findViewById(android.support.design.R.id.snackbar_text);
+                                snackBer_textView_status.setMaxLines(2);
+                                //複数行対応させたおかげでずれたので修正
+                                ProgressBar progressBar_status = new ProgressBar(TootActivity.this);
+                                LinearLayout.LayoutParams progressBer_layoutParams_status = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                progressBer_layoutParams_status.gravity = Gravity.CENTER;
+                                progressBar_status.setLayoutParams(progressBer_layoutParams);
+                                snackBer_viewGrop_status.addView(progressBar_status, 0);
+
+                                toot_button.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        //ダイアログ出すかどうか
+                                        boolean accessToken_boomelan = pref_setting.getBoolean("pref_toot_dialog", false);
+                                        if (accessToken_boomelan) {
+                                            AlertDialog.Builder alertDialog = new AlertDialog.Builder(TootActivity.this);
+                                            alertDialog.setTitle(R.string.confirmation);
+                                            alertDialog.setMessage(R.string.toot_dialog);
+                                            alertDialog.setPositiveButton(R.string.toot, new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    new AsyncTask<String, String, String>() {
+                                                        @Override
+                                                        protected String doInBackground(String... params) {
+                                                            try {
+                                                                new Statuses(client).postStatus(toot_textbox.getText().toString(), null, media_ids, false, null, visibility).execute();
+                                                            } catch (Mastodon4jRequestException e) {
+                                                                e.printStackTrace();
+                                                            }
+                                                            return toot_textbox.getText().toString();
+                                                        }
+
+                                                        @Override
+                                                        protected void onPostExecute(String result) {
+                                                            Toast.makeText(getApplicationContext(), "トゥートしました : " + result, Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }.execute();
+                                                }
+                                            });
+                                            alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                }
+                                            });
+                                            alertDialog.create().show();
+                                        } else {
+                                            new AsyncTask<String, String, String>() {
+                                                @Override
+                                                protected String doInBackground(String... params) {
+                                                    try {
+                                                        new Statuses(client).postStatus(toot_textbox.getText().toString(), null, media_ids, false, null, visibility).execute();
+                                                    } catch (Mastodon4jRequestException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                    return toot_textbox.getText().toString();
+                                                }
+
+                                                @Override
+                                                protected void onPostExecute(String result) {
+                                                    Toast.makeText(getApplicationContext(), "トゥートしました : " + result, Toast.LENGTH_SHORT).show();
+                                                }
+                                            }.execute();
+                                        }
+                                    }
+                                });
 
 
-                            // System.out.println("=====" + client.post("statuses", requestBody));
+                                // System.out.println("=====" + client.post("statuses", requestBody));
 
 
 /*
@@ -953,17 +955,54 @@ public class TootActivity extends AppCompatActivity {
 */
 
 
-                            return null;
-                        }
-                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                                return null;
+                            }
+                        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-                    //FINE
-                } else {
-                    //NOT IN REQUIRED FORMAT
+
+                        //画像を消す
+                        add_image_imageview.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                //Toast.makeText(getContext(), String.valueOf((int) add_image_imageview.getTag()), Toast.LENGTH_SHORT).show();
+                                int media_number = (int) add_image_imageview.getTag();
+
+                                new AlertDialog.Builder(TootActivity.this)
+                                        .setTitle(R.string.confirmation)
+                                        .setMessage(R.string.media_delete)
+                                        .setPositiveButton(R.string.delete_ok, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                // OK button pressed
+                                                try {
+                                                    if (media_ids.size() >= media_number) {
+                                                        media_ids.remove(media_number - 1);
+                                                        add_image_linearLayout.removeViewAt(media_number - 1);
+                                                    }
+                                                } catch (IndexOutOfBoundsException e) {
+                                                    media_ids.clear();
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            add_image_linearLayout.removeViewAt(2);
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        })
+                                        .setNegativeButton("Cancel", null)
+                                        .show();
+
+                            }
+                        });
+
+
+                        //FINE
+                    } else {
+                        //NOT IN REQUIRED FORMAT
+                    }
                 }
-
-
-            }
+        }
     }
 
     @Override

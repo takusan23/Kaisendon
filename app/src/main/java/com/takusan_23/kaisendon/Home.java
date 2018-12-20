@@ -85,6 +85,8 @@ public class Home extends AppCompatActivity
 
     boolean nicoru = false;
 
+    int test = 0;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -223,18 +225,24 @@ public class Home extends AppCompatActivity
                 networkChangeBroadcast = new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        View view = findViewById(android.R.id.content);
-                        Snackbar.make(view, R.string.network_change, Snackbar.LENGTH_SHORT).setAction(R.string.ReStart, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                //押したときにActivityを再生成する
-                                // アクティビティ再起動
-                                Intent intent = new Intent(Home.this, Home.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // 起動しているActivityをすべて削除し、新しいタスクでMainActivityを起動する
-                                startActivity(intent);
+                        //何故かアプリ起動時にもネットワーク変更ブロードキャストが飛んでくるので
+                        //カウントアップして起動時は表示しないように
+                        test++;
+                        //System.out.println("カウント : " + String.valueOf(test));
+                        if (test >= 2){
+                            View view = findViewById(android.R.id.content);
+                            Snackbar.make(view, R.string.network_change, Snackbar.LENGTH_SHORT).setAction(R.string.ReStart, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    //押したときにActivityを再生成する
+                                    // アクティビティ再起動
+                                    Intent intent = new Intent(Home.this, Home.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // 起動しているActivityをすべて削除し、新しいタスクでMainActivityを起動する
+                                    startActivity(intent);
 
-                            }
-                        }).show();
+                                }
+                            }).show();
+                        }
                     }
                 };
                 registerReceiver(networkChangeBroadcast, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));

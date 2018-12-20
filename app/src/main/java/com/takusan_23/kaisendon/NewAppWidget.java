@@ -56,6 +56,10 @@ public class NewAppWidget extends AppWidgetProvider {
             setOnButtonClickPendingIntent_Load(ctx, rv, appWidgetId);
             setOnButtonClickPendingIntent_Toot(ctx, rv, appWidgetId);
 
+            Intent URLJumpIntent = new Intent(ctx, NewAppWidget.class);
+            PendingIntent URLJumpPendingIntent = PendingIntent.getBroadcast(ctx,30,URLJumpIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+            rv.setPendingIntentTemplate(R.id.widget_listview,URLJumpPendingIntent);
+
             manager.updateAppWidget(appWidgetId, rv);
         }
     }
@@ -140,6 +144,7 @@ public class NewAppWidget extends AppWidgetProvider {
         
         if (intent.getBooleanExtra("ListViewClick",false)){
             String mediaURL = intent.getStringExtra("URL");
+            pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
             boolean chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
             //カスタムタグ有効
             if (chrome_custom_tabs) {

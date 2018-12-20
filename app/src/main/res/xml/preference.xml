@@ -143,12 +143,6 @@
         android:key="preference_setting"
         android:title="@string/widget_setting">
 
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_widget_image"
-            android:summary="@string/setting_widget_image_message"
-            android:title="@string/setting_widget_image_title" />
-
         <ListPreference
             android:defaultValue="Home"
             android:entries="@array/widget_list"

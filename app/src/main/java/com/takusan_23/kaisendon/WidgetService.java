@@ -1,5 +1,6 @@
 package com.takusan_23.kaisendon;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Intent;
@@ -69,6 +70,9 @@ public class WidgetService extends RemoteViewsService {
             //ここでListViewに追加する
             RemoteViews remoteViews = null;
             remoteViews = new RemoteViews(getApplicationContext().getPackageName(), R.layout.widget_listview_layout);
+
+            String toot_url = null;
+
             //ここで追加
             try {
                 //Htmlなんとか～はJSONの中のトゥートにHTMLタグがついてるため
@@ -109,6 +113,22 @@ public class WidgetService extends RemoteViewsService {
                         }
                     }
                 }
+
+
+                //ListViewの項目をクリックできるようにする
+                Intent btnClickIntent = new Intent(getApplicationContext(), NewAppWidget.class);
+                btnClickIntent.putExtra("URL",toot_url);
+                btnClickIntent.putExtra("ListViewClick", true);
+
+                PendingIntent btnClickPendingIntent = PendingIntent.getBroadcast(
+                        getApplicationContext(),
+                        28,
+                        btnClickIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+                remoteViews.setOnClickPendingIntent(R.id.widget_listview_item_linearLayout,btnClickPendingIntent);
+
 
             } catch (JSONException e) {
                 e.printStackTrace();

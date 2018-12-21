@@ -423,6 +423,7 @@
             android:summary="@string/setting_client_name_info"
             android:title="@string/setting_client_name" />
 
+        <!--
         <CheckBoxPreference
             android:defaultValue="false"
             android:dependency="pref_advanced_setting"
@@ -442,6 +443,7 @@
             android:key="pref_mastodon_accesstoken"
             android:summary="@string/setting_mastodon_accesstoken_info"
             android:title="@string/setting_mastodon_accesstoken" />
+-->
 
 
     </PreferenceCategory>

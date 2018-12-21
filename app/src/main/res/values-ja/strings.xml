@@ -269,5 +269,6 @@
     <string name="loading_button">読み込み</string>
     <string name="media_delete">画像を削除しますか？</string>
     <string name="delete_ok">削除</string>
+    <string name="accesstoken_edit">自分で生成したアクセストークンを利用する</string>
 
 </resources>

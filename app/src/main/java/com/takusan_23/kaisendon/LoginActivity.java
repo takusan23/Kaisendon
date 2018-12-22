@@ -43,6 +43,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -197,8 +198,10 @@ public class LoginActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     accesstoken_imput = true;
+                    second_message.setText(R.string.please_access_token);
                 } else {
                     accesstoken_imput = false;
+                    second_message.setText(R.string.second_message);
                 }
             }
         });
@@ -233,91 +236,85 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                //読み込み中
-                Snackbar snackbar = Snackbar.make(v, getString(R.string.loading_clientid_clientsecret) + "\r\n /api/v1/apps", Snackbar.LENGTH_INDEFINITE);
-                ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
-                //SnackBerを複数行対応させる
-                TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
-                snackBer_textView.setMaxLines(2);
-                //複数行対応させたおかげでずれたので修正
-                ProgressBar progressBar = new ProgressBar(LoginActivity.this);
-                LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                progressBer_layoutParams.gravity = Gravity.CENTER;
-                progressBar.setLayoutParams(progressBer_layoutParams);
-                snackBer_viewGrop.addView(progressBar, 0);
-                snackbar.show();
+                if (!accesstoken_imput) {
+
+                    //読み込み中
+                    Snackbar snackbar = Snackbar.make(v, getString(R.string.loading_clientid_clientsecret) + "\r\n /api/v1/apps", Snackbar.LENGTH_INDEFINITE);
+                    ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                    //SnackBerを複数行対応させる
+                    TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+                    snackBer_textView.setMaxLines(2);
+                    //複数行対応させたおかげでずれたので修正
+                    ProgressBar progressBar = new ProgressBar(LoginActivity.this);
+                    LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    progressBer_layoutParams.gravity = Gravity.CENTER;
+                    progressBar.setLayoutParams(progressBer_layoutParams);
+                    snackBer_viewGrop.addView(progressBar, 0);
+                    snackbar.show();
 
 
-/*
-                //くるくる
-                dialog = new ProgressDialog(LoginActivity.this);
-                dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                dialog.setMessage("クライアントID、クライアントシークレットを取得中 \r\n /api/v1/apps");
-                dialog.show();
-*/
+                    AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
+                        @Override
+                        protected String doInBackground(String... string) {
 
+                            //idとsecretを取得する
+                            MastodonClient client = new MastodonClient.Builder(acess.getText().toString(), new OkHttpClient.Builder(), new Gson()).build();
+                            Apps apps = new Apps(client);
+                            try {
+                                AppRegistration appRegistration = apps.createApp(
+                                        client_name,
+                                        "urn:ietf:wg:oauth:2.0:oob",
+                                        new Scope(Scope.Name.ALL),
+                                        "https://friends.nico/@takusan_23"
+                                ).execute();
 
-                AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
-                    @Override
-                    protected String doInBackground(String... string) {
+                                register_client_id = appRegistration.getClientId();
+                                register_client_secret = appRegistration.getClientSecret();
 
-                        //idとsecretを取得する
-                        MastodonClient client = new MastodonClient.Builder(acess.getText().toString(), new OkHttpClient.Builder(), new Gson()).build();
-                        Apps apps = new Apps(client);
-                        try
+                                //dialog.dismiss();
+                                snackbar.dismiss();
 
-                        {
-                            AppRegistration appRegistration = apps.createApp(
-                                    client_name,
-                                    "urn:ietf:wg:oauth:2.0:oob",
-                                    new Scope(Scope.Name.ALL),
-                                    "https://friends.nico/@takusan_23"
-                            ).execute();
-
-                            register_client_id = appRegistration.getClientId();
-                            register_client_secret = appRegistration.getClientSecret();
-
-                            //dialog.dismiss();
-                            snackbar.dismiss();
-
-                        } catch (Mastodon4jRequestException e) {
-                            e.printStackTrace();
-                        }
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(LoginActivity.this, R.string.code_copy, Toast.LENGTH_LONG).show();
+                            } catch (Mastodon4jRequestException e) {
+                                e.printStackTrace();
                             }
-                        });
 
-                        //PINを生成する
-                        Uri url = Uri.parse("https://" + acess.getText().toString() + "/oauth/authorize?client_id=" + register_client_id + "&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&scope=read%20write%20follow");
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(LoginActivity.this, R.string.code_copy, Toast.LENGTH_LONG).show();
+                                }
+                            });
 
-                        boolean chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
-                        //戻るアイコン
-                        Bitmap back_icon = BitmapFactory.decodeResource(LoginActivity.this.getApplicationContext().getResources(), R.drawable.ic_action_arrow_back);
+                            //PINを生成する
+                            Uri url = Uri.parse("https://" + acess.getText().toString() + "/oauth/authorize?client_id=" + register_client_id + "&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&scope=read%20write%20follow");
 
-                        //CutomTabを使うかどうか
-                        //有効
-                        if (chrome_custom_tabs) {
+                            boolean chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
+                            //戻るアイコン
+                            Bitmap back_icon = BitmapFactory.decodeResource(LoginActivity.this.getApplicationContext().getResources(), R.drawable.ic_action_arrow_back);
 
-                            String custom = CustomTabsHelper.getPackageNameToUse((LoginActivity.this));
+                            //CutomTabを使うかどうか
+                            //有効
+                            if (chrome_custom_tabs) {
 
-                            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
-                            CustomTabsIntent customTabsIntent = builder.build();
-                            customTabsIntent.intent.setPackage(custom);
-                            customTabsIntent.launchUrl((Activity) LoginActivity.this, url);
-                            //無効
-                        } else {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, url);
-                            LoginActivity.this.startActivity(intent);
+                                String custom = CustomTabsHelper.getPackageNameToUse((LoginActivity.this));
 
+                                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                                CustomTabsIntent customTabsIntent = builder.build();
+                                customTabsIntent.intent.setPackage(custom);
+                                customTabsIntent.launchUrl((Activity) LoginActivity.this, url);
+                                //無効
+                            } else {
+                                Intent intent = new Intent(Intent.ACTION_VIEW, url);
+                                LoginActivity.this.startActivity(intent);
+
+                            }
+                            return null;
                         }
-                        return null;
-                    }
 
-                }.execute();
+                    }.execute();
+                }else {
+                    Toast.makeText(LoginActivity.this,R.string.please_access_token,Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -327,306 +324,219 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final String code = pin.getText().toString();
 
-                //アクセストークン手打ち用モード
                 if (accesstoken_imput) {
 
-                    //アクセストークンがあってるかユーザー情報を取得して確認する
-                    //最後のトゥートIDを持ってくる
-                    //もういい！okhttpで実装する！！
-                    String url = "https://" + acess.getText().toString() + "/api/v1/accounts/verify_credentials/?access_token=" + code;
-                    //作成
-                    Request request = new Request.Builder()
-                            .url(url)
-                            .get()
-                            .build();
+                //アクセストークンがあってるかユーザー情報を取得して確認する
+                //最後のトゥートIDを持ってくる
+                //もういい！okhttpで実装する！！
+                String url = "https://" + acess.getText().toString() + "/api/v1/accounts/verify_credentials/?access_token=" + code;
+                //作成
+                Request request = new Request.Builder()
+                        .url(url)
+                        .get()
+                        .build();
 
-                    //GETリクエスト
-                    OkHttpClient client_1 = new OkHttpClient();
-                    client_1.newCall(request).enqueue(new Callback() {
+                //GETリクエスト
+                OkHttpClient client_1 = new OkHttpClient();
+                client_1.newCall(request).enqueue(new Callback() {
 
-                        @Override
-                        public void onFailure(Call call, IOException e) {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
 
-                        }
+                    }
 
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            try {
-                                JSONObject jsonObject = new JSONObject(response.body().string());
-                                String username = jsonObject.getString("display_name");
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(LoginActivity.this, username, Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-
-
-                    //プリファレンスにかきかき（token）
-                    SharedPreferences.Editor editor = pref_setting.edit();
-
-                    //祝　マルチアカウント対応
-                    //ここから
-
-                    //配列を使えば幸せになれそう！！！
-                    ArrayList<String> multi_account_instance = new ArrayList<>();
-                    ArrayList<String> multi_account_access_token = new ArrayList<>();
-
-                    //とりあえずPreferenceに書き込まれた値を
-                    String instance_instance_string = pref_setting.getString("instance_list", "");
-                    String account_instance_string = pref_setting.getString("access_list", "");
-                    if (!instance_instance_string.equals("")) {
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
                         try {
-                            JSONArray instance_array = new JSONArray(instance_instance_string);
-                            JSONArray access_array = new JSONArray(account_instance_string);
-                            for (int i = 0; i < instance_array.length(); i++) {
-                                multi_account_access_token.add(access_array.getString(i));
-                                multi_account_instance.add(instance_array.getString(i));
-                            }
-                        } catch (Exception e) {
-
-                        }
-                    }
-
-                    multi_account_instance.add(acess.getText().toString());
-                    multi_account_access_token.add(code);
-
-                    //Preferenceに配列は保存できないのでJSON化して保存する
-                    //Write
-                    JSONArray instance_array = new JSONArray();
-                    JSONArray access_array = new JSONArray();
-                    for (int i = 0; i < multi_account_instance.size(); i++) {
-                        instance_array.put(multi_account_instance.get(i));
-                    }
-                    for (int i = 0; i < multi_account_access_token.size(); i++) {
-                        access_array.put(multi_account_access_token.get(i));
-                    }
-
-                    //書き込む
-                    editor.putString("instance_list", instance_array.toString());
-                    editor.putString("access_list", access_array.toString());
-                    editor.apply();
-
-                    //ログインできたらとりあえずそれにする
-                    editor.putString("main_token", code);
-                    editor.putString("main_instance", acess.getText().toString());
-                    editor.apply();
-                } else {
-
-
-                    //System.out.println("Client_ID : " + register_client_id);
-                    //Toast.makeText(LoginActivity.this, "Client_ID : " + register_client_id, Toast.LENGTH_SHORT).show();
-
-                    String accessToken_string = null;
-
-                    new AsyncTask<String, Void, String>() {
-
-                        @Override
-                        protected String doInBackground(String... params) {
-
-                            MastodonClient client = new MastodonClient.Builder(acess.getText().toString(), new OkHttpClient.Builder(), new Gson()).build();
-                            Apps apps = new Apps(client);
-                            AppRegistration appRegistration = new AppRegistration();
-                            String redirectUrl = appRegistration.getRedirectUri();
-
-                            // String url = apps.getOAuthUrl(client_id, new Scope(Scope.Name.ALL),"urn:ietf:wg:oauth:2.0:oob");
-                            try {
-                                AccessToken accessToken = apps.getAccessToken(
-                                        register_client_id,
-                                        register_client_secret,
-                                        "urn:ietf:wg:oauth:2.0:oob",
-                                        code,
-                                        "authorization_code"
-                                ).execute();
-
-                                // アクセストークン！！！！！！！！！！！
-                                String accessToken_string = accessToken.getAccessToken();
-
-                                //プリファレンスにかきかき（token）
-                                SharedPreferences.Editor editor = pref_setting.edit();
-
-                                //祝　マルチアカウント対応
-                                //ここから
-
-                                //配列を使えば幸せになれそう！！！
-                                ArrayList<String> multi_account_instance = new ArrayList<>();
-                                ArrayList<String> multi_account_access_token = new ArrayList<>();
-
-                                //とりあえずPreferenceに書き込まれた値を
-                                String instance_instance_string = pref_setting.getString("instance_list", "");
-                                String account_instance_string = pref_setting.getString("access_list", "");
-                                if (!instance_instance_string.equals("")) {
-                                    try {
-                                        JSONArray instance_array = new JSONArray(instance_instance_string);
-                                        JSONArray access_array = new JSONArray(account_instance_string);
-                                        for (int i = 0; i < instance_array.length(); i++) {
-                                            multi_account_access_token.add(access_array.getString(i));
-                                            multi_account_instance.add(instance_array.getString(i));
-                                        }
-                                    } catch (Exception e) {
-
-                                    }
-                                }
-
-                                multi_account_instance.add(acess.getText().toString());
-                                multi_account_access_token.add(accessToken_string);
-
-                                //Preferenceに配列は保存できないのでJSON化して保存する
-                                //Write
-                                JSONArray instance_array = new JSONArray();
-                                JSONArray access_array = new JSONArray();
-                                for (int i = 0; i < multi_account_instance.size(); i++) {
-                                    instance_array.put(multi_account_instance.get(i));
-                                }
-                                for (int i = 0; i < multi_account_access_token.size(); i++) {
-                                    access_array.put(multi_account_access_token.get(i));
-                                }
-
-                                //書き込む
-                                editor.putString("instance_list", instance_array.toString());
-                                editor.putString("access_list", access_array.toString());
-                                editor.apply();
-
-                                //ログインできたらとりあえずそれにする
-                                editor.putString("main_token", accessToken_string);
-                                editor.putString("main_instance", acess.getText().toString());
-                                editor.apply();
-
-
-/*
-                            SharedPreferences.Editor editor1 = pref_emoji.edit();
-                            editor1.putString("emoji","emoji_no1");
-                            editor1.apply();
-*/
-
-                                //絵文字一覧APIで絵文字取ってくる！
-                                //絵文字データが有るか確認
-/*
-                            SharedPreferences.Editor emoji_editor = pref_emoji.edit();
-                            if (pref_emoji.getBoolean(acess.getText().toString()+ "_CustomEmojiDeta",false) == false){
-                                //無いときはある判定へ
-                                emoji_editor.putBoolean(acess.getText().toString() + "_CustomEmojiDeta",true);
-                                emoji_editor.apply();
-
-                                //ここで取得
-                                Request emoji_request = new Request.Builder()
-                                        .url("https://" + acess.getText().toString() + "/api/v1/custom_emojis")
-                                        .get()
-                                        .build();
-
-                                OkHttpClient okHttpClient = new OkHttpClient();
-                                okHttpClient.newCall(emoji_request).enqueue(new Callback() {
-                                    @Override
-                                    public void onFailure(Call call, IOException e) {
-
-                                    }
-
-                                    @Override
-                                    public void onResponse(Call call, Response response) throws IOException {
-                                        String response_string = response.body().string();
-                                        try {
-                                            JSONArray jsonArray = new JSONArray(response_string);
-                                            for (int i = 0; i < jsonArray.length(); i ++){
-                                                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                                                String emoji_name = jsonObject.getString("shortcode");
-                                                String emoji_url = jsonObject.getString("url");
-
-                                                //書き込み
-                                                SharedPreferences.Editor emoji_editor = pref_emoji.edit();
-                                                emoji_editor.putString(emoji_name,emoji_url);
-                                                emoji_editor.apply();
-                                            }
-
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                });
-                            }else{
-                                System.out.println("このインスタンスの絵文字データは取得済みです " + acess.getText().toString());
-                            }
-*/
-
-
-                            /*
-                            if (swich == 1) {
-                                //現在のアカウント数を取得する
-                                int account_count_get = pref_setting.getInt("account_count", 2);
-                                //現在のアカウント数から１足した値にする
-                                account_count_get++;
-                                editor.putInt("account_count", account_count_get);
-                                editor.putString("token" + String.valueOf(account_count_get), accessToken_string);
-                                editor.putString("instance" + String.valueOf(account_count_get), acess.getText().toString());
-                                editor.commit();
-
-                            } else if (swich == 0) {
-                                editor.putInt("account_count", 1);
-                                editor.putString("main_token", accessToken_string);
-                                editor.putString("main_instance", acess.getText().toString());
-                                editor.putString("token" + "1", accessToken_string);
-                                editor.putString("instance" + "1", acess.getText().toString());
-                                editor.commit();
-                            }
-*/
-
-                                System.out.println("マルチアカウント : " + pref_setting.getString("token2", ""));
-
-/*
-                            // 別スレッドを実行
-                            new Thread(new Runnable() {
+                            JSONObject jsonObject = new JSONObject(response.body().string());
+                            String username = jsonObject.getString("display_name");
+                            runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    // 別スレッドでUIを変更しようとしている
-                                    //トーストを出す
-                                    Looper.prepare();
-                                    Toast.makeText(getApplicationContext(), "プリファレンスに保存しました : " + accessToken_string, Toast.LENGTH_LONG).show();
-                                    Looper.loop();
+                                    Toast.makeText(LoginActivity.this, username, Toast.LENGTH_SHORT).show();
                                 }
-                            }).start();
-*/
-
-                            } catch (Mastodon4jRequestException e) {
-                                e.printStackTrace();
-                            }
-
-                            return accessToken_string;
+                            });
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
+                    }
+                });
 
 
-                        @Override
-                        protected void onPostExecute(String result) {
-                            //設定プリファレンス
-                            SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
-                            SharedPreferences pref = getSharedPreferences("preferences", MODE_PRIVATE);
-                            //Toast.makeText(getApplicationContext(), "プリファレンス : " + pref_setting.getString("main_token", ""), Toast.LENGTH_SHORT).show();
+                //プリファレンスにかきかき（token）
+                SharedPreferences.Editor editor = pref_setting.edit();
+
+                //祝　マルチアカウント対応
+                //ここから
+
+                //配列を使えば幸せになれそう！！！
+                ArrayList<String> multi_account_instance = new ArrayList<>();
+                ArrayList<String> multi_account_access_token = new ArrayList<>();
+
+                //とりあえずPreferenceに書き込まれた値を
+                String instance_instance_string = pref_setting.getString("instance_list", "");
+                String account_instance_string = pref_setting.getString("access_list", "");
+                if (!instance_instance_string.equals("")) {
+                    try {
+                        JSONArray instance_array = new JSONArray(instance_instance_string);
+                        JSONArray access_array = new JSONArray(account_instance_string);
+                        for (int i = 0; i < instance_array.length(); i++) {
+                            multi_account_access_token.add(access_array.getString(i));
+                            multi_account_instance.add(instance_array.getString(i));
                         }
-                    }.execute();
+                    } catch (Exception e) {
+
+                    }
                 }
 
-                //テーマを初期へ
-                SharedPreferences.Editor editor = pref_setting.edit();
-                editor.putBoolean("pref_dark_theme", false);
-                editor.putBoolean("pref_oled_mode", false);
+                multi_account_instance.add(acess.getText().toString());
+                multi_account_access_token.add(code);
+
+                //Preferenceに配列は保存できないのでJSON化して保存する
+                //Write
+                JSONArray instance_array = new JSONArray();
+                JSONArray access_array = new JSONArray();
+                for (int i = 0; i < multi_account_instance.size(); i++) {
+                    instance_array.put(multi_account_instance.get(i));
+                }
+                for (int i = 0; i < multi_account_access_token.size(); i++) {
+                    access_array.put(multi_account_access_token.get(i));
+                }
+
+                //書き込む
+                editor.putString("instance_list", instance_array.toString());
+                editor.putString("access_list", access_array.toString());
                 editor.apply();
 
-                //friends.nicoだったときはfriends.nicoモードにする
-                if (acess.getText().toString().contains("friends.nico")) {
-                    editor.putBoolean("pref_friends_nico_mode", true);
-                    editor.apply();
-                } else {
-                    editor.putBoolean("pref_friends_nico_mode", false);
-                    editor.apply();
-                }
+                //ログインできたらとりあえずそれにする
+                editor.putString("main_token", code);
+                editor.putString("main_instance", acess.getText().toString());
+                editor.apply();
+            } else {
 
-                //HomeCardへ画面を戻す
-                Intent homecard = new Intent(LoginActivity.this, Home.class);
-                startActivity(homecard);
+                String accessToken_string = null;
+
+                new AsyncTask<String, Void, String>() {
+
+                    @Override
+                    protected String doInBackground(String... params) {
+
+                        MastodonClient client = new MastodonClient.Builder(acess.getText().toString(), new OkHttpClient.Builder(), new Gson()).build();
+                        Apps apps = new Apps(client);
+                        AppRegistration appRegistration = new AppRegistration();
+                        String redirectUrl = appRegistration.getRedirectUri();
+
+                        // String url = apps.getOAuthUrl(client_id, new Scope(Scope.Name.ALL),"urn:ietf:wg:oauth:2.0:oob");
+                        try {
+                            AccessToken accessToken = apps.getAccessToken(
+                                    register_client_id,
+                                    register_client_secret,
+                                    "urn:ietf:wg:oauth:2.0:oob",
+                                    code,
+                                    "authorization_code"
+                            ).execute();
+
+                            // アクセストークン！！！！！！！！！！！
+                            String accessToken_string = accessToken.getAccessToken();
+
+                            //プリファレンスにかきかき（token）
+                            SharedPreferences.Editor editor = pref_setting.edit();
+
+                            //祝　マルチアカウント対応
+                            //ここから
+
+                            //配列を使えば幸せになれそう！！！
+                            ArrayList<String> multi_account_instance = new ArrayList<>();
+                            ArrayList<String> multi_account_access_token = new ArrayList<>();
+
+                            //とりあえずPreferenceに書き込まれた値を
+                            String instance_instance_string = pref_setting.getString("instance_list", "");
+                            String account_instance_string = pref_setting.getString("access_list", "");
+                            if (!instance_instance_string.equals("")) {
+                                try {
+                                    JSONArray instance_array = new JSONArray(instance_instance_string);
+                                    JSONArray access_array = new JSONArray(account_instance_string);
+                                    for (int i = 0; i < instance_array.length(); i++) {
+                                        multi_account_access_token.add(access_array.getString(i));
+                                        multi_account_instance.add(instance_array.getString(i));
+                                    }
+                                } catch (Exception e) {
+
+                                }
+                            }
+
+                            multi_account_instance.add(acess.getText().toString());
+                            multi_account_access_token.add(accessToken_string);
+
+                            //Preferenceに配列は保存できないのでJSON化して保存する
+                            //Write
+                            JSONArray instance_array = new JSONArray();
+                            JSONArray access_array = new JSONArray();
+                            for (int i = 0; i < multi_account_instance.size(); i++) {
+                                instance_array.put(multi_account_instance.get(i));
+                            }
+                            for (int i = 0; i < multi_account_access_token.size(); i++) {
+                                access_array.put(multi_account_access_token.get(i));
+                            }
+
+                            //書き込む
+                            editor.putString("instance_list", instance_array.toString());
+                            editor.putString("access_list", access_array.toString());
+                            editor.apply();
+
+                            //ログインできたらとりあえずそれにする
+                            editor.putString("main_token", accessToken_string);
+                            editor.putString("main_instance", acess.getText().toString());
+                            editor.apply();
+
+                            System.out.println("マルチアカウント : " + pref_setting.getString("token2", ""));
+
+                        } catch (Mastodon4jRequestException e) {
+                            e.printStackTrace();
+                        }
+
+                        return accessToken_string;
+                    }
+
+
+                    @Override
+                    protected void onPostExecute(String result) {
+                        //設定プリファレンス
+                        SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
+                        SharedPreferences pref = getSharedPreferences("preferences", MODE_PRIVATE);
+                        //Toast.makeText(getApplicationContext(), "プリファレンス : " + pref_setting.getString("main_token", ""), Toast.LENGTH_SHORT).show();
+                    }
+                }.execute();
             }
-        });
-    }
+
+            //テーマを初期へ
+            SharedPreferences.Editor editor = pref_setting.edit();
+                editor.putBoolean("pref_dark_theme",false);
+                editor.putBoolean("pref_oled_mode",false);
+                editor.apply();
+
+            //friends.nicoだったときはfriends.nicoモードにする
+                if(acess.getText().
+
+            toString().
+
+            contains("friends.nico"))
+
+            {
+                editor.putBoolean("pref_friends_nico_mode", true);
+                editor.apply();
+            } else
+
+            {
+                editor.putBoolean("pref_friends_nico_mode", false);
+                editor.apply();
+            }
+
+            //HomeCardへ画面を戻す
+            Intent homecard = new Intent(LoginActivity.this, Home.class);
+
+            startActivity(homecard);
+        }
+    });
+}
 }

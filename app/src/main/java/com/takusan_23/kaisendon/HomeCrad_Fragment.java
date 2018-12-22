@@ -854,7 +854,7 @@ public class HomeCrad_Fragment extends Fragment {
                 Public public_timeline = new Public(client);
 
                 try {
-                    Pageable<com.sys1yagi.mastodon4j.api.entity.Status> statuses = public_timeline.getLocalPublic(new Range(null, null, 40)).doOnJson(System.out::println).execute();
+                    Pageable<com.sys1yagi.mastodon4j.api.entity.Status> statuses = public_timeline.getLocalPublic(new Range(null, null, 40)).execute();
                     statuses.getPart().forEach(status -> {
                         //System.out.println(status.getContent());
                         String toot_text = status.getContent();

@@ -80,7 +80,7 @@
     <string name="setting_chrome_custom_tabs">Chrome Custom Tabsを有効にする</string>
     <string name="setting_avater_wifi_get_info">Wi-Fi接続時は画像を取得する(テザリングユーザーは気をつけて！)</string>
     <string name="setting_avater_wifi_get">Wi-Fi接続時は取得</string>
-    <string name="multipain_ui">マルチペインUI</string>
+    <string name="multipain_ui">分割タイムライン</string>
     <string name="setting_multipain_pannel_info">パネルの数を4枚にできます（誰得）</string>
     <string name="setting_multipain_pannel">マルチペインUIのパネル数</string>
     <string name="setting_follow_dialog_info">フォローするときにダイアログを表示します</string>
@@ -270,5 +270,18 @@
     <string name="media_delete">画像を削除しますか？</string>
     <string name="delete_ok">削除</string>
     <string name="accesstoken_edit">自分で生成したアクセストークンを利用する</string>
+    <string name="please_access_token">アクセストークンを入力してください</string>
+    <string name="loading_user_info">ユーザー情報を取得中</string>
+    <string name="name">名前</string>
+    <string name="note">説明文</string>
+    <string name="fields_attributes">補足情報</string>
+    <string name="label">ラベル</string>
+    <string name="content">内容</string>
+    <string name="update">更新</string>
+    <string name="upload_info">ユーザー情報を更新しますか？</string>
+    <string name="successful">完了しました</string>
+    <string name="fillItem">項目を埋めてください</string>
+    <string name="update_userinfo_title">ユーザー情報を編集</string>
+    <string name="upload_user_info">ユーザー情報を更新中</string>
 
 </resources>

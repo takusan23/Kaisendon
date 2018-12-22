@@ -246,7 +246,7 @@ public class WidgetService extends RemoteViewsService {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     String responce_string = response.body().string();
-                    System.out.println(responce_string);
+                    //System.out.println(responce_string);
                     try {
                         jsonArray = new JSONArray(responce_string);
                     } catch (JSONException e) {

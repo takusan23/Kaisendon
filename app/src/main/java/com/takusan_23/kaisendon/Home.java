@@ -1062,4 +1062,13 @@ public class Home extends AppCompatActivity
     }
 */
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
+        SharedPreferences.Editor editor = pref_setting.edit();
+        editor.putBoolean("app_multipain_ui", false);
+        editor.apply();
+    }
+
 }

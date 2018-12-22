@@ -29,6 +29,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +47,7 @@ import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.entity.auth.AccessToken;
+import com.takusan_23.kaisendon.CustomTabURL.LinkTransformationMethod;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 
@@ -163,6 +165,17 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
 
         com.takusan_23.kaisendon.ListItem item = mItems.get(position);
         //System.out.println("Count : " + String.valueOf(getCount()));
+
+
+        //URLをCustomTabで開くかどうか
+        boolean chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
+        if (chrome_custom_tabs){
+            holder.tile_textview.setTransformationMethod(new LinkTransformationMethod());
+            holder.tile_textview.setMovementMethod(LinkMovementMethod.getInstance());
+        }else{
+            holder.tile_textview.setAutoLinkMask(Linkify.WEB_URLS);
+        }
+
 
 
         //設定を取得

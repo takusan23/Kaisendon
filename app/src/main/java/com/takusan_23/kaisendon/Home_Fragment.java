@@ -404,7 +404,7 @@ public class Home_Fragment extends Fragment {
 
             //ストリーミング前のトゥート取得
             //SnackBer表示
-            Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_home) + "\r\n /api/v1/timelines/home \r\nmax_id=" + max_id + "\r\n" + "local=true", Snackbar.LENGTH_INDEFINITE);
+            Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_home) + "\r\n /api/v1/timelines/home \r\nmax_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
             ViewGroup maxid_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
             //SnackBerを複数行対応させる
             TextView maxid_textView = (TextView) maxid_viewGrop.findViewById(android.support.design.R.id.snackbar_text);

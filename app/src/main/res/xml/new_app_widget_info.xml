@@ -3,6 +3,6 @@
     android:initialLayout="@layout/new_app_widget"
     android:minWidth="250dp"
     android:minHeight="250dp"
-    android:previewImage="@drawable/example_appwidget_preview"
+    android:previewImage="@drawable/widget_image"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"></appwidget-provider>

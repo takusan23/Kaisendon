@@ -38,6 +38,7 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -59,6 +60,8 @@ import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.entity.auth.AccessToken;
+import com.takusan_23.kaisendon.CustomTabURL.CustomTabURLSpan;
+import com.takusan_23.kaisendon.CustomTabURL.LinkTransformationMethod;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 
@@ -231,7 +234,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         TextView boost = holder.boost_button;
 
         //autoLinkを動的に設定
-        holder.tile_textview.setAutoLinkMask(Linkify.ALL);
+        //holder.tile_textview.setAutoLinkMask(Linkify.ALL);
 
 
         Handler handler = new Handler();
@@ -1219,6 +1222,15 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         final_toot_text = null;
 
 
+        //URLをCustomTabで開くかどうか
+        if (chrome_custom_tabs){
+            holder.tile_textview.setTransformationMethod(new LinkTransformationMethod());
+            holder.tile_textview.setMovementMethod(LinkMovementMethod.getInstance());
+        }else{
+            holder.tile_textview.setAutoLinkMask(Linkify.WEB_URLS);
+        }
+
+
         //アイコンオンリー
         boolean button_icon = pref_setting.getBoolean("pref_button_icon", false);
         if (button_icon) {
@@ -1234,9 +1246,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         //どちらかが有効の場合
         boolean dark_mode = pref_setting.getBoolean("pref_dark_theme", false);
         boolean oled_mode = pref_setting.getBoolean("pref_oled_mode", false);
-        if (dark_mode || oled_mode)
-
-        {
+        if (dark_mode || oled_mode) {
             boost_button.setTextColor(Color.parseColor("#ffffff"));
             nicoru.setTextColor(Color.parseColor("#ffffff"));
             web_button.setTextColor(Color.parseColor("#ffffff"));

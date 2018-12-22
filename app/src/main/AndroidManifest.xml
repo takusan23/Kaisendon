@@ -37,7 +37,7 @@
         <receiver android:name=".BroadcastReciver_Widget_ToastTimeline" />
         <receiver android:name=".BroadcastReceiver_Notification_Timeline" />
 
-        <!--なうぷれいんぐのサービス登録-->
+        <!-- なうぷれいんぐのサービス登録 -->
         <service
             android:name=".Kaisendon_NowPlaying_Service"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
@@ -45,7 +45,6 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
-
 
         <activity
             android:name=".LoginActivity"
@@ -130,10 +129,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Home" />
         </activity>
-
-
         <activity android:name=".MultiPainActivity" />
-
 
         <!--
                 <activity
@@ -146,21 +142,28 @@
                 </activity>
         -->
 
-
         <receiver android:name=".NewAppWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <!-- クリックした際のアクションを設定しておく -->
                 <action android:name="kaisendon.widget.Public" />
             </intent-filter>
-            <meta-data android:name="android.appwidget.provider" android:resource="@xml/new_app_widget_info" />
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/new_app_widget_info" />
         </receiver>
 
         <service
             android:name=".WidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 
-
+        <activity
+            android:name=".AccountInfoUpdateActivity"
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName=".UserActivity"
+            android:label="@string/title_activity_account_info_update">
+        </activity>
     </application>
 
 </manifest>

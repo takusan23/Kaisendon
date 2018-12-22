@@ -179,7 +179,7 @@ public class AccountActivity extends AppCompatActivity {
 
         //くるくる
         View view = findViewById(android.R.id.content);
-        Snackbar snackbar = Snackbar.make(view, "自分のユーザー情報を取得中 \r\n /api/v1/accounts/verify_credentials", Snackbar.LENGTH_INDEFINITE);
+        Snackbar snackbar = Snackbar.make(view, getString(R.string.loading_user_info)+"\r\n /api/v1/accounts/verify_credentials", Snackbar.LENGTH_INDEFINITE);
         ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
         TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
@@ -573,6 +573,16 @@ public class AccountActivity extends AppCompatActivity {
                 startActivity(follower);
             }
         });
+
+        //アカウント情報を更新する
+        follow_request_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent account_info_update = new Intent(AccountActivity.this,AccountInfoUpdateActivity.class);
+                startActivity(account_info_update);
+            }
+        });
+
 
     }
 

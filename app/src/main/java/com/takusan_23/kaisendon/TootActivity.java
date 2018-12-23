@@ -193,7 +193,6 @@ public class TootActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //ストレージ読み込みの権限があるか確認
                 //許可してないときは許可を求める
-
                 if (ContextCompat.checkSelfPermission(TootActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     new AlertDialog.Builder(TootActivity.this)
                             .setTitle(getString(R.string.permission_dialog_titile))
@@ -791,7 +790,7 @@ public class TootActivity extends AppCompatActivity {
 
                                 //くるくる
 
-                                Snackbar snackbar = Snackbar.make(view, "画像アップロード中 \r\n /api/v1/media", Snackbar.LENGTH_INDEFINITE);
+                                Snackbar snackbar = Snackbar.make(view, getString(R.string.upload_image) + "\r\n /api/v1/media", Snackbar.LENGTH_INDEFINITE);
                                 ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
                                 //SnackBerを複数行対応させる
                                 TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);

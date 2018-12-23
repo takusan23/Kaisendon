@@ -145,7 +145,7 @@ public class AccountActivity extends AppCompatActivity {
         Button follow_button = findViewById(R.id.follow_button);
         Button toot_button = findViewById(R.id.toot_button);
         Button follow_request_button = findViewById(R.id.follow_request_button);
-        follow_request_button.setText("編集(未実装)");
+        follow_request_button.setText(R.string.edit);
 
 
 

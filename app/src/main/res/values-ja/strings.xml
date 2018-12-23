@@ -283,5 +283,13 @@
     <string name="fillItem">項目を埋めてください</string>
     <string name="update_userinfo_title">ユーザー情報を編集</string>
     <string name="upload_user_info">ユーザー情報を更新中</string>
+    <string name="upload_avater_header">アバター画像、ヘッダー画像のアップロード</string>
+    <string name="upload_avater">アバター画像のアップロード</string>
+    <string name="upload_header">ヘッダー画像のアップロード</string>
+    <string name="upload_image">画像をアップロード中</string>
+    <string name="edit">編集</string>
+    <string name="version">バージョン</string>
+    <string name="konoappnituite">このアプリについて</string>
+    <string name="producer">製作者</string>
 
 </resources>

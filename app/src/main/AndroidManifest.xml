@@ -161,9 +161,12 @@
         <activity
             android:name=".AccountInfoUpdateActivity"
             android:configChanges="orientation|screenSize"
-            android:parentActivityName=".UserActivity"
-            android:label="@string/title_activity_account_info_update">
+            android:label="@string/title_activity_account_info_update"
+            android:parentActivityName=".UserActivity"></activity>
+        <activity android:name=".KonoAppNiTuite"
+            android:parentActivityName=".Home">
         </activity>
+
     </application>
 
 </manifest>

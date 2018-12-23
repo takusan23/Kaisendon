@@ -230,7 +230,7 @@ public class Home extends AppCompatActivity
                         //カウントアップして起動時は表示しないように
                         test++;
                         //System.out.println("カウント : " + String.valueOf(test));
-                        if (test >= 2){
+                        if (test >= 2) {
                             View view = findViewById(android.R.id.content);
                             Snackbar.make(view, R.string.network_change, Snackbar.LENGTH_SHORT).setAction(R.string.ReStart, new View.OnClickListener() {
                                 @Override
@@ -1007,6 +1007,9 @@ public class Home extends AppCompatActivity
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.container_container, new DirectMessage_Fragment());
             transaction.commit();
+        } else if (id == R.id.konoAppmenu) {
+            Intent login = new Intent(this, KonoAppNiTuite.class);
+            startActivity(login);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

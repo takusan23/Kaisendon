@@ -387,5 +387,13 @@
     <string name="fillItem">Please fill in the items</string>
     <string name="update_userinfo_title">Edit user information</string>
     <string name="upload_user_info">Updating user information</string>
+    <string name="upload_avater_header">Upload avatar image, header image</string>
+    <string name="upload_avater">Upload avatar image</string>
+    <string name="upload_header">Upload header image</string>
+    <string name="upload_image">Image uploading</string>
+    <string name="edit">Edit</string>
+    <string name="version">Version</string>
+    <string name="konoappnituite">About this application</string>
+    <string name="producer">Producer</string>
 
 </resources>

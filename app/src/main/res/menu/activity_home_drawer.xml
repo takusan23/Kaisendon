@@ -78,8 +78,8 @@
             android:icon="@drawable/ic_import_contacts_black_24dp"
             android:title="@string/license" />
         <item
-            android:id="@+id/nav_send"
-            android:icon="@drawable/ic_menu_send"
-            android:title="Send" />
+            android:id="@+id/konoAppmenu"
+            android:icon="@drawable/ic_place_black_24dp"
+            android:title="@string/konoappnituite" />
     </group>
 </menu>

@@ -395,5 +395,6 @@
     <string name="version">Version</string>
     <string name="konoappnituite">About this application</string>
     <string name="producer">Producer</string>
+    <string name="sourceCode">Source code</string>
 
 </resources>

@@ -69,13 +69,30 @@ public class AccountInfoUpdateActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
+
+        //ダークテーマに切り替える機能
+        //setContentViewより前に実装する必要あり？
+        boolean dark_mode = pref_setting.getBoolean("pref_dark_theme", false);
+        if (dark_mode) {
+            setTheme(R.style.Theme_AppCompat_DayNight);
+        }
+
+
+        //OLEDように真っ暗のテーマも使えるように
+        //この画面用にNoActionBerなダークテーマを指定している
+        boolean oled_mode = pref_setting.getBoolean("pref_oled_mode", false);
+        if (oled_mode) {
+            setTheme(R.style.OLED_Theme_Home);
+        }
+
+
         setContentView(R.layout.activity_account_info_update);
 /*
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 */
 
-        SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
 
         boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
         if (accessToken_boomelan) {

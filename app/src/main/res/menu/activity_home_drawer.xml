@@ -37,10 +37,12 @@
             android:id="@+id/federated_time_line_menu"
             android:icon="@drawable/ic_flight_black_24dp"
             android:title="@string/federated_timeline" />
+<!--
         <item
             android:id="@+id/search_menu"
             android:icon="@drawable/ic_search_black_24dp"
             android:title="tootsearch" />
+-->
         <item
             android:id="@+id/bookmark"
             android:icon="@drawable/ic_book_black_24dp"

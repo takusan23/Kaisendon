@@ -14,14 +14,14 @@
 
         <fragment
             android:id="@+id/fragment2"
-            android:name="com.takusan_23.kaisendon.Public_TimeLine_Fragment"
+            android:name="io.github.takusan23.kaisendon.Public_TimeLine_Fragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1" />
 
         <fragment
             android:id="@+id/fragment4"
-            android:name="com.takusan_23.kaisendon.Home_Fragment"
+            android:name="io.github.takusan23.kaisendon.Home_Fragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1" />
@@ -36,7 +36,7 @@
 
         <fragment
             android:id="@+id/fragment3"
-            android:name="com.takusan_23.kaisendon.Start_Fragment"
+            android:name="io.github.takusan23.kaisendon.Start_Fragment"
             android:tag="user"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -44,7 +44,7 @@
 
         <fragment
             android:id="@+id/fragment5"
-            android:name="com.takusan_23.kaisendon.Notification_Fragment"
+            android:name="io.github.takusan23.kaisendon.Notification_Fragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1" />

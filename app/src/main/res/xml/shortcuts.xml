@@ -10,8 +10,8 @@
 
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="com.takusan_23.kaisendon.TootActivity"
-            android:targetPackage="com.takusan_23.kaisendon" />
+            android:targetClass="io.github.takusan23.kaisendon.TootActivity"
+            android:targetPackage="io.github.takusan23.kaisendon" />
 
         <categories android:name="android.shortcut.conversation" />
 
@@ -27,8 +27,8 @@
 
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="com.takusan_23.kaisendon.Home"
-            android:targetPackage="com.takusan_23.kaisendon">
+            android:targetClass="io.github.takusan23.kaisendon.Home"
+            android:targetPackage="io.github.takusan23.kaisendon">
 
             <extra
                 android:name="home_card"

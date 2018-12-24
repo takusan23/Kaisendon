@@ -7,11 +7,13 @@
         android:key="preference_setting"
         android:title="@string/setting">
 
+<!--
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_friends_nico_mode"
             android:summary="@string/setting_friends_nico_mode_info"
             android:title="@string/setting_friends_nico_mode" />
+-->
 
         <CheckBoxPreference
             android:defaultValue="false"
@@ -155,6 +157,36 @@
             android:key="WidgetTLType"
             android:summary="@string/setting_widget_load_title"
             android:title="@string/setting_widget_load_message" />
+
+    </PreferenceCategory>
+
+
+    <!--Text To Speech 設定-->
+    <PreferenceCategory
+        android:key="preference_setting"
+        android:title="@string/speech_timeline_setting">
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_speech"
+            android:summary="@string/speech_timeline_message"
+            android:title="@string/speech_timeline" />
+
+        <ListPreference
+            android:defaultValue="Home"
+            android:dependency="pref_speech"
+            android:entries="@array/notification_timeline_list"
+            android:entryValues="@array/notification_timeline_values"
+            android:key="pref_speech_timeline_type"
+            android:summary="@string/speech_timeline_type_message"
+            android:title="@string/speech_timeline_type_title" />
+
+        <EditTextPreference
+            android:dependency="pref_speech"
+            android:defaultValue="1.0f"
+            android:key="pref_speech_rate"
+            android:summary="@string/speech_timeline_rate_message"
+            android:title="@string/speech_timeline_rate_title" />
 
     </PreferenceCategory>
 

@@ -247,7 +247,7 @@
     <string name="timeline_toast_home">Home Toast</string>
     <string name="timeline_toast_public_timeline">Local Toast</string>
     <string name="timeline_toast_disable">Disable</string>
-    <string name="notification_LocalTimeline_Toast">Showing local timeline in toast</string>
+    <string name="notification_LocalTimeline_Toast">Showing local timeline in notification</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="time">Time</string>
@@ -396,5 +396,17 @@
     <string name="konoappnituite">About this application</string>
     <string name="producer">Producer</string>
     <string name="sourceCode">Source code</string>
+    <string name="speech_timeline">Timeline read aloud</string>
+    <string name="speech_timeline_setting">Timeline reading setting</string>
+    <string name="speech_timeline_type_message">Set the timeline to be read</string>
+    <string name="speech_timeline_type_title">Set timeline to read aloud</string>
+    <string name="speech_timeline_rate_title">Change speech speed</string>
+    <string name="speech_timeline_rate_message">You can change the reading speed (Initial value: 1.0)</string>
+    <string name="speech_timeline_message">Use timeline reading</string>
+    <string name="text_to_speech_preparation">Text To Speech in preparation</string>
+    <string name="notification_speech_timeline">Reading timeline</string>
+    <string name="contact_producer">Contact the author</string>
+    <string name="mastodon">mastodon</string>
+    <string name="twitter">Twitter</string>
 
 </resources>

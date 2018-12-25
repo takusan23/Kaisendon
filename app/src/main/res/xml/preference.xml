@@ -261,7 +261,7 @@
             android:title="@string/setting_use_streamingapi_title" />
 
         <CheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="pref_button_icon"
             android:summary="@string/setting_button_icon_info"
             android:title="@string/setting_button_icon" />
@@ -328,7 +328,7 @@
             android:title="@string/setting_fontsize_user" />
 
         <EditTextPreference
-            android:defaultValue="18"
+            android:defaultValue="10"
             android:key="pref_fontsize_client"
             android:summary="@string/setting_fontsize_client_info"
             android:title="@string/setting_fontsize_client" />

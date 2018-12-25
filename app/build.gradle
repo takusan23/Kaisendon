@@ -9,6 +9,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -22,12 +23,17 @@ android {
     }
     productFlavors {
     }
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
 }
 
 dependencies {
     implementation 'com.android.support:preference-v7:28.0.0'
     implementation 'com.android.support:support-emoji-bundled:28.0.0'
-    implementation 'com.android.support:customtabs:25.2.0'
+    //implementation 'com.android.support:customtabs:28.0.0'
+    implementation 'com.android.support:exifinterface:28.0.0'
     implementation project(':customtabs')
     implementation project(':shared')
     implementation 'com.github.sys1yagi.mastodon4j:mastodon4j:1.7.0'
@@ -40,7 +46,7 @@ dependencies {
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.android.support:support-vector-drawable:28.0.0'
-    implementation 'com.android.support:support-v4:21.0.+'
+    implementation 'com.android.support:support-v4:28.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

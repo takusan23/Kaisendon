@@ -340,7 +340,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         String favorite_title = null;
 
         boolean nicoru_dialog_chack = pref_setting.getBoolean("pref_friends_nico_mode", false);
-        if (nicoru_dialog_chack) {
+        if (!nicoru_dialog_chack) {
             favorite_message = getContext().getString(R.string.favoutire);
             favorite_title = getContext().getString(R.string.favourite_add_message);
         } else {

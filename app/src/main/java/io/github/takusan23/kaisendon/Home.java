@@ -93,6 +93,7 @@ public class Home extends AppCompatActivity
 
     TextToSpeech textToSpeech;
 
+    BroadcastReceiver networkChangeBroadcast;
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -227,7 +228,6 @@ public class Home extends AppCompatActivity
         //ネットワークが切り替わったらトースト表示
         if (pref_setting.getBoolean("pref_networkchange", false)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                BroadcastReceiver networkChangeBroadcast;
                 networkChangeBroadcast = new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
@@ -662,7 +662,7 @@ public class Home extends AppCompatActivity
 
                                         NotificationChannel notificationChannel = null;
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                            notificationChannel = new NotificationChannel(channel_1, "Notification TL", NotificationManager.IMPORTANCE_DEFAULT);
+                                            notificationChannel = new NotificationChannel(channel_1, "Notification TL", NotificationManager.IMPORTANCE_HIGH);
                                             notificationChannel.setDescription(getString(R.string.notification_timeline));
                                             notificationChannel.setName(getString(R.string.notification_timeline));
 
@@ -1260,6 +1260,15 @@ public class Home extends AppCompatActivity
         pref_setting.unregisterOnSharedPreferenceChangeListener(this);
     }
 */
+
+
+    @Override
+    protected void onStop() {
+        if (networkChangeBroadcast != null){
+            unregisterReceiver(networkChangeBroadcast);
+        }
+        super.onStop();
+    }
 
     @Override
     protected void onDestroy() {

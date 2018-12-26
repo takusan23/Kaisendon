@@ -413,6 +413,11 @@ public class LoginActivity extends AppCompatActivity {
                     editor.putString("main_instance", acess.getText().toString());
                     editor.commit();
 
+                    //テーマを初期へ
+                    editor.putBoolean("pref_dark_theme", false);
+                    editor.putBoolean("pref_oled_mode", false);
+                    editor.commit();
+
                     //HomeCardへ画面を戻す
                     Intent homecard = new Intent(LoginActivity.this, Home.class);
                     startActivity(homecard);

@@ -406,12 +406,17 @@ public class LoginActivity extends AppCompatActivity {
                     //書き込む
                     editor.putString("instance_list", instance_array.toString());
                     editor.putString("access_list", access_array.toString());
-                    editor.apply();
+                    editor.commit();
 
                     //ログインできたらとりあえずそれにする
                     editor.putString("main_token", code);
                     editor.putString("main_instance", acess.getText().toString());
-                    editor.apply();
+                    editor.commit();
+
+                    //HomeCardへ画面を戻す
+                    Intent homecard = new Intent(LoginActivity.this, Home.class);
+                    startActivity(homecard);
+
                 } else {
 
                     String accessToken_string = null;
@@ -482,12 +487,12 @@ public class LoginActivity extends AppCompatActivity {
                                 //書き込む
                                 editor.putString("instance_list", instance_array.toString());
                                 editor.putString("access_list", access_array.toString());
-                                editor.apply();
+                                editor.commit();
 
                                 //ログインできたらとりあえずそれにする
                                 editor.putString("main_token", accessToken_string);
                                 editor.putString("main_instance", acess.getText().toString());
-                                editor.apply();
+                                editor.commit();
 
                                //System.out.println("マルチアカウント : " + pref_setting.getString("token2", ""));
 
@@ -509,7 +514,7 @@ public class LoginActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = pref_setting.edit();
                             editor.putBoolean("pref_dark_theme", false);
                             editor.putBoolean("pref_oled_mode", false);
-                            editor.apply();
+                            editor.commit();
 
                             //HomeCardへ画面を戻す
                             Intent homecard = new Intent(LoginActivity.this, Home.class);

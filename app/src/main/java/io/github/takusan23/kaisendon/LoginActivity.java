@@ -265,7 +265,7 @@ public class LoginActivity extends AppCompatActivity {
                                         client_name,
                                         "urn:ietf:wg:oauth:2.0:oob",
                                         new Scope(Scope.Name.ALL),
-                                        "https://friends.nico/@takusan_23"
+                                        "https://play.google.com/store/apps/details?id=io.github.takusan23.kaisendon"
                                 ).execute();
 
                                 register_client_id = appRegistration.getClientId();

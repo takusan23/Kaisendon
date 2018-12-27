@@ -71,9 +71,14 @@ public class KonoAppNiTuite extends AppCompatActivity {
         Button mastodon_contact = findViewById(R.id.mastodon_contact);
         Button twitter_contact = findViewById(R.id.twitter_contact);
 
+        TextView document_textview = findViewById(R.id.wiki);
+        Button document_button = findViewById(R.id.wiki_button);
+
+
         KonoAppTextView_2.setText(getString(R.string.version) + " " + "1.0" + "\r\n" + "ねぎとろ丼");
         githubButton.setText(getString(R.string.sourceCode) + ": " + "GitHub");
 
+        document_button.setText(getString(R.string.document) + "\n" + "GitHub Wiki");
 
         setTitle(R.string.konoappnituite);
 
@@ -206,7 +211,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
         titleLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Toast.makeText(KonoAppNiTuite.this,"friends.nico",Toast.LENGTH_SHORT).show();
+                Toast.makeText(KonoAppNiTuite.this, "friends.nico", Toast.LENGTH_SHORT).show();
                 if (pref_setting.getBoolean("pref_friends_nico_mode", false)) {
                     SharedPreferences.Editor editor = pref_setting.edit();
                     editor.putBoolean("pref_friends_nico_mode", false);
@@ -219,6 +224,26 @@ public class KonoAppNiTuite extends AppCompatActivity {
                 return false;
             }
 
+        });
+
+
+        document_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String documentUrl = "https://github.com/takusan23/Kaisendon/wiki";
+                if (chrome_custom_tabs) {
+                    Bitmap back_icon = BitmapFactory.decodeResource(KonoAppNiTuite.this.getResources(), R.drawable.ic_action_arrow_back);
+                    String custom = CustomTabsHelper.getPackageNameToUse(KonoAppNiTuite.this);
+                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                    CustomTabsIntent customTabsIntent = builder.build();
+                    customTabsIntent.intent.setPackage(custom);
+                    customTabsIntent.launchUrl(KonoAppNiTuite.this, Uri.parse(documentUrl));
+                } else {
+                    Uri uri = Uri.parse(documentUrl);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
+            }
         });
 
     }

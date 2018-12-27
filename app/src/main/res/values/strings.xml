@@ -408,5 +408,8 @@
     <string name="contact_producer">Contact the author</string>
     <string name="mastodon">mastodon</string>
     <string name="twitter">Twitter</string>
+    <string name="document">Document</string>
+    <string name="document_title">Learn more, what kind of features do you have! What?</string>
+    <string name="widget_notification_channel">Widget Notification</string>
 
 </resources>

@@ -304,5 +304,8 @@
     <string name="contact_producer">作者に連絡</string>
     <string name="mastodon">マストドン</string>
     <string name="twitter">ツイッター</string>
+    <string name="document">ドキュメント</string>
+    <string name="document_title">もっと詳しく、どんな機能があるの！？</string>
+    <string name="widget_notification_channel">ウィジェットの通知</string>
 
 </resources>

@@ -462,7 +462,7 @@ public class Home extends AppCompatActivity
                                 drawable = getDrawable(R.drawable.notification_to_boost);
                             }
                             if (notification_type.equals("favourite") && locale.equals(Locale.JAPAN)) {
-                                if (friends_nico_check_box) {
+                                if (!friends_nico_check_box) {
                                     notification_type = "お気に入りし";
                                     drawable = getDrawable(R.drawable.notification_to_favourite);
                                 } else {

@@ -2,6 +2,7 @@ package io.github.takusan23.kaisendon;
 
 import android.app.AlertDialog;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
@@ -75,32 +76,70 @@ public class NewAppWidget extends AppWidgetProvider {
         }
 
         if (intent.getBooleanExtra("TootMode", false)) {
+            String channel = "Widget_Notification";
 
-            Intent notification_localtimeline_toot = new Intent(ctx, NewAppWidget.class);
-            PendingIntent notification_localtimeline_pendingIntent = PendingIntent.getBroadcast(ctx, 1, notification_localtimeline_toot, PendingIntent.FLAG_UPDATE_CURRENT);
-            //トゥート
-            android.support.v4.app.RemoteInput remoteInput = new android.support.v4.app.RemoteInput.Builder("Toot_Text")
-                    .setLabel(ctx.getString(R.string.imananisiteru))
-                    .build();
+            //通知チャンネル実装
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                NotificationManager notificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+                NotificationChannel notificationChannel = new NotificationChannel(channel, "LocalTimeline Toot", NotificationManager.IMPORTANCE_HIGH);
+                notificationChannel.setDescription(ctx.getString(R.string.widget_notification_channel));
+                notificationChannel.setName(ctx.getString(R.string.widget_notification_channel));
 
-            NotificationCompat.Action notification_toot_action = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_send
-                    ,ctx.getString(R.string.imananisiteru), notification_localtimeline_pendingIntent)
-                    .addRemoteInput(remoteInput)
-                    .build();
+                notificationManager.createNotificationChannel(notificationChannel);
 
-            long[] pattern = {100};
+                Intent notification_localtimeline_toot = new Intent(ctx, NewAppWidget.class);
+                PendingIntent notification_localtimeline_pendingIntent = PendingIntent.getBroadcast(ctx, 1, notification_localtimeline_toot, PendingIntent.FLAG_UPDATE_CURRENT);
+                //トゥート
+                android.support.v4.app.RemoteInput remoteInput = new android.support.v4.app.RemoteInput.Builder("Toot_Text")
+                        .setLabel(ctx.getString(R.string.imananisiteru))
+                        .build();
 
-            Notification newMessageNotification =
-                    new NotificationCompat.Builder(ctx)
-                            .setSmallIcon(R.drawable.ic_create_black_24dp_black)
-                            .setContentTitle(ctx.getString(R.string.toot))
-                            .setContentText(ctx.getString(R.string.imananisiteru))
-                            .setPriority(1)
-                            .setVibrate(pattern)
-                            .addAction(notification_toot_action).build();
+                NotificationCompat.Action notification_toot_action = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_send
+                        ,ctx.getString(R.string.imananisiteru), notification_localtimeline_pendingIntent)
+                        .addRemoteInput(remoteInput)
+                        .build();
 
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(ctx);
-            notificationManager.notify(R.string.add_widget, newMessageNotification);
+                long[] pattern = {100};
+
+                Notification newMessageNotification =
+                        new NotificationCompat.Builder(ctx,channel)
+                                .setSmallIcon(R.drawable.ic_create_black_24dp_black)
+                                .setContentTitle(ctx.getString(R.string.toot))
+                                .setContentText(ctx.getString(R.string.imananisiteru))
+                                .setPriority(1)
+                                .setVibrate(pattern)
+                                .addAction(notification_toot_action).build();
+
+                NotificationManagerCompat notificationManager_1 = NotificationManagerCompat.from(ctx);
+                notificationManager_1.notify(R.string.add_widget, newMessageNotification);
+
+            }else{
+                Intent notification_localtimeline_toot = new Intent(ctx, NewAppWidget.class);
+                PendingIntent notification_localtimeline_pendingIntent = PendingIntent.getBroadcast(ctx, 1, notification_localtimeline_toot, PendingIntent.FLAG_UPDATE_CURRENT);
+                //トゥート
+                android.support.v4.app.RemoteInput remoteInput = new android.support.v4.app.RemoteInput.Builder("Toot_Text")
+                        .setLabel(ctx.getString(R.string.imananisiteru))
+                        .build();
+
+                NotificationCompat.Action notification_toot_action = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_send
+                        ,ctx.getString(R.string.imananisiteru), notification_localtimeline_pendingIntent)
+                        .addRemoteInput(remoteInput)
+                        .build();
+
+                long[] pattern = {100};
+
+                Notification newMessageNotification =
+                        new NotificationCompat.Builder(ctx)
+                                .setSmallIcon(R.drawable.ic_create_black_24dp_black)
+                                .setContentTitle(ctx.getString(R.string.toot))
+                                .setContentText(ctx.getString(R.string.imananisiteru))
+                                .setPriority(1)
+                                .setVibrate(pattern)
+                                .addAction(notification_toot_action).build();
+
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(ctx);
+                notificationManager.notify(R.string.add_widget, newMessageNotification);
+            }
         }
         Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
         if (remoteInput != null) {

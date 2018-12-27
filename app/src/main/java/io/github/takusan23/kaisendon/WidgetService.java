@@ -53,12 +53,12 @@ public class WidgetService extends RemoteViewsService {
         SharedPreferences pref_setting;
 
         public void onCreate() {
-            Log.v(TAG, "[onCreate]");
+            //Log.v(TAG, "[onCreate]");
 
         }
 
         public void onDataSetChanged() {
-            Log.v(TAG, "[onDataSetChanged]");
+            //Log.v(TAG, "[onDataSetChanged]");
             //タイムライン読み込み
             getTimeLineJson();
         }
@@ -68,7 +68,7 @@ public class WidgetService extends RemoteViewsService {
         }
 
         public RemoteViews getViewAt(int position) {
-            Log.e(TAG, "[getViewAt]: " + position);
+            //Log.e(TAG, "[getViewAt]: " + position);
 
             //ここでListViewに追加する
             RemoteViews remoteViews = null;
@@ -160,13 +160,13 @@ public class WidgetService extends RemoteViewsService {
         }
 
         public long getItemId(int position) {
-            Log.v(TAG, "[getItemId]: " + position);
+            //Log.v(TAG, "[getItemId]: " + position);
 
             return 0;
         }
 
         public int getCount() {
-            Log.v(TAG, "[getCount]");
+            //Log.v(TAG, "[getCount]");
 
             //returnにListViewの合計数を入れる
             //今回はJSONの配列の数
@@ -174,20 +174,20 @@ public class WidgetService extends RemoteViewsService {
         }
 
         public RemoteViews getLoadingView() {
-            Log.v(TAG, "[getLoadingView]");
+            //Log.v(TAG, "[getLoadingView]");
 
             return null;
         }
 
 
         public int getViewTypeCount() {
-            Log.v(TAG, "[getViewTypeCount]");
+            //Log.v(TAG, "[getViewTypeCount]");
 
             return 1;
         }
 
         public boolean hasStableIds() {
-            Log.v(TAG, "[hasStableIds]");
+            //Log.v(TAG, "[hasStableIds]");
 
             return true;
         }
@@ -195,7 +195,7 @@ public class WidgetService extends RemoteViewsService {
 
         //JSON取得
         public void getTimeLineJson() {
-            Log.v(TAG, "[Request]");
+            //Log.v(TAG, "[Request]");
 
             pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
 

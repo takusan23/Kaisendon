@@ -249,7 +249,7 @@ public class CustomStreamingFragment extends Fragment {
                                                     if (max_id == null) {
                                                         max_id = toot_id_string;
                                                     }
-                                                    System.out.println("IDだよ : " + max_id);
+                                                    //System.out.println("IDだよ : " + max_id);
 
 
                                                     boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
@@ -324,7 +324,7 @@ public class CustomStreamingFragment extends Fragment {
                                                             }
                                                             adapter.notifyDataSetChanged();
                                                             custom_streaming_listview.setAdapter(adapter);
-                                                            System.out.println("TOP == " + top);
+                                                            //System.out.println("TOP == " + top);
                                                             // 要素追加前の状態になるようセットする
                                                             custom_streaming_listview.setSelectionFromTop(pos + 1, top);
 
@@ -461,7 +461,7 @@ public class CustomStreamingFragment extends Fragment {
                                                         if (max_id == null) {
                                                             max_id = toot_id_string;
                                                         }
-                                                        System.out.println("IDだよ : " + max_id);
+                                                       // System.out.println("IDだよ : " + max_id);
 
 
                                                         boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
@@ -516,7 +516,7 @@ public class CustomStreamingFragment extends Fragment {
                                                                     }
                                                                     adapter.notifyDataSetChanged();
                                                                     custom_streaming_listview.setAdapter(adapter);
-                                                                    System.out.println("TOP == " + top);
+                                                                    //System.out.println("TOP == " + top);
                                                                     // 要素追加前の状態になるようセットする
                                                                     custom_streaming_listview.setSelectionFromTop(pos + 1, top);
 
@@ -650,7 +650,7 @@ public class CustomStreamingFragment extends Fragment {
                                                                     }
                                                                     adapter.notifyDataSetChanged();
                                                                     custom_streaming_listview.setAdapter(adapter);
-                                                                    System.out.println("TOP == " + top);
+                                                                    //System.out.println("TOP == " + top);
                                                                     // 要素追加前の状態になるようセットする
                                                                     custom_streaming_listview.setSelectionFromTop(pos + 1, top);
 

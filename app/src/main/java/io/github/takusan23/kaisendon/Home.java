@@ -67,6 +67,8 @@ import com.sys1yagi.mastodon4j.api.method.Streaming;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.OkHttpClient;
 
@@ -94,6 +96,7 @@ public class Home extends AppCompatActivity
     TextToSpeech textToSpeech;
 
     BroadcastReceiver networkChangeBroadcast;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -822,7 +825,7 @@ public class Home extends AppCompatActivity
                 notificationManager.createNotificationChannel(notificationChannel);
 
                 NotificationCompat.Builder ttsNotification =
-                        new NotificationCompat.Builder(this,"Kaisendon_1")
+                        new NotificationCompat.Builder(this, "Kaisendon_1")
                                 .setSmallIcon(R.drawable.ic_volume_up_black_24dp)
                                 .setContentTitle(getString(R.string.speech_timeline))
                                 .setContentText(getString(R.string.notification_speech_timeline));
@@ -855,11 +858,11 @@ public class Home extends AppCompatActivity
                 notificationManager_nougat.notify(R.string.speech_timeline, ttsNotification.build());
             }
 
-            new BroadcastReceiver(){
+            new BroadcastReceiver() {
 
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    if (intent.getBooleanExtra("TTS",false)){
+                    if (intent.getBooleanExtra("TTS", false)) {
                         SharedPreferences.Editor editor = pref_setting.edit();
                         editor.putBoolean("pref_speech", false);
                         editor.apply();
@@ -868,7 +871,6 @@ public class Home extends AppCompatActivity
                     }
                 }
             };
-
 
             textToSpeech = new TextToSpeech(Home.this, new TextToSpeech.OnInitListener() {
                 @Override
@@ -898,10 +900,30 @@ public class Home extends AppCompatActivity
                             String toot = status.getContent();
                             String finaltoot = Html.fromHtml(toot, Html.FROM_HTML_MODE_COMPACT).toString();
 
+
+                            // 検索する文字列を用意
+                            String str = "http://www.sejuku.net/blog";
+
+                            // 正規表現
+                            finaltoot = Html.fromHtml(finaltoot, Html.FROM_HTML_MODE_COMPACT).toString();
+                            //finaltoot = finaltoot.replaceFirst("^https?://[a-z\\\\.:/\\\\+\\\\-\\\\#\\\\?\\\\=\\\\&\\\\;\\\\%\\\\~]+$","Minecraft");
+                            //System.out.println(finaltoot);
+
+
+//                            String str_1 = finaltoot.replaceFirst("(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+","URL省略");
+//                            System.out.println(str_1);
+
+                            String final_toot_1 = finaltoot;
+                            //URL省略
+                            if (pref_setting.getBoolean("pref_speech_url", true)) {
+                                final_toot_1 = finaltoot.replaceAll("(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+", "URL省略");
+                                System.out.println(final_toot_1);
+                            } else {
+                                final_toot_1 = finaltoot;
+                            }
+
                             if (0 < toot.length()) {
-
-                                textToSpeech.speak(finaltoot, textToSpeech.QUEUE_ADD, null, "messageID");
-
+                                textToSpeech.speak(final_toot_1, textToSpeech.QUEUE_ADD, null, "messageID");
                             }
                         }
 
@@ -1264,7 +1286,7 @@ public class Home extends AppCompatActivity
 
     @Override
     protected void onStop() {
-        if (networkChangeBroadcast != null){
+        if (networkChangeBroadcast != null) {
             unregisterReceiver(networkChangeBroadcast);
         }
         super.onStop();

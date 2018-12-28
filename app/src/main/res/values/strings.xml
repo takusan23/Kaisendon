@@ -403,7 +403,7 @@
     <string name="speech_timeline_rate_title">Change speech speed</string>
     <string name="speech_timeline_rate_message">You can change the reading speed (Initial value: 1.0)</string>
     <string name="speech_timeline_message">Use timeline reading</string>
-    <string name="text_to_speech_preparation">Text To Speech in preparation</string>
+    <string name="text_to_speech_preparation">Text To Speech Ready</string>
     <string name="notification_speech_timeline">Reading timeline</string>
     <string name="contact_producer">Contact the author</string>
     <string name="mastodon">mastodon</string>
@@ -411,5 +411,13 @@
     <string name="document">Document</string>
     <string name="document_title">Learn more, what kind of features do you have! What?</string>
     <string name="widget_notification_channel">Widget Notification</string>
+    <string name="setting_url_speech_title">Do not read the URL</string>
+    <string name="setting_url_speech_message">To read the URL, read \"URL omission\"</string>
+    <string name="device_info">Terminal information</string>
+    <string name="device_name">Device name</string>
+    <string name="android_version">Android Version</string>
+    <string name="maker">Maker</string>
+    <string name="sdk_version">SDK Version</string>
+    <string name="codename">Code name</string>
 
 </resources>

@@ -258,7 +258,7 @@ public class Public_TimeLine_Fragment extends Fragment {
                         @Override
                         public void onStatus(@NotNull com.sys1yagi.mastodon4j.api.entity.Status status) {
 
-                            System.out.println("てすと : " + status.getContent());
+                            //System.out.println("てすと : " + status.getContent());
                             toot_text = status.getContent();
                             user = status.getAccount().getUserName();
                             user_name = status.getAccount().getDisplayName();
@@ -276,7 +276,7 @@ public class Public_TimeLine_Fragment extends Fragment {
                                 max_id = toot_id_string;
                             }
 
-                            System.out.println("IDだよ : " + max_id);
+                           //System.out.println("IDだよ : " + max_id);
 
 
                             boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
@@ -372,7 +372,7 @@ public class Public_TimeLine_Fragment extends Fragment {
                                         top = listView.getChildAt(0).getTop();
                                     }
                                     listView.setAdapter(adapter);
-                                    System.out.println("TOP == " + top);
+                                    //System.out.println("TOP == " + top);
                                     // 要素追加前の状態になるようセットする
                                     adapter.notifyDataSetChanged();
                                     listView.setSelectionFromTop(pos + 1, top);

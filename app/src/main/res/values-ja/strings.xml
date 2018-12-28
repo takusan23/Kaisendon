@@ -299,7 +299,7 @@
     <string name="speech_timeline_type_title">読み上げるタイムラインを設定</string>
     <string name="speech_timeline_rate_message">読み上げ速度を変更できます（初期値:1.0）</string>
     <string name="speech_timeline_message">タイムライン読み上げを利用する</string>
-    <string name="text_to_speech_preparation">Text To Speech準備中</string>
+    <string name="text_to_speech_preparation">Text To Speech準備完了</string>
     <string name="notification_speech_timeline">タイムライン読み上げ中</string>
     <string name="contact_producer">作者に連絡</string>
     <string name="mastodon">マストドン</string>
@@ -307,5 +307,13 @@
     <string name="document">ドキュメント</string>
     <string name="document_title">もっと詳しく、どんな機能があるの！？</string>
     <string name="widget_notification_channel">ウィジェットの通知</string>
+    <string name="setting_url_speech_message">URLを読み上げるときは「URL省略」と読み上げる</string>
+    <string name="setting_url_speech_title">URLを読み上げない</string>
+    <string name="device_info">端末情報</string>
+    <string name="device_name">端末名</string>
+    <string name="android_version">Androidバージョン</string>
+    <string name="maker">メーカー</string>
+    <string name="sdk_version">SDK Version</string>
+    <string name="codename">Code name</string>
 
 </resources>

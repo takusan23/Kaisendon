@@ -17,6 +17,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -98,6 +99,7 @@ public class TootActivity extends AppCompatActivity {
 
     String contact = null;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,6 +135,8 @@ public class TootActivity extends AppCompatActivity {
         final TextView toot_count = findViewById(R.id.toot_count);
         Button toot_button = findViewById(R.id.toot);
         Button nya = findViewById(R.id.nya_n);
+        Button device_info = findViewById(R.id.device_info_button);
+
         toot_button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_create_black_24dp_black, 0, 0, 0);
 
         SharedPreferences pref = getSharedPreferences("preferences", MODE_PRIVATE);
@@ -167,7 +171,7 @@ public class TootActivity extends AppCompatActivity {
         //作者に連絡
         try {
             toot_textbox.append(contact);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             e.printStackTrace();
         }
 
@@ -595,6 +599,111 @@ public class TootActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+
+        //端末情報
+        final boolean[] device_name = {false};
+        final boolean[] android_version = {false};
+        final boolean[] maker = {false};
+        final boolean[] sdk_version = {false};
+        final boolean[] code_name = {false};
+
+        String codeName = null;
+
+        //コードネーム変換（手動
+
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.N || Build.VERSION.SDK_INT == Build.VERSION_CODES.N_MR1) {
+            codeName = "Nougat";
+        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+            codeName = "Oreo";
+        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            codeName = "Pie";
+        }
+
+
+
+        //ダイアログ生成
+        String finalCodeName = codeName;
+        device_info.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //ダイアログを出す
+                final String[] items = {getString(R.string.device_name), getString(R.string.android_version), getString(R.string.maker), getString(R.string.sdk_version), getString(R.string.codename)};
+                final ArrayList<Integer> checkedItems = new ArrayList<Integer>();
+                new AlertDialog.Builder(TootActivity.this)
+                        .setTitle(R.string.device_info)
+                        .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                if (which == 0 && isChecked) {
+                                    device_name[0] = true;
+                                } else if (which == 0 && !isChecked) {
+                                    device_name[0] = false;
+                                } else if (which == 1 && isChecked) {
+                                    android_version[0] = true;
+                                } else if (which == 1 && !isChecked) {
+                                    android_version[0] = false;
+                                } else if (which == 2 && isChecked) {
+                                    maker[0] = true;
+                                } else if (which == 2 && !isChecked) {
+                                    maker[0] = false;
+                                } else if (which == 3 && isChecked) {
+                                    sdk_version[0] = true;
+                                } else if (which == 3 && !isChecked) {
+                                    sdk_version[0] = false;
+                                } else if (which == 4 && isChecked) {
+                                    code_name[0] = true;
+                                } else if (which == 4 && !isChecked) {
+                                    code_name[0] = false;
+                                }
+                            }
+                        })
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                //テキストボックスに入れる
+                                if (device_name[0]) {
+                                    toot_textbox.append(Build.MODEL);
+                                    toot_textbox.append("\r\n");
+                                }
+                                if (android_version[0]) {
+                                    toot_textbox.append(Build.VERSION.RELEASE);
+                                    toot_textbox.append("\r\n");
+                                }
+                                if (maker[0]) {
+                                    toot_textbox.append(Build.BRAND);
+                                    toot_textbox.append("\r\n");
+                                }
+                                if (sdk_version[0]) {
+                                    toot_textbox.append(String.valueOf(Build.VERSION.SDK_INT));
+                                    toot_textbox.append("\r\n");
+                                }
+                                if (code_name[0]) {
+                                    toot_textbox.append(finalCodeName);
+                                    toot_textbox.append("\r\n");
+                                }
+
+                                //falseに戻す
+                                device_name[0] = false;
+                                android_version[0] = false;
+                                maker[0] = false;
+                                sdk_version[0] = false;
+                                code_name[0] = false;
+
+
+                                for (Integer i : checkedItems) {
+                                    // item_i checked
+                                }
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null)
+                        .show();
+
+                //toot_textbox.append(Build.MODEL + Build.BRAND + Build.VERSION.RELEASE);
+            }
+        });
+
     }
 
 

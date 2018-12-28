@@ -188,6 +188,14 @@
             android:summary="@string/speech_timeline_rate_message"
             android:title="@string/speech_timeline_rate_title" />
 
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_speech_url"
+            android:dependency="pref_speech"
+            android:summary="@string/setting_url_speech_message"
+            android:title="@string/setting_url_speech_title" />
+
+
     </PreferenceCategory>
 
 

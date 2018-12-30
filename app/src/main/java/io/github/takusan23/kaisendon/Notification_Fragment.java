@@ -429,21 +429,89 @@ public class Notification_Fragment extends Fragment {
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
                             JSONObject toot_account = toot_jsonObject.getJSONObject("account");
-                            JSONObject toot_status = toot_jsonObject.getJSONObject("status");
-                            toot = toot_status.getString("content");
                             user_id = toot_account.getString("username");
                             account = toot_account.getString("display_name");
                             time = toot_jsonObject.getString("created_at");
                             type = toot_jsonObject.getString("type");
                             String toot_id_string = null;
-                            toot_id_string = toot_status.getString("id");
+                            toot = "";
 
+                            JSONObject toot_status = null;
                             avater_url = toot_account.getString("avatar");
 
                             account_id = toot_account.getLong("id");
 
+                            user_acct = toot_account.getString("acct");
+
                             List<Attachment> attachment = Collections.singletonList(new Attachment());
 
+                            if (toot_jsonObject.has("status")) {
+                                toot_status = toot_jsonObject.getJSONObject("status");
+                                toot = toot_status.getString("content");
+                                toot_id_string = toot_status.getString("id");
+
+                                JSONArray media_array = toot_status.getJSONArray("media_attachments");
+                                if (!media_array.isNull(0)) {
+                                    media_url_1 = media_array.getJSONObject(0).getString("url");
+                                }
+                                if (!media_array.isNull(1)) {
+                                    media_url_2 = media_array.getJSONObject(1).getString("url");
+                                }
+                                if (!media_array.isNull(2)) {
+                                    media_url_3 = media_array.getJSONObject(2).getString("url");
+                                }
+                                if (!media_array.isNull(3)) {
+                                    media_url_4 = media_array.getJSONObject(3).getString("url");
+
+                                }
+
+                                //絵文字
+                                if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                    JSONArray emoji = toot_status.getJSONArray("emojis");
+                                    for (int e = 0; e < emoji.length(); e++) {
+                                        JSONObject jsonObject = emoji.getJSONObject(e);
+                                        String emoji_name = jsonObject.getString("shortcode");
+                                        String emoji_url = jsonObject.getString("url");
+                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                        toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
+                                    }
+
+                                    //アバター絵文字
+                                    try {
+                                        JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
+                                        for (int a = 0; a < avater_emoji.length(); a++) {
+                                            JSONObject jsonObject = avater_emoji.getJSONObject(a);
+                                            String emoji_name = jsonObject.getString("shortcode");
+                                            String emoji_url = jsonObject.getString("url");
+                                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                            toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
+                                            account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                        }
+
+                                        //ユーザーネームの方のアバター絵文字
+                                        JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
+                                        for (int a = 0; a < account_avater_emoji.length(); a++) {
+                                            JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
+                                            String emoji_name = jsonObject.getString("shortcode");
+                                            String emoji_url = jsonObject.getString("url");
+                                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                            account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                        }
+                                    } catch (JSONException e) {
+
+                                    }
+
+                                    //ユーザーネームの方の絵文字
+                                    JSONArray account_emoji = toot_account.getJSONArray("emojis");
+                                    for (int e = 0; e < account_emoji.length(); e++) {
+                                        JSONObject jsonObject = account_emoji.getJSONObject(e);
+                                        String emoji_name = jsonObject.getString("shortcode");
+                                        String emoji_url = jsonObject.getString("url");
+                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                        account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                    }
+                                }
+                            }
 
                             final String[] medias = new String[1];
 
@@ -482,69 +550,6 @@ public class Notification_Fragment extends Fragment {
                             }
 
 
-                            JSONArray media_array = toot_status.getJSONArray("media_attachments");
-                            if (!media_array.isNull(0)) {
-                                media_url_1 = media_array.getJSONObject(0).getString("url");
-                            }
-                            if (!media_array.isNull(1)) {
-                                media_url_2 = media_array.getJSONObject(1).getString("url");
-                            }
-                            if (!media_array.isNull(2)) {
-                                media_url_3 = media_array.getJSONObject(2).getString("url");
-                            }
-                            if (!media_array.isNull(3)) {
-                                media_url_4 = media_array.getJSONObject(3).getString("url");
-
-                            }
-
-                            //絵文字
-                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
-                                JSONArray emoji = toot_status.getJSONArray("emojis");
-                                for (int e = 0; e < emoji.length(); e++) {
-                                    JSONObject jsonObject = emoji.getJSONObject(e);
-                                    String emoji_name = jsonObject.getString("shortcode");
-                                    String emoji_url = jsonObject.getString("url");
-                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
-                                }
-
-                                //アバター絵文字
-                                try {
-                                    JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
-                                    for (int a = 0; a < avater_emoji.length(); a++) {
-                                        JSONObject jsonObject = avater_emoji.getJSONObject(a);
-                                        String emoji_name = jsonObject.getString("shortcode");
-                                        String emoji_url = jsonObject.getString("url");
-                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                        toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
-                                        account = account.replace(":" + emoji_name + ":", custom_emoji_src);
-                                    }
-
-                                    //ユーザーネームの方のアバター絵文字
-                                    JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
-                                    for (int a = 0; a < account_avater_emoji.length(); a++) {
-                                        JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
-                                        String emoji_name = jsonObject.getString("shortcode");
-                                        String emoji_url = jsonObject.getString("url");
-                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                        account = account.replace(":" + emoji_name + ":", custom_emoji_src);
-                                    }
-                                } catch (JSONException e) {
-
-                                }
-
-                                //ユーザーネームの方の絵文字
-                                JSONArray account_emoji = toot_account.getJSONArray("emojis");
-                                for (int e = 0; e < account_emoji.length(); e++) {
-                                    JSONObject jsonObject = account_emoji.getJSONObject(e);
-                                    String emoji_name = jsonObject.getString("shortcode");
-                                    String emoji_url = jsonObject.getString("url");
-                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    account = account.replace(":" + emoji_name + ":", custom_emoji_src);
-                                }
-                            }
-
-
                             boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
                             if (japan_timeSetting) {
                                 //時差計算？
@@ -568,25 +573,21 @@ public class Notification_Fragment extends Fragment {
                             }
 
 
-                            ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+                            if (getActivity() != null) {
+                                ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
 
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        adapter.add(listItem);
+                                        adapter.notifyDataSetChanged();
+                                        listView.setAdapter(adapter);
+                                        snackbar.dismiss();
+                                        //listView.setSelection(scrollPosition);
+                                    }
+                                });
+                            }
 
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    adapter.add(listItem);
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
-
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    listView.setAdapter(adapter);
-                                    snackbar.dismiss();
-                                    //listView.setSelection(scrollPosition);
-                                }
-                            });
                             media_url_1 = null;
                             media_url_2 = null;
                             media_url_3 = null;
@@ -751,30 +752,20 @@ public class Notification_Fragment extends Fragment {
                             }
 
 
-                            ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+                            if (getActivity() != null) {
+                                ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
 
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    adapter.add(listItem);
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
-
-
-                            //UI変更
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (getActivity() != null) {
-
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        adapter.add(listItem);
+                                        adapter.notifyDataSetChanged();
                                         ListView listView = (ListView) view.findViewById(R.id.notifications_list);
 
                                         listView.setAdapter(adapter);
                                     }
-                                }
-
-                            });
+                                });
+                            }
 
                         });
 
@@ -954,30 +945,20 @@ public class Notification_Fragment extends Fragment {
                                     }
 
 
-                                    ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+                                    if (getActivity() != null) {
+                                        ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
 
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            adapter.add(listItem);
-                                            adapter.notifyDataSetChanged();
-                                        }
-                                    });
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                adapter.add(listItem);
+                                                adapter.notifyDataSetChanged();
+                                                ListView listView = (ListView) view.findViewById(R.id.notifications_list);
 
-
-                                    //UI変更
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-
-                                            ListView listView = (ListView) view.findViewById(R.id.notifications_list);
-
-                                            listView.setAdapter(adapter);
-                                        }
-
-
-                                    });
-
+                                                listView.setAdapter(adapter);
+                                            }
+                                        });
+                                    }
                                 });
 
                             } catch (Mastodon4jRequestException e) {
@@ -1021,7 +1002,7 @@ public class Notification_Fragment extends Fragment {
                     Snackbar snackbar_ = Snackbar.make(view, R.string.add_loading, Snackbar.LENGTH_LONG);
                     snackbar_.show();
                     if (snackbar_.isShown()) {
-                       // System.out.println("最後だよ");
+                        // System.out.println("最後だよ");
 
                         //scrollPosition = scrollPosition + 40;
 
@@ -1125,6 +1106,9 @@ public class Notification_Fragment extends Fragment {
                                             avater_url = toot_account.getString("avatar");
 
                                             account_id = toot_account.getLong("id");
+
+                                            user_acct = toot_account.getString("acct");
+
 
                                             List<Attachment> attachment = Collections.singletonList(new Attachment());
 
@@ -1252,27 +1236,21 @@ public class Notification_Fragment extends Fragment {
                                             }
 
 
-                                            ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+                                            if (getActivity() != null) {
+                                                ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
 
+                                                getActivity().runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        adapter.add(listItem);
+                                                        adapter.notifyDataSetChanged();
+                                                        listView.setAdapter(adapter);
+                                                        maxid_snackbar.dismiss();
+                                                        listView.setSelectionFromTop(position, y);
+                                                    }
+                                                });
+                                            }
 
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    adapter.add(listItem);
-                                                    adapter.notifyDataSetChanged();
-                                                }
-                                            });
-
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    listView.setAdapter(adapter);
-                                                    maxid_snackbar.dismiss();
-                                                    listView.setSelectionFromTop(position, y);
-
-                                                    //listView.setSelection(scrollPosition);
-                                                }
-                                            });
                                             media_url_1 = null;
                                             media_url_2 = null;
                                             media_url_3 = null;

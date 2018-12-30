@@ -152,15 +152,16 @@ public class Bookmark_Frament extends Fragment {
             String media3 = cursor.getString(9);
             String media4 = cursor.getString(10);
 
-            ListItem listItem = new ListItem("bookmark", toot, account, info, toot_id, avater_url, account_id, null, media1, media2, media3, media4);
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    adapter.insert(listItem, 0);
-                    adapter.notifyDataSetChanged();
-                }
-            });
-
+            if (getActivity() != null){
+                ListItem listItem = new ListItem("bookmark", toot, account, info, toot_id, avater_url, account_id, null, media1, media2, media3, media4);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.insert(listItem, 0);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+            }
 
             cursor.moveToNext();
         }

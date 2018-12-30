@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,6 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AbsListView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -110,6 +113,9 @@ public class Public_TimeLine_Fragment extends Fragment {
 
     int position;
     int y;
+
+    String count_text = null;
+    int akeome_count = 0;
 
 
     @Override
@@ -240,6 +246,59 @@ public class Public_TimeLine_Fragment extends Fragment {
         final ListItem[] listItem = new ListItem[1];
 
 
+        //カウンター機能！！！
+        //レイアウト
+        LinearLayout timelineLinearLayout = view.findViewById(R.id.timeline_linearLayout);
+        //カウンターようレイアウト
+        LinearLayout.LayoutParams LayoutlayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout countLinearLayout = new LinearLayout(getContext());
+        countLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        countLinearLayout.setLayoutParams(LayoutlayoutParams);
+        timelineLinearLayout.addView(countLinearLayout, 0);
+        //いろいろ
+        TextView countTextView = new TextView(getContext());
+        EditText countEditText = new EditText(getContext());
+        Button countButton = new Button(getContext());
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.weight = 1;
+        countTextView.setLayoutParams(layoutParams);
+        countEditText.setLayoutParams(layoutParams);
+        countButton.setText("カウント開始");
+        countEditText.setHint("カウントしたい文字を入れてね");
+
+/*
+        countTextView.setText("にゃーん");
+        countEditText.setText("にゃーん");
+*/
+
+        //コレ呼ばないとえらー
+        if (countTextView.getParent() != null) {
+            ((ViewGroup) countTextView.getParent()).removeView(countTextView);
+        }
+        if (countEditText.getParent() != null) {
+            ((ViewGroup) countEditText.getParent()).removeView(countEditText);
+        }
+        if (countButton.getParent() != null) {
+            ((ViewGroup) countButton.getParent()).removeView(countButton);
+        }
+
+        countLinearLayout.addView(countEditText);
+        countLinearLayout.addView(countButton);
+        countLinearLayout.addView(countTextView);
+
+        //テキストを決定
+        countButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                count_text = countEditText.getText().toString();
+                akeome_count = 0;
+                String count_template = "　を含んだトゥート数 : ";
+                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                //Toast.makeText(getContext(),count_text,Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
         //ストリーミングAPIを利用する設定かどうか
         if (pref_setting.getBoolean("pref_streaming_api", true)) {
             //SwipeRefreshを無効にする
@@ -276,7 +335,7 @@ public class Public_TimeLine_Fragment extends Fragment {
                                 max_id = toot_id_string;
                             }
 
-                           //System.out.println("IDだよ : " + max_id);
+                            //System.out.println("IDだよ : " + max_id);
 
 
                             boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
@@ -347,55 +406,68 @@ public class Public_TimeLine_Fragment extends Fragment {
 
                             if (getActivity() != null) {
                                 listItem[0] = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        //adapter.add(listItem);
+                                        adapter.insert(listItem[0], 0);
+
+                                        // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
+                                        int pos = listView.getFirstVisiblePosition();
+                                        int top = 0;
+                                        if (listView.getChildCount() > 0) {
+                                            top = listView.getChildAt(0).getTop();
+                                        }
+                                        listView.setAdapter(adapter);
+                                        //System.out.println("TOP == " + top);
+                                        // 要素追加前の状態になるようセットする
+                                        adapter.notifyDataSetChanged();
+                                        listView.setSelectionFromTop(pos + 1, top);
+
+
+                                        //一番上なら追いかける
+                                        if (pos <= 1) {
+                                            listView.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    listView.smoothScrollToPosition(-10);
+                                                    //listView.setSelectionFromTop(index, top_);
+                                                }
+                                            });
+                                            System.out.println("ねてた");
+                                        }
+                                        int finalTop = top;
+
+                                        //くるくるを終了
+                                        //dialog.dismiss();
+                                        snackbar.dismiss();
+
+
+                                        //カウンター
+                                        if (count_text != null) {
+                                            //含んでいるか
+                                            if (toot_text.contains(count_text)){
+                                                String count_template = "　を含んだトゥート数 : ";
+                                                akeome_count++;
+                                                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                                            }
+                                        }
+
+
+/*
+                                        int count_akeome = 0;
+                                        if (toot_text.contains("あけおめ")) {
+                                            count_akeome++;
+                                        }
+                                        //Toast.makeText(getContext(), "カウント" + String.valueOf(count_akeome), Toast.LENGTH_SHORT).show();
+                                        System.out.println("カウント" + String.valueOf(count_akeome));
+*/
+
+                                    }
+                                });
                             }
 
-                            //toot_list.add(listItem);
-/*
-                        adapter.add(listItem);
-                        adapter.notifyDataSetChanged();
-*/
-                            if (getActivity() == null)
-                                return;
-
-
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-
-                                    //adapter.add(listItem);
-                                    adapter.insert(listItem[0], 0);
-
-                                    // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
-                                    int pos = listView.getFirstVisiblePosition();
-                                    int top = 0;
-                                    if (listView.getChildCount() > 0) {
-                                        top = listView.getChildAt(0).getTop();
-                                    }
-                                    listView.setAdapter(adapter);
-                                    //System.out.println("TOP == " + top);
-                                    // 要素追加前の状態になるようセットする
-                                    adapter.notifyDataSetChanged();
-                                    listView.setSelectionFromTop(pos + 1, top);
-
-
-                                    //一番上なら追いかける
-                                    if (pos <= 1) {
-                                        listView.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                listView.smoothScrollToPosition(-10);
-                                                //listView.setSelectionFromTop(index, top_);
-                                            }
-                                        });
-                                        System.out.println("ねてた");
-                                    }
-                                    int finalTop = top;
-
-                                    //くるくるを終了
-                                    //dialog.dismiss();
-                                    snackbar.dismiss();
-                                }
-                            });
                         }
 
                         @Override
@@ -568,26 +640,21 @@ public class Public_TimeLine_Fragment extends Fragment {
                             }
 
 
+                            if (getActivity() != null) {
+                                ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
-                            ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        adapter.add(listItem);
+                                        adapter.notifyDataSetChanged();
+                                        ListView listView = (ListView) view.findViewById(R.id.public_time_line_list);
+                                        listView.setAdapter(adapter);
+                                        maxid_snackbar.dismiss();
+                                    }
+                                });
+                            }
 
-
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    adapter.add(listItem);
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
-
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ListView listView = (ListView) view.findViewById(R.id.public_time_line_list);
-                                    listView.setAdapter(adapter);
-                                    maxid_snackbar.dismiss();
-                                }
-                            });
                             media_url_1 = null;
                             media_url_2 = null;
                             media_url_3 = null;
@@ -735,7 +802,6 @@ public class Public_TimeLine_Fragment extends Fragment {
                             }
 
 
-
                             boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
                             if (japan_timeSetting) {
                                 //時差計算？
@@ -758,27 +824,24 @@ public class Public_TimeLine_Fragment extends Fragment {
                                 toot_time = toot_jsonObject.getString("created_at");
                             }
 
-                            ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
+                            if (getActivity() != null) {
+                                ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    adapter.add(listItem);
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        adapter.add(listItem);
+                                        adapter.notifyDataSetChanged();
+                                        listView.setAdapter(adapter);
+                                        //listView.setSelection(scrollPosition);
+                                        snackbar.dismiss();
+                                        System.out.println("カウント " + String.valueOf(scrollPosition));
+                                        //listView.setSelection(scrollPosition);
+                                    }
+                                });
+                            }
 
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    listView.setAdapter(adapter);
-                                    //listView.setSelection(scrollPosition);
-                                    snackbar.dismiss();
-                                    System.out.println("カウント " + String.valueOf(scrollPosition));
-                                    //listView.setSelection(scrollPosition);
-                                }
-                            });
                             media_url_1 = null;
                             media_url_2 = null;
                             media_url_3 = null;
@@ -956,27 +1019,22 @@ public class Public_TimeLine_Fragment extends Fragment {
                                     }
 
 
-                                    ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                    if (getActivity() != null) {
+                                        ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
-
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            adapter.add(listItem);
-                                            adapter.notifyDataSetChanged();
-                                        }
-                                    });
-
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            listView.setAdapter(adapter);
-                                            //listView.setSelection(scrollPosition);
-                                            snackbar.dismiss();
-                                            System.out.println("カウント " + String.valueOf(scrollPosition));
-                                            //listView.setSelection(scrollPosition);
-                                        }
-                                    });
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                adapter.add(listItem);
+                                                adapter.notifyDataSetChanged();
+                                                listView.setAdapter(adapter);
+                                                //listView.setSelection(scrollPosition);
+                                                snackbar.dismiss();
+                                                System.out.println("カウント " + String.valueOf(scrollPosition));
+                                                //listView.setSelection(scrollPosition);
+                                            }
+                                        });
+                                    }
                                     media_url_1 = null;
                                     media_url_2 = null;
                                     media_url_3 = null;
@@ -1226,28 +1284,25 @@ public class Public_TimeLine_Fragment extends Fragment {
                                                 toot_time = toot_jsonObject.getString("created_at");
                                             }
 
-                                            ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
+                                            if (getActivity() != null) {
+                                                ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    adapter.add(listItem);
-                                                    adapter.notifyDataSetChanged();
-                                                }
-                                            });
+                                                getActivity().runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        adapter.add(listItem);
+                                                        adapter.notifyDataSetChanged();
+                                                        listView.setAdapter(adapter);
+                                                        listView.setSelectionFromTop(position, y);
+                                                        //listView.setSelection(scrollPosition);
+                                                        maxid_snackbar.dismiss();
+                                                        System.out.println("カウント " + String.valueOf(scrollPosition));
+                                                        //listView.setSelection(scrollPosition);
+                                                    }
+                                                });
+                                            }
 
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    listView.setAdapter(adapter);
-                                                    listView.setSelectionFromTop(position, y);
-                                                    //listView.setSelection(scrollPosition);
-                                                    maxid_snackbar.dismiss();
-                                                    System.out.println("カウント " + String.valueOf(scrollPosition));
-                                                    //listView.setSelection(scrollPosition);
-                                                }
-                                            });
                                             media_url_1 = null;
                                             media_url_2 = null;
                                             media_url_3 = null;

@@ -318,28 +318,23 @@ public class DirectMessage_Fragment extends Fragment {
                             }
                         }
 
+                        if (getActivity() != null){
+                            ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
-                        ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter.add(listItem);
+                                    adapter.notifyDataSetChanged();
+                                    ListView listView = (ListView) view.findViewById(R.id.home_timeline);
+                                    listView.setAdapter(adapter);
+                                    snackbar.dismiss();
+                                    //maxid_snackbar.dismiss();
+                                    //listView.setSelection(scrollPosition);
+                                }
+                            });
+                        }
 
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                adapter.add(listItem);
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                ListView listView = (ListView) view.findViewById(R.id.home_timeline);
-                                listView.setAdapter(adapter);
-                                snackbar.dismiss();
-                                //maxid_snackbar.dismiss();
-                                //listView.setSelection(scrollPosition);
-                            }
-                        });
                         media_url_1 = null;
                         media_url_2 = null;
                         media_url_3 = null;
@@ -670,26 +665,22 @@ public class DirectMessage_Fragment extends Fragment {
                                     }
                                 }
 
-                                ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                if (getActivity() != null){
+                                    ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            adapter.add(listItem);
+                                            adapter.notifyDataSetChanged();
+                                            ListView listView = (ListView) view.findViewById(R.id.home_timeline);
+                                            listView.setAdapter(adapter);
+                                            snackbar.dismiss();
+                                            //listView.setSelection(scrollPosition);
+                                        }
+                                    });
+                                }
 
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        adapter.add(listItem);
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
-
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        ListView listView = (ListView) view.findViewById(R.id.home_timeline);
-                                        listView.setAdapter(adapter);
-                                        snackbar.dismiss();
-                                        //listView.setSelection(scrollPosition);
-                                    }
-                                });
                                 media_url_1 = null;
                                 media_url_2 = null;
                                 media_url_3 = null;
@@ -1069,28 +1060,24 @@ public class DirectMessage_Fragment extends Fragment {
                                                 toot_time = toot_jsonObject.getString("created_at");
                                             }
 
-                                            ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                            if (getActivity() != null){
+                                                ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
+                                                getActivity().runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        adapter.add(listItem);
+                                                        adapter.notifyDataSetChanged();
+                                                        ListView listView = (ListView) view.findViewById(R.id.home_timeline);
+                                                        listView.setAdapter(adapter);
+                                                        maxid_snackbar.dismiss();
+                                                        listView.setSelectionFromTop(position, y);
 
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    adapter.add(listItem);
-                                                    adapter.notifyDataSetChanged();
-                                                }
-                                            });
+                                                        //listView.setSelection(scrollPosition);
+                                                    }
+                                                });
+                                            }
 
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    ListView listView = (ListView) view.findViewById(R.id.home_timeline);
-                                                    listView.setAdapter(adapter);
-                                                    maxid_snackbar.dismiss();
-                                                    listView.setSelectionFromTop(position, y);
-
-                                                    //listView.setSelection(scrollPosition);
-                                                }
-                                            });
                                             media_url_1 = null;
                                             media_url_2 = null;
                                             media_url_3 = null;

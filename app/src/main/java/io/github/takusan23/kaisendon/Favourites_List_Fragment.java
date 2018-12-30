@@ -241,29 +241,20 @@ public class Favourites_List_Fragment extends Fragment {
                         }
 
 
-                        ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null);
+                        if (getActivity() != null) {
+                            ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null);
 
-                        if (getActivity() == null)
-                            return;
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                adapter.add(listItem);
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-                        //UI変更
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (getActivity() != null) {
-
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter.add(listItem);
+                                    adapter.notifyDataSetChanged();
                                     ListView listView = (ListView) view.findViewById(R.id.home_timeline);
                                     listView.setAdapter(adapter);
+
                                 }
-                            }
-                        });
+                            });
+                        }
                     });
 
                 } catch (Mastodon4jRequestException e) {
@@ -354,30 +345,19 @@ public class Favourites_List_Fragment extends Fragment {
                                     time = status.getCreatedAt();
                                 }
 
-                                ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null);
+                                if (getActivity() != null) {
+                                    ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null);
 
-                                if (getActivity() == null)
-                                    return;
-
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        adapter.add(listItem);
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
-                                //UI変更
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (getActivity() != null) {
-
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            adapter.add(listItem);
+                                            adapter.notifyDataSetChanged();
                                             ListView listView = (ListView) view.findViewById(R.id.home_timeline);
-
                                             listView.setAdapter(adapter);
                                         }
-                                    }
-                                });
+                                    });
+                                }
                             });
 
                         } catch (Mastodon4jRequestException e) {
@@ -628,29 +608,25 @@ public class Favourites_List_Fragment extends Fragment {
                                                 time = toot_jsonObject.getString("created_at");
                                             }
 
-                                            ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null);
+                                            if (getActivity() != null){
+                                                ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null);
 
+                                                getActivity().runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        adapter.add(listItem);
+                                                        adapter.notifyDataSetChanged();
+                                                        ListView listView = (ListView) view.findViewById(R.id.home_timeline);
+                                                        listView.setAdapter(adapter);
+                                                        maxid_snackbar.dismiss();
+                                                        //listView.setSelection(scrollPosition);
+                                                        listView.setSelectionFromTop(position, y);
 
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    adapter.add(listItem);
-                                                    adapter.notifyDataSetChanged();
-                                                }
-                                            });
+                                                        //listView.setSelection(scrollPosition);
+                                                    }
+                                                });
+                                            }
 
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    ListView listView = (ListView) view.findViewById(R.id.home_timeline);
-                                                    listView.setAdapter(adapter);
-                                                    maxid_snackbar.dismiss();
-                                                    //listView.setSelection(scrollPosition);
-                                                    listView.setSelectionFromTop(position, y);
-
-                                                    //listView.setSelection(scrollPosition);
-                                                }
-                                            });
                                             media_url_1 = null;
                                             media_url_2 = null;
                                             media_url_3 = null;

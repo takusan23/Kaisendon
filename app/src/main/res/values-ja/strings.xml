@@ -313,7 +313,7 @@
     <string name="device_name">端末名</string>
     <string name="android_version">Androidバージョン</string>
     <string name="maker">メーカー</string>
-    <string name="sdk_version">SDK Version</string>
-    <string name="codename">Code name</string>
+    <string name="sdk_version">SDK バージョン</string>
+    <string name="codename">コードネーム</string>
 
 </resources>

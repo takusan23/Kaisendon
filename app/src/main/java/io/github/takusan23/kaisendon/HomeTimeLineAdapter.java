@@ -58,6 +58,7 @@ import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.entity.auth.AccessToken;
+
 import io.github.takusan23.kaisendon.CustomTabURL.CustomTabURLSpan;
 import io.github.takusan23.kaisendon.CustomTabURL.LinkTransformationMethod;
 
@@ -857,7 +858,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         //friends.nicoようにアンケートも実装するぞ！
         //アンケートっぽいトゥートを見つける
 
-        if (item.getTitle().contains("friends.nico アンケート")) {
+        if (item.getTitle() != null && item.getTitle().contains("friends.nico アンケート")) {
             //System.out.println("アンケート発見 : " + String.valueOf(item.getID()));
 
             //!で条件を反転させる
@@ -1030,19 +1031,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         }
 
 
-        //html src　を読み込めるようにする
-        //カスタム絵文字用
-
-        //とりあえずトゥートだけ
-
-        String toot_text = Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT).toString();
-       // System.out.println("もとの : " + toot_text);
-
-        String first_toot_text = item.getTitle();
-        String second_toot_text = null;
-
-        String finalFirst_toot_text = item.getTitle();
-
         //ImageGetter
         //カスタム絵文字
         Html.ImageGetter toot_imageGetter = new Html.ImageGetter() {
@@ -1130,31 +1118,55 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                     //WIFI接続中か確認
                                     //接続中
                                     try {
-                                        title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
-                                        user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                        if (item.getTitle() != null){
+                                            title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
+                                        }
+                                        if (item.getUser() != null){
+                                            user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                        }
                                     } catch (NullPointerException e) {
-                                        title.setText((Html.fromHtml(item.getTitle(), toot_imageGetter, null)));
-                                        user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                        if (item.getTitle() != null){
+                                            title.setText((Html.fromHtml(item.getTitle(), toot_imageGetter, null)));
+                                        }
+                                        if (item.getUser() != null){
+                                            user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                        }
                                     }
                                 } else {
                                     //確認したけどWIFI接続確認できなかった
-                                    title.setText(Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT));
-                                    user.setText(Html.fromHtml(item.getUser(), Html.FROM_HTML_MODE_COMPACT));
+                                    if (item.getTitle() != null){
+                                        title.setText(Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT));
+                                    }
+                                    if (item.getUser() != null){
+                                        user.setText(Html.fromHtml(item.getUser(), Html.FROM_HTML_MODE_COMPACT));
+                                    }
                                 }
                             } else {
                                 //WIFIのみ表示無効時
                                 //そのまま表示させる
                                 try {
-                                    title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
-                                    user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                    if (item.getTitle() != null){
+                                        title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
+                                    }
+                                    if (item.getUser() != null){
+                                        user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                    }
                                 } catch (NullPointerException e) {
-                                    title.setText((Html.fromHtml(item.getTitle(), toot_imageGetter, null)));
-                                    user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                    if (item.getTitle() != null){
+                                        title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
+                                    }
+                                    if (item.getUser() != null){
+                                        user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                    }
                                 }
                             }
                         } else {
-                            title.setText(Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT));
-                            user.setText(Html.fromHtml(item.getUser(), Html.FROM_HTML_MODE_COMPACT));
+                            if (item.getTitle() != null){
+                                title.setText(Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT));
+                            }
+                            if (item.getUser() != null){
+                                user.setText(Html.fromHtml(item.getUser(), Html.FROM_HTML_MODE_COMPACT));
+                            }
                         }
                     }
 
@@ -1219,10 +1231,10 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
 
         //URLをCustomTabで開くかどうか
-        if (chrome_custom_tabs){
+        if (chrome_custom_tabs) {
             holder.tile_textview.setTransformationMethod(new LinkTransformationMethod());
             holder.tile_textview.setMovementMethod(LinkMovementMethod.getInstance());
-        }else{
+        } else {
             holder.tile_textview.setAutoLinkMask(Linkify.WEB_URLS);
         }
 
@@ -1252,11 +1264,13 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             Drawable boost_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp, null);
             Drawable web_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_more_vert_black_24dp, null);
             Drawable bookmark_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_bookmark_border_black_24dp, null);
+            Drawable favourite_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp, null);
 
             //染色
             boost_icon_white.setTint(Color.parseColor("#ffffff"));
             web_icon_white.setTint(Color.parseColor("#ffffff"));
             bookmark_icon_white.setTint(Color.parseColor("#ffffff"));
+            favourite_icon_white.setTint(Color.parseColor("#ffffff"));
 
             //入れる
             boost_button.setCompoundDrawablesWithIntrinsicBounds(boost_icon_white, null, null, null);
@@ -1267,9 +1281,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             //ニコるをお気に入りに変更 設定次第
             //メッセージも変更できるようにする
             if (friends_nico_check_box) {
-                Drawable favourite_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp, null);
-                favourite_icon_white.setTint(Color.parseColor("#ffffff"));
-                nicoru.setCompoundDrawablesWithIntrinsicBounds(favourite_icon_white, null, null, null);
+                holder.nicoru_button.setCompoundDrawablesWithIntrinsicBounds(favourite_icon_white, null, null, null);
             }
         }
 
@@ -1651,7 +1663,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             Log.d(TAG, "onPostExecute drawable " + mDrawable);
             Log.d(TAG, "onPostExecute bitmap " + bitmap);
             if (bitmap != null) {
-                BitmapDrawable d = new BitmapDrawable(bitmap);
+                BitmapDrawable d = new BitmapDrawable(getContext().getResources(), bitmap);
                 mDrawable.addLevel(1, 1, d);
                 mDrawable.setBounds(0, 0, 40, 40);
                 mDrawable.setLevel(1);
@@ -1774,10 +1786,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 RequestBody requestBody = new FormBody.Builder()
                         .add("item_index", number)
                         .build();
-
-
-                String enquate_json_1 = "{\"item_index\":\"" + "1" + "\"\"}";
-                String url_link = "https://" + Instance + "/api/v1/suggestions/?stream=user&access_token=" + AccessToken;
 
                 System.out.println("=====" + client.post("votes/" + id_string, requestBody));
 

@@ -755,7 +755,7 @@ public class UserActivity extends AppCompatActivity {
 
                                     @Override
                                     protected void onPostExecute(String result) {
-                                        Toast.makeText(UserActivity.this, getString(R.string.follow_message) + " : " + result, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(UserActivity.this, getString(R.string.follow_ok) + " : " + result, Toast.LENGTH_SHORT).show();
                                     }
 
                                 }.execute();
@@ -815,7 +815,7 @@ public class UserActivity extends AppCompatActivity {
 
                             @Override
                             protected void onPostExecute(String result) {
-                                Toast.makeText(UserActivity.this, getString(R.string.follow_message) + " : " + result, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(UserActivity.this, getString(R.string.follow_ok) + " : " + result, Toast.LENGTH_SHORT).show();
                             }
                         }.execute();
                     }

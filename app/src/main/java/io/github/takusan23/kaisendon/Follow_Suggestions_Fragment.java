@@ -177,24 +177,20 @@ public class Follow_Suggestions_Fragment extends Fragment {
 
                         System.out.println(display_name + "/" + account_id_string);
 
-                        ListItem listItem = new ListItem(null, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null,null,null,null);
+                        if (getActivity() != null){
+                            ListItem listItem = new ListItem(null, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null,null,null,null);
 
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                adapter.add(listItem);
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter.add(listItem);
+                                    adapter.notifyDataSetChanged();
+                                    ListView listView = (ListView) view.findViewById(R.id.home_timeline);
+                                    listView.setAdapter(adapter);
 
-                                ListView listView = (ListView) view.findViewById(R.id.home_timeline);
-                                listView.setAdapter(adapter);
-
-                            }
-                        });
+                                }
+                            });
+                        }
 
                         count++;
                     }
@@ -281,24 +277,21 @@ public class Follow_Suggestions_Fragment extends Fragment {
 
                                 //System.out.println(display_name + "/" + account_id_string);
 
-                                ListItem listItem = new ListItem(null, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null,null,null,null);
+                                if (getActivity() != null){
+                                    ListItem listItem = new ListItem(null, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null,null,null,null);
 
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        adapter.add(listItem);
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            adapter.add(listItem);
+                                            adapter.notifyDataSetChanged();
+                                            ListView listView = (ListView) view.findViewById(R.id.home_timeline);
+                                            listView.setAdapter(adapter);
 
-                                        ListView listView = (ListView) view.findViewById(R.id.home_timeline);
-                                        listView.setAdapter(adapter);
+                                        }
+                                    });
+                                }
 
-                                    }
-                                });
 
                                 count++;
                             }

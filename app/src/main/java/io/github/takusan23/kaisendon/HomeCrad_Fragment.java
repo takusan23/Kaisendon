@@ -713,7 +713,7 @@ public class HomeCrad_Fragment extends Fragment {
         HomeTimeLineAdapter adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_list);
 
         //非同期通信
-        AsyncTask<String, Void, String> home_asyncTask = new AsyncTask<String, Void, String>() {
+        new AsyncTask<String, Void, String>() {
             @Override
             protected String doInBackground(String... string) {
 
@@ -774,25 +774,16 @@ public class HomeCrad_Fragment extends Fragment {
                             toot_time = status.getCreatedAt();
                         }
 
+                        ListItem listItem = null;
 
-                        ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "トゥートID : " + toot_id_string + " / " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url[0], null, null, null);
-
-                        //通知が行くように
                         if (getActivity() != null) {
-
+                            listItem = new ListItem(null, toot_text, user_name + " @" + user, "トゥートID : " + toot_id_string + " / " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url[0], null, null, null);
+                            ListItem finalListItem = listItem;
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    adapter.add(listItem);
+                                    adapter.add(finalListItem);
                                     adapter.notifyDataSetChanged();
-                                }
-                            });
-                        }
-                        if (getActivity() != null) {
-
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
                                     //ListView listView = (ListView) view.findViewById(R.id.home_timeline);
                                     home_listview.setAdapter(adapter);
                                 }
@@ -902,25 +893,27 @@ public class HomeCrad_Fragment extends Fragment {
                         Bitmap bmp = null;
                         //BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);  // 今回はサンプルなのでデフォルトのAndroid Iconを利用
                         ImageButton nicoru_button = null;
-                        ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url[0], null, null, null);
+                        ListItem listItem = null;
 
-                        if (getActivity() == null)
-                            return;
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //ListView listView = (ListView) view.findViewById(R.id.public_time_line_list);
-                                local_timeline_adapter.insert(listItem, 0);
-                                int y = 0;
-                                localtime_listview.setAdapter(local_timeline_adapter);
-                                int position = localtime_listview.getFirstVisiblePosition();
-                                if (localtime_listview.getChildCount() > 0) {
-                                    y = localtime_listview.getChildAt(0).getTop();
+                        if (getActivity() != null) {
+                            listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url[0], null, null, null);
+                            ListItem finalListItem = listItem;
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //ListView listView = (ListView) view.findViewById(R.id.public_time_line_list);
+                                    local_timeline_adapter.insert(finalListItem, 0);
+                                    int y = 0;
+                                    localtime_listview.setAdapter(local_timeline_adapter);
+                                    int position = localtime_listview.getFirstVisiblePosition();
+                                    if (localtime_listview.getChildCount() > 0) {
+                                        y = localtime_listview.getChildAt(0).getTop();
+                                    }
+                                    localtime_listview.setSelectionFromTop(position, y);
+
                                 }
-                                localtime_listview.setSelectionFromTop(position, y);
-
-                            }
-                        });
+                            });
+                        }
                     });
                 } catch (Mastodon4jRequestException e) {
                     e.printStackTrace();
@@ -939,7 +932,7 @@ public class HomeCrad_Fragment extends Fragment {
         //View追加用
         LinearLayout setting_main = setting_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
         setting_main.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout.LayoutParams mainLayout = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams mainLayout = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         setting_main.setLayoutParams(mainLayout);
         //タイトル
         Drawable setting_icon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_settings_black_24dp, null);
@@ -952,7 +945,7 @@ public class HomeCrad_Fragment extends Fragment {
         //テキストサイズ
         LinearLayout.LayoutParams textsize = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         //Layout
-        LinearLayout.LayoutParams menuLayout = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams menuLayout = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         menuLayout.weight = 1;
 
         //ボタンを追加
@@ -1499,7 +1492,7 @@ public class HomeCrad_Fragment extends Fragment {
         if (pref_setting.getBoolean("pref_speech", false)) {
             speech_TextView.setText(R.string.speech_timeline);
             speech_setting_ImageView.setImageResource(R.drawable.ic_volume_up_black_24dp);
-        }else {
+        } else {
             speech_TextView.setText(R.string.timeline_toast_disable);
             speech_setting_ImageView.setImageResource(R.drawable.ic_volume_off_black_24dp);
         }
@@ -1514,7 +1507,7 @@ public class HomeCrad_Fragment extends Fragment {
                     SharedPreferences.Editor editor = pref_setting.edit();
                     editor.putBoolean("pref_speech", false);
                     editor.apply();
-                }else {
+                } else {
                     speech_TextView.setText(R.string.speech_timeline);
                     speech_setting_ImageView.setImageResource(R.drawable.ic_volume_up_black_24dp);
                     SharedPreferences.Editor editor = pref_setting.edit();
@@ -1523,10 +1516,6 @@ public class HomeCrad_Fragment extends Fragment {
                 }
             }
         });
-
-
-
-
 
 
         //ボタン一覧にいれる
@@ -1687,24 +1676,21 @@ public class HomeCrad_Fragment extends Fragment {
                             layout_type = "Notification_follow";
                         }
 
+                        ListItem listItem = null;
 
-                        ListItem listItem = new ListItem(layout_type, toot[0], account[0] + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, null, null, null, null);
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                notification_adapter.add(listItem);
-                                notification_adapter.notifyDataSetChanged();
-                            }
-                        });
-                        //UI変更
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (getActivity() != null) {
+                        if (getActivity() != null) {
+                            listItem = new ListItem(layout_type, toot[0], account[0] + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, null, null, null, null);
+                            ListItem finalListItem = listItem;
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    notification_adapter.add(finalListItem);
+                                    notification_adapter.notifyDataSetChanged();
                                     notification_listview.setAdapter(notification_adapter);
+
                                 }
-                            }
-                        });
+                            });
+                        }
                     });
                 } catch (Mastodon4jRequestException e) {
                     e.printStackTrace();

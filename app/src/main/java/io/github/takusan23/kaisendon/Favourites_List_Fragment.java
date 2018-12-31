@@ -13,6 +13,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -111,6 +112,13 @@ public class Favourites_List_Fragment extends Fragment {
             Instance = pref_setting.getString("main_instance", "");
 
         }
+
+
+        //スリープを無効にする
+        if (pref_setting.getBoolean("pref_no_sleep", false)){
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+
 
         //ニコるかお気に入りか
         boolean nicoru_favourite_check = pref_setting.getBoolean("pref_friends_nico_mode", false);

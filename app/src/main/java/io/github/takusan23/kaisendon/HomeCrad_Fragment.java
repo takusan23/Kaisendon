@@ -37,6 +37,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -134,16 +135,18 @@ public class HomeCrad_Fragment extends Fragment {
 
         boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
         if (accessToken_boomelan) {
-
             AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
             Instance = pref_setting.getString("pref_mastodon_instance", "");
-
         } else {
-
             AccessToken = pref_setting.getString("main_token", "");
             Instance = pref_setting.getString("main_instance", "");
-
         }
+
+        //スリープを無効にする
+        if (pref_setting.getBoolean("pref_no_sleep", false)){
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+
 
 
         LinearLayout linearLayout_ = (LinearLayout) view.findViewById(R.id.cardview_linear);

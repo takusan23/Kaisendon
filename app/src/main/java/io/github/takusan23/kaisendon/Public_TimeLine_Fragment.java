@@ -3,6 +3,8 @@ package io.github.takusan23.kaisendon;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -245,59 +247,72 @@ public class Public_TimeLine_Fragment extends Fragment {
 
         final ListItem[] listItem = new ListItem[1];
 
+        //スリープを無効にする
+        if (pref_setting.getBoolean("pref_no_sleep", false)) {
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
 
         //カウンター機能！！！
         //レイアウト
-        LinearLayout timelineLinearLayout = view.findViewById(R.id.timeline_linearLayout);
-        //カウンターようレイアウト
-        LinearLayout.LayoutParams LayoutlayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        LinearLayout countLinearLayout = new LinearLayout(getContext());
-        countLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
-        countLinearLayout.setLayoutParams(LayoutlayoutParams);
-        timelineLinearLayout.addView(countLinearLayout, 0);
-        //いろいろ
         TextView countTextView = new TextView(getContext());
-        EditText countEditText = new EditText(getContext());
-        Button countButton = new Button(getContext());
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.weight = 1;
-        countTextView.setLayoutParams(layoutParams);
-        countEditText.setLayoutParams(layoutParams);
-        countButton.setText("カウント開始");
-        countEditText.setHint("カウントしたい文字を入れてね");
+        if (pref_setting.getBoolean("pref_toot_count", false)) {
+            LinearLayout timelineLinearLayout = view.findViewById(R.id.timeline_linearLayout);
+            //カウンターようレイアウト
+            LinearLayout.LayoutParams LayoutlayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            LinearLayout countLinearLayout = new LinearLayout(getContext());
+            countLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            countLinearLayout.setLayoutParams(LayoutlayoutParams);
+            timelineLinearLayout.addView(countLinearLayout, 0);
+            //いろいろ
 
-/*
-        countTextView.setText("にゃーん");
-        countEditText.setText("にゃーん");
-*/
+            EditText countEditText = new EditText(getContext());
+            Button countButton = new Button(getContext());
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layoutParams.weight = 1;
+            countTextView.setLayoutParams(layoutParams);
+            countEditText.setLayoutParams(layoutParams);
+            countButton.setText("カウント開始");
+            countEditText.setHint("カウントしたい文字を入れてね");
 
-        //コレ呼ばないとえらー
-        if (countTextView.getParent() != null) {
-            ((ViewGroup) countTextView.getParent()).removeView(countTextView);
-        }
-        if (countEditText.getParent() != null) {
-            ((ViewGroup) countEditText.getParent()).removeView(countEditText);
-        }
-        if (countButton.getParent() != null) {
-            ((ViewGroup) countButton.getParent()).removeView(countButton);
-        }
-
-        countLinearLayout.addView(countEditText);
-        countLinearLayout.addView(countButton);
-        countLinearLayout.addView(countTextView);
-
-        //テキストを決定
-        countButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                count_text = countEditText.getText().toString();
-                akeome_count = 0;
-                String count_template = "　を含んだトゥート数 : ";
-                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
-                //Toast.makeText(getContext(),count_text,Toast.LENGTH_SHORT).show();
+            //コレ呼ばないとえらー
+            if (countTextView.getParent() != null) {
+                ((ViewGroup) countTextView.getParent()).removeView(countTextView);
             }
-        });
+            if (countEditText.getParent() != null) {
+                ((ViewGroup) countEditText.getParent()).removeView(countEditText);
+            }
+            if (countButton.getParent() != null) {
+                ((ViewGroup) countButton.getParent()).removeView(countButton);
+            }
 
+            countLinearLayout.addView(countEditText);
+            countLinearLayout.addView(countButton);
+            countLinearLayout.addView(countTextView);
+
+            //テキストを決定
+            countButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    count_text = countEditText.getText().toString();
+                    akeome_count = 0;
+                    String count_template = "　を含んだトゥート数 : ";
+                    countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                    //Toast.makeText(getContext(),count_text,Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            //長押しでコピー
+            countEditText.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    assert clipboardManager != null;
+                    clipboardManager.setPrimaryClip(ClipData.newPlainText("", String.valueOf(akeome_count)));
+                    Toast.makeText(getContext(), R.string.copy, Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
+        }
 
         //ストリーミングAPIを利用する設定かどうか
         if (pref_setting.getBoolean("pref_streaming_api", true)) {
@@ -445,9 +460,9 @@ public class Public_TimeLine_Fragment extends Fragment {
 
 
                                         //カウンター
-                                        if (count_text != null) {
+                                        if (count_text != null && pref_setting.getBoolean("pref_toot_count",false)) {
                                             //含んでいるか
-                                            if (toot_text.contains(count_text)){
+                                            if (toot_text.contains(count_text)) {
                                                 String count_template = "　を含んだトゥート数 : ";
                                                 akeome_count++;
                                                 countTextView.setText(count_text + count_template + String.valueOf(akeome_count));

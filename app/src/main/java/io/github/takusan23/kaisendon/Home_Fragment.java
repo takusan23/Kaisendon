@@ -1,6 +1,8 @@
 package io.github.takusan23.kaisendon;
 
 import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -16,7 +18,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AbsListView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -103,6 +108,9 @@ public class Home_Fragment extends Fragment {
 
     boolean notification_timeline_first_setting = false;
 
+    String count_text = null;
+    int akeome_count = 0;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -152,6 +160,12 @@ public class Home_Fragment extends Fragment {
         }
 
         getActivity().setTitle(R.string.home);
+
+
+        //スリープを無効にする
+        if (pref_setting.getBoolean("pref_no_sleep", false)){
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
 
 
         //背景
@@ -214,6 +228,69 @@ public class Home_Fragment extends Fragment {
         final ListItem[] listItem = new ListItem[1];
 
         SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipe_refresh);
+
+        //カウンター機能！！！
+        //レイアウト
+        TextView countTextView = new TextView(getContext());
+        if (pref_setting.getBoolean("pref_toot_count", false)) {
+            LinearLayout timelineLinearLayout = view.findViewById(R.id.home_timeline_linerLayout);
+            //カウンターようレイアウト
+            LinearLayout.LayoutParams LayoutlayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            LinearLayout countLinearLayout = new LinearLayout(getContext());
+            countLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            countLinearLayout.setLayoutParams(LayoutlayoutParams);
+            timelineLinearLayout.addView(countLinearLayout, 0);
+            //いろいろ
+
+            EditText countEditText = new EditText(getContext());
+            Button countButton = new Button(getContext());
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layoutParams.weight = 1;
+            countTextView.setLayoutParams(layoutParams);
+            countEditText.setLayoutParams(layoutParams);
+            countButton.setText("カウント開始");
+            countEditText.setHint("カウントしたい文字を入れてね");
+
+            //コレ呼ばないとえらー
+            if (countTextView.getParent() != null) {
+                ((ViewGroup) countTextView.getParent()).removeView(countTextView);
+            }
+            if (countEditText.getParent() != null) {
+                ((ViewGroup) countEditText.getParent()).removeView(countEditText);
+            }
+            if (countButton.getParent() != null) {
+                ((ViewGroup) countButton.getParent()).removeView(countButton);
+            }
+
+            countLinearLayout.addView(countEditText);
+            countLinearLayout.addView(countButton);
+            countLinearLayout.addView(countTextView);
+
+            //テキストを決定
+            countButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    count_text = countEditText.getText().toString();
+                    akeome_count = 0;
+                    String count_template = "　を含んだトゥート数 : ";
+                    countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                    //Toast.makeText(getContext(),count_text,Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            //長押しでコピー
+            countEditText.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    assert clipboardManager != null;
+                    clipboardManager.setPrimaryClip(ClipData.newPlainText("", String.valueOf(akeome_count)));
+                    Toast.makeText(getContext(), R.string.copy, Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
+        }
+
 
 
         //ストリーミングAPI
@@ -367,6 +444,17 @@ public class Home_Fragment extends Fragment {
                                         //くるくるを終了
                                         //dialog.dismiss();
                                         snackbar.dismiss();
+
+                                        //カウンター
+                                        if (count_text != null && pref_setting.getBoolean("pref_toot_count",false)) {
+                                            //含んでいるか
+                                            if (toot_text.contains(count_text)) {
+                                                String count_template = "　を含んだトゥート数 : ";
+                                                akeome_count++;
+                                                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                                            }
+                                        }
+
                                     }
                                 });
                             }

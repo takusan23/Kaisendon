@@ -13,6 +13,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -134,6 +135,11 @@ public class Notification_Fragment extends Fragment {
         }
 
         getActivity().setTitle(R.string.notifications);
+
+        //スリープを無効にする
+        if (pref_setting.getBoolean("pref_no_sleep", false)){
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
 
 
         //背景

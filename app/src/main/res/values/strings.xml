@@ -419,5 +419,7 @@
     <string name="maker">Maker</string>
     <string name="sdk_version">SDK Version</string>
     <string name="codename">Code name</string>
+    <string name="setting_toot_count_title">Toot Counter</string>
+    <string name="setting_toot_count_message">It counts if the specified character string is included in the timeline.It is premised that you are using streaming API.</string>
 
 </resources>

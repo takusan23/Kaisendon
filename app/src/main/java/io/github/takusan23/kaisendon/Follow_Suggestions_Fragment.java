@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -73,6 +74,12 @@ public class Follow_Suggestions_Fragment extends Fragment {
             Instance = pref_setting.getString("main_instance", "");
 
         }
+
+        //スリープを無効にする
+        if (pref_setting.getBoolean("pref_no_sleep", false)){
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+
 
         //背景
         ImageView background_imageView = view.findViewById(R.id.hometimeline_background_imageview);

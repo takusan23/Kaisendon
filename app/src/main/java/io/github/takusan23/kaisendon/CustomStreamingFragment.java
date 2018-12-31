@@ -1,6 +1,8 @@
 package io.github.takusan23.kaisendon;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -16,12 +18,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -86,6 +91,10 @@ public class CustomStreamingFragment extends Fragment {
     String media_url_3 = null;
     String media_url_4 = null;
 
+
+    String count_text = null;
+    int akeome_count = 0;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -104,6 +113,13 @@ public class CustomStreamingFragment extends Fragment {
         ListView custom_streaming_listview = view.findViewById(R.id.custom_streaming_listview);
         Button custom_streaming_setting_button = view.findViewById(R.id.custom_streaming_setting);
         EditText custom_steaming_toot_edittext = view.findViewById(R.id.custom_streaming_toot_text);
+
+        //スリープを無効にする
+        if (pref_setting.getBoolean("pref_no_sleep", false)){
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+
+
 
         //背景画像
         ImageView background_imageView = view.findViewById(R.id.custom_streaming_background_imageview);
@@ -151,6 +167,70 @@ public class CustomStreamingFragment extends Fragment {
             Instance = pref_setting.getString("main_instance", "");
 
         }
+
+
+        //カウンター機能！！！
+        //レイアウト
+        TextView countTextView = new TextView(getContext());
+        if (pref_setting.getBoolean("pref_toot_count", false)) {
+            LinearLayout timelineLinearLayout = view.findViewById(R.id.custom_streaming_linearLayout);
+            //カウンターようレイアウト
+            LinearLayout.LayoutParams LayoutlayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            LinearLayout countLinearLayout = new LinearLayout(getContext());
+            countLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            countLinearLayout.setLayoutParams(LayoutlayoutParams);
+            timelineLinearLayout.addView(countLinearLayout, 0);
+            //いろいろ
+
+            EditText countEditText = new EditText(getContext());
+            Button countButton = new Button(getContext());
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layoutParams.weight = 1;
+            countTextView.setLayoutParams(layoutParams);
+            countEditText.setLayoutParams(layoutParams);
+            countButton.setText("カウント開始");
+            countEditText.setHint("カウントしたい文字を入れてね");
+
+            //コレ呼ばないとえらー
+            if (countTextView.getParent() != null) {
+                ((ViewGroup) countTextView.getParent()).removeView(countTextView);
+            }
+            if (countEditText.getParent() != null) {
+                ((ViewGroup) countEditText.getParent()).removeView(countEditText);
+            }
+            if (countButton.getParent() != null) {
+                ((ViewGroup) countButton.getParent()).removeView(countButton);
+            }
+
+            countLinearLayout.addView(countEditText);
+            countLinearLayout.addView(countButton);
+            countLinearLayout.addView(countTextView);
+
+            //テキストを決定
+            countButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    count_text = countEditText.getText().toString();
+                    akeome_count = 0;
+                    String count_template = "　を含んだトゥート数 : ";
+                    countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                    //Toast.makeText(getContext(),count_text,Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            //長押しでコピー
+            countEditText.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    assert clipboardManager != null;
+                    clipboardManager.setPrimaryClip(ClipData.newPlainText("", String.valueOf(akeome_count)));
+                    Toast.makeText(getContext(), R.string.copy, Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
+        }
+
 
         MastodonClient client = new MastodonClient.Builder(Instance, new OkHttpClient.Builder(), new Gson())
                 .accessToken(AccessToken)
@@ -302,61 +382,66 @@ public class CustomStreamingFragment extends Fragment {
 
                                                     if (getActivity() != null) {
                                                         listItem[0] = new ListItem("custom_local", toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
-                                                    }
+                                                        getActivity().runOnUiThread(new Runnable() {
+                                                            @Override
+                                                            public void run() {
 
-                                                    if (getActivity() == null)
-                                                        return;
+                                                                //adapter.add(listItem);
+                                                                adapter.insert(listItem[0], 0);
 
+                                                                // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
 
-                                                    getActivity().runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
+                                                                int pos = custom_streaming_listview.getFirstVisiblePosition();
+                                                                int top = 0;
+                                                                if (custom_streaming_listview.getChildCount() > 0) {
+                                                                    top = custom_streaming_listview.getChildAt(0).getTop();
+                                                                }
+                                                                adapter.notifyDataSetChanged();
+                                                                custom_streaming_listview.setAdapter(adapter);
+                                                                //System.out.println("TOP == " + top);
+                                                                // 要素追加前の状態になるようセットする
+                                                                custom_streaming_listview.setSelectionFromTop(pos + 1, top);
 
-                                                            //adapter.add(listItem);
-                                                            adapter.insert(listItem[0], 0);
+                                                                //一番上なら追いかける
+                                                                if (pos <= 1) {
+                                                                    custom_streaming_listview.post(new Runnable() {
+                                                                        @Override
+                                                                        public void run() {
+                                                                            custom_streaming_listview.smoothScrollToPosition(-10);
+                                                                        }
+                                                                    });
+                                                                    System.out.println("ねてた");
+                                                                }
 
-                                                            // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
-
-                                                            int pos = custom_streaming_listview.getFirstVisiblePosition();
-                                                            int top = 0;
-                                                            if (custom_streaming_listview.getChildCount() > 0) {
-                                                                top = custom_streaming_listview.getChildAt(0).getTop();
-                                                            }
-                                                            adapter.notifyDataSetChanged();
-                                                            custom_streaming_listview.setAdapter(adapter);
-                                                            //System.out.println("TOP == " + top);
-                                                            // 要素追加前の状態になるようセットする
-                                                            custom_streaming_listview.setSelectionFromTop(pos + 1, top);
-
-                                                            //一番上なら追いかける
-                                                            if (pos <= 1) {
-                                                                custom_streaming_listview.post(new Runnable() {
+                                                                int finalTop = top;
+                                                                custom_streaming_listview.setOnScrollListener(new AbsListView.OnScrollListener() {
                                                                     @Override
-                                                                    public void run() {
-                                                                        custom_streaming_listview.smoothScrollToPosition(-10);
+                                                                    public void onScrollStateChanged(AbsListView view, int scrollState) {
+
                                                                     }
+
+                                                                    @Override
+                                                                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+                                                                        int totalItem = totalItemCount;
+
+                                                                    }
+
                                                                 });
-                                                                System.out.println("ねてた");
+
+                                                                //カウンター
+                                                                if (count_text != null && pref_setting.getBoolean("pref_toot_count",false)) {
+                                                                    //含んでいるか
+                                                                    if (toot_text.contains(count_text)) {
+                                                                        String count_template = "　を含んだトゥート数 : ";
+                                                                        akeome_count++;
+                                                                        countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                                                                    }
+                                                                }
+
                                                             }
-
-                                                            int finalTop = top;
-                                                            custom_streaming_listview.setOnScrollListener(new AbsListView.OnScrollListener() {
-                                                                @Override
-                                                                public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-                                                                }
-
-                                                                @Override
-                                                                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-                                                                    int totalItem = totalItemCount;
-
-                                                                }
-
-                                                            });
-                                                        }
-                                                    });
-
+                                                        });
+                                                    }
                                                 }
 
                                                 @Override
@@ -492,47 +577,56 @@ public class CustomStreamingFragment extends Fragment {
                                                         ListItem listItem = null;
                                                         //自分の住んでるインスタンス以外のトゥートを表示するためのいｆ
                                                         //if (user.contains("@")) {
-                                                        listItem = new ListItem("custom_home", toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
                                                         //}
 
-                                                        if (getActivity() == null)
-                                                            return;
+                                                        if (getActivity() != null){
+                                                            listItem = new ListItem("custom_home", toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                                            ListItem finalListItem = listItem;
+                                                            getActivity().runOnUiThread(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    if (user.contains("@")) {
+                                                                        //adapter.add(listItem);
+                                                                        adapter.insert(finalListItem, 0);
+                                                                        custom_streaming_listview.setAdapter(adapter);
+                                                                        // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
 
+                                                                        int pos = custom_streaming_listview.getFirstVisiblePosition();
+                                                                        int top = 0;
+                                                                        if (custom_streaming_listview.getChildCount() > 0) {
+                                                                            top = custom_streaming_listview.getChildAt(0).getTop();
+                                                                        }
+                                                                        adapter.notifyDataSetChanged();
+                                                                        custom_streaming_listview.setAdapter(adapter);
+                                                                        //System.out.println("TOP == " + top);
+                                                                        // 要素追加前の状態になるようセットする
+                                                                        custom_streaming_listview.setSelectionFromTop(pos + 1, top);
 
-                                                        ListItem finalListItem = listItem;
-                                                        getActivity().runOnUiThread(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                if (user.contains("@")) {
-                                                                    //adapter.add(listItem);
-                                                                    adapter.insert(finalListItem, 0);
-                                                                    custom_streaming_listview.setAdapter(adapter);
-                                                                    // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
+                                                                        //一番上なら追いかける
+                                                                        if (pos <= 1) {
+                                                                            custom_streaming_listview.post(new Runnable() {
+                                                                                @Override
+                                                                                public void run() {
+                                                                                    custom_streaming_listview.smoothScrollToPosition(-10);
+                                                                                }
+                                                                            });
+                                                                            System.out.println("ねてた");
+                                                                        }
 
-                                                                    int pos = custom_streaming_listview.getFirstVisiblePosition();
-                                                                    int top = 0;
-                                                                    if (custom_streaming_listview.getChildCount() > 0) {
-                                                                        top = custom_streaming_listview.getChildAt(0).getTop();
-                                                                    }
-                                                                    adapter.notifyDataSetChanged();
-                                                                    custom_streaming_listview.setAdapter(adapter);
-                                                                    //System.out.println("TOP == " + top);
-                                                                    // 要素追加前の状態になるようセットする
-                                                                    custom_streaming_listview.setSelectionFromTop(pos + 1, top);
-
-                                                                    //一番上なら追いかける
-                                                                    if (pos <= 1) {
-                                                                        custom_streaming_listview.post(new Runnable() {
-                                                                            @Override
-                                                                            public void run() {
-                                                                                custom_streaming_listview.smoothScrollToPosition(-10);
+                                                                        //カウンター
+                                                                        if (count_text != null && pref_setting.getBoolean("pref_toot_count",false)) {
+                                                                            //含んでいるか
+                                                                            if (toot_text.contains(count_text)) {
+                                                                                String count_template = "　を含んだトゥート数 : ";
+                                                                                akeome_count++;
+                                                                                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
                                                                             }
-                                                                        });
-                                                                        System.out.println("ねてた");
+                                                                        }
+
                                                                     }
                                                                 }
-                                                            }
-                                                        });
+                                                            });
+                                                        }
                                                     }
                                                 }
 
@@ -623,51 +717,45 @@ public class CustomStreamingFragment extends Fragment {
                                                         }
 
 
+                                                        if (getActivity() != null){
+                                                            ListItem listItem = new ListItem("custom_notification", toot_text, user_name + " @" + user + " / " + type, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, null, null, null, null);
 
-                                                        ListItem listItem = new ListItem("custom_notification", toot_text, user_name + " @" + user + " / " + type, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, null, null, null, null);
+                                                            //UI変更
+                                                            getActivity().runOnUiThread(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    if (getActivity() != null) {
+                                                                        adapter.notifyDataSetChanged();
+                                                                        adapter.insert(listItem, 0);
+                                                                        custom_streaming_listview.setAdapter(adapter);
+                                                                        // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
 
-                                                        getActivity().runOnUiThread(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                adapter.notifyDataSetChanged();
-                                                            }
-                                                        });
+                                                                        int pos = custom_streaming_listview.getFirstVisiblePosition();
+                                                                        int top = 0;
+                                                                        if (custom_streaming_listview.getChildCount() > 0) {
+                                                                            top = custom_streaming_listview.getChildAt(0).getTop();
+                                                                        }
+                                                                        adapter.notifyDataSetChanged();
+                                                                        custom_streaming_listview.setAdapter(adapter);
+                                                                        //System.out.println("TOP == " + top);
+                                                                        // 要素追加前の状態になるようセットする
+                                                                        custom_streaming_listview.setSelectionFromTop(pos + 1, top);
 
-
-                                                        //UI変更
-                                                        getActivity().runOnUiThread(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                if (getActivity() != null) {
-                                                                    adapter.insert(listItem, 0);
-                                                                    custom_streaming_listview.setAdapter(adapter);
-                                                                    // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
-
-                                                                    int pos = custom_streaming_listview.getFirstVisiblePosition();
-                                                                    int top = 0;
-                                                                    if (custom_streaming_listview.getChildCount() > 0) {
-                                                                        top = custom_streaming_listview.getChildAt(0).getTop();
-                                                                    }
-                                                                    adapter.notifyDataSetChanged();
-                                                                    custom_streaming_listview.setAdapter(adapter);
-                                                                    //System.out.println("TOP == " + top);
-                                                                    // 要素追加前の状態になるようセットする
-                                                                    custom_streaming_listview.setSelectionFromTop(pos + 1, top);
-
-                                                                    //一番上なら追いかける
-                                                                    if (pos <= 1) {
-                                                                        custom_streaming_listview.post(new Runnable() {
-                                                                            @Override
-                                                                            public void run() {
-                                                                                custom_streaming_listview.smoothScrollToPosition(-10);
-                                                                            }
-                                                                        });
-                                                                        System.out.println("ねてた");
+                                                                        //一番上なら追いかける
+                                                                        if (pos <= 1) {
+                                                                            custom_streaming_listview.post(new Runnable() {
+                                                                                @Override
+                                                                                public void run() {
+                                                                                    custom_streaming_listview.smoothScrollToPosition(-10);
+                                                                                }
+                                                                            });
+                                                                            System.out.println("ねてた");
+                                                                        }
                                                                     }
                                                                 }
-                                                            }
 
-                                                        });
+                                                            });
+                                                        }
                                                     }
                                                 }
 

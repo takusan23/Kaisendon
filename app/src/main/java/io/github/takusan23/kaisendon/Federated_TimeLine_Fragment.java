@@ -3,6 +3,8 @@ package io.github.takusan23.kaisendon;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -22,6 +24,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AbsListView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -106,6 +110,9 @@ public class Federated_TimeLine_Fragment extends Fragment {
     int position;
     int y;
 
+    String count_text = null;
+    int akeome_count = 0;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -126,14 +133,9 @@ public class Federated_TimeLine_Fragment extends Fragment {
         //UIスレッド
         final android.os.Handler handler_1 = new android.os.Handler();
 
-        //スリープ無効？
-        boolean setting_sleep = pref_setting.getBoolean("pref_no_sleep_timeline", false);
-        if (setting_sleep) {
-            //常時点灯
+        //スリープを無効にする
+        if (pref_setting.getBoolean("pref_no_sleep", false)) {
             getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        } else {
-            //常時点灯しない
-            getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
 
 
@@ -232,6 +234,69 @@ public class Federated_TimeLine_Fragment extends Fragment {
 
 
         final ListItem[] listItem = new ListItem[1];
+
+
+        //カウンター機能！！！
+        //レイアウト
+        TextView countTextView = new TextView(getContext());
+        if (pref_setting.getBoolean("pref_toot_count", false)) {
+            LinearLayout timelineLinearLayout = view.findViewById(R.id.timeline_linearLayout);
+            //カウンターようレイアウト
+            LinearLayout.LayoutParams LayoutlayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            LinearLayout countLinearLayout = new LinearLayout(getContext());
+            countLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            countLinearLayout.setLayoutParams(LayoutlayoutParams);
+            timelineLinearLayout.addView(countLinearLayout, 0);
+            //いろいろ
+
+            EditText countEditText = new EditText(getContext());
+            Button countButton = new Button(getContext());
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layoutParams.weight = 1;
+            countTextView.setLayoutParams(layoutParams);
+            countEditText.setLayoutParams(layoutParams);
+            countButton.setText("カウント開始");
+            countEditText.setHint("カウントしたい文字を入れてね");
+
+            //コレ呼ばないとえらー
+            if (countTextView.getParent() != null) {
+                ((ViewGroup) countTextView.getParent()).removeView(countTextView);
+            }
+            if (countEditText.getParent() != null) {
+                ((ViewGroup) countEditText.getParent()).removeView(countEditText);
+            }
+            if (countButton.getParent() != null) {
+                ((ViewGroup) countButton.getParent()).removeView(countButton);
+            }
+
+            countLinearLayout.addView(countEditText);
+            countLinearLayout.addView(countButton);
+            countLinearLayout.addView(countTextView);
+
+            //テキストを決定
+            countButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    count_text = countEditText.getText().toString();
+                    akeome_count = 0;
+                    String count_template = "　を含んだトゥート数 : ";
+                    countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                    //Toast.makeText(getContext(),count_text,Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            //長押しでコピー
+            countEditText.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    assert clipboardManager != null;
+                    clipboardManager.setPrimaryClip(ClipData.newPlainText("", String.valueOf(akeome_count)));
+                    Toast.makeText(getContext(), R.string.copy, Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
+        }
 
 
         //ストリーミングAPIを利用する設定かどうか
@@ -384,6 +449,16 @@ public class Federated_TimeLine_Fragment extends Fragment {
                                         //くるくるを終了
                                         //dialog.dismiss();
                                         snackbar.dismiss();
+
+                                        //カウンター
+                                        if (count_text != null && pref_setting.getBoolean("pref_toot_count", false)) {
+                                            //含んでいるか
+                                            if (toot_text.contains(count_text)) {
+                                                String count_template = "　を含んだトゥート数 : ";
+                                                akeome_count++;
+                                                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                                            }
+                                        }
                                     }
                                 });
                             }
@@ -555,7 +630,7 @@ public class Federated_TimeLine_Fragment extends Fragment {
                             }
 
 
-                            if (getActivity() != null){
+                            if (getActivity() != null) {
                                 ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
                                 getActivity().runOnUiThread(new Runnable() {
@@ -730,7 +805,7 @@ public class Federated_TimeLine_Fragment extends Fragment {
                             }
 
 
-                            if (getActivity() != null){
+                            if (getActivity() != null) {
                                 ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
                                 getActivity().runOnUiThread(new Runnable() {
@@ -916,7 +991,7 @@ public class Federated_TimeLine_Fragment extends Fragment {
                                     }
 
 
-                                    if (getActivity() != null){
+                                    if (getActivity() != null) {
                                         ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
                                         getActivity().runOnUiThread(new Runnable() {
@@ -1171,7 +1246,7 @@ public class Federated_TimeLine_Fragment extends Fragment {
                                             }
 
 
-                                            if (getActivity() != null){
+                                            if (getActivity() != null) {
                                                 ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
 
                                                 getActivity().runOnUiThread(new Runnable() {

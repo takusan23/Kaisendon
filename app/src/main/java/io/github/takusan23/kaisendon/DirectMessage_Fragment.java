@@ -14,6 +14,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -136,6 +137,13 @@ public class DirectMessage_Fragment extends Fragment {
         }
 
         getActivity().setTitle(R.string.direct_message);
+
+
+        //スリープを無効にする
+        if (pref_setting.getBoolean("pref_no_sleep", false)){
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+
 
         SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipe_refresh);
 

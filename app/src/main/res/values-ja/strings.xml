@@ -317,5 +317,6 @@
     <string name="codename">コードネーム</string>
     <string name="setting_toot_count_title">トゥートカウンター</string>
     <string name="setting_toot_count_message">タイムラインに指定した文字列が含まれているとカウントします。ストリーミングAPIを利用していることが前提です。(例 :  あけおめ)</string>
+    <string name="battery_level">バッテリー残量</string>
 
 </resources>

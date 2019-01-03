@@ -17,6 +17,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -607,6 +608,7 @@ public class TootActivity extends AppCompatActivity {
         final boolean[] maker = {false};
         final boolean[] sdk_version = {false};
         final boolean[] code_name = {false};
+        final boolean[] battery = {false};
 
         String codeName = null;
 
@@ -621,14 +623,13 @@ public class TootActivity extends AppCompatActivity {
         }
 
 
-
         //ダイアログ生成
         String finalCodeName = codeName;
         device_info.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //ダイアログを出す
-                final String[] items = {getString(R.string.device_name), getString(R.string.android_version), getString(R.string.maker), getString(R.string.sdk_version), getString(R.string.codename)};
+                final String[] items = {getString(R.string.device_name), getString(R.string.android_version), getString(R.string.maker), getString(R.string.sdk_version), getString(R.string.codename), getString(R.string.battery_level)};
                 final ArrayList<Integer> checkedItems = new ArrayList<Integer>();
                 new AlertDialog.Builder(TootActivity.this)
                         .setTitle(R.string.device_info)
@@ -655,12 +656,17 @@ public class TootActivity extends AppCompatActivity {
                                     code_name[0] = true;
                                 } else if (which == 4 && !isChecked) {
                                     code_name[0] = false;
+                                } else if (which == 5 && isChecked) {
+                                    battery[0] = true;
+                                } else if (which == 5 && !isChecked) {
+                                    battery[0] = false;
                                 }
                             }
                         })
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                BatteryManager bm = (BatteryManager)getSystemService(BATTERY_SERVICE);
 
                                 //テキストボックスに入れる
                                 if (device_name[0]) {
@@ -683,6 +689,10 @@ public class TootActivity extends AppCompatActivity {
                                     toot_textbox.append(finalCodeName);
                                     toot_textbox.append("\r\n");
                                 }
+                                if (battery[0]){
+                                    toot_textbox.append(String.valueOf(bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)) + "%");
+                                    toot_textbox.append("\r\n");
+                                }
 
                                 //falseに戻す
                                 device_name[0] = false;
@@ -690,7 +700,7 @@ public class TootActivity extends AppCompatActivity {
                                 maker[0] = false;
                                 sdk_version[0] = false;
                                 code_name[0] = false;
-
+                                battery[0] = false;
 
                                 for (Integer i : checkedItems) {
                                     // item_i checked

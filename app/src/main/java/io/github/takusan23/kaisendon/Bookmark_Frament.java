@@ -160,7 +160,7 @@ public class Bookmark_Frament extends Fragment {
             String media4 = cursor.getString(10);
 
             if (getActivity() != null){
-                ListItem listItem = new ListItem("bookmark", toot, account, info, toot_id, avater_url, account_id, null, media1, media2, media3, media4);
+                ListItem listItem = new ListItem("bookmark", toot, account, info, toot_id, avater_url, account_id, null, media1, media2, media3, media4, null);
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

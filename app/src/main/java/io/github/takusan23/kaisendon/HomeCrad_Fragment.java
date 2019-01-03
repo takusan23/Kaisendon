@@ -780,7 +780,7 @@ public class HomeCrad_Fragment extends Fragment {
                         ListItem listItem = null;
 
                         if (getActivity() != null) {
-                            listItem = new ListItem(null, toot_text, user_name + " @" + user, "トゥートID : " + toot_id_string + " / " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url[0], null, null, null);
+                            listItem = new ListItem(null, toot_text, user_name + " @" + user, "トゥートID : " + toot_id_string + " / " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url[0], null, null, null, null);
                             ListItem finalListItem = listItem;
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -899,7 +899,7 @@ public class HomeCrad_Fragment extends Fragment {
                         ListItem listItem = null;
 
                         if (getActivity() != null) {
-                            listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url[0], null, null, null);
+                            listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url[0], null, null, null, null);
                             ListItem finalListItem = listItem;
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -1682,7 +1682,7 @@ public class HomeCrad_Fragment extends Fragment {
                         ListItem listItem = null;
 
                         if (getActivity() != null) {
-                            listItem = new ListItem(layout_type, toot[0], account[0] + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, null, null, null, null);
+                            listItem = new ListItem(layout_type, toot[0], account[0] + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, null, null, null, null, null);
                             ListItem finalListItem = listItem;
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override

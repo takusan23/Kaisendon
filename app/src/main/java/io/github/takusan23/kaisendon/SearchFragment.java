@@ -228,7 +228,7 @@ public class SearchFragment extends Fragment {
                                             toot_time = toot_source.getString("created_at");
                                         }
 
-                                        ListItem listItem = new ListItem(null, toot, user_name + " @" + user, "クライアント : " + "null" + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, null,null,null,null);
+                                        ListItem listItem = new ListItem(null, toot, user_name + " @" + user, "クライアント : " + "null" + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, null,null,null,null,null);
 
                                         //通知が行くように
                                         getActivity().runOnUiThread(new Runnable() {

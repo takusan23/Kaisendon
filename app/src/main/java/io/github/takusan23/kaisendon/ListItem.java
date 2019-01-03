@@ -2,6 +2,8 @@ package io.github.takusan23.kaisendon;
 
 import android.graphics.Bitmap;
 
+import java.util.ArrayList;
+
 public class ListItem {
     private Bitmap mThumbnail = null;
     private String mTitle = null;
@@ -17,6 +19,7 @@ public class ListItem {
     private String mMedia_2;
     private String mMedia_3;
     private String mMedia_4;
+    private ArrayList<String> stringList = null;
 
 
     /**
@@ -33,7 +36,7 @@ public class ListItem {
      *
      * @param title タイトル
      */
-    public ListItem(String info, String title, String user, String client, String nicoru, String avater, long account_id, String user_id, String media1, String media2, String media3, String media4) {
+    public ListItem(String info, String title, String user, String client, String nicoru, String avater, long account_id, String user_id, String media1, String media2, String media3, String media4,ArrayList<String> stringlist) {
         mInfo = info;
         mTitle = title;
         mUser = user;
@@ -46,6 +49,7 @@ public class ListItem {
         mMedia_2 = media2;
         mMedia_3 = media3;
         mMedia_4 = media4;
+        stringList = stringlist;
     }
 
 
@@ -162,4 +166,6 @@ public class ListItem {
     public String getInfo() {
         return mInfo;
     }
+
+    public ArrayList<String> getStringList() {return stringList;}
 }

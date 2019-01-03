@@ -381,7 +381,7 @@ public class CustomStreamingFragment extends Fragment {
                                                     ImageButton nicoru_button = null;
 
                                                     if (getActivity() != null) {
-                                                        listItem[0] = new ListItem("custom_local", toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                                        listItem[0] = new ListItem("custom_local", toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4,null);
                                                         getActivity().runOnUiThread(new Runnable() {
                                                             @Override
                                                             public void run() {
@@ -580,7 +580,7 @@ public class CustomStreamingFragment extends Fragment {
                                                         //}
 
                                                         if (getActivity() != null){
-                                                            listItem = new ListItem("custom_home", toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                                            listItem = new ListItem("custom_home", toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4,null);
                                                             ListItem finalListItem = listItem;
                                                             getActivity().runOnUiThread(new Runnable() {
                                                                 @Override
@@ -718,7 +718,7 @@ public class CustomStreamingFragment extends Fragment {
 
 
                                                         if (getActivity() != null){
-                                                            ListItem listItem = new ListItem("custom_notification", toot_text, user_name + " @" + user + " / " + type, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, null, null, null, null);
+                                                            ListItem listItem = new ListItem("custom_notification", toot_text, user_name + " @" + user + " / " + type, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, null, null, null, null, null);
 
                                                             //UI変更
                                                             getActivity().runOnUiThread(new Runnable() {

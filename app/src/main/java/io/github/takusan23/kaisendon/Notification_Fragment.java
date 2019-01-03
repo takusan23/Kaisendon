@@ -357,7 +357,7 @@ public class Notification_Fragment extends Fragment {
                             }
 
 
-                            ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+                            ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4,null);
 
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -580,7 +580,7 @@ public class Notification_Fragment extends Fragment {
 
 
                             if (getActivity() != null) {
-                                ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+                                ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4,null);
 
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
@@ -759,7 +759,7 @@ public class Notification_Fragment extends Fragment {
 
 
                             if (getActivity() != null) {
-                                ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+                                ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4,null);
 
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
@@ -952,7 +952,7 @@ public class Notification_Fragment extends Fragment {
 
 
                                     if (getActivity() != null) {
-                                        ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+                                        ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4,null);
 
                                         getActivity().runOnUiThread(new Runnable() {
                                             @Override
@@ -1243,7 +1243,7 @@ public class Notification_Fragment extends Fragment {
 
 
                                             if (getActivity() != null) {
-                                                ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4);
+                                                ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4,null);
 
                                                 getActivity().runOnUiThread(new Runnable() {
                                                     @Override

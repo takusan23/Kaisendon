@@ -397,7 +397,22 @@ public class UserFollowActivity extends AppCompatActivity {
                         }
 
 
-                        ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                        //カード情報
+                        ArrayList<String> card = new ArrayList<>();
+                        if (!toot_jsonObject.isNull("card")){
+                            JSONObject cardObject = toot_jsonObject.getJSONObject("card");
+                            String card_url = cardObject.getString("url");
+                            String card_title = cardObject.getString("title");
+                            String card_description = cardObject.getString("description");
+                            String card_image = cardObject.getString("image");
+                            card.add(card_title);
+                            card.add(card_url);
+                            card.add(card_description);
+                            card.add(card_image);
+                        }
+
+
+                        ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4,card);
 
 
                         runOnUiThread(new Runnable() {
@@ -495,7 +510,7 @@ public class UserFollowActivity extends AppCompatActivity {
                         String account_info = jsonObject.getString("note");
                         long account_id_follow = jsonObject.getLong("id");
 
-                        ListItem listItem = new ListItem(null, account_info, display_name + " @" + id, null, "", avater_url, account_id_follow, display_name, null, null, null, null);
+                        ListItem listItem = new ListItem(null, account_info, display_name + " @" + id, null, "", avater_url, account_id_follow, display_name, null, null, null, null, null);
 
                         runOnUiThread(new Runnable() {
                             @Override

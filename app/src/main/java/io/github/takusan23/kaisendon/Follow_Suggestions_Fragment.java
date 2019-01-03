@@ -185,7 +185,7 @@ public class Follow_Suggestions_Fragment extends Fragment {
                         System.out.println(display_name + "/" + account_id_string);
 
                         if (getActivity() != null){
-                            ListItem listItem = new ListItem(null, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null,null,null,null);
+                            ListItem listItem = new ListItem(null, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null,null,null,null,null);
 
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -285,7 +285,7 @@ public class Follow_Suggestions_Fragment extends Fragment {
                                 //System.out.println(display_name + "/" + account_id_string);
 
                                 if (getActivity() != null){
-                                    ListItem listItem = new ListItem(null, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null,null,null,null);
+                                    ListItem listItem = new ListItem(null, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null,null,null,null,null);
 
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override

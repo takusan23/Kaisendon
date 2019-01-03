@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -39,16 +38,13 @@ import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.Handler;
-import com.sys1yagi.mastodon4j.api.Pageable;
-import com.sys1yagi.mastodon4j.api.Range;
 import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
+import com.sys1yagi.mastodon4j.api.entity.Card;
 import com.sys1yagi.mastodon4j.api.entity.Emoji;
 import com.sys1yagi.mastodon4j.api.entity.Notification;
-import com.sys1yagi.mastodon4j.api.entity.Status;
-import com.sys1yagi.mastodon4j.api.entity.auth.AccessToken;
 import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
-import com.sys1yagi.mastodon4j.api.method.Public;
+import com.sys1yagi.mastodon4j.api.method.Statuses;
 import com.sys1yagi.mastodon4j.api.method.Streaming;
 
 import org.jetbrains.annotations.NotNull;
@@ -393,6 +389,19 @@ public class Public_TimeLine_Fragment extends Fragment {
                             media_url_3 = mediaURL[2];
                             media_url_4 = mediaURL[3];
 
+                            ArrayList<String> card = new ArrayList<>();
+                            try {
+                                Card statuses = new Statuses(client).getCard(toot_id).execute();
+                                if (!statuses.getUrl().isEmpty()) {
+                                    card.add(statuses.getTitle());
+                                    card.add(statuses.getUrl());
+                                    card.add(statuses.getDescription());
+                                    card.add(statuses.getImage());
+                                }
+                            } catch (Mastodon4jRequestException e) {
+                                e.printStackTrace();
+                            }
+
 
                             //カスタム絵文字
                             if (pref_setting.getBoolean("pref_custom_emoji", false)) {
@@ -420,7 +429,10 @@ public class Public_TimeLine_Fragment extends Fragment {
                             ImageButton nicoru_button = null;
 
                             if (getActivity() != null) {
-                                listItem[0] = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+
+                                listItem[0] = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4, card);
+
+
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -460,7 +472,7 @@ public class Public_TimeLine_Fragment extends Fragment {
 
 
                                         //カウンター
-                                        if (count_text != null && pref_setting.getBoolean("pref_toot_count",false)) {
+                                        if (count_text != null && pref_setting.getBoolean("pref_toot_count", false)) {
                                             //含んでいるか
                                             if (toot_text.contains(count_text)) {
                                                 String count_template = "　を含んだトゥート数 : ";
@@ -510,6 +522,7 @@ public class Public_TimeLine_Fragment extends Fragment {
                     return;
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
 
             //ストリーミング前のトゥート取得
             //SnackBer表示
@@ -654,9 +667,23 @@ public class Public_TimeLine_Fragment extends Fragment {
                                 }
                             }
 
+                            //カード情報
+                            ArrayList<String> card = new ArrayList<>();
+                            if (!toot_jsonObject.isNull("card")) {
+                                JSONObject cardObject = toot_jsonObject.getJSONObject("card");
+                                String card_url = cardObject.getString("url");
+                                String card_title = cardObject.getString("title");
+                                String card_description = cardObject.getString("description");
+                                String card_image = cardObject.getString("image");
+                                card.add(card_title);
+                                card.add(card_url);
+                                card.add(card_description);
+                                card.add(card_image);
+                            }
+
 
                             if (getActivity() != null) {
-                                ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                ListItem listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4, card);
 
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
@@ -839,9 +866,21 @@ public class Public_TimeLine_Fragment extends Fragment {
                                 toot_time = toot_jsonObject.getString("created_at");
                             }
 
+                            ArrayList<String> card = new ArrayList<>();
+                            if (!toot_jsonObject.isNull("card")) {
+                                JSONObject cardObject = toot_jsonObject.getJSONObject("card");
+                                String card_url = cardObject.getString("url");
+                                String card_title = cardObject.getString("title");
+                                String card_description = cardObject.getString("description");
+                                String card_image = cardObject.getString("image");
+                                card.add(card_title);
+                                card.add(card_url);
+                                card.add(card_description);
+                                card.add(card_image);
+                            }
 
                             if (getActivity() != null) {
-                                ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4, card);
 
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
@@ -1033,9 +1072,21 @@ public class Public_TimeLine_Fragment extends Fragment {
                                         toot_time = toot_jsonObject.getString("created_at");
                                     }
 
+                                    ArrayList<String> card = new ArrayList<>();
+                                    if (!toot_jsonObject.isNull("card")) {
+                                        JSONObject cardObject = toot_jsonObject.getJSONObject("card");
+                                        String card_url = cardObject.getString("url");
+                                        String card_title = cardObject.getString("title");
+                                        String card_description = cardObject.getString("description");
+                                        String card_image = cardObject.getString("image");
+                                        card.add(card_title);
+                                        card.add(card_url);
+                                        card.add(card_description);
+                                        card.add(card_image);
+                                    }
 
                                     if (getActivity() != null) {
-                                        ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                        ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4, card);
 
                                         getActivity().runOnUiThread(new Runnable() {
                                             @Override
@@ -1300,8 +1351,23 @@ public class Public_TimeLine_Fragment extends Fragment {
                                             }
 
 
+                                            //カード情報
+                                            ArrayList<String> card = new ArrayList<>();
+                                            if (!toot_jsonObject.isNull("card")) {
+                                                JSONObject cardObject = toot_jsonObject.getJSONObject("card");
+                                                String card_url = cardObject.getString("url");
+                                                String card_title = cardObject.getString("title");
+                                                String card_description = cardObject.getString("description");
+                                                String card_image = cardObject.getString("image");
+                                                card.add(card_title);
+                                                card.add(card_url);
+                                                card.add(card_description);
+                                                card.add(card_image);
+                                            }
+
+
                                             if (getActivity() != null) {
-                                                ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4);
+                                                ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4, card);
 
                                                 getActivity().runOnUiThread(new Runnable() {
                                                     @Override

@@ -250,7 +250,7 @@ public class Favourites_List_Fragment extends Fragment {
 
 
                         if (getActivity() != null) {
-                            ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null);
+                            ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null,null);
 
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -354,7 +354,7 @@ public class Favourites_List_Fragment extends Fragment {
                                 }
 
                                 if (getActivity() != null) {
-                                    ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null);
+                                    ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null, null);
 
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override
@@ -617,7 +617,7 @@ public class Favourites_List_Fragment extends Fragment {
                                             }
 
                                             if (getActivity() != null){
-                                                ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null);
+                                                ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null, null);
 
                                                 getActivity().runOnUiThread(new Runnable() {
                                                     @Override

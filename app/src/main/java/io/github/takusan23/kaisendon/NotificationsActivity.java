@@ -144,7 +144,7 @@ public class NotificationsActivity extends AppCompatActivity {
                             toot = "";
                         }
 
-                        ListItem listItem = new ListItem(null, toot, account + " / " + type, time, null, avater_url,account_id, user_id, null,null,null,null);
+                        ListItem listItem = new ListItem(null, toot, account + " / " + type, time, null, avater_url,account_id, user_id, null,null,null,null,null);
 
                         toot_list.add(listItem);
 
@@ -225,7 +225,7 @@ public class NotificationsActivity extends AppCompatActivity {
                                     toot = "";
                                 }
 
-                                ListItem listItem = new ListItem(null, toot, account + " / " + type, time, null, avater_url,account_id, user_id, null,null,null,null);
+                                ListItem listItem = new ListItem(null, toot, account + " / " + type, time, null, avater_url,account_id, user_id, null,null,null,null,null);
 
                                 toot_list.add(listItem);
 

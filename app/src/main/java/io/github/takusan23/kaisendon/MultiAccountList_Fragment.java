@@ -145,7 +145,7 @@ public class MultiAccountList_Fragment extends Fragment {
                             now_account = "now_account";
                         }
 
-                        listItem[0] = new ListItem(now_account, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null, null, null, null);
+                        listItem[0] = new ListItem(now_account, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null, null, null, null, null);
 
 
                     } catch (Mastodon4jRequestException e) {

@@ -34,10 +34,12 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
+
 import io.github.takusan23.kaisendon.CustomTabURL.LinkTransformationMethod;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -146,18 +148,17 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
 
 
         io.github.takusan23.kaisendon.ListItem item = mItems.get(position);
-        //System.out.println("Count : " + String.valueOf(getCount()));
+        ArrayList<String> listItem = item.getListItem();
 
 
         //URLをCustomTabで開くかどうか
         boolean chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
-        if (chrome_custom_tabs){
+        if (chrome_custom_tabs) {
             holder.tile_textview.setTransformationMethod(new LinkTransformationMethod());
             holder.tile_textview.setMovementMethod(LinkMovementMethod.getInstance());
-        }else{
+        } else {
             holder.tile_textview.setAutoLinkMask(Linkify.WEB_URLS);
         }
-
 
 
         //設定を取得
@@ -201,8 +202,8 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
 
         //ニコる
         String finalNicoru_text = nicoru_text;
-        String id_string = item.getNicoru();
-        String avater_url = item.getAvater();
+        String id_string = listItem.get(4);
+        String avater_url = listItem.get(5);
         String media_url = "";
 
         //メッセージ
@@ -237,10 +238,10 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
 
         boolean toot_media = pref_setting.getBoolean("pref_toot_media", false);
 
-        media_url_1 = item.getMedia1();
-        media_url_2 = item.getMedia2();
-        media_url_3 = item.getMedia3();
-        media_url_4 = item.getMedia4();
+        media_url_1 = listItem.get(8);
+        media_url_2 = listItem.get(9);
+        media_url_3 = listItem.get(10);
+        media_url_4 = listItem.get(11);
 
 
         if (media_url_1 != null) {
@@ -250,11 +251,6 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
                 holder.imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-                        media_url_1 = item.getMedia1();
-                        media_url_2 = item.getMedia2();
-                        media_url_3 = item.getMedia3();
-                        media_url_4 = item.getMedia4();
 
                         if (setting_avater_gif) {
                             //GIFアニメ再生させない
@@ -281,10 +277,6 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
             //Wi-Fi接続時
             if (setting_avater_wifi) {
                 if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                    media_url_1 = item.getMedia1();
-                    media_url_2 = item.getMedia2();
-                    media_url_3 = item.getMedia3();
-                    media_url_4 = item.getMedia4();
 
                     if (setting_avater_gif) {
                         ImageViewSetting(holder);
@@ -322,12 +314,6 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
                     @Override
                     public void onClick(View v) {
 
-                        //表示
-                        media_url_1 = item.getMedia1();
-                        media_url_2 = item.getMedia2();
-                        media_url_3 = item.getMedia3();
-                        media_url_4 = item.getMedia4();
-
                         if (setting_avater_gif) {
                             //GIFアニメ再生させない
                             ImageViewSetting(holder);
@@ -359,7 +345,7 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
 
 
         if (setting_avater_hidden) {
-            thumbnail.setImageBitmap(item.getThumbnail());
+            //thumbnail.setImageBitmap(item.getThumbnail());
         }
         //Wi-Fi
         if (setting_avater_wifi) {
@@ -391,7 +377,7 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
         }
 
 
-        long account_id = item.getID();
+        long account_id = Long.valueOf(listItem.get(6));
 
 
         //ユーザー情報
@@ -425,8 +411,9 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
 
 
         //カスタムストリーミングで背景色を変える機能
-        if (item.getInfo() != null) {
-            if (item.getInfo().contains("now_account")) {
+        String type = listItem.get(0);
+        if (type != null) {
+            if (type.contains("now_account")) {
                 holder.vw1.setBackgroundColor(Color.parseColor("#1A008080"));
             }
         }
@@ -477,6 +464,8 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
 
         //絵文字強制
         boolean emoji_compatibility = pref_setting.getBoolean("pref_emoji_compatibility", false);
+        String titleString = listItem.get(1);
+        String userString = listItem.get(2);
         if (emoji_compatibility) {
             //ユーザー名
             EmojiCompat.get().registerInitCallback(new EmojiCompat.InitCallback() {
@@ -484,7 +473,7 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
                 public void onInitialized() {
                     if (user != null) {
                         user.setText(
-                                compat.process(item.getUser()));
+                                compat.process(userString));
                     }
                 }
             });
@@ -494,7 +483,7 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
                 public void onInitialized() {
                     if (title != null) {
                         title.setText(
-                                compat.process((Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT))));
+                                compat.process((Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT))));
                     }
                 }
             });
@@ -504,16 +493,16 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
                 public void onInitialized() {
                     if (client != null) {
                         client.setText(
-                                compat.process(item.getClient()));
+                                compat.process(listItem.get(3)));
                     }
                 }
             });
 
         } else {
             //無効時
-            user.setText(item.getUser());
-            title.setText(Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT));
-            client.setText(item.getClient());
+            user.setText(userString);
+            title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
+            client.setText(userString);
         }
 
         return view;

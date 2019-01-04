@@ -60,6 +60,7 @@ import com.sys1yagi.mastodon4j.api.Range;
 import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Account;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
+import com.sys1yagi.mastodon4j.api.entity.Card;
 import com.sys1yagi.mastodon4j.api.entity.Emoji;
 import com.sys1yagi.mastodon4j.api.entity.Notification;
 import com.sys1yagi.mastodon4j.api.entity.Status;
@@ -68,6 +69,7 @@ import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Accounts;
 import com.sys1yagi.mastodon4j.api.method.Notifications;
 import com.sys1yagi.mastodon4j.api.method.Public;
+import com.sys1yagi.mastodon4j.api.method.Statuses;
 import com.sys1yagi.mastodon4j.api.method.Streaming;
 import com.sys1yagi.mastodon4j.api.method.Timelines;
 
@@ -143,10 +145,9 @@ public class HomeCrad_Fragment extends Fragment {
         }
 
         //スリープを無効にする
-        if (pref_setting.getBoolean("pref_no_sleep", false)){
+        if (pref_setting.getBoolean("pref_no_sleep", false)) {
             getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
-
 
 
         LinearLayout linearLayout_ = (LinearLayout) view.findViewById(R.id.cardview_linear);
@@ -779,8 +780,37 @@ public class HomeCrad_Fragment extends Fragment {
 
                         ListItem listItem = null;
 
+                        //配列を作成
+                        ArrayList<String> Item = new ArrayList<>();
+                        //メモとか通知とかに
+                        Item.add("");
+                        //内容
+                        Item.add(toot_text);
+                        //ユーザー名
+                        Item.add(user_name + " @" + user);
+                        //時間、クライアント名等
+                        Item.add("トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                        //Toot ID 文字列版
+                        Item.add(toot_id_string);
+                        //アバターURL
+                        Item.add(user_avater_url);
+                        //アカウントID
+                        Item.add(String.valueOf(account_id));
+                        //ユーザーネーム
+                        Item.add(user);
+                        //メディア
+                        Item.add(media_url[0]);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        //カード
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+
                         if (getActivity() != null) {
-                            listItem = new ListItem(null, toot_text, user_name + " @" + user, "トゥートID : " + toot_id_string + " / " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url[0], null, null, null, null);
+                            listItem = new ListItem(Item);
                             ListItem finalListItem = listItem;
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -893,13 +923,39 @@ public class HomeCrad_Fragment extends Fragment {
                         }
 
 
-                        Bitmap bmp = null;
-                        //BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);  // 今回はサンプルなのでデフォルトのAndroid Iconを利用
-                        ImageButton nicoru_button = null;
+                        //配列を作成
+                        ArrayList<String> Item = new ArrayList<>();
+                        //メモとか通知とかに
+                        Item.add("");
+                        //内容
+                        Item.add(toot_text);
+                        //ユーザー名
+                        Item.add(user_name + " @" + user);
+                        //時間、クライアント名等
+                        Item.add("トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                        //Toot ID 文字列版
+                        Item.add(toot_id_string);
+                        //アバターURL
+                        Item.add(user_avater_url);
+                        //アカウントID
+                        Item.add(String.valueOf(account_id));
+                        //ユーザーネーム
+                        Item.add(user);
+                        //メディア
+                        Item.add(media_url[0]);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        //カード
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+
                         ListItem listItem = null;
 
                         if (getActivity() != null) {
-                            listItem = new ListItem(null, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url[0], null, null, null, null);
+                            listItem = new ListItem(Item);
                             ListItem finalListItem = listItem;
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -1679,10 +1735,40 @@ public class HomeCrad_Fragment extends Fragment {
                             layout_type = "Notification_follow";
                         }
 
+                        //配列を作成
+                        ArrayList<String> Item = new ArrayList<>();
+                        //メモとか通知とかに
+                        Item.add(layout_type);
+                        //内容
+                        Item.add( toot[0]);
+                        //ユーザー名
+                        Item.add(account[0] + " @" + user_acct + " / " + type);
+                        //時間、クライアント名等
+                        Item.add("トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time);
+                        //Toot ID 文字列版
+                        Item.add(toot_id_string);
+                        //アバターURL
+                        Item.add(avater_url);
+                        //アカウントID
+                        Item.add(String.valueOf(account_id));
+                        //ユーザーネーム
+                        Item.add(avater_url);
+                        //メディア
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        //カード
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+
+
                         ListItem listItem = null;
 
                         if (getActivity() != null) {
-                            listItem = new ListItem(layout_type, toot[0], account[0] + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, null, null, null, null, null);
+                            listItem = new ListItem(Item);
                             ListItem finalListItem = listItem;
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override

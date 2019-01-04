@@ -145,7 +145,36 @@ public class MultiAccountList_Fragment extends Fragment {
                             now_account = "now_account";
                         }
 
-                        listItem[0] = new ListItem(now_account, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null, null, null, null, null);
+
+                        //配列を作成
+                        ArrayList<String> Item = new ArrayList<>();
+                        //メモとか通知とかに
+                        Item.add(now_account);
+                        //内容
+                        Item.add(profile);
+                        //ユーザー名
+                        Item.add(display_name + " @" + account_id_string);
+                        //時間、クライアント名等
+                        Item.add(null);
+                        //Toot ID 文字列版
+                        Item.add(null);
+                        //アバターURL
+                        Item.add(avater_url);
+                        //アカウントID
+                        Item.add(String.valueOf(account_id));
+                        //ユーザーネーム
+                        Item.add(display_name);
+                        //メディア
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        //カード
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        listItem[0] = new ListItem(Item);
 
 
                     } catch (Mastodon4jRequestException e) {

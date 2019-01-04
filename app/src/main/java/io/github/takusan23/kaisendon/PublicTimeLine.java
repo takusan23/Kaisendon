@@ -182,6 +182,7 @@ public class PublicTimeLine extends AppCompatActivity {
                             @Override
                             public void run() {
 
+/*
                                 //toot_list.add( "----------" + "\r\n" + "User : " + user +"\r\n" + "Toot : " + toot_text + "\r\n" + "----------");
                                 TimeLineAdapter adapter = new TimeLineAdapter(PublicTimeLine.this, R.layout.timeline_item, toot_list);
                                 ListView listView = (ListView) findViewById(R.id.public_time_line_list);
@@ -199,6 +200,7 @@ public class PublicTimeLine extends AppCompatActivity {
                                 listView.invalidateViews();
                                 adapter.notifyDataSetChanged();
                                 listView.deferNotifyDataSetChanged();
+*/
 
 
                             }

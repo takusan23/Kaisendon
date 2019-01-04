@@ -182,10 +182,40 @@ public class Follow_Suggestions_Fragment extends Fragment {
                         String profile = stats.getString("note");
                         String avater_url = stats.getString("avatar");
 
-                        System.out.println(display_name + "/" + account_id_string);
+                        //System.out.println(display_name + "/" + account_id_string);
+
+                        //配列を作成
+                        ArrayList<String> Item = new ArrayList<>();
+                        //メモとか通知とかに
+                        Item.add(null);
+                        //内容
+                        Item.add(profile);
+                        //ユーザー名
+                        Item.add(display_name + " @" + account_id_string);
+                        //時間、クライアント名等
+                        Item.add(null);
+                        //Toot ID 文字列版
+                        Item.add(null);
+                        //アバターURL
+                        Item.add(avater_url);
+                        //アカウントID
+                        Item.add(String.valueOf(account_id));
+                        //ユーザーネーム
+                        Item.add(display_name);
+                        //メディア
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        //カード
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+
 
                         if (getActivity() != null){
-                            ListItem listItem = new ListItem(null, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null,null,null,null,null);
+                            ListItem listItem = new ListItem(Item);
 
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -282,10 +312,37 @@ public class Follow_Suggestions_Fragment extends Fragment {
                                 String profile = stats.getString("note");
                                 String avater_url = stats.getString("avatar");
 
-                                //System.out.println(display_name + "/" + account_id_string);
+                                //配列を作成
+                                ArrayList<String> Item = new ArrayList<>();
+                                //メモとか通知とかに
+                                Item.add(null);
+                                //内容
+                                Item.add(profile);
+                                //ユーザー名
+                                Item.add(display_name + " @" + account_id_string);
+                                //時間、クライアント名等
+                                Item.add(null);
+                                //Toot ID 文字列版
+                                Item.add(null);
+                                //アバターURL
+                                Item.add(avater_url);
+                                //アカウントID
+                                Item.add(String.valueOf(account_id));
+                                //ユーザーネーム
+                                Item.add(display_name);
+                                //メディア
+                                Item.add(null);
+                                Item.add(null);
+                                Item.add(null);
+                                Item.add(null);
+                                //カード
+                                Item.add(null);
+                                Item.add(null);
+                                Item.add(null);
+                                Item.add(null);
 
                                 if (getActivity() != null){
-                                    ListItem listItem = new ListItem(null, profile, display_name + " @" + account_id_string, null, null, avater_url, account_id, display_name, null,null,null,null,null);
+                                    ListItem listItem = new ListItem(Item);
 
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override

@@ -29,10 +29,12 @@ import com.sys1yagi.mastodon4j.api.Pageable;
 import com.sys1yagi.mastodon4j.api.Range;
 import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
+import com.sys1yagi.mastodon4j.api.entity.Card;
 import com.sys1yagi.mastodon4j.api.entity.Emoji;
 import com.sys1yagi.mastodon4j.api.entity.Notification;
 import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Notifications;
+import com.sys1yagi.mastodon4j.api.method.Statuses;
 import com.sys1yagi.mastodon4j.api.method.Streaming;
 
 import org.jetbrains.annotations.NotNull;
@@ -60,18 +62,18 @@ import okhttp3.Response;
 public class Notification_Fragment extends Fragment {
 
     //通知
-    String account = null;
+    String user_name = null;
     String type = null;
-    String toot = null;
-    String time = null;
-    String avater_url = null;
+    String toot_text = null;
+    String toot_text_time = null;
+    String user_avater_url = null;
     String user_id = null;
-    String user_acct = null;
+    String user = null;
     String max_id = null;
 
     String layout_type = null;
 
-    long toot_id;
+    long toot_text_id;
 
     long account_id;
 
@@ -137,7 +139,7 @@ public class Notification_Fragment extends Fragment {
         getActivity().setTitle(R.string.notifications);
 
         //スリープを無効にする
-        if (pref_setting.getBoolean("pref_no_sleep", false)){
+        if (pref_setting.getBoolean("pref_no_sleep", false)) {
             getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
 
@@ -193,9 +195,9 @@ public class Notification_Fragment extends Fragment {
         snackbar.show();
 
 
-        ArrayList<ListItem> toot_list = new ArrayList<>();
+        ArrayList<ListItem> toot_text_list = new ArrayList<>();
 
-        HomeTimeLineAdapter adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_list);
+        HomeTimeLineAdapter adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_text_list);
 
         String finalAccessToken = AccessToken;
 
@@ -228,26 +230,26 @@ public class Notification_Fragment extends Fragment {
 
                         @Override
                         public void onNotification(@NotNull Notification notification) {
-                            account = notification.getAccount().getDisplayName();
+                            user_name = notification.getAccount().getDisplayName();
                             type = notification.getType();
-                            //time = status.getCreatedAt();
-                            avater_url = notification.getAccount().getAvatar();
+                            //toot_text_time = status.getCreatedAt();
+                            user_avater_url = notification.getAccount().getAvatar();
                             user_id = notification.getAccount().getUserName();
-                            user_acct = notification.getAccount().getAcct();
+                            user = notification.getAccount().getAcct();
 
                             account_id = notification.getAccount().getId();
 
-                            String toot_id_string = null;
+                            String toot_text_id_string = null;
 
                             //Followの通知のときにgetContent()するとNullでえらーでるのでtry/catch処理
                             try {
-                                toot = notification.getStatus().getContent();
-                                toot_id = notification.getStatus().getId();
-                                toot_id_string = String.valueOf(toot_id);
+                                toot_text = notification.getStatus().getContent();
+                                toot_text_id = notification.getStatus().getId();
+                                toot_text_id_string = String.valueOf(toot_text_id);
                             } catch (NullPointerException e) {
-                                toot = "";
-                                toot_id = 0;
-                                toot_id_string = String.valueOf(toot_id);
+                                toot_text = "";
+                                toot_text_id = 0;
+                                toot_text_id_string = String.valueOf(toot_text_id);
                             }
 
                             boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
@@ -264,12 +266,12 @@ public class Notification_Fragment extends Fragment {
                                     //9時間足して日本時間へ
                                     calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
                                     //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                                    time = japanDateFormat.format(calendar.getTime());
+                                    toot_text_time = japanDateFormat.format(calendar.getTime());
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
                             } else {
-                                time = notification.getCreatedAt();
+                                toot_text_time = notification.getCreatedAt();
                             }
 
                             //カスタム絵文字
@@ -282,13 +284,13 @@ public class Notification_Fragment extends Fragment {
                                         String emoji_name = emoji.getShortcode();
                                         String emoji_url = emoji.getUrl();
                                         String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                        toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
+                                        toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
                                     });
 
                                 } catch (NullPointerException e) {
-                                    toot = "";
-                                    toot_id = 0;
-                                    toot_id_string = String.valueOf(toot_id);
+                                    toot_text = "";
+                                    toot_text_id = 0;
+                                    toot_text_id_string = String.valueOf(toot_text_id);
                                 }
 
                                 //DisplayNameのほう
@@ -297,7 +299,7 @@ public class Notification_Fragment extends Fragment {
                                     String emoji_name = emoji.getShortcode();
                                     String emoji_url = emoji.getUrl();
                                     String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                 });
                             }
 
@@ -357,7 +359,60 @@ public class Notification_Fragment extends Fragment {
                             }
 
 
-                            ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4,null);
+                            //Card
+                            ArrayList<String> card = new ArrayList<>();
+                            String cardTitle = null;
+                            String cardURL = null;
+                            String cardDescription = null;
+                            String cardImage = null;
+
+                            try {
+                                Card statuses = new Statuses(client).getCard(toot_text_id).execute();
+                                if (!statuses.getUrl().isEmpty()) {
+                                    cardTitle = statuses.getTitle();
+                                    cardURL = statuses.getUrl();
+                                    cardDescription = statuses.getDescription();
+                                    cardImage = statuses.getImage();
+
+                                    card.add(statuses.getTitle());
+                                    card.add(statuses.getUrl());
+                                    card.add(statuses.getDescription());
+                                    card.add(statuses.getImage());
+                                }
+                            } catch (Mastodon4jRequestException e) {
+                                e.printStackTrace();
+                            }
+                            //配列を作成
+                            ArrayList<String> Item = new ArrayList<>();
+                            //メモとか通知とかに
+                            Item.add(layout_type);
+                            //内容
+                            Item.add(toot_text);
+                            //ユーザー名
+                            Item.add(user_name + " @" + user);
+                            //時間、クライアント名等
+                            Item.add("トゥートID : " + toot_text_id_string + " / " + getString(R.string.time) + " : " + toot_text_time);
+                            //Toot ID 文字列版
+                            Item.add(toot_text_id_string);
+                            //アバターURL
+                            Item.add(user_avater_url);
+                            //アカウントID
+                            Item.add(String.valueOf(account_id));
+                            //ユーザーネーム
+                            Item.add(user);
+                            //メディア
+                            Item.add(media_url_1);
+                            Item.add(media_url_2);
+                            Item.add(media_url_3);
+                            Item.add(media_url_4);
+                            //カード
+                            Item.add(cardTitle);
+                            Item.add(cardURL);
+                            Item.add(cardDescription);
+                            Item.add(cardImage);
+
+
+                            ListItem listItem = new ListItem(Item);
 
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -433,30 +488,36 @@ public class Notification_Fragment extends Fragment {
                     try {
                         jsonArray = new JSONArray(response_string);
                         for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
-                            JSONObject toot_account = toot_jsonObject.getJSONObject("account");
-                            user_id = toot_account.getString("username");
-                            account = toot_account.getString("display_name");
-                            time = toot_jsonObject.getString("created_at");
-                            type = toot_jsonObject.getString("type");
-                            String toot_id_string = null;
-                            toot = "";
+                            JSONObject toot_text_jsonObject = jsonArray.getJSONObject(i);
+                            JSONObject toot_text_account = toot_text_jsonObject.getJSONObject("user_name");
+                            user_id = toot_text_account.getString("username");
+                            user_name = toot_text_account.getString("display_name");
+                            toot_text_time = toot_text_jsonObject.getString("created_at");
+                            type = toot_text_jsonObject.getString("type");
+                            String toot_text_id_string = null;
+                            toot_text = "";
 
-                            JSONObject toot_status = null;
-                            avater_url = toot_account.getString("avatar");
+                            JSONObject toot_text_status = null;
+                            user_avater_url = toot_text_account.getString("avatar");
 
-                            account_id = toot_account.getLong("id");
+                            account_id = toot_text_account.getLong("id");
 
-                            user_acct = toot_account.getString("acct");
+                            user = toot_text_account.getString("acct");
 
                             List<Attachment> attachment = Collections.singletonList(new Attachment());
 
-                            if (toot_jsonObject.has("status")) {
-                                toot_status = toot_jsonObject.getJSONObject("status");
-                                toot = toot_status.getString("content");
-                                toot_id_string = toot_status.getString("id");
+                            //カード情報
+                            String cardTitle = null;
+                            String cardURL = null;
+                            String cardDescription = null;
+                            String cardImage = null;
 
-                                JSONArray media_array = toot_status.getJSONArray("media_attachments");
+                            if (toot_text_jsonObject.has("status")) {
+                                toot_text_status = toot_text_jsonObject.getJSONObject("status");
+                                toot_text = toot_text_status.getString("content");
+                                toot_text_id_string = toot_text_status.getString("id");
+
+                                JSONArray media_array = toot_text_status.getJSONArray("media_attachments");
                                 if (!media_array.isNull(0)) {
                                     media_url_1 = media_array.getJSONObject(0).getString("url");
                                 }
@@ -473,50 +534,60 @@ public class Notification_Fragment extends Fragment {
 
                                 //絵文字
                                 if (pref_setting.getBoolean("pref_custom_emoji", false)) {
-                                    JSONArray emoji = toot_status.getJSONArray("emojis");
+                                    JSONArray emoji = toot_text_status.getJSONArray("emojis");
                                     for (int e = 0; e < emoji.length(); e++) {
                                         JSONObject jsonObject = emoji.getJSONObject(e);
                                         String emoji_name = jsonObject.getString("shortcode");
                                         String emoji_url = jsonObject.getString("url");
                                         String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                        toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
+                                        toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
                                     }
 
                                     //アバター絵文字
                                     try {
-                                        JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
+                                        JSONArray avater_emoji = toot_text_jsonObject.getJSONArray("profile_emojis");
                                         for (int a = 0; a < avater_emoji.length(); a++) {
                                             JSONObject jsonObject = avater_emoji.getJSONObject(a);
                                             String emoji_name = jsonObject.getString("shortcode");
                                             String emoji_url = jsonObject.getString("url");
                                             String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                            toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
-                                            account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                            toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                                            user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                         }
 
                                         //ユーザーネームの方のアバター絵文字
-                                        JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
+                                        JSONArray account_avater_emoji = toot_text_account.getJSONArray("profile_emojis");
                                         for (int a = 0; a < account_avater_emoji.length(); a++) {
                                             JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
                                             String emoji_name = jsonObject.getString("shortcode");
                                             String emoji_url = jsonObject.getString("url");
                                             String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                            account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                            user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                         }
                                     } catch (JSONException e) {
 
                                     }
 
                                     //ユーザーネームの方の絵文字
-                                    JSONArray account_emoji = toot_account.getJSONArray("emojis");
+                                    JSONArray account_emoji = toot_text_account.getJSONArray("emojis");
                                     for (int e = 0; e < account_emoji.length(); e++) {
                                         JSONObject jsonObject = account_emoji.getJSONObject(e);
                                         String emoji_name = jsonObject.getString("shortcode");
                                         String emoji_url = jsonObject.getString("url");
                                         String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                        account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                        user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                     }
                                 }
+
+                                //カード情報
+                                if (!toot_text_status.isNull("card")) {
+                                    JSONObject cardObject = toot_text_status.getJSONObject("card");
+                                    cardURL = cardObject.getString("url");
+                                    cardTitle = cardObject.getString("title");
+                                    cardDescription = cardObject.getString("description");
+                                    cardImage = cardObject.getString("image");
+                                }
+
                             }
 
                             final String[] medias = new String[1];
@@ -564,23 +635,52 @@ public class Notification_Fragment extends Fragment {
                                 //日本用フォーマット
                                 SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
                                 try {
-                                    Date date = simpleDateFormat.parse(toot_jsonObject.getString("created_at"));
+                                    Date date = simpleDateFormat.parse(toot_text_jsonObject.getString("created_at"));
                                     Calendar calendar = Calendar.getInstance();
                                     calendar.setTime(date);
                                     //9時間足して日本時間へ
                                     calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
                                     //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                                    time = japanDateFormat.format(calendar.getTime());
+                                    toot_text_time = japanDateFormat.format(calendar.getTime());
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
                             } else {
-                                time = toot_jsonObject.getString("created_at");
+                                toot_text_time = toot_text_jsonObject.getString("created_at");
                             }
+
+                            //配列を作成
+                            ArrayList<String> Item = new ArrayList<>();
+                            //メモとか通知とかに
+                            Item.add(layout_type);
+                            //内容
+                            Item.add(toot_text);
+                            //ユーザー名
+                            Item.add(user_name + " @" + user);
+                            //時間、クライアント名等
+                            Item.add("トゥートID : " + toot_text_id_string + " / " + getString(R.string.time) + " : " + toot_text_time);
+                            //Toot ID 文字列版
+                            Item.add(toot_text_id_string);
+                            //アバターURL
+                            Item.add(user_avater_url);
+                            //アカウントID
+                            Item.add(String.valueOf(account_id));
+                            //ユーザーネーム
+                            Item.add(user);
+                            //メディア
+                            Item.add(media_url_1);
+                            Item.add(media_url_2);
+                            Item.add(media_url_3);
+                            Item.add(media_url_4);
+                            //カード
+                            Item.add(cardTitle);
+                            Item.add(cardURL);
+                            Item.add(cardDescription);
+                            Item.add(cardImage);
 
 
                             if (getActivity() != null) {
-                                ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4,null);
+                                ListItem listItem = new ListItem(Item);
 
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
@@ -602,8 +702,8 @@ public class Notification_Fragment extends Fragment {
 
                         }
                         //最後のIDを更新する
-                        JSONObject last_toot = jsonArray.getJSONObject(29);
-                        max_id = last_toot.getString("id");
+                        JSONObject last_toot_text = jsonArray.getJSONObject(29);
+                        max_id = last_toot_text.getString("id");
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -630,26 +730,26 @@ public class Notification_Fragment extends Fragment {
 
                         statuses.getPart().forEach(status -> {
 
-                            account = status.getAccount().getDisplayName();
+                            user_name = status.getAccount().getDisplayName();
                             type = status.getType();
-                            //time = status.getCreatedAt();
-                            avater_url = status.getAccount().getAvatar();
+                            //toot_text_time = status.getCreatedAt();
+                            user_avater_url = status.getAccount().getAvatar();
                             user_id = status.getAccount().getUserName();
-                            user_acct = status.getAccount().getAcct();
+                            user = status.getAccount().getAcct();
 
                             account_id = status.getAccount().getId();
 
-                            String toot_id_string = null;
+                            String toot_text_id_string = null;
 
                             //Followの通知のときにgetContent()するとNullでえらーでるのでtry/catch処理
                             try {
-                                toot = status.getStatus().getContent();
-                                toot_id = status.getStatus().getId();
-                                toot_id_string = String.valueOf(toot_id);
+                                toot_text = status.getStatus().getContent();
+                                toot_text_id = status.getStatus().getId();
+                                toot_text_id_string = String.valueOf(toot_text_id);
                             } catch (NullPointerException e) {
-                                toot = "";
-                                toot_id = 0;
-                                toot_id_string = String.valueOf(toot_id);
+                                toot_text = "";
+                                toot_text_id = 0;
+                                toot_text_id_string = String.valueOf(toot_text_id);
                             }
 
                             boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
@@ -666,12 +766,12 @@ public class Notification_Fragment extends Fragment {
                                     //9時間足して日本時間へ
                                     calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
                                     //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                                    time = japanDateFormat.format(calendar.getTime());
+                                    toot_text_time = japanDateFormat.format(calendar.getTime());
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
                             } else {
-                                time = status.getCreatedAt();
+                                toot_text_time = status.getCreatedAt();
                             }
 
                             //カスタム絵文字
@@ -683,13 +783,13 @@ public class Notification_Fragment extends Fragment {
                                         String emoji_name = emoji.getShortcode();
                                         String emoji_url = emoji.getUrl();
                                         String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                        toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
+                                        toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
                                     });
 
                                 } catch (NullPointerException e) {
-                                    toot = "";
-                                    toot_id = 0;
-                                    toot_id_string = String.valueOf(toot_id);
+                                    toot_text = "";
+                                    toot_text_id = 0;
+                                    toot_text_id_string = String.valueOf(toot_text_id);
                                 }
 
                                 //DisplayNameのほう
@@ -698,7 +798,7 @@ public class Notification_Fragment extends Fragment {
                                     String emoji_name = emoji.getShortcode();
                                     String emoji_url = emoji.getUrl();
                                     String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                 });
                             }
 
@@ -757,9 +857,58 @@ public class Notification_Fragment extends Fragment {
                                 media_url_4 = null;
                             }
 
+                            //Card
+                            ArrayList<String> card = new ArrayList<>();
+                            String cardTitle = null;
+                            String cardURL = null;
+                            String cardDescription = null;
+                            String cardImage = null;
+
+                            try {
+                                Card card_status = new Statuses(client).getCard(toot_text_id).execute();
+                                if (!card_status.getUrl().isEmpty()) {
+                                    cardTitle = card_status.getTitle();
+                                    cardURL = card_status.getUrl();
+                                    cardDescription = card_status.getDescription();
+                                    cardImage = card_status.getImage();
+                                }
+                            } catch (Mastodon4jRequestException e) {
+                                e.printStackTrace();
+                            }
+
+
+                            //配列を作成
+                            ArrayList<String> Item = new ArrayList<>();
+                            //メモとか通知とかに
+                            Item.add(layout_type);
+                            //内容
+                            Item.add(toot_text);
+                            //ユーザー名
+                            Item.add(user_name + " @" + user);
+                            //時間、クライアント名等
+                            Item.add("トゥートID : " + toot_text_id_string + " / " + getString(R.string.time) + " : " + toot_text_id_string);
+                            //Toot ID 文字列版
+                            Item.add(toot_text_id_string);
+                            //アバターURL
+                            Item.add(user_avater_url);
+                            //アカウントID
+                            Item.add(String.valueOf(account_id));
+                            //ユーザーネーム
+                            Item.add(user);
+                            //メディア
+                            Item.add(media_url_1);
+                            Item.add(media_url_2);
+                            Item.add(media_url_3);
+                            Item.add(media_url_4);
+                            //カード
+                            Item.add(cardTitle);
+                            Item.add(cardURL);
+                            Item.add(cardDescription);
+                            Item.add(cardImage);
+
 
                             if (getActivity() != null) {
-                                ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4,null);
+                                ListItem listItem = new ListItem(Item);
 
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
@@ -791,7 +940,7 @@ public class Notification_Fragment extends Fragment {
                     //dialog.dismiss();
                     snackbar.dismiss();
 
-                    HomeTimeLineAdapter adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_list);
+                    HomeTimeLineAdapter adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_text_list);
                 }
 
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -823,26 +972,26 @@ public class Notification_Fragment extends Fragment {
 
                                 statuses.getPart().forEach(status -> {
 
-                                    account = status.getAccount().getDisplayName();
+                                    user_name = status.getAccount().getDisplayName();
                                     type = status.getType();
-                                    time = status.getCreatedAt();
-                                    avater_url = status.getAccount().getAvatar();
+                                    toot_text_time = status.getCreatedAt();
+                                    user_avater_url = status.getAccount().getAvatar();
                                     user_id = status.getAccount().getUserName();
-                                    user_acct = status.getAccount().getAcct();
+                                    user = status.getAccount().getAcct();
 
                                     account_id = status.getAccount().getId();
 
-                                    String toot_id_string = null;
+                                    String toot_text_id_string = null;
 
                                     //Followの通知のときにgetContent()するとNullでえらーでるのでtry/catch処理
                                     try {
-                                        toot = status.getStatus().getContent();
-                                        toot_id = status.getStatus().getId();
-                                        toot_id_string = String.valueOf(toot_id);
+                                        toot_text = status.getStatus().getContent();
+                                        toot_text_id = status.getStatus().getId();
+                                        toot_text_id_string = String.valueOf(toot_text_id);
                                     } catch (NullPointerException e) {
-                                        toot = "";
-                                        toot_id = 0;
-                                        toot_id_string = String.valueOf(toot_id);
+                                        toot_text = "";
+                                        toot_text_id = 0;
+                                        toot_text_id_string = String.valueOf(toot_text_id);
                                     }
 
                                     boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
@@ -859,12 +1008,12 @@ public class Notification_Fragment extends Fragment {
                                             //9時間足して日本時間へ
                                             calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
                                             //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                                            time = japanDateFormat.format(calendar.getTime());
+                                            toot_text_time = japanDateFormat.format(calendar.getTime());
                                         } catch (ParseException e) {
                                             e.printStackTrace();
                                         }
                                     } else {
-                                        time = status.getCreatedAt();
+                                        toot_text_time = status.getCreatedAt();
                                     }
 
 
@@ -876,12 +1025,12 @@ public class Notification_Fragment extends Fragment {
                                                 String emoji_name = emoji.getShortcode();
                                                 String emoji_url = emoji.getUrl();
                                                 String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                                toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
                                             });
                                         } catch (NullPointerException e) {
-                                            toot = "";
-                                            toot_id = 0;
-                                            toot_id_string = String.valueOf(toot_id);
+                                            toot_text = "";
+                                            toot_text_id = 0;
+                                            toot_text_id_string = String.valueOf(toot_text_id);
                                         }
 
                                         //DisplayNameのほう
@@ -890,7 +1039,7 @@ public class Notification_Fragment extends Fragment {
                                             String emoji_name = emoji.getShortcode();
                                             String emoji_url = emoji.getUrl();
                                             String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                            account = account.replace(":" + emoji_name + ":", custom_emoji_src);
+                                            user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                         });
                                     }
 
@@ -950,9 +1099,63 @@ public class Notification_Fragment extends Fragment {
                                         media_url_4 = null;
                                     }
 
+                                    //Card
+                                    ArrayList<String> card = new ArrayList<>();
+                                    String cardTitle = null;
+                                    String cardURL = null;
+                                    String cardDescription = null;
+                                    String cardImage = null;
+
+                                    try {
+                                        Card card_status = new Statuses(client).getCard(toot_text_id).execute();
+                                        if (!card_status.getUrl().isEmpty()) {
+                                            cardTitle = card_status.getTitle();
+                                            cardURL = card_status.getUrl();
+                                            cardDescription = card_status.getDescription();
+                                            cardImage = card_status.getImage();
+
+                                            card.add(card_status.getTitle());
+                                            card.add(card_status.getUrl());
+                                            card.add(card_status.getDescription());
+                                            card.add(card_status.getImage());
+                                        }
+                                    } catch (Mastodon4jRequestException e) {
+                                        e.printStackTrace();
+                                    }
+
+
+                                    //配列を作成
+                                    ArrayList<String> Item = new ArrayList<>();
+                                    //メモとか通知とかに
+                                    Item.add(layout_type);
+                                    //内容
+                                    Item.add(toot_text);
+                                    //ユーザー名
+                                    Item.add(user_name + " @" + user);
+                                    //時間、クライアント名等
+                                    Item.add("トゥートID : " + toot_text_id_string + " / " + getString(R.string.time) + " : " + toot_text_time);
+                                    //Toot ID 文字列版
+                                    Item.add(toot_text_id_string);
+                                    //アバターURL
+                                    Item.add(user_avater_url);
+                                    //アカウントID
+                                    Item.add(String.valueOf(account_id));
+                                    //ユーザーネーム
+                                    Item.add(user);
+                                    //メディア
+                                    Item.add(media_url_1);
+                                    Item.add(media_url_2);
+                                    Item.add(media_url_3);
+                                    Item.add(media_url_4);
+                                    //カード
+                                    Item.add(cardTitle);
+                                    Item.add(cardURL);
+                                    Item.add(cardDescription);
+                                    Item.add(cardImage);
+
 
                                     if (getActivity() != null) {
-                                        ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4,null);
+                                        ListItem listItem = new ListItem(Item);
 
                                         getActivity().runOnUiThread(new Runnable() {
                                             @Override
@@ -1042,8 +1245,8 @@ public class Notification_Fragment extends Fragment {
                                 JSONArray jsonArray = null;
                                 try {
                                     jsonArray = new JSONArray(response_string);
-                                    JSONObject last_toot_jsonObject = jsonArray.getJSONObject(29);
-                                    max_id = last_toot_jsonObject.getString("id");
+                                    JSONObject last_toot_text_jsonObject = jsonArray.getJSONObject(29);
+                                    max_id = last_toot_text_jsonObject.getString("id");
 //                                    System.out.println("最後" + max_id);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -1098,26 +1301,107 @@ public class Notification_Fragment extends Fragment {
                                     try {
                                         jsonArray = new JSONArray(response_string);
                                         for (int i = 0; i < jsonArray.length(); i++) {
-                                            JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
-                                            JSONObject toot_account = toot_jsonObject.getJSONObject("account");
-                                            JSONObject toot_status = toot_jsonObject.getJSONObject("status");
-                                            toot = toot_status.getString("content");
-                                            user_id = toot_account.getString("username");
-                                            account = toot_account.getString("display_name");
-                                            time = toot_jsonObject.getString("created_at");
-                                            type = toot_jsonObject.getString("type");
-                                            String toot_id_string = null;
-                                            toot_id_string = toot_status.getString("id");
+                                            JSONObject toot_text_jsonObject = jsonArray.getJSONObject(i);
+                                            JSONObject toot_text_account = toot_text_jsonObject.getJSONObject("user_name");
+                                            user_id = toot_text_account.getString("username");
+                                            user_name = toot_text_account.getString("display_name");
+                                            toot_text_time = toot_text_jsonObject.getString("created_at");
+                                            type = toot_text_jsonObject.getString("type");
+                                            String toot_text_id_string = null;
+                                            toot_text = "";
 
-                                            avater_url = toot_account.getString("avatar");
+                                            JSONObject toot_text_status = null;
+                                            user_avater_url = toot_text_account.getString("avatar");
 
-                                            account_id = toot_account.getLong("id");
+                                            account_id = toot_text_account.getLong("id");
 
-                                            user_acct = toot_account.getString("acct");
-
+                                            user = toot_text_account.getString("acct");
 
                                             List<Attachment> attachment = Collections.singletonList(new Attachment());
 
+                                            //カード情報
+                                            String cardTitle = null;
+                                            String cardURL = null;
+                                            String cardDescription = null;
+                                            String cardImage = null;
+
+                                            if (toot_text_jsonObject.has("status")) {
+                                                toot_text_status = toot_text_jsonObject.getJSONObject("status");
+                                                toot_text = toot_text_status.getString("content");
+                                                toot_text_id_string = toot_text_status.getString("id");
+
+                                                JSONArray media_array = toot_text_status.getJSONArray("media_attachments");
+                                                if (!media_array.isNull(0)) {
+                                                    media_url_1 = media_array.getJSONObject(0).getString("url");
+                                                }
+                                                if (!media_array.isNull(1)) {
+                                                    media_url_2 = media_array.getJSONObject(1).getString("url");
+                                                }
+                                                if (!media_array.isNull(2)) {
+                                                    media_url_3 = media_array.getJSONObject(2).getString("url");
+                                                }
+                                                if (!media_array.isNull(3)) {
+                                                    media_url_4 = media_array.getJSONObject(3).getString("url");
+
+                                                }
+
+                                                //絵文字
+                                                if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                                    JSONArray emoji = toot_text_status.getJSONArray("emojis");
+                                                    for (int e = 0; e < emoji.length(); e++) {
+                                                        JSONObject jsonObject = emoji.getJSONObject(e);
+                                                        String emoji_name = jsonObject.getString("shortcode");
+                                                        String emoji_url = jsonObject.getString("url");
+                                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                                        toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                    }
+
+                                                    //アバター絵文字
+                                                    try {
+                                                        JSONArray avater_emoji = toot_text_jsonObject.getJSONArray("profile_emojis");
+                                                        for (int a = 0; a < avater_emoji.length(); a++) {
+                                                            JSONObject jsonObject = avater_emoji.getJSONObject(a);
+                                                            String emoji_name = jsonObject.getString("shortcode");
+                                                            String emoji_url = jsonObject.getString("url");
+                                                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                                            toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                            user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                        }
+
+                                                        //ユーザーネームの方のアバター絵文字
+                                                        JSONArray account_avater_emoji = toot_text_account.getJSONArray("profile_emojis");
+                                                        for (int a = 0; a < account_avater_emoji.length(); a++) {
+                                                            JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
+                                                            String emoji_name = jsonObject.getString("shortcode");
+                                                            String emoji_url = jsonObject.getString("url");
+                                                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                                            user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                        }
+                                                    } catch (JSONException e) {
+
+                                                    }
+
+                                                    //ユーザーネームの方の絵文字
+                                                    JSONArray account_emoji = toot_text_account.getJSONArray("emojis");
+                                                    for (int e = 0; e < account_emoji.length(); e++) {
+                                                        JSONObject jsonObject = account_emoji.getJSONObject(e);
+                                                        String emoji_name = jsonObject.getString("shortcode");
+                                                        String emoji_url = jsonObject.getString("url");
+                                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                                        user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                                    }
+                                                }
+
+                                                //カード情報
+                                                if (!toot_text_status.isNull("card")) {
+                                                    JSONObject cardObject = toot_text_status.getJSONObject("card");
+                                                    cardURL = cardObject.getString("url");
+                                                    cardTitle = cardObject.getString("title");
+                                                    cardDescription = cardObject.getString("description");
+                                                    cardImage = cardObject.getString("image");
+                                                }
+
+                                            }
 
                                             final String[] medias = new String[1];
 
@@ -1156,69 +1440,6 @@ public class Notification_Fragment extends Fragment {
                                             }
 
 
-                                            JSONArray media_array = toot_status.getJSONArray("media_attachments");
-                                            if (!media_array.isNull(0)) {
-                                                media_url_1 = media_array.getJSONObject(0).getString("url");
-                                            }
-                                            if (!media_array.isNull(1)) {
-                                                media_url_2 = media_array.getJSONObject(1).getString("url");
-                                            }
-                                            if (!media_array.isNull(2)) {
-                                                media_url_3 = media_array.getJSONObject(2).getString("url");
-                                            }
-                                            if (!media_array.isNull(3)) {
-                                                media_url_4 = media_array.getJSONObject(3).getString("url");
-
-                                            }
-
-                                            //絵文字
-                                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
-                                                JSONArray emoji = toot_status.getJSONArray("emojis");
-                                                for (int e = 0; e < emoji.length(); e++) {
-                                                    JSONObject jsonObject = emoji.getJSONObject(e);
-                                                    String emoji_name = jsonObject.getString("shortcode");
-                                                    String emoji_url = jsonObject.getString("url");
-                                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                                    toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
-                                                }
-
-                                                //アバター絵文字
-                                                try {
-                                                    JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
-                                                    for (int a = 0; a < avater_emoji.length(); a++) {
-                                                        JSONObject jsonObject = avater_emoji.getJSONObject(a);
-                                                        String emoji_name = jsonObject.getString("shortcode");
-                                                        String emoji_url = jsonObject.getString("url");
-                                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                                        toot = toot.replace(":" + emoji_name + ":", custom_emoji_src);
-                                                        account = account.replace(":" + emoji_name + ":", custom_emoji_src);
-                                                    }
-
-                                                    //ユーザーネームの方のアバター絵文字
-                                                    JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
-                                                    for (int a = 0; a < account_avater_emoji.length(); a++) {
-                                                        JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
-                                                        String emoji_name = jsonObject.getString("shortcode");
-                                                        String emoji_url = jsonObject.getString("url");
-                                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                                        account = account.replace(":" + emoji_name + ":", custom_emoji_src);
-                                                    }
-                                                } catch (JSONException e) {
-
-                                                }
-
-                                                //ユーザーネームの方の絵文字
-                                                JSONArray account_emoji = toot_account.getJSONArray("emojis");
-                                                for (int e = 0; e < account_emoji.length(); e++) {
-                                                    JSONObject jsonObject = account_emoji.getJSONObject(e);
-                                                    String emoji_name = jsonObject.getString("shortcode");
-                                                    String emoji_url = jsonObject.getString("url");
-                                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                                    account = account.replace(":" + emoji_name + ":", custom_emoji_src);
-                                                }
-                                            }
-
-
                                             boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
                                             if (japan_timeSetting) {
                                                 //時差計算？
@@ -1227,23 +1448,52 @@ public class Notification_Fragment extends Fragment {
                                                 //日本用フォーマット
                                                 SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
                                                 try {
-                                                    Date date = simpleDateFormat.parse(toot_jsonObject.getString("created_at"));
+                                                    Date date = simpleDateFormat.parse(toot_text_jsonObject.getString("created_at"));
                                                     Calendar calendar = Calendar.getInstance();
                                                     calendar.setTime(date);
                                                     //9時間足して日本時間へ
                                                     calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
                                                     //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                                                    time = japanDateFormat.format(calendar.getTime());
+                                                    toot_text_time = japanDateFormat.format(calendar.getTime());
                                                 } catch (ParseException e) {
                                                     e.printStackTrace();
                                                 }
                                             } else {
-                                                time = toot_jsonObject.getString("created_at");
+                                                toot_text_time = toot_text_jsonObject.getString("created_at");
                                             }
+
+                                            //配列を作成
+                                            ArrayList<String> Item = new ArrayList<>();
+                                            //メモとか通知とかに
+                                            Item.add(layout_type);
+                                            //内容
+                                            Item.add(toot_text);
+                                            //ユーザー名
+                                            Item.add(user_name + " @" + user);
+                                            //時間、クライアント名等
+                                            Item.add("トゥートID : " + toot_text_id_string + " / " + getString(R.string.time) + " : " + toot_text_time);
+                                            //Toot ID 文字列版
+                                            Item.add(toot_text_id_string);
+                                            //アバターURL
+                                            Item.add(user_avater_url);
+                                            //アカウントID
+                                            Item.add(String.valueOf(account_id));
+                                            //ユーザーネーム
+                                            Item.add(user);
+                                            //メディア
+                                            Item.add(media_url_1);
+                                            Item.add(media_url_2);
+                                            Item.add(media_url_3);
+                                            Item.add(media_url_4);
+                                            //カード
+                                            Item.add(cardTitle);
+                                            Item.add(cardURL);
+                                            Item.add(cardDescription);
+                                            Item.add(cardImage);
 
 
                                             if (getActivity() != null) {
-                                                ListItem listItem = new ListItem(layout_type, toot, account + " @" + user_acct + " / " + type, "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time, toot_id_string, avater_url, account_id, user_id, media_url_1, media_url_2, media_url_3, media_url_4,null);
+                                                ListItem listItem = new ListItem(Item);
 
                                                 getActivity().runOnUiThread(new Runnable() {
                                                     @Override
@@ -1251,8 +1501,8 @@ public class Notification_Fragment extends Fragment {
                                                         adapter.add(listItem);
                                                         adapter.notifyDataSetChanged();
                                                         listView.setAdapter(adapter);
-                                                        maxid_snackbar.dismiss();
-                                                        listView.setSelectionFromTop(position, y);
+                                                        snackbar.dismiss();
+                                                        //listView.setSelection(scrollPosition);
                                                     }
                                                 });
                                             }
@@ -1265,8 +1515,8 @@ public class Notification_Fragment extends Fragment {
 
                                         }
                                         //最後のIDを更新する
-                                        JSONObject last_toot = jsonArray.getJSONObject(29);
-                                        max_id = last_toot.getString("id");
+                                        JSONObject last_toot_text = jsonArray.getJSONObject(29);
+                                        max_id = last_toot_text.getString("id");
 
                                     } catch (JSONException e) {
                                         e.printStackTrace();

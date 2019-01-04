@@ -27,10 +27,12 @@ import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.Pageable;
 import com.sys1yagi.mastodon4j.api.Range;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
+import com.sys1yagi.mastodon4j.api.entity.Card;
 import com.sys1yagi.mastodon4j.api.entity.Emoji;
 import com.sys1yagi.mastodon4j.api.entity.Status;
 import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Favourites;
+import com.sys1yagi.mastodon4j.api.method.Statuses;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -115,7 +117,7 @@ public class Favourites_List_Fragment extends Fragment {
 
 
         //スリープを無効にする
-        if (pref_setting.getBoolean("pref_no_sleep", false)){
+        if (pref_setting.getBoolean("pref_no_sleep", false)) {
             getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
 
@@ -248,9 +250,56 @@ public class Favourites_List_Fragment extends Fragment {
                             });
                         }
 
+                        //カード情報
+                        String cardTitle = null;
+                        String cardURL = null;
+                        String cardDescription = null;
+                        String cardImage = null;
+
+                        try {
+                            Card statuses = new Statuses(client).getCard(toot_id).execute();
+                            if (!statuses.getUrl().isEmpty()) {
+                                cardTitle = statuses.getTitle();
+                                cardURL = statuses.getUrl();
+                                cardDescription = statuses.getDescription();
+                                cardImage = statuses.getImage();
+                            }
+                        } catch (Mastodon4jRequestException e) {
+                            e.printStackTrace();
+                        }
+
+                        //配列を作成
+                        ArrayList<String> Item = new ArrayList<>();
+                        //メモとか通知とかに
+                        Item.add(null);
+                        //内容
+                        Item.add(toot);
+                        //ユーザー名
+                        Item.add(user_name + " @" + user_id);
+                        //時間、クライアント名等
+                        Item.add("トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time);
+                        //Toot ID 文字列版
+                        Item.add(toot_id_string);
+                        //アバターURL
+                        Item.add(user_avater_url);
+                        //アカウントID
+                        Item.add(String.valueOf(account_id));
+                        //ユーザーネーム
+                        Item.add(user_id);
+                        //メディア
+                        Item.add(media_url_1);
+                        Item.add(media_url_2);
+                        Item.add(media_url_3);
+                        Item.add(media_url_4);
+                        //カード
+                        Item.add(cardTitle);
+                        Item.add(cardURL);
+                        Item.add(cardDescription);
+                        Item.add(cardImage);
+
 
                         if (getActivity() != null) {
-                            ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null,null);
+                            ListItem listItem = new ListItem(Item);
 
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -353,8 +402,56 @@ public class Favourites_List_Fragment extends Fragment {
                                     time = status.getCreatedAt();
                                 }
 
+                                //カード情報
+                                String cardTitle = null;
+                                String cardURL = null;
+                                String cardDescription = null;
+                                String cardImage = null;
+
+                                try {
+                                    Card statuses = new Statuses(client).getCard(toot_id).execute();
+                                    if (!statuses.getUrl().isEmpty()) {
+                                        cardTitle = statuses.getTitle();
+                                        cardURL = statuses.getUrl();
+                                        cardDescription = statuses.getDescription();
+                                        cardImage = statuses.getImage();
+                                    }
+                                } catch (Mastodon4jRequestException e) {
+                                    e.printStackTrace();
+                                }
+
+                                //配列を作成
+                                ArrayList<String> Item = new ArrayList<>();
+                                //メモとか通知とかに
+                                Item.add(null);
+                                //内容
+                                Item.add(toot);
+                                //ユーザー名
+                                Item.add(user_name + " @" + user_id);
+                                //時間、クライアント名等
+                                Item.add("トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time);
+                                //Toot ID 文字列版
+                                Item.add(toot_id_string);
+                                //アバターURL
+                                Item.add(user_avater_url);
+                                //アカウントID
+                                Item.add(String.valueOf(account_id));
+                                //ユーザーネーム
+                                Item.add(user_id);
+                                //メディア
+                                Item.add(media_url_1);
+                                Item.add(media_url_2);
+                                Item.add(media_url_3);
+                                Item.add(media_url_4);
+                                //カード
+                                Item.add(cardTitle);
+                                Item.add(cardURL);
+                                Item.add(cardDescription);
+                                Item.add(cardImage);
+
+
                                 if (getActivity() != null) {
-                                    ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null, null);
+                                    ListItem listItem = new ListItem(Item);
 
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override
@@ -415,7 +512,7 @@ public class Favourites_List_Fragment extends Fragment {
 
                         //最後のトゥートIDを持ってくる
                         //もういい！okhttpで実装する！！
-                        String url = "https://" + finalInstance + "/api/v1/timelines/home/?access_token=" + finalAccessToken;
+                        String url = "https://" + finalInstance + "/api/v1/favourites/?access_token=" + finalAccessToken;
                         //パラメータを設定
                         HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
                         builder.addQueryParameter("limit", "40");
@@ -454,7 +551,7 @@ public class Favourites_List_Fragment extends Fragment {
                         if (max_id != null) {
 
                             //SnackBer表示
-                            Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_home) + "\r\n /api/v1/timelines/home \r\n max_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
+                            Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_favoutite_list) + "\r\n /api/v1/timelines/favourites \r\n max_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
                             ViewGroup snackBer_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
                             //SnackBerを複数行対応させる
                             TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
@@ -470,7 +567,7 @@ public class Favourites_List_Fragment extends Fragment {
 
                             //最後のトゥートIDを持ってくる
                             //もういい！okhttpで実装する！！
-                            String max_id_url = "https://" + finalInstance + "/api/v1/timelines/home/?access_token=" + finalAccessToken;
+                            String max_id_url = "https://" + finalInstance + "/api/v1/favourites/?access_token=" + finalAccessToken;
                             //パラメータを設定
                             HttpUrl.Builder max_id_builder = HttpUrl.parse(max_id_url).newBuilder();
                             max_id_builder.addQueryParameter("limit", "40");
@@ -616,8 +713,52 @@ public class Favourites_List_Fragment extends Fragment {
                                                 time = toot_jsonObject.getString("created_at");
                                             }
 
-                                            if (getActivity() != null){
-                                                ListItem listItem = new ListItem(null, toot, user_name + " @" + user_id, "トゥートID : " + toot_id_string + " / " + time, toot_id_string, user_avater_url, account_id, user_id, null, null, null, null, null);
+                                            //カード情報
+                                            String cardTitle = null;
+                                            String cardURL = null;
+                                            String cardDescription = null;
+                                            String cardImage = null;
+
+                                            if (!toot_jsonObject.isNull("card")) {
+                                                JSONObject cardObject = toot_jsonObject.getJSONObject("card");
+                                                cardURL = cardObject.getString("url");
+                                                cardTitle = cardObject.getString("title");
+                                                cardDescription = cardObject.getString("description");
+                                                cardImage = cardObject.getString("image");
+                                            }
+
+                                            //配列を作成
+                                            ArrayList<String> Item = new ArrayList<>();
+                                            //メモとか通知とかに
+                                            Item.add(null);
+                                            //内容
+                                            Item.add(toot);
+                                            //ユーザー名
+                                            Item.add(user_name + " @" + user_id);
+                                            //時間、クライアント名等
+                                            Item.add("トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time);
+                                            //Toot ID 文字列版
+                                            Item.add(toot_id_string);
+                                            //アバターURL
+                                            Item.add(user_avater_url);
+                                            //アカウントID
+                                            Item.add(String.valueOf(account_id));
+                                            //ユーザーネーム
+                                            Item.add(user_id);
+                                            //メディア
+                                            Item.add(media_url_1);
+                                            Item.add(media_url_2);
+                                            Item.add(media_url_3);
+                                            Item.add(media_url_4);
+                                            //カード
+                                            Item.add(cardTitle);
+                                            Item.add(cardURL);
+                                            Item.add(cardDescription);
+                                            Item.add(cardImage);
+
+
+                                            if (getActivity() != null) {
+                                                ListItem listItem = new ListItem(Item);
 
                                                 getActivity().runOnUiThread(new Runnable() {
                                                     @Override

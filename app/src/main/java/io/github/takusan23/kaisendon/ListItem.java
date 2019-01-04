@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import java.util.ArrayList;
 
 public class ListItem {
+/*
     private Bitmap mThumbnail = null;
     private String mTitle = null;
     private String mUser = null;
@@ -20,6 +21,11 @@ public class ListItem {
     private String mMedia_3;
     private String mMedia_4;
     private ArrayList<String> stringList = null;
+*/
+
+
+    //全部配列で管理するぞ！！！！
+    private ArrayList<String> listItem = null;
 
 
     /**
@@ -28,14 +34,27 @@ public class ListItem {
     public ListItem() {
     }
 
-    ;
+
+    //@param item 配列
+    public ListItem(ArrayList<String> item) {
+        listItem = item;
+    }
+
+    // @param listItem 配列
+    public ArrayList<String> getListItem() {
+        return listItem;
+    }
 
 
-    /**
+
+    /*
+     */
+    /*
      * コンストラクタ
      *
      * @param title タイトル
-     */
+     *//*
+
     public ListItem(String info, String title, String user, String client, String nicoru, String avater, long account_id, String user_id, String media1, String media2, String media3, String media4,ArrayList<String> stringlist) {
         mInfo = info;
         mTitle = title;
@@ -51,13 +70,17 @@ public class ListItem {
         mMedia_4 = media4;
         stringList = stringlist;
     }
+*/
 
 
-    /**
-     * サムネイル画像を設定
-     *
-     * @param thumbnail サムネイル画像
+    /*
      */
+/**
+ * サムネイル画像を設定
+ *
+ * @param thumbnail サムネイル画像
+ *//*
+
     public void setThumbnail(Bitmap thumbnail) {
         mThumbnail = thumbnail;
     }
@@ -68,11 +91,13 @@ public class ListItem {
         mNicoru = nicoru;
     }
 
-    /**
-     * タイトルを設定
-     *
-     * @param title タイトル
-     */
+    */
+/**
+ * タイトルを設定
+ *
+ * @param title タイトル
+ *//*
+
     public void setmTitle(String title) {
         mTitle = title;
     }
@@ -134,20 +159,24 @@ public class ListItem {
     }
 
 
-    /**
-     * サムネイル画像を取得
-     *
-     * @return サムネイル画像
-     */
+    */
+/**
+ * サムネイル画像を取得
+ *
+ * @return サムネイル画像
+ *//*
+
     public Bitmap getThumbnail() {
         return mThumbnail;
     }
 
-    /**
-     * タイトルを取得
-     *
-     * @return タイトル
-     */
+    */
+/**
+ * タイトルを取得
+ *
+ * @return タイトル
+ *//*
+
     public String getTitle() {
         return mTitle;
     }
@@ -168,4 +197,5 @@ public class ListItem {
     }
 
     public ArrayList<String> getStringList() {return stringList;}
+*/
 }

@@ -159,8 +159,39 @@ public class Bookmark_Frament extends Fragment {
             String media3 = cursor.getString(9);
             String media4 = cursor.getString(10);
 
+
+            //配列を作成
+            ArrayList<String> Item = new ArrayList<>();
+            //メモとか通知とかに
+            Item.add("bookmark");
+            //内容
+            Item.add(toot);
+            //ユーザー名
+            Item.add(account);
+            //時間、クライアント名等
+            Item.add(info);
+            //Toot ID 文字列版
+            Item.add(toot_id);
+            //アバターURL
+            Item.add(avater_url);
+            //アカウントID
+            Item.add(String.valueOf(account_id));
+            //ユーザーネーム
+            Item.add(null);
+            //メディア
+            Item.add(media1);
+            Item.add(media2);
+            Item.add(media3);
+            Item.add(media4);
+            //カード
+            Item.add(null);
+            Item.add(null);
+            Item.add(null);
+            Item.add(null);
+
+
             if (getActivity() != null){
-                ListItem listItem = new ListItem("bookmark", toot, account, info, toot_id, avater_url, account_id, null, media1, media2, media3, media4, null);
+                ListItem listItem = new ListItem(Item);
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

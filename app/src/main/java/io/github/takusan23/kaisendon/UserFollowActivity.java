@@ -398,21 +398,48 @@ public class UserFollowActivity extends AppCompatActivity {
 
 
                         //カード情報
-                        ArrayList<String> card = new ArrayList<>();
-                        if (!toot_jsonObject.isNull("card")){
+                        String cardTitle = null;
+                        String cardURL = null;
+                        String cardDescription = null;
+                        String cardImage = null;
+
+                        if (!toot_jsonObject.isNull("card")) {
                             JSONObject cardObject = toot_jsonObject.getJSONObject("card");
-                            String card_url = cardObject.getString("url");
-                            String card_title = cardObject.getString("title");
-                            String card_description = cardObject.getString("description");
-                            String card_image = cardObject.getString("image");
-                            card.add(card_title);
-                            card.add(card_url);
-                            card.add(card_description);
-                            card.add(card_image);
+                            cardURL = cardObject.getString("url");
+                            cardTitle = cardObject.getString("title");
+                            cardDescription = cardObject.getString("description");
+                            cardImage = cardObject.getString("image");
                         }
+                        //配列を作成
+                        ArrayList<String> Item = new ArrayList<>();
+                        //メモとか通知とかに
+                        Item.add(type);
+                        //内容
+                        Item.add(toot_text);
+                        //ユーザー名
+                        Item.add(user_name + " @" + user);
+                        //時間、クライアント名等
+                        Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                        //Toot ID 文字列版
+                        Item.add(toot_id_string);
+                        //アバターURL
+                        Item.add(user_avater_url);
+                        //アカウントID
+                        Item.add(String.valueOf(account_id));
+                        //ユーザーネーム
+                        Item.add(user);
+                        //メディア
+                        Item.add(media_url_1);
+                        Item.add(media_url_2);
+                        Item.add(media_url_3);
+                        Item.add(media_url_4);
+                        //カード
+                        Item.add(cardTitle);
+                        Item.add(cardURL);
+                        Item.add(cardDescription);
+                        Item.add(cardImage);
 
-
-                        ListItem listItem = new ListItem(type, toot_text, user_name + " @" + user, "クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time, toot_id_string, user_avater_url, account_id, user, media_url_1, media_url_2, media_url_3, media_url_4,card);
+                        ListItem listItem = new ListItem(Item);
 
 
                         runOnUiThread(new Runnable() {
@@ -510,7 +537,38 @@ public class UserFollowActivity extends AppCompatActivity {
                         String account_info = jsonObject.getString("note");
                         long account_id_follow = jsonObject.getLong("id");
 
-                        ListItem listItem = new ListItem(null, account_info, display_name + " @" + id, null, "", avater_url, account_id_follow, display_name, null, null, null, null, null);
+
+
+                        //配列を作成
+                        ArrayList<String> Item = new ArrayList<>();
+                        //メモとか通知とかに
+                        Item.add(null);
+                        //内容
+                        Item.add(account_info);
+                        //ユーザー名
+                        Item.add(display_name + " @" + id);
+                        //時間、クライアント名等
+                        Item.add(null);
+                        //Toot ID 文字列版
+                        Item.add("");
+                        //アバターURL
+                        Item.add(avater_url);
+                        //アカウントID
+                        Item.add(String.valueOf(account_id_follow));
+                        //ユーザーネーム
+                        Item.add(display_name);
+                        //メディア
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        //カード
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+
+                        ListItem listItem = new ListItem(Item);
 
                         runOnUiThread(new Runnable() {
                             @Override

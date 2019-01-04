@@ -212,7 +212,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
 
         ListItem item = mItems.get(position);
-        //System.out.println("Count : " + String.valueOf(getCount()));
+        ArrayList<String> listItem = item.getListItem();
+
 
         mTv = view.findViewById(R.id.tile_);
 
@@ -270,92 +271,77 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         //ニコる
         String finalNicoru_text = nicoru_text;
-        String id_string = item.getNicoru();
-        String avater_url = item.getAvater();
-        String media_url = item.getMedia1();
+        String id_string = listItem.get(4);
+        String avater_url = listItem.get(5);
+        String media_url = listItem.get(8);
 
 
         //カード　配列管理
 
-        String card_title = null;
-        String card_url = null;
-        String card_description = null;
-        String card_image = null;
+        String card_title = listItem.get(12);
+        String card_url = listItem.get(13);
+        String card_description = listItem.get(14);
+        String card_image = listItem.get(15);
 
-        ArrayList<String> arrayList = item.getStringList();
-        if (arrayList != null) {
-            if (!arrayList.isEmpty()) {
-                card_title = arrayList.get(0);
-                card_url = arrayList.get(1);
-                card_description = arrayList.get(2);
-                card_image = arrayList.get(3);
 
-                System.out.println("カード" + card_title);
+        //ArrayList<String> arrayList = item.getStringList();
+        if (card_title != null) {
 
-                LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                LinearLayout.LayoutParams imageLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                LinearLayout.LayoutParams textLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                imageLayoutParams.weight = 4;
-                textLayoutParams.weight = 1;
+            System.out.println("カード" + card_title);
 
-                //カード実装
-                if (holder.cardImageView.getParent() != null) {
-                    ((ViewGroup) holder.cardImageView.getParent()).removeView(holder.cardImageView);
-                }
-                //カード実装
-                if (holder.cardTextView.getParent() != null) {
-                    ((ViewGroup) holder.cardTextView.getParent()).removeView(holder.cardTextView);
-                }
+            LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            LinearLayout.LayoutParams imageLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            LinearLayout.LayoutParams textLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            imageLayoutParams.weight = 4;
+            textLayoutParams.weight = 1;
 
-                String finalCard_url = card_url;
-                ImageViewClickCustomTab_LinearLayout(holder.card_linearLayout, finalCard_url);
+            //カード実装
+            if (holder.cardImageView.getParent() != null) {
+                ((ViewGroup) holder.cardImageView.getParent()).removeView(holder.cardImageView);
+            }
+            //カード実装
+            if (holder.cardTextView.getParent() != null) {
+                ((ViewGroup) holder.cardTextView.getParent()).removeView(holder.cardTextView);
+            }
 
-                //Wi-Fi接続状況確認
-                ConnectivityManager connectivityManager =
-                        (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            String finalCard_url = card_url;
+            ImageViewClickCustomTab_LinearLayout(holder.card_linearLayout, finalCard_url);
 
-                NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+            //Wi-Fi接続状況確認
+            ConnectivityManager connectivityManager =
+                    (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-                //タイムラインに画像を表示
-                //動的に画像を追加するよ
-                //LinearLayout linearLayout = (LinearLayout) holder.linearLayout;
-                //Wi-Fi接続時は有効？
-                boolean setting_avater_wifi = pref_setting.getBoolean("pref_avater_wifi", true);
-                boolean toot_media = pref_setting.getBoolean("pref_toot_media", false);
+            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
 
-                //タイムラインに画像を表示
-                if (card_url != null) {
-                    //System.out.println("にゃーん :" + media_url_2);
-                    //Wi-Fi接続時
-                    if (setting_avater_wifi) {
-                        if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                            holder.card_linearLayout.addView(holder.cardImageView);
-                            Glide.with(getContext()).load(card_image).into(holder.cardImageView);
-                        }
-                    } else if (!toot_media) {
+            //タイムラインに画像を表示
+            //動的に画像を追加するよ
+            //LinearLayout linearLayout = (LinearLayout) holder.linearLayout;
+            //Wi-Fi接続時は有効？
+            boolean setting_avater_wifi = pref_setting.getBoolean("pref_avater_wifi", true);
+            boolean toot_media = pref_setting.getBoolean("pref_toot_media", false);
+
+            //タイムラインに画像を表示
+            if (card_url != null) {
+                //System.out.println("にゃーん :" + media_url_2);
+                //Wi-Fi接続時
+                if (setting_avater_wifi) {
+                    if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                         holder.card_linearLayout.addView(holder.cardImageView);
                         Glide.with(getContext()).load(card_image).into(holder.cardImageView);
                     }
+                } else if (!toot_media) {
+                    holder.card_linearLayout.addView(holder.cardImageView);
+                    Glide.with(getContext()).load(card_image).into(holder.cardImageView);
                 }
-
-                holder.card_linearLayout.setLayoutParams(linearLayoutParams);
-                holder.card_linearLayout.addView(holder.cardTextView);
-                holder.cardTextView.setLayoutParams(textLayoutParams);
-                holder.cardTextView.setText(card_title + "\n" + card_description);
-                holder.cardImageView.setLayoutParams(imageLayoutParams);
-
-
             }
+
+            holder.card_linearLayout.setLayoutParams(linearLayoutParams);
+            holder.card_linearLayout.addView(holder.cardTextView);
+            holder.cardTextView.setLayoutParams(textLayoutParams);
+            holder.cardTextView.setText(card_title + "\n" + card_description);
+            holder.cardImageView.setLayoutParams(imageLayoutParams);
+
         }
-/*
-        try {
-            System.out.println("配列テスト ; " + arrayList.get(0)+ " 正 " + item.getTitle());
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-*/
 
 
         //背景色を変える機能
@@ -364,22 +350,23 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         //SVG許可
         boolean svgAnimation = pref_setting.getBoolean("pref_svg_animation", false);
 
+        String type = listItem.get(0);
 
-        if (item.getInfo() != null) {
-            if (item.getInfo().contains("custom_notification")) {
+        if (type != null) {
+            if (type.contains("custom_notification")) {
                 holder.vw1.setBackgroundColor(Color.parseColor(pref_setting.getString("pref_custom_streaming_notification_color", "#1A008000")));
             }
-            if (item.getInfo().contains("custom_home")) {
+            if (type.contains("custom_home")) {
                 holder.vw1.setBackgroundColor(Color.parseColor(pref_setting.getString("pref_custom_streaming_home_color", "#1Aff0000")));
             }
-            if (item.getInfo().contains("custom_local")) {
+            if (type.contains("custom_local")) {
                 holder.vw1.setBackgroundColor(Color.parseColor(pref_setting.getString("pref_custom_streaming_local_color", "#1A0000ff")));
             }
-            if (item.getInfo().contains("bookmark")) {
+            if (type.contains("bookmark")) {
                 bookmark_delete = true;
             }
             //ブースト
-            if (item.getInfo().contains("Notification_reblog")) {
+            if (type.contains("Notification_reblog")) {
                 //ボタンを消し飛ばす
                 LayoutSimple(holder);
                 //アバター画像非表示モードでもレイアウトは残しておくように
@@ -388,7 +375,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 setSVGAnimationIcon(R.drawable.notification_to_boost, R.drawable.ic_repeat_black_24dp, holder);
             }
             //お気に入り
-            if (item.getInfo().contains("Notification_favourite")) {
+            if (type.contains("Notification_favourite")) {
                 //ボタンを消し飛ばす
                 LayoutSimple(holder);
                 //アバター画像非表示モードでもレイアウトは残しておくように
@@ -406,7 +393,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 }
             }
             //ふぉろー
-            if (item.getInfo().contains("Notification_follow")) {
+            if (type.contains("Notification_follow")) {
                 //ボタンを消し飛ばす
                 LayoutSimple(holder);
                 //アバター画像非表示モードでもレイアウトは残しておくように
@@ -415,7 +402,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 setSVGAnimationIcon(R.drawable.notification_to_person, R.drawable.ic_person_add_black_24dp, holder);
             }
             //めんしょん
-            if (item.getInfo().contains("Notification_mention")) {
+            if (type.contains("Notification_mention")) {
                 //アバター画像非表示モードでもレイアウトは残しておくように
                 notification_layout = true;
                 //アニメーションアイコン
@@ -565,8 +552,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
 
         String finalInstance = Instance;
-        long account = item.getID();
-        String user_id = item.getUserID();
+        long account = Long.valueOf(listItem.get(6));
+        String user_id = listItem.get(7);
         web_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -579,7 +566,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                     @Override
                     public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
                         //アカウント
-                        if (item.getTitle().toString().contains(getContext().getString(R.string.account))) {
+                        if (item.toString().contains(getContext().getString(R.string.account))) {
                             //読み込み
                             //画面分割用
                             boolean multipain_ui_mode = pref_setting.getBoolean("app_multipain_ui", false);
@@ -601,7 +588,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                             }
                         }
                         //ブラウザ
-                        if (item.getTitle().toString().contains(getContext().getString(R.string.browser))) {
+                        if (item.toString().contains(getContext().getString(R.string.browser))) {
                             //有効
                             if (chrome_custom_tabs) {
                                 String custom = CustomTabsHelper.getPackageNameToUse(getContext());
@@ -617,7 +604,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                             }
                         }
                         //コピー
-                        if (item.getTitle().toString().contains(getContext().getString(R.string.copy))) {
+                        if (item.toString().contains(getContext().getString(R.string.copy))) {
                             ClipboardManager clipboardManager =
                                     (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                             clipboardManager.setPrimaryClip(ClipData.newPlainText("", holder.tile_textview.getText().toString()));
@@ -653,10 +640,10 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         boolean toot_media = pref_setting.getBoolean("pref_toot_media", false);
 
 
-        media_url_1 = item.getMedia1();
-        media_url_2 = item.getMedia2();
-        media_url_3 = item.getMedia3();
-        media_url_4 = item.getMedia4();
+        media_url_1 = listItem.get(8);
+        media_url_2 = listItem.get(9);
+        media_url_3 = listItem.get(10);
+        media_url_4 = listItem.get(11);
 
 
         if (media_url_1 != null) {
@@ -667,10 +654,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                     @Override
                     public void onClick(View v) {
 
-                        media_url_1 = item.getMedia1();
-                        media_url_2 = item.getMedia2();
-                        media_url_3 = item.getMedia3();
-                        media_url_4 = item.getMedia4();
 
                         if (setting_avater_gif) {
                             //GIFアニメ再生させない
@@ -697,10 +680,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             //Wi-Fi接続時
             if (setting_avater_wifi) {
                 if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                    media_url_1 = item.getMedia1();
-                    media_url_2 = item.getMedia2();
-                    media_url_3 = item.getMedia3();
-                    media_url_4 = item.getMedia4();
 
                     if (setting_avater_gif) {
                         ImageViewSetting(holder);
@@ -738,11 +717,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                     @Override
                     public void onClick(View v) {
 
-                        //表示
-                        media_url_1 = item.getMedia1();
-                        media_url_2 = item.getMedia2();
-                        media_url_3 = item.getMedia3();
-                        media_url_4 = item.getMedia4();
 
                         if (setting_avater_gif) {
                             //GIFアニメ再生させない
@@ -774,7 +748,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         boolean setting_avater_hidden = pref_setting.getBoolean("pref_avater", false);
 
         if (setting_avater_hidden) {
-            thumbnail.setImageBitmap(item.getThumbnail());
+            //thumbnail.setImageBitmap(item.getThumbnail());
         }
         //Wi-Fi
         if (setting_avater_wifi) {
@@ -806,7 +780,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         }
 
 
-        long account_id = item.getID();
+        long account_id = Long.valueOf(listItem.get(6));
 
 
         //ユーザー情報
@@ -947,11 +921,11 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         //friends.nicoようにアンケートも実装するぞ！
         //アンケートっぽいトゥートを見つける
 
-        if (item.getTitle() != null && item.getTitle().contains("friends.nico アンケート")) {
+        if (listItem.get(1) != null && listItem.get(1).contains("friends.nico アンケート")) {
             //System.out.println("アンケート発見 : " + String.valueOf(item.getID()));
 
             //!で条件を反転させる
-            if (!item.getTitle().contains("friends.nico アンケート(結果)")) {
+            if (!listItem.get(1).contains("friends.nico アンケート(結果)")) {
 
                 LinearLayout.LayoutParams button_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 button_params.weight = 1;
@@ -1139,7 +1113,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         // トゥート
         TextView title = (TextView) holder.tile_textview;
-        //title.setText(Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT));
+        //title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
         title.setTextSize(18);
         //フォントサイズの変更
         String toot_textsize = pref_setting.getString("pref_fontsize_timeline", "18");
@@ -1198,6 +1172,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             EmojiCompat.get().registerInitCallback(new EmojiCompat.InitCallback() {
                 @Override
                 public void onInitialized() {
+                    String titleString = listItem.get(1);
+                    String userString = listItem.get(3);
+
                     if (title != null) {
                         if (pref_setting.getBoolean("pref_custom_emoji", false)) {
                             //カスタム絵文字有効時
@@ -1207,54 +1184,54 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                     //WIFI接続中か確認
                                     //接続中
                                     try {
-                                        if (item.getTitle() != null) {
+                                        if (titleString != null) {
                                             title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
                                         }
-                                        if (item.getUser() != null) {
-                                            user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                        if (userString != null) {
+                                            user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
                                         }
                                     } catch (NullPointerException e) {
-                                        if (item.getTitle() != null) {
-                                            title.setText((Html.fromHtml(item.getTitle(), toot_imageGetter, null)));
+                                        if (titleString != null) {
+                                            title.setText((Html.fromHtml(titleString, toot_imageGetter, null)));
                                         }
-                                        if (item.getUser() != null) {
-                                            user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                        if (userString != null) {
+                                            user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
                                         }
                                     }
                                 } else {
                                     //確認したけどWIFI接続確認できなかった
-                                    if (item.getTitle() != null) {
-                                        title.setText(Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT));
+                                    if (titleString != null) {
+                                        title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
                                     }
-                                    if (item.getUser() != null) {
-                                        user.setText(Html.fromHtml(item.getUser(), Html.FROM_HTML_MODE_COMPACT));
+                                    if (userString != null) {
+                                        user.setText(Html.fromHtml(userString, Html.FROM_HTML_MODE_COMPACT));
                                     }
                                 }
                             } else {
                                 //WIFIのみ表示無効時
                                 //そのまま表示させる
                                 try {
-                                    if (item.getTitle() != null) {
+                                    if (titleString != null) {
                                         title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
                                     }
-                                    if (item.getUser() != null) {
-                                        user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                    if (userString != null) {
+                                        user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
                                     }
                                 } catch (NullPointerException e) {
-                                    if (item.getTitle() != null) {
+                                    if (titleString != null) {
                                         title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
                                     }
-                                    if (item.getUser() != null) {
-                                        user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                    if (userString != null) {
+                                        user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
                                     }
                                 }
                             }
                         } else {
-                            if (item.getTitle() != null) {
-                                title.setText(Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT));
+                            if (titleString != null) {
+                                title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
                             }
-                            if (item.getUser() != null) {
-                                user.setText(Html.fromHtml(item.getUser(), Html.FROM_HTML_MODE_COMPACT));
+                            if (userString != null) {
+                                user.setText(Html.fromHtml(userString, Html.FROM_HTML_MODE_COMPACT));
                             }
                         }
                     }
@@ -1267,7 +1244,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 public void onInitialized() {
                     if (client != null) {
                         client.setText(
-                                compat.process(item.getClient()));
+                                compat.process(listItem.get(3)));
                     }
                 }
             });
@@ -1275,6 +1252,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         } else {
             //無効時
             //user.setText(item.getUser());
+            String titleString = listItem.get(1);
+            String userString = listItem.get(2);
+
             if (title != null) {
                 if (pref_setting.getBoolean("pref_custom_emoji", false)) {
                     //カスタム絵文字有効時
@@ -1285,34 +1265,34 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                             //接続中
                             try {
                                 title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
-                                user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
                             } catch (NullPointerException e) {
-                                title.setText((Html.fromHtml(item.getTitle(), toot_imageGetter, null)));
-                                user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                                title.setText((Html.fromHtml(titleString, toot_imageGetter, null)));
+                                user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
                             }
                         } else {
                             //確認したけどWIFI接続確認できなかった
-                            title.setText(Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT));
-                            user.setText(Html.fromHtml(item.getUser(), Html.FROM_HTML_MODE_COMPACT));
+                            title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
+                            user.setText(Html.fromHtml(userString, Html.FROM_HTML_MODE_COMPACT));
                         }
                     } else {
                         //WIFIのみ表示無効時
                         //そのまま表示させる
                         try {
                             title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
-                            user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                            user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
                         } catch (NullPointerException e) {
-                            title.setText((Html.fromHtml(item.getTitle(), toot_imageGetter, null)));
-                            user.setText((Html.fromHtml(item.getUser(), toot_imageGetter, null)));
+                            title.setText((Html.fromHtml(titleString, toot_imageGetter, null)));
+                            user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
                         }
                     }
                 } else {
-                    title.setText(Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT));
-                    user.setText(Html.fromHtml(item.getUser(), Html.FROM_HTML_MODE_COMPACT));
+                    title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
+                    user.setText(Html.fromHtml(userString, Html.FROM_HTML_MODE_COMPACT));
                 }
             }
-            //title.setText((Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT)));
-            client.setText(item.getClient());
+            //title.setText((Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT)));
+            client.setText(listItem.get(3));
         }
 
 
@@ -1572,10 +1552,10 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
                                             CustomTabsIntent customTabsIntent = builder.build();
                                             customTabsIntent.intent.setPackage(custom);
-                                            customTabsIntent.launchUrl((Activity) getContext(), Uri.parse("https://" + Instance + "/" + "@" + item.getUserID() + "/" + id_string));
+                                            customTabsIntent.launchUrl((Activity) getContext(), Uri.parse("https://" + Instance + "/" + "@" + listItem.get(7) + "/" + id_string));
                                             //無効
                                         } else {
-                                            Uri uri = Uri.parse("https://" + Instance + "/" + "@" + item.getUserID() + "/" + id_string);
+                                            Uri uri = Uri.parse("https://" + Instance + "/" + "@" + listItem.get(7) + "/" + id_string);
                                             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                                             getContext().startActivity(intent);
 
@@ -1601,8 +1581,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                                         sqLiteDatabase = sqLite.getWritableDatabase();
                                                     }
 
-                                                    String toot_sq = item.getTitle();
-                                                    String id_sq = String.valueOf(item.getNicoru());
+                                                    String toot_sq = listItem.get(1);
+                                                    String id_sq = listItem.get(4);
 
                                                     ContentValues contentValues = new ContentValues();
                                                     contentValues.put("toot", toot_sq);
@@ -1629,8 +1609,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                                 sqLiteDatabase = sqLite.getWritableDatabase();
                                             }
 
-                                            String toot_sq = item.getTitle();
-                                            String id_sq = String.valueOf(item.getNicoru());
+                                            String toot_sq = listItem.get(1);
+                                            String id_sq = listItem.get(4);
 
                                             ContentValues contentValues = new ContentValues();
                                             contentValues.put("toot", toot_sq);
@@ -1926,18 +1906,18 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             sqLiteDatabase = sqLite.getWritableDatabase();
         }
 
-        String toot_sq = item.getTitle();
-        String id_sq = String.valueOf(item.getNicoru());
-        String account = item.getUser();
-        String info = item.getClient();
-        String account_id = String.valueOf(item.getID());
-        String avater = item.getAvater();
-        String account_id_string = item.getUserID();
+        String toot_sq = item.getListItem().get(1);
+        String id_sq = item.getListItem().get(4);
+        String account = item.getListItem().get(2);
+        String info = item.getListItem().get(3);
+        String account_id = item.getListItem().get(6);
+        String avater = item.getListItem().get(5);
+        String account_id_string = item.getListItem().get(7);
 
-        String media_1 = item.getMedia1();
-        String media_2 = item.getMedia2();
-        String media_3 = item.getMedia3();
-        String media_4 = item.getMedia4();
+        String media_1 = item.getListItem().get(8);
+        String media_2 = item.getListItem().get(9);
+        String media_3 = item.getListItem().get(10);
+        String media_4 = item.getListItem().get(11);
 
         ContentValues contentValues = new ContentValues();
         contentValues.put("toot", toot_sq);

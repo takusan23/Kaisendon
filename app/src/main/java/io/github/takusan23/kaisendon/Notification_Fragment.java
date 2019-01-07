@@ -489,7 +489,7 @@ public class Notification_Fragment extends Fragment {
                         jsonArray = new JSONArray(response_string);
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject toot_text_jsonObject = jsonArray.getJSONObject(i);
-                            JSONObject toot_text_account = toot_text_jsonObject.getJSONObject("user_name");
+                            JSONObject toot_text_account = toot_text_jsonObject.getJSONObject("account");
                             user_id = toot_text_account.getString("username");
                             user_name = toot_text_account.getString("display_name");
                             toot_text_time = toot_text_jsonObject.getString("created_at");
@@ -1302,7 +1302,7 @@ public class Notification_Fragment extends Fragment {
                                         jsonArray = new JSONArray(response_string);
                                         for (int i = 0; i < jsonArray.length(); i++) {
                                             JSONObject toot_text_jsonObject = jsonArray.getJSONObject(i);
-                                            JSONObject toot_text_account = toot_text_jsonObject.getJSONObject("user_name");
+                                            JSONObject toot_text_account = toot_text_jsonObject.getJSONObject("account");
                                             user_id = toot_text_account.getString("username");
                                             user_name = toot_text_account.getString("display_name");
                                             toot_text_time = toot_text_jsonObject.getString("created_at");

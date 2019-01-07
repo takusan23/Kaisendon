@@ -431,6 +431,7 @@ public class Home_Fragment extends Fragment {
                                 e.printStackTrace();
                             }
 
+                            if (getActivity() != null && isAdded()) {
 
                             //配列を作成
                             ArrayList<String> Item = new ArrayList<>();
@@ -462,7 +463,6 @@ public class Home_Fragment extends Fragment {
                             Item.add(cardImage);
 
 
-                            if (getActivity() != null) {
 
                                 listItem[0] = new ListItem(Item);
 

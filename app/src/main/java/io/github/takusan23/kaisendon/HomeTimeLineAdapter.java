@@ -272,8 +272,17 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         //ニコる
         String finalNicoru_text = nicoru_text;
         String id_string = listItem.get(4);
-        String avater_url = listItem.get(5);
         String media_url = listItem.get(8);
+
+        //ブースト　それ以外
+        //ブーストの要素がnullだったらそのまま
+        String avater_url = null;
+        if (listItem.size() >= 17 && listItem.get(16) != null) {
+            avater_url = listItem.get(18);
+        } else {
+            //要素があったとき
+            avater_url = listItem.get(5);
+        }
 
 
         //カード　配列管理
@@ -779,14 +788,20 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             }
         }
 
-
-        long account_id = Long.valueOf(listItem.get(6));
+        //ブーストの要素がnullだったらそのまま
+        long account_id = 0;
+        if (listItem.size() >= 17 && listItem.get(16) != null) {
+            account_id = Long.valueOf(listItem.get(19));
+        } else {
+            account_id = Long.valueOf(listItem.get(6));
+        }
 
 
         //ユーザー情報
         FragmentTransaction ft = ((FragmentActivity) parent.getContext()).getSupportFragmentManager().beginTransaction();
         Fragment fragment = new User_Fragment();
         View finalConvertView = convertView;
+        long finalAccount_id = account_id;
         thumbnail.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -797,7 +812,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 if (multipain_ui_mode) {
 
                     Bundle bundle = new Bundle();
-                    bundle.putLong("Account_ID", account_id);
+                    bundle.putLong("Account_ID", finalAccount_id);
                     fragment.setArguments(bundle);
 
                     ft.replace(R.id.fragment3, fragment).commit();
@@ -806,7 +821,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
                     Intent intent = new Intent(getContext(), UserActivity.class);
                     //IDを渡す
-                    intent.putExtra("Account_ID", account_id);
+                    intent.putExtra("Account_ID", finalAccount_id);
                     getContext().startActivity(intent);
                 }
             }
@@ -1252,8 +1267,18 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         } else {
             //無効時
             //user.setText(item.getUser());
-            String titleString = listItem.get(1);
-            String userString = listItem.get(2);
+
+            //ブースト　それ以外
+            String titleString = null;
+            String userString = null;
+            //ブーストの要素がnullだったらそのまま
+            if (listItem.size() >= 17 && listItem.get(16) != null) {
+                titleString = listItem.get(16);
+                userString = listItem.get(17) + "<br>" + listItem.get(2) + " " + getContext().getString(R.string.reblog);
+            } else {
+                titleString = listItem.get(1);
+                userString = listItem.get(2);
+            }
 
             if (title != null) {
                 if (pref_setting.getBoolean("pref_custom_emoji", false)) {
@@ -1264,7 +1289,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                             //WIFI接続中か確認
                             //接続中
                             try {
-                                title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
+                                title.setText((Html.fromHtml(titleString, toot_imageGetter, null)));
                                 user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
                             } catch (NullPointerException e) {
                                 title.setText((Html.fromHtml(titleString, toot_imageGetter, null)));
@@ -1279,7 +1304,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                         //WIFIのみ表示無効時
                         //そのまま表示させる
                         try {
-                            title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
+                            title.setText((Html.fromHtml(titleString, toot_imageGetter, null)));
                             user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
                         } catch (NullPointerException e) {
                             title.setText((Html.fromHtml(titleString, toot_imageGetter, null)));
@@ -1294,9 +1319,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             //title.setText((Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT)));
             client.setText(listItem.get(3));
         }
-
-
-        final_toot_text = null;
 
 
         //URLをCustomTabで開くかどうか
@@ -1370,6 +1392,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             //めにゅー
             String finalFavorite_title1 = favorite_message;
             View finalView = view;
+            long finalAccount_id1 = account_id;
             toot_layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -1629,7 +1652,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                         if (multipain_ui_mode) {
 
                                             Bundle bundle = new Bundle();
-                                            bundle.putLong("Account_ID", account_id);
+                                            bundle.putLong("Account_ID", finalAccount_id1);
                                             fragment.setArguments(bundle);
 
                                             ft.replace(R.id.fragment3, fragment).commit();
@@ -1638,7 +1661,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
                                             Intent intent = new Intent(getContext(), UserActivity.class);
                                             //IDを渡す
-                                            intent.putExtra("Account_ID", account_id);
+                                            intent.putExtra("Account_ID", finalAccount_id1);
                                             getContext().startActivity(intent);
                                         }
 

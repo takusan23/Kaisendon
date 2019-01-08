@@ -323,6 +323,23 @@ public class Home_Fragment extends Fragment {
                             //toot_time = status.getCreatedAt();
                             account_id = status.getAccount().getId();
 
+                            //ブーストあったよ
+                            String boost_content = null;
+                            String boost_user_name = null;
+                            String boost_user = null;
+                            String boost_avater_url = null;
+                            long boost_account_id = 0;
+
+                            try {
+                                boost_content = status.getReblog().getContent();
+                                boost_user_name = status.getReblog().getAccount().getDisplayName();
+                                boost_user = status.getReblog().getAccount().getUserName();
+                                boost_avater_url = status.getReblog().getAccount().getAvatar();
+                                boost_account_id = status.getReblog().getId();
+                            } catch (NullPointerException e) {
+                                e.printStackTrace();
+                            }
+
                             //ユーザーのアバター取得
                             user_avater_url = status.getAccount().getAvatar();
 
@@ -433,35 +450,39 @@ public class Home_Fragment extends Fragment {
 
                             if (getActivity() != null && isAdded()) {
 
-                            //配列を作成
-                            ArrayList<String> Item = new ArrayList<>();
-                            //メモとか通知とかに
-                            Item.add("");
-                            //内容
-                            Item.add(toot_text);
-                            //ユーザー名
-                            Item.add(user_name + " @" + user);
-                            //時間、クライアント名等
-                            Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                            //Toot ID 文字列版
-                            Item.add(toot_id_string);
-                            //アバターURL
-                            Item.add(user_avater_url);
-                            //アカウントID
-                            Item.add(String.valueOf(account_id));
-                            //ユーザーネーム
-                            Item.add(user);
-                            //メディア
-                            Item.add(media_url_1);
-                            Item.add(media_url_2);
-                            Item.add(media_url_3);
-                            Item.add(media_url_4);
-                            //カード
-                            Item.add(cardTitle);
-                            Item.add(cardURL);
-                            Item.add(cardDescription);
-                            Item.add(cardImage);
-
+                                //配列を作成
+                                ArrayList<String> Item = new ArrayList<>();
+                                //メモとか通知とかに
+                                Item.add("");
+                                //内容
+                                Item.add(toot_text);
+                                //ユーザー名
+                                Item.add(user_name + " @" + user);
+                                //時間、クライアント名等
+                                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                //Toot ID 文字列版
+                                Item.add(toot_id_string);
+                                //アバターURL
+                                Item.add(user_avater_url);
+                                //アカウントID
+                                Item.add(String.valueOf(account_id));
+                                //ユーザーネーム
+                                Item.add(user);
+                                //メディア
+                                Item.add(media_url_1);
+                                Item.add(media_url_2);
+                                Item.add(media_url_3);
+                                Item.add(media_url_4);
+                                //カード
+                                Item.add(cardTitle);
+                                Item.add(cardURL);
+                                Item.add(cardDescription);
+                                Item.add(cardImage);
+                                //Reblog ブースト用
+                                Item.add(boost_content);
+                                Item.add(boost_user_name + " @" + boost_user + "\n" + user_name + " @" + user + getString(R.string.reblog));
+                                Item.add(boost_avater_url);
+                                Item.add(String.valueOf(boost_account_id));
 
 
                                 listItem[0] = new ListItem(Item);
@@ -708,6 +729,23 @@ public class Home_Fragment extends Fragment {
                                 toot_time = toot_jsonObject.getString("created_at");
                             }
 
+                            //ブーストかも
+                            //ブーストあったよ
+                            String boost_content = null;
+                            String boost_user_name = null;
+                            String boost_user = null;
+                            String boost_avater_url = null;
+                            long boost_account_id = 0;
+                            if (!toot_jsonObject.isNull("reblog")) {
+                                JSONObject reblogJsonObject = toot_jsonObject.getJSONObject("reblog");
+                                JSONObject reblogAccountJsonObject = reblogJsonObject.getJSONObject("account");
+                                boost_content = reblogJsonObject.getString("content");
+                                boost_user_name = reblogAccountJsonObject.getString("display_name");
+                                boost_user = reblogAccountJsonObject.getString("username");
+                                boost_avater_url = reblogAccountJsonObject.getString("avatar");
+                                boost_account_id = reblogAccountJsonObject.getLong("id");
+                            }
+
                             //カード情報
                             String cardTitle = null;
                             String cardURL = null;
@@ -750,6 +788,11 @@ public class Home_Fragment extends Fragment {
                             Item.add(cardURL);
                             Item.add(cardDescription);
                             Item.add(cardImage);
+                            //Reblog ブースト用
+                            Item.add(boost_content);
+                            Item.add(boost_user_name + " @" + boost_user + "\n" + user_name + " @" + user + getString(R.string.reblog));
+                            Item.add(boost_avater_url);
+                            Item.add(String.valueOf(boost_account_id));
 
 
                             if (getActivity() != null) {
@@ -935,6 +978,24 @@ public class Home_Fragment extends Fragment {
                                 toot_time = toot_jsonObject.getString("created_at");
                             }
 
+                            //ブーストかも
+                            //ブーストあったよ
+                            String boost_content = null;
+                            String boost_user_name = null;
+                            String boost_user = null;
+                            String boost_avater_url = null;
+                            long boost_account_id = 0;
+                            if (!toot_jsonObject.isNull("reblog")) {
+                                JSONObject reblogJsonObject = toot_jsonObject.getJSONObject("reblog");
+                                JSONObject reblogAccountJsonObject = reblogJsonObject.getJSONObject("account");
+                                boost_content = reblogJsonObject.getString("content");
+                                boost_user_name = reblogAccountJsonObject.getString("display_name");
+                                boost_user = reblogAccountJsonObject.getString("username");
+                                boost_avater_url = reblogAccountJsonObject.getString("avatar");
+                                boost_account_id = reblogAccountJsonObject.getLong("id");
+                            }
+
+
                             //カード情報
                             String cardTitle = null;
                             String cardURL = null;
@@ -977,7 +1038,11 @@ public class Home_Fragment extends Fragment {
                             Item.add(cardURL);
                             Item.add(cardDescription);
                             Item.add(cardImage);
-
+                            //Reblog ブースト用
+                            Item.add(boost_content);
+                            Item.add(boost_user_name + " @" + boost_user + "\n" + user_name + " @" + user + getString(R.string.reblog));
+                            Item.add(boost_avater_url);
+                            Item.add(String.valueOf(boost_account_id));
 
 
                             if (getActivity() != null) {
@@ -1190,6 +1255,24 @@ public class Home_Fragment extends Fragment {
                                         cardImage = cardObject.getString("image");
                                     }
 
+                                    //ブーストかも
+                                    //ブーストあったよ
+                                    String boost_content = null;
+                                    String boost_user_name = null;
+                                    String boost_user = null;
+                                    String boost_avater_url = null;
+                                    long boost_account_id = 0;
+                                    if (!toot_jsonObject.isNull("reblog")) {
+                                        JSONObject reblogJsonObject = toot_jsonObject.getJSONObject("reblog");
+                                        JSONObject reblogAccountJsonObject = reblogJsonObject.getJSONObject("account");
+                                        boost_content = reblogJsonObject.getString("content");
+                                        boost_user_name = reblogAccountJsonObject.getString("display_name");
+                                        boost_user = reblogAccountJsonObject.getString("username");
+                                        boost_avater_url = reblogAccountJsonObject.getString("avatar");
+                                        boost_account_id = reblogAccountJsonObject.getLong("id");
+                                    }
+
+
                                     //配列を作成
                                     ArrayList<String> Item = new ArrayList<>();
                                     //メモとか通知とかに
@@ -1218,6 +1301,11 @@ public class Home_Fragment extends Fragment {
                                     Item.add(cardURL);
                                     Item.add(cardDescription);
                                     Item.add(cardImage);
+                                    //Reblog ブースト用
+                                    Item.add(boost_content);
+                                    Item.add(boost_user_name + " @" + boost_user + "\n" + user_name + " @" + user + getString(R.string.reblog));
+                                    Item.add(boost_avater_url);
+                                    Item.add(String.valueOf(boost_account_id));
 
                                     if (getActivity() != null) {
                                         ListItem listItem = new ListItem(Item);
@@ -1464,7 +1552,25 @@ public class Home_Fragment extends Fragment {
                                                     user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                                 }
 
+
                                             }
+                                            //ブーストかも
+                                            //ブーストあったよ
+                                            String boost_content = null;
+                                            String boost_user_name = null;
+                                            String boost_user = null;
+                                            String boost_avater_url = null;
+                                            long boost_account_id = 0;
+                                            if (!toot_jsonObject.isNull("reblog")) {
+                                                JSONObject reblogJsonObject = toot_jsonObject.getJSONObject("reblog");
+                                                JSONObject reblogAccountJsonObject = reblogJsonObject.getJSONObject("account");
+                                                boost_content = reblogJsonObject.getString("content");
+                                                boost_user_name = reblogAccountJsonObject.getString("display_name");
+                                                boost_user = reblogAccountJsonObject.getString("username");
+                                                boost_avater_url = reblogAccountJsonObject.getString("avatar");
+                                                boost_account_id = reblogAccountJsonObject.getLong("id");
+                                            }
+
                                             //カード情報
                                             String cardTitle = null;
                                             String cardURL = null;
@@ -1482,7 +1588,7 @@ public class Home_Fragment extends Fragment {
                                             //配列を作成
                                             ArrayList<String> Item = new ArrayList<>();
                                             //メモとか通知とかに
-                                            Item.add("");
+                                            Item.add("HomeTL");
                                             //内容
                                             Item.add(toot_text);
                                             //ユーザー名
@@ -1507,6 +1613,12 @@ public class Home_Fragment extends Fragment {
                                             Item.add(cardURL);
                                             Item.add(cardDescription);
                                             Item.add(cardImage);
+                                            //Reblog ブースト用
+                                            Item.add(boost_content);
+                                            Item.add(boost_user_name + " @" + boost_user);
+                                            Item.add(boost_avater_url);
+                                            Item.add(String.valueOf(boost_account_id));
+
 
                                             if (getActivity() != null) {
                                                 ListItem listItem = new ListItem(Item);

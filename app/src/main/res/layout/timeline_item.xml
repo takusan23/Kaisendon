@@ -33,6 +33,10 @@
             android:layout_height="wrap_content"
             android:textSize="18sp" />
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="5dp" />
+
         <TextView
             android:id="@+id/tile_"
             android:layout_width="match_parent"
@@ -84,7 +88,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="15dip" />
+            android:layout_height="5dip" />
 
         <LinearLayout
             android:id="@+id/button_layout"

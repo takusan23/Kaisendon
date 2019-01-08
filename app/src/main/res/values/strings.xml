@@ -422,5 +422,6 @@
     <string name="setting_toot_count_title">Toot Counter</string>
     <string name="setting_toot_count_message">It counts if the specified character string is included in the timeline.It is premised that you are using streaming API.</string>
     <string name="battery_level">Battery Level</string>
+    <string name="reblog">Boost</string>
 
 </resources>

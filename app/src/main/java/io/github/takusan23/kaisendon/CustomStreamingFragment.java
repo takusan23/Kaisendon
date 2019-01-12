@@ -404,7 +404,7 @@ public class CustomStreamingFragment extends Fragment {
                                                     //配列を作成
                                                     ArrayList<String> Item = new ArrayList<>();
                                                     //メモとか通知とかに
-                                                    Item.add("");
+                                                    Item.add("custom_local");
                                                     //内容
                                                     Item.add(toot_text);
                                                     //ユーザー名
@@ -650,7 +650,7 @@ public class CustomStreamingFragment extends Fragment {
                                                         //配列を作成
                                                         ArrayList<String> Item = new ArrayList<>();
                                                         //メモとか通知とかに
-                                                        Item.add("");
+                                                        Item.add("custom_home");
                                                         //内容
                                                         Item.add(toot_text);
                                                         //ユーザー名
@@ -843,7 +843,7 @@ public class CustomStreamingFragment extends Fragment {
                                                         //配列を作成
                                                         ArrayList<String> Item = new ArrayList<>();
                                                         //メモとか通知とかに
-                                                        Item.add("");
+                                                        Item.add("custom_notification");
                                                         //内容
                                                         Item.add(toot_text);
                                                         //ユーザー名

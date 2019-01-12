@@ -308,29 +308,38 @@ public class Notification_Fragment extends Fragment {
 
                             if (type.equals("mention")) {
                                 if (jp) {
-                                    type = "返信しました";
+                                    type = " さんが返信しました";
+                                } else {
+                                    type = " mentioned";
                                 }
                                 layout_type = "Notification_mention";
                             }
                             if (type.equals("reblog")) {
                                 if (jp) {
-                                    type = "ブーストしました";
+                                    type = " さんがブーストしました";
+                                } else {
+                                    type = " boosted";
                                 }
                                 layout_type = "Notification_reblog";
                             }
                             if (type.equals("favourite")) {
                                 if (jp) {
                                     if (friends_nico_check_box) {
-                                        type = "お気に入りしました";
+                                        type = " さんがお気に入りしました";
                                     } else {
-                                        type = "二コりました";
+                                        type = " さんが二コりました";
                                     }
-                                    layout_type = "Notification_favourite";
+                                } else {
+                                    type = "favourited";
                                 }
+                                layout_type = "Notification_favourite";
                             }
+
                             if (type.equals("follow")) {
                                 if (jp) {
-                                    type = "フォローしました";
+                                    type = " さんがフォローしました";
+                                } else {
+                                    type = " followed";
                                 }
                                 layout_type = "Notification_follow";
                             }
@@ -389,7 +398,7 @@ public class Notification_Fragment extends Fragment {
                             //内容
                             Item.add(toot_text);
                             //ユーザー名
-                            Item.add(user_name + " @" + user);
+                            Item.add(user_name + " @" + user + type);
                             //時間、クライアント名等
                             Item.add("トゥートID : " + toot_text_id_string + " / " + getString(R.string.time) + " : " + toot_text_time);
                             //Toot ID 文字列版
@@ -599,29 +608,38 @@ public class Notification_Fragment extends Fragment {
 
                             if (type.equals("mention")) {
                                 if (jp) {
-                                    type = "返信しました";
+                                    type = " さんが返信しました";
+                                } else {
+                                    type = " mentioned";
                                 }
                                 layout_type = "Notification_mention";
                             }
                             if (type.equals("reblog")) {
                                 if (jp) {
-                                    type = "ブーストしました";
+                                    type = " さんがブーストしました";
+                                } else {
+                                    type = " boosted";
                                 }
                                 layout_type = "Notification_reblog";
                             }
                             if (type.equals("favourite")) {
                                 if (jp) {
                                     if (friends_nico_check_box) {
-                                        type = "お気に入りしました";
+                                        type = " さんがお気に入りしました";
                                     } else {
-                                        type = "二コりました";
+                                        type = " さんが二コりました";
                                     }
-                                    layout_type = "Notification_favourite";
+                                } else {
+                                    type = "favourited";
                                 }
+                                layout_type = "Notification_favourite";
                             }
+
                             if (type.equals("follow")) {
                                 if (jp) {
-                                    type = "フォローしました";
+                                    type = " さんがフォローしました";
+                                } else {
+                                    type = " followed";
                                 }
                                 layout_type = "Notification_follow";
                             }
@@ -656,7 +674,7 @@ public class Notification_Fragment extends Fragment {
                             //内容
                             Item.add(toot_text);
                             //ユーザー名
-                            Item.add(user_name + " @" + user);
+                            Item.add(user_name + " @" + user + type);
                             //時間、クライアント名等
                             Item.add("トゥートID : " + toot_text_id_string + " / " + getString(R.string.time) + " : " + toot_text_time);
                             //Toot ID 文字列版
@@ -807,33 +825,41 @@ public class Notification_Fragment extends Fragment {
 
                             if (type.equals("mention")) {
                                 if (jp) {
-                                    type = "返信しました";
+                                    type = " さんが返信しました";
+                                } else {
+                                    type = " mentioned";
                                 }
                                 layout_type = "Notification_mention";
                             }
                             if (type.equals("reblog")) {
                                 if (jp) {
-                                    type = "ブーストしました";
+                                    type = " さんがブーストしました";
+                                } else {
+                                    type = " boosted";
                                 }
                                 layout_type = "Notification_reblog";
                             }
                             if (type.equals("favourite")) {
                                 if (jp) {
                                     if (friends_nico_check_box) {
-                                        type = "お気に入りしました";
+                                        type = " さんがお気に入りしました";
                                     } else {
-                                        type = "二コりました";
+                                        type = " さんが二コりました";
                                     }
-                                    layout_type = "Notification_favourite";
+                                } else {
+                                    type = "favourited";
                                 }
+                                layout_type = "Notification_favourite";
                             }
+
                             if (type.equals("follow")) {
                                 if (jp) {
-                                    type = "フォローしました";
+                                    type = " さんがフォローしました";
+                                } else {
+                                    type = " followed";
                                 }
                                 layout_type = "Notification_follow";
                             }
-
                             String[] mediaURL = {null, null, null, null};
                             //めでぃあ
                             //配列に入れる形で
@@ -884,7 +910,7 @@ public class Notification_Fragment extends Fragment {
                             //内容
                             Item.add(toot_text);
                             //ユーザー名
-                            Item.add(user_name + " @" + user);
+                            Item.add(user_name + " @" + user + type);
                             //時間、クライアント名等
                             Item.add("トゥートID : " + toot_text_id_string + " / " + getString(R.string.time) + " : " + toot_text_id_string);
                             //Toot ID 文字列版
@@ -1049,29 +1075,38 @@ public class Notification_Fragment extends Fragment {
 
                                     if (type.equals("mention")) {
                                         if (jp) {
-                                            type = "返信しました";
+                                            type = " さんが返信しました";
+                                        } else {
+                                            type = " mentioned";
                                         }
                                         layout_type = "Notification_mention";
                                     }
                                     if (type.equals("reblog")) {
                                         if (jp) {
-                                            type = "ブーストしました";
+                                            type = " さんがブーストしました";
+                                        } else {
+                                            type = " boosted";
                                         }
                                         layout_type = "Notification_reblog";
                                     }
                                     if (type.equals("favourite")) {
                                         if (jp) {
                                             if (friends_nico_check_box) {
-                                                type = "お気に入りしました";
+                                                type = " さんがお気に入りしました";
                                             } else {
-                                                type = "二コりました";
+                                                type = " さんが二コりました";
                                             }
-                                            layout_type = "Notification_favourite";
+                                        } else {
+                                            type = "favourited";
                                         }
+                                        layout_type = "Notification_favourite";
                                     }
+
                                     if (type.equals("follow")) {
                                         if (jp) {
-                                            type = "フォローしました";
+                                            type = " さんがフォローしました";
+                                        } else {
+                                            type = " followed";
                                         }
                                         layout_type = "Notification_follow";
                                     }
@@ -1131,7 +1166,7 @@ public class Notification_Fragment extends Fragment {
                                     //内容
                                     Item.add(toot_text);
                                     //ユーザー名
-                                    Item.add(user_name + " @" + user);
+                                    Item.add(user_name + " @" + user + type);
                                     //時間、クライアント名等
                                     Item.add("トゥートID : " + toot_text_id_string + " / " + getString(R.string.time) + " : " + toot_text_time);
                                     //Toot ID 文字列版
@@ -1412,33 +1447,41 @@ public class Notification_Fragment extends Fragment {
 
                                             if (type.equals("mention")) {
                                                 if (jp) {
-                                                    type = "返信しました";
+                                                    type = " さんが返信しました";
+                                                } else {
+                                                    type = " mentioned";
                                                 }
                                                 layout_type = "Notification_mention";
                                             }
                                             if (type.equals("reblog")) {
                                                 if (jp) {
-                                                    type = "ブーストしました";
+                                                    type = " さんがブーストしました";
+                                                } else {
+                                                    type = " boosted";
                                                 }
                                                 layout_type = "Notification_reblog";
                                             }
                                             if (type.equals("favourite")) {
                                                 if (jp) {
                                                     if (friends_nico_check_box) {
-                                                        type = "お気に入りしました";
+                                                        type = " さんがお気に入りしました";
                                                     } else {
-                                                        type = "二コりました";
+                                                        type = " さんが二コりました";
                                                     }
-                                                    layout_type = "Notification_favourite";
+                                                } else {
+                                                    type = "favourited";
                                                 }
+                                                layout_type = "Notification_favourite";
                                             }
+
                                             if (type.equals("follow")) {
                                                 if (jp) {
-                                                    type = "フォローしました";
+                                                    type = " さんがフォローしました";
+                                                } else {
+                                                    type = " followed";
                                                 }
                                                 layout_type = "Notification_follow";
                                             }
-
 
                                             boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
                                             if (japan_timeSetting) {
@@ -1469,7 +1512,7 @@ public class Notification_Fragment extends Fragment {
                                             //内容
                                             Item.add(toot_text);
                                             //ユーザー名
-                                            Item.add(user_name + " @" + user);
+                                            Item.add(user_name + " @" + user + type);
                                             //時間、クライアント名等
                                             Item.add("トゥートID : " + toot_text_id_string + " / " + getString(R.string.time) + " : " + toot_text_time);
                                             //Toot ID 文字列版

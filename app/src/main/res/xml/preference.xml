@@ -7,96 +7,88 @@
         android:key="preference_setting"
         android:title="@string/setting">
 
-<!--
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_friends_nico_mode"
-            android:summary="@string/setting_friends_nico_mode_info"
-            android:title="@string/setting_friends_nico_mode" />
--->
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_avater"
+                android:summary="@string/setting_avater_get_info"
+                android:title="@string/setting_avater_get" />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_avater"
-            android:summary="@string/setting_avater_get_info"
-            android:title="@string/setting_avater_get" />
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_drawer_avater"
+                android:summary="@string/setting_drawer_avater_header_hidden_info"
+                android:title="@string/setting_drawer_avater_header_hidden" />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_drawer_avater"
-            android:summary="@string/setting_drawer_avater_header_hidden_info"
-            android:title="@string/setting_drawer_avater_header_hidden" />
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_toot_media"
+                android:summary="@string/setting_toot_media_hidden_info"
+                android:title="@string/setting_toot_media_hidden" />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_toot_media"
-            android:summary="@string/setting_toot_media_hidden_info"
-            android:title="@string/setting_toot_media_hidden" />
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_custom_emoji"
+                android:summary="@string/setting_cutom_emoji_info"
+                android:title="@string/setting_custom_emoji" />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_custom_emoji"
-            android:summary="@string/setting_cutom_emoji_info"
-            android:title="@string/setting_custom_emoji" />
+            <CheckBoxPreference
+                android:layout_height="wrap_content"
+                android:defaultValue="true"
+                android:key="pref_avater_wifi"
+                android:summary="@string/setting_avater_wifi_get_info"
+                android:title="@string/setting_avater_wifi_get" />
 
-        <CheckBoxPreference
-            android:layout_height="wrap_content"
-            android:defaultValue="true"
-            android:key="pref_avater_wifi"
-            android:summary="@string/setting_avater_wifi_get_info"
-            android:title="@string/setting_avater_wifi_get" />
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_avater_gif"
+                android:summary="@string/setting_avater_gif_info"
+                android:title="@string/setting_avater_gif" />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_avater_gif"
-            android:summary="@string/setting_avater_gif_info"
-            android:title="@string/setting_avater_gif" />
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="pref_chrome_custom_tabs"
+                android:summary="@string/setting_chrome_custom_tabs_info"
+                android:title="@string/setting_chrome_custom_tabs" />
 
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_chrome_custom_tabs"
-            android:summary="@string/setting_chrome_custom_tabs_info"
-            android:title="@string/setting_chrome_custom_tabs" />
+            <ListPreference
+                android:defaultValue="HomeCard"
+                android:entries="@array/start_fragment_list"
+                android:entryValues="@array/start_fragment_values"
+                android:key="pref_startFragment"
+                android:summary="@string/setting_start_fragment_info"
+                android:title="@string/setting_start_fragment" />
 
-        <ListPreference
-            android:defaultValue="HomeCard"
-            android:entries="@array/start_fragment_list"
-            android:entryValues="@array/start_fragment_values"
-            android:key="pref_startFragment"
-            android:summary="@string/setting_start_fragment_info"
-            android:title="@string/setting_start_fragment" />
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_networkchange"
+                android:summary="@string/setting_networkchange_info"
+                android:title="@string/setting_networkchange" />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_networkchange"
-            android:summary="@string/setting_networkchange_info"
-            android:title="@string/setting_networkchange" />
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_subtitle_show"
+                android:summary="@string/setting_subTitle_show_info"
+                android:title="@string/setting_subTitle_show" />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_subtitle_show"
-            android:summary="@string/setting_subTitle_show_info"
-            android:title="@string/setting_subTitle_show" />
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_svg_animation"
+                android:summary="@string/setting_svg_animation_message"
+                android:title="@string/setting_svg_animation_title" />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_svg_animation"
-            android:summary="@string/setting_svg_animation_message"
-            android:title="@string/setting_svg_animation_title" />
+            <ListPreference
+                android:defaultValue="Home"
+                android:entries="@array/notification_timeline_list"
+                android:entryValues="@array/notification_timeline_values"
+                android:key="pref_notification_timeline"
+                android:summary="@string/setting_notification_timeline_message"
+                android:title="@string/setting_notification_timeline_title" />
 
-        <ListPreference
-            android:defaultValue="Home"
-            android:entries="@array/notification_timeline_list"
-            android:entryValues="@array/notification_timeline_values"
-            android:key="pref_notification_timeline"
-            android:summary="@string/setting_notification_timeline_message"
-            android:title="@string/setting_notification_timeline_title" />
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_no_sleep"
-            android:summary="@string/setting_no_sleep_info"
-            android:title="@string/setting_no_sleep" />
+            <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="pref_no_sleep"
+                android:summary="@string/setting_no_sleep_info"
+                android:title="@string/setting_no_sleep" />
 
     </PreferenceCategory>
 

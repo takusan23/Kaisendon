@@ -114,6 +114,7 @@ public class Home_Fragment extends Fragment {
     String count_text = null;
     int akeome_count = 0;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -322,7 +323,20 @@ public class Home_Fragment extends Fragment {
                             toot_id_string = String.valueOf(toot_id);
                             //toot_time = status.getCreatedAt();
                             account_id = status.getAccount().getId();
-
+                            //ブースト　ふぁぼ
+                            String isBoost = "no";
+                            String isFav = "no";
+                            String boostCount = "0";
+                            String favCount = "0";
+                            if (status.isReblogged()) {
+                                isBoost = "reblogged";
+                            }
+                            if (status.isFavourited()) {
+                                isFav = "favourited";
+                            }
+                            //かうんと
+                            boostCount = String.valueOf(status.getReblogsCount());
+                            favCount = String.valueOf(status.getFavouritesCount());
                             //ブーストあったよ
                             String boost_content = null;
                             String boost_user_name = null;
@@ -478,9 +492,14 @@ public class Home_Fragment extends Fragment {
                                 Item.add(cardURL);
                                 Item.add(cardDescription);
                                 Item.add(cardImage);
+                                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                Item.add(isBoost);
+                                Item.add(isFav);
+                                Item.add(boostCount);
+                                Item.add(favCount);
                                 //Reblog ブースト用
                                 Item.add(boost_content);
-                                Item.add(boost_user_name + " @" + boost_user + "\n" + user_name + " @" + user + getString(R.string.reblog));
+                                Item.add(boost_user_name + " @" + boost_user);
                                 Item.add(boost_avater_url);
                                 Item.add(String.valueOf(boost_account_id));
 
@@ -621,6 +640,22 @@ public class Home_Fragment extends Fragment {
                             toot_time = toot_jsonObject.getString("created_at");
                             String type = null;
 
+                            //ブースト　ふぁぼ
+                            String isBoost = "no";
+                            String isFav = "no";
+                            String boostCount = "0";
+                            String favCount = "0";
+                            if (toot_jsonObject.getBoolean("reblogged")) {
+                                isBoost = "reblogged";
+                            }
+                            if (toot_jsonObject.getBoolean("favourited")) {
+                                isFav = "favourited";
+                            }
+                            //かうんと
+                            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
+
+
                             //クライアント名がある？ない？
                             try {
                                 JSONObject application = toot_jsonObject.getJSONObject("application");
@@ -788,9 +823,14 @@ public class Home_Fragment extends Fragment {
                             Item.add(cardURL);
                             Item.add(cardDescription);
                             Item.add(cardImage);
+                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                            Item.add(isBoost);
+                            Item.add(isFav);
+                            Item.add(boostCount);
+                            Item.add(favCount);
                             //Reblog ブースト用
                             Item.add(boost_content);
-                            Item.add(boost_user_name + " @" + boost_user + "\n" + user_name + " @" + user + getString(R.string.reblog));
+                            Item.add(boost_user_name + " @" + boost_user);
                             Item.add(boost_avater_url);
                             Item.add(String.valueOf(boost_account_id));
 
@@ -871,6 +911,32 @@ public class Home_Fragment extends Fragment {
                             toot_time = toot_jsonObject.getString("created_at");
                             String type = null;
 
+                            //ブースト　ふぁぼ
+                            //ブースト　ふぁぼ
+                            String isBoost = "no";
+                            String isFav = "no";
+                            String boostCount = "0";
+                            String favCount = "0";
+                            if (toot_jsonObject.getBoolean("reblogged")) {
+                                isBoost = "reblogged";
+                            }
+                            if (toot_jsonObject.getBoolean("favourited")) {
+                                isFav = "favourited";
+                            }
+                            //かうんと
+                            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
+                            if (toot_jsonObject.getBoolean("reblogged")) {
+                                isBoost = "reblogged";
+                            }
+                            if (toot_jsonObject.getBoolean("favourited")) {
+                                isFav = "favourited";
+                            }
+                            //かうんと
+                            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
+
+
                             //クライアント名がある？ない？
                             try {
                                 JSONObject application = toot_jsonObject.getJSONObject("application");
@@ -1038,9 +1104,14 @@ public class Home_Fragment extends Fragment {
                             Item.add(cardURL);
                             Item.add(cardDescription);
                             Item.add(cardImage);
+                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                            Item.add(isBoost);
+                            Item.add(isFav);
+                            Item.add(boostCount);
+                            Item.add(favCount);
                             //Reblog ブースト用
                             Item.add(boost_content);
-                            Item.add(boost_user_name + " @" + boost_user + "\n" + user_name + " @" + user + getString(R.string.reblog));
+                            Item.add(boost_user_name + " @" + boost_user);
                             Item.add(boost_avater_url);
                             Item.add(String.valueOf(boost_account_id));
 
@@ -1131,6 +1202,31 @@ public class Home_Fragment extends Fragment {
                                     user_name = toot_account.getString("display_name");
                                     toot_time = toot_jsonObject.getString("created_at");
                                     String type = null;
+
+                                    //ブースト　ふぁぼ
+                                    //ブースト　ふぁぼ
+                                    String isBoost = "no";
+                                    String isFav = "no";
+                                    String boostCount = "0";
+                                    String favCount = "0";
+                                    if (toot_jsonObject.getBoolean("reblogged")) {
+                                        isBoost = "reblogged";
+                                    }
+                                    if (toot_jsonObject.getBoolean("favourited")) {
+                                        isFav = "favourited";
+                                    }
+                                    //かうんと
+                                    boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                                    favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
+                                    if (toot_jsonObject.getBoolean("reblogged")) {
+                                        isBoost = "reblogged";
+                                    }
+                                    if (toot_jsonObject.getBoolean("favourited")) {
+                                        isFav = "favourited";
+                                    }
+                                    //かうんと
+                                    boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                                    favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
                                     //クライアント名がある？ない？
                                     try {
@@ -1301,9 +1397,14 @@ public class Home_Fragment extends Fragment {
                                     Item.add(cardURL);
                                     Item.add(cardDescription);
                                     Item.add(cardImage);
+                                    //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                    Item.add(isBoost);
+                                    Item.add(isFav);
+                                    Item.add(boostCount);
+                                    Item.add(favCount);
                                     //Reblog ブースト用
                                     Item.add(boost_content);
-                                    Item.add(boost_user_name + " @" + boost_user + "\n" + user_name + " @" + user + getString(R.string.reblog));
+                                    Item.add(boost_user_name + " @" + boost_user);
                                     Item.add(boost_avater_url);
                                     Item.add(String.valueOf(boost_account_id));
 
@@ -1466,6 +1567,31 @@ public class Home_Fragment extends Fragment {
                                             toot_time = toot_jsonObject.getString("created_at");
                                             String type = null;
 
+                                            //ブースト　ふぁぼ
+                                            //ブースト　ふぁぼ
+                                            String isBoost = "no";
+                                            String isFav = "no";
+                                            String boostCount = "0";
+                                            String favCount = "0";
+                                            if (toot_jsonObject.getBoolean("reblogged")) {
+                                                isBoost = "reblogged";
+                                            }
+                                            if (toot_jsonObject.getBoolean("favourited")) {
+                                                isFav = "favourited";
+                                            }
+                                            //かうんと
+                                            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                                            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
+                                            if (toot_jsonObject.getBoolean("reblogged")) {
+                                                isBoost = "reblogged";
+                                            }
+                                            if (toot_jsonObject.getBoolean("favourited")) {
+                                                isFav = "favourited";
+                                            }
+                                            //かうんと
+                                            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                                            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
+
                                             //クライアント名がある？ない？
                                             try {
                                                 JSONObject application = toot_jsonObject.getJSONObject("application");
@@ -1613,6 +1739,11 @@ public class Home_Fragment extends Fragment {
                                             Item.add(cardURL);
                                             Item.add(cardDescription);
                                             Item.add(cardImage);
+                                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                            Item.add(isBoost);
+                                            Item.add(isFav);
+                                            Item.add(boostCount);
+                                            Item.add(favCount);
                                             //Reblog ブースト用
                                             Item.add(boost_content);
                                             Item.add(boost_user_name + " @" + boost_user);

@@ -14,6 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Animatable2;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -68,6 +69,7 @@ import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -274,11 +276,23 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         String id_string = listItem.get(4);
         String media_url = listItem.get(8);
 
+
+        //ホームのみ　ぶーすとのとき用
+        //BoostしたTootのとき　ホーム用
+        boolean reblogToot = false;
+        boolean boostFavCount = false;
+        if (item.getListItem().size() >= 21) {
+            reblogToot = true;
+        }
+        if (item.getListItem().size() >= 17) {
+            boostFavCount = true;
+        }
+
         //ブースト　それ以外
         //ブーストの要素がnullだったらそのまま
         String avater_url = null;
-        if (listItem.size() >= 17 && listItem.get(16) != null) {
-            avater_url = listItem.get(18);
+        if (reblogToot && listItem.get(20) != null) {
+            avater_url = listItem.get(22);
         } else {
             //要素があったとき
             avater_url = listItem.get(5);
@@ -286,7 +300,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
 
         //カード　配列管理
-
         String card_title = listItem.get(12);
         String card_url = listItem.get(13);
         String card_description = listItem.get(14);
@@ -790,8 +803,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         //ブーストの要素がnullだったらそのまま
         long account_id = 0;
-        if (listItem.size() >= 17 && listItem.get(16) != null) {
-            account_id = Long.valueOf(listItem.get(19));
+        if (reblogToot && listItem.get(20) != null) {
+            account_id = Long.valueOf(listItem.get(23));
         } else {
             account_id = Long.valueOf(listItem.get(6));
         }
@@ -1188,7 +1201,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 @Override
                 public void onInitialized() {
                     String titleString = listItem.get(1);
-                    String userString = listItem.get(3);
+                    String userString = listItem.get(2);
 
                     if (title != null) {
                         if (pref_setting.getBoolean("pref_custom_emoji", false)) {
@@ -1272,9 +1285,15 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             String titleString = null;
             String userString = null;
             //ブーストの要素がnullだったらそのまま
-            if (listItem.size() >= 17 && listItem.get(16) != null) {
-                titleString = listItem.get(16);
-                userString = listItem.get(17) + "<br>" + listItem.get(2) + " " + getContext().getString(R.string.reblog);
+            if (reblogToot && listItem.get(20) != null) {
+                titleString = listItem.get(20);
+                userString = listItem.get(21) + "<br>" + listItem.get(2) + " " + getContext().getString(R.string.reblog);
+                //アイコンつける
+                Drawable drawable = getContext().getDrawable(R.drawable.ic_repeat_black_24dp_2);
+                drawable.setTint(Color.parseColor("#008000"));
+                user.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+                //色つける
+                user.setTextColor(Color.parseColor("#008000"));
             } else {
                 titleString = listItem.get(1);
                 userString = listItem.get(2);
@@ -1374,6 +1393,32 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             if (friends_nico_check_box) {
                 holder.nicoru_button.setCompoundDrawablesWithIntrinsicBounds(favourite_icon_white, null, null, null);
             }
+        }
+
+        //自分、ブーストいいですか？
+        //とりあえず要素数で
+        if (boostFavCount) {
+
+            //もってくる
+            String isBoost = item.getListItem().get(16);
+            String isFav = item.getListItem().get(17);
+            String boostCount = item.getListItem().get(18);
+            String favCount = item.getListItem().get(19);
+
+            if (isBoost.contains("reblogged")) {
+                Drawable boostIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                boostIcon.setTint(Color.parseColor("#008000"));
+                boost_button.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+            }
+            if (isFav.contains("favourited")) {
+                Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                favIcon.setTint(Color.parseColor("#ffd700"));
+                nicoru.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+            }
+
+            boost_button.setText(boostCount);
+            nicoru.setText(favCount);
+
         }
 
 

@@ -432,6 +432,20 @@ public class Federated_TimeLine_Fragment extends Fragment {
                                 e.printStackTrace();
                             }
 
+                            //ブースト　ふぁぼ
+                            String isBoost = "no";
+                            String isFav = "no";
+                            String boostCount = "0";
+                            String favCount = "0";
+                            if (status.isReblogged()) {
+                                isBoost = "reblogged";
+                            }
+                            if (status.isFavourited()) {
+                                isFav = "favourited";
+                            }
+                            //かうんと
+                            boostCount = String.valueOf(status.getReblogsCount());
+                            favCount = String.valueOf(status.getFavouritesCount());
 
                             //配列を作成
                             ArrayList<String> Item = new ArrayList<>();
@@ -461,6 +475,11 @@ public class Federated_TimeLine_Fragment extends Fragment {
                             Item.add(cardURL);
                             Item.add(cardDescription);
                             Item.add(cardImage);
+                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                            Item.add(isBoost);
+                            Item.add(isFav);
+                            Item.add(boostCount);
+                            Item.add(favCount);
 
 
                             if (getActivity() != null) {
@@ -695,6 +714,23 @@ public class Federated_TimeLine_Fragment extends Fragment {
                                 cardDescription = cardObject.getString("description");
                                 cardImage = cardObject.getString("image");
                             }
+                            //ブースト　ふぁぼ
+                            String isBoost = "no";
+                            String isFav = "no";
+                            String boostCount = "0";
+                            String favCount = "0";
+                            //なぜかrebloggedがない！？！？！？
+
+                            if (toot_jsonObject.getBoolean("reblogged")) {
+                                isBoost = "reblogged";
+                            }
+                            if (toot_jsonObject.getBoolean("favourited")) {
+                                isFav = "favourited";
+                            }
+
+                            //かうんと
+                            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
                             //配列を作成
                             ArrayList<String> Item = new ArrayList<>();
@@ -724,6 +760,11 @@ public class Federated_TimeLine_Fragment extends Fragment {
                             Item.add(cardURL);
                             Item.add(cardDescription);
                             Item.add(cardImage);
+                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                            Item.add(isBoost);
+                            Item.add(isFav);
+                            Item.add(boostCount);
+                            Item.add(favCount);
 
                             if (getActivity() != null) {
                                 ListItem listItem = new ListItem(Item);
@@ -912,6 +953,23 @@ public class Federated_TimeLine_Fragment extends Fragment {
                                 cardDescription = cardObject.getString("description");
                                 cardImage = cardObject.getString("image");
                             }
+                            //ブースト　ふぁぼ
+                            String isBoost = "no";
+                            String isFav = "no";
+                            String boostCount = "0";
+                            String favCount = "0";
+                            //なぜかrebloggedがない！？！？！？
+
+                            if (toot_jsonObject.getBoolean("reblogged")) {
+                                isBoost = "reblogged";
+                            }
+                            if (toot_jsonObject.getBoolean("favourited")) {
+                                isFav = "favourited";
+                            }
+
+                            //かうんと
+                            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
                             //配列を作成
                             ArrayList<String> Item = new ArrayList<>();
@@ -941,6 +999,11 @@ public class Federated_TimeLine_Fragment extends Fragment {
                             Item.add(cardURL);
                             Item.add(cardDescription);
                             Item.add(cardImage);
+                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                            Item.add(isBoost);
+                            Item.add(isFav);
+                            Item.add(boostCount);
+                            Item.add(favCount);
 
 
                             if (getActivity() != null) {
@@ -1141,6 +1204,23 @@ public class Federated_TimeLine_Fragment extends Fragment {
                                         cardDescription = cardObject.getString("description");
                                         cardImage = cardObject.getString("image");
                                     }
+                                    //ブースト　ふぁぼ
+                                    String isBoost = "no";
+                                    String isFav = "no";
+                                    String boostCount = "0";
+                                    String favCount = "0";
+                                    //なぜかrebloggedがない！？！？！？
+
+                                    if (toot_jsonObject.getBoolean("reblogged")) {
+                                        isBoost = "reblogged";
+                                    }
+                                    if (toot_jsonObject.getBoolean("favourited")) {
+                                        isFav = "favourited";
+                                    }
+
+                                    //かうんと
+                                    boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                                    favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
                                     //配列を作成
                                     ArrayList<String> Item = new ArrayList<>();
@@ -1170,6 +1250,11 @@ public class Federated_TimeLine_Fragment extends Fragment {
                                     Item.add(cardURL);
                                     Item.add(cardDescription);
                                     Item.add(cardImage);
+                                    //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                    Item.add(isBoost);
+                                    Item.add(isFav);
+                                    Item.add(boostCount);
+                                    Item.add(favCount);
 
                                     if (getActivity() != null) {
                                         ListItem listItem = new ListItem(Item);
@@ -1438,6 +1523,23 @@ public class Federated_TimeLine_Fragment extends Fragment {
                                                 cardDescription = cardObject.getString("description");
                                                 cardImage = cardObject.getString("image");
                                             }
+                                            //ブースト　ふぁぼ
+                                            String isBoost = "no";
+                                            String isFav = "no";
+                                            String boostCount = "0";
+                                            String favCount = "0";
+                                            //なぜかrebloggedがない！？！？！？
+
+                                            if (toot_jsonObject.getBoolean("reblogged")) {
+                                                isBoost = "reblogged";
+                                            }
+                                            if (toot_jsonObject.getBoolean("favourited")) {
+                                                isFav = "favourited";
+                                            }
+
+                                            //かうんと
+                                            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                                            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
                                             //配列を作成
                                             ArrayList<String> Item = new ArrayList<>();
@@ -1467,6 +1569,11 @@ public class Federated_TimeLine_Fragment extends Fragment {
                                             Item.add(cardURL);
                                             Item.add(cardDescription);
                                             Item.add(cardImage);
+                                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                            Item.add(isBoost);
+                                            Item.add(isFav);
+                                            Item.add(boostCount);
+                                            Item.add(favCount);
 
                                             if (getActivity() != null) {
                                                 ListItem listItem = new ListItem(Item);

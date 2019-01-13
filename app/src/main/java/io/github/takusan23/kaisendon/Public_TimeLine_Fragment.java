@@ -451,6 +451,21 @@ public class Public_TimeLine_Fragment extends Fragment {
                                 e.printStackTrace();
                             }
 
+                            //ブースト　ふぁぼ
+                            String isBoost = "no";
+                            String isFav = "no";
+                            String boostCount = "0";
+                            String favCount = "0";
+                            if (status.isReblogged()) {
+                                isBoost = "reblogged";
+                            }
+                            if (status.isFavourited()) {
+                                isFav = "favourited";
+                            }
+                            //かうんと
+                            boostCount = String.valueOf(status.getReblogsCount());
+                            favCount = String.valueOf(status.getFavouritesCount());
+
 
                             //配列を作成
                             ArrayList<String> Item = new ArrayList<>();
@@ -480,6 +495,11 @@ public class Public_TimeLine_Fragment extends Fragment {
                             Item.add(cardURL);
                             Item.add(cardDescription);
                             Item.add(cardImage);
+                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                            Item.add(isBoost);
+                            Item.add(isFav);
+                            Item.add(boostCount);
+                            Item.add(favCount);
 
 
                             if (getActivity() != null) {
@@ -595,7 +615,7 @@ public class Public_TimeLine_Fragment extends Fragment {
 
 
             //もういい！okhttpで実装する！！
-            String max_id_url = "https://" + finalInstance + "/api/v1/timelines/public";
+            String max_id_url = "https://" + finalInstance + "/api/v1/timelines/public/?access_token=" + finalAccessToken;
             //パラメータを設定
             HttpUrl.Builder max_id_builder = HttpUrl.parse(max_id_url).newBuilder();
             max_id_builder.addQueryParameter("local", "true");
@@ -633,15 +653,29 @@ public class Public_TimeLine_Fragment extends Fragment {
                             user_name = toot_account.getString("display_name");
                             user_use_client = application.getString("name");
 
-                            //toot_time = toot_jsonObject.getString("created_at");
-
-                            //                       user_use_client = status.getApplication().getName();
-                            //toot_id = toot_jsonObject.getString("id");
                             toot_id_string = toot_jsonObject.getString("id");
 
                             user_avater_url = toot_account.getString("avatar");
 
                             account_id = toot_account.getInt("id");
+
+                            //ブースト　ふぁぼ
+                            String isBoost = "no";
+                            String isFav = "no";
+                            String boostCount = "0";
+                            String favCount = "0";
+
+                            if (toot_jsonObject.getBoolean("reblogged")) {
+                                isBoost = "reblogged";
+                            }
+                            if (toot_jsonObject.getBoolean("favourited")) {
+                                isFav = "favourited";
+                            }
+
+                            //かうんと
+                            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
+
 
                             boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
                             if (japan_timeSetting) {
@@ -735,6 +769,7 @@ public class Public_TimeLine_Fragment extends Fragment {
                                 cardImage = cardObject.getString("image");
                             }
 
+
                             //配列を作成
                             ArrayList<String> Item = new ArrayList<>();
                             //メモとか通知とかに
@@ -763,6 +798,11 @@ public class Public_TimeLine_Fragment extends Fragment {
                             Item.add(cardURL);
                             Item.add(cardDescription);
                             Item.add(cardImage);
+                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                            Item.add(isBoost);
+                            Item.add(isFav);
+                            Item.add(boostCount);
+                            Item.add(favCount);
 
                             if (getActivity() != null) {
                                 ListItem listItem = new ListItem(Item);
@@ -961,6 +1001,20 @@ public class Public_TimeLine_Fragment extends Fragment {
                                 cardDescription = cardObject.getString("description");
                                 cardImage = cardObject.getString("image");
                             }
+                            //ブースト　ふぁぼ
+                            String isBoost = "no";
+                            String isFav = "no";
+                            String boostCount = "0";
+                            String favCount = "0";
+                            if (toot_jsonObject.getBoolean("reblogged")) {
+                                isBoost = "reblogged";
+                            }
+                            if (toot_jsonObject.getBoolean("favourited")) {
+                                isFav = "favourited";
+                            }
+                            //かうんと
+                            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
                             //配列を作成
                             ArrayList<String> Item = new ArrayList<>();
@@ -990,6 +1044,11 @@ public class Public_TimeLine_Fragment extends Fragment {
                             Item.add(cardURL);
                             Item.add(cardDescription);
                             Item.add(cardImage);
+                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                            Item.add(isBoost);
+                            Item.add(isFav);
+                            Item.add(boostCount);
+                            Item.add(favCount);
 
                             if (getActivity() != null) {
                                 ListItem listItem = new ListItem(Item);
@@ -1197,6 +1256,20 @@ public class Public_TimeLine_Fragment extends Fragment {
                                         cardDescription = cardObject.getString("description");
                                         cardImage = cardObject.getString("image");
                                     }
+                                    //ブースト　ふぁぼ
+                                    String isBoost = "no";
+                                    String isFav = "no";
+                                    String boostCount = "0";
+                                    String favCount = "0";
+                                    if (toot_jsonObject.getBoolean("reblogged")) {
+                                        isBoost = "reblogged";
+                                    }
+                                    if (toot_jsonObject.getBoolean("favourited")) {
+                                        isFav = "favourited";
+                                    }
+                                    //かうんと
+                                    boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                                    favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
                                     //配列を作成
                                     ArrayList<String> Item = new ArrayList<>();
@@ -1226,6 +1299,11 @@ public class Public_TimeLine_Fragment extends Fragment {
                                     Item.add(cardURL);
                                     Item.add(cardDescription);
                                     Item.add(cardImage);
+                                    //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                    Item.add(isBoost);
+                                    Item.add(isFav);
+                                    Item.add(boostCount);
+                                    Item.add(favCount);
 
                                     if (getActivity() != null) {
                                         ListItem listItem = new ListItem(Item);
@@ -1506,6 +1584,20 @@ public class Public_TimeLine_Fragment extends Fragment {
                                                 cardDescription = cardObject.getString("description");
                                                 cardImage = cardObject.getString("image");
                                             }
+                                            //ブースト　ふぁぼ
+                                            String isBoost = "no";
+                                            String isFav = "no";
+                                            String boostCount = "0";
+                                            String favCount = "0";
+                                            if (toot_jsonObject.getBoolean("reblogged")) {
+                                                isBoost = "reblogged";
+                                            }
+                                            if (toot_jsonObject.getBoolean("favourited")) {
+                                                isFav = "favourited";
+                                            }
+                                            //かうんと
+                                            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                                            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
                                             //配列を作成
                                             ArrayList<String> Item = new ArrayList<>();
@@ -1535,6 +1627,11 @@ public class Public_TimeLine_Fragment extends Fragment {
                                             Item.add(cardURL);
                                             Item.add(cardDescription);
                                             Item.add(cardImage);
+                                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                            Item.add(isBoost);
+                                            Item.add(isFav);
+                                            Item.add(boostCount);
+                                            Item.add(favCount);
 
 
                                             if (getActivity() != null) {
@@ -1549,7 +1646,7 @@ public class Public_TimeLine_Fragment extends Fragment {
                                                         listView.setSelectionFromTop(position, y);
                                                         //listView.setSelection(scrollPosition);
                                                         maxid_snackbar.dismiss();
-                                                        System.out.println("カウント " + String.valueOf(scrollPosition));
+                                                        //System.out.println("カウント " + String.valueOf(scrollPosition));
                                                         //listView.setSelection(scrollPosition);
                                                     }
                                                 });

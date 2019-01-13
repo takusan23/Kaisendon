@@ -400,6 +400,20 @@ public class CustomStreamingFragment extends Fragment {
                                                         e.printStackTrace();
                                                     }
 
+                                                    //ブースト　ふぁぼ
+                                                    String isBoost = "no";
+                                                    String isFav = "no";
+                                                    String boostCount = "0";
+                                                    String favCount = "0";
+                                                    if (status.isReblogged()) {
+                                                        isBoost = "reblogged";
+                                                    }
+                                                    if (status.isFavourited()) {
+                                                        isFav = "favourited";
+                                                    }
+                                                    //かうんと
+                                                    boostCount = String.valueOf(status.getReblogsCount());
+                                                    favCount = String.valueOf(status.getFavouritesCount());
 
                                                     //配列を作成
                                                     ArrayList<String> Item = new ArrayList<>();
@@ -429,6 +443,11 @@ public class CustomStreamingFragment extends Fragment {
                                                     Item.add(cardURL);
                                                     Item.add(cardDescription);
                                                     Item.add(cardImage);
+                                                    //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                                    Item.add(isBoost);
+                                                    Item.add(isFav);
+                                                    Item.add(boostCount);
+                                                    Item.add(favCount);
 
                                                     if (getActivity() != null) {
                                                         listItem[0] = new ListItem(Item);
@@ -646,6 +665,20 @@ public class CustomStreamingFragment extends Fragment {
                                                             e.printStackTrace();
                                                         }
 
+                                                        //ブースト　ふぁぼ
+                                                        String isBoost = "no";
+                                                        String isFav = "no";
+                                                        String boostCount = "0";
+                                                        String favCount = "0";
+                                                        if (status.isReblogged()) {
+                                                            isBoost = "reblogged";
+                                                        }
+                                                        if (status.isFavourited()) {
+                                                            isFav = "favourited";
+                                                        }
+                                                        //かうんと
+                                                        boostCount = String.valueOf(status.getReblogsCount());
+                                                        favCount = String.valueOf(status.getFavouritesCount());
 
                                                         //配列を作成
                                                         ArrayList<String> Item = new ArrayList<>();
@@ -675,6 +708,11 @@ public class CustomStreamingFragment extends Fragment {
                                                         Item.add(cardURL);
                                                         Item.add(cardDescription);
                                                         Item.add(cardImage);
+                                                        //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                                        Item.add(isBoost);
+                                                        Item.add(isFav);
+                                                        Item.add(boostCount);
+                                                        Item.add(favCount);
 
 
                                                         ListItem listItem = null;
@@ -838,6 +876,20 @@ public class CustomStreamingFragment extends Fragment {
                                                         } catch (Mastodon4jRequestException e) {
                                                             e.printStackTrace();
                                                         }
+                                                        //ブースト　ふぁぼ
+                                                        String isBoost = "no";
+                                                        String isFav = "no";
+                                                        String boostCount = "0";
+                                                        String favCount = "0";
+                                                        if (notification.getStatus().isReblogged()) {
+                                                            isBoost = "reblogged";
+                                                        }
+                                                        if (notification.getStatus().isFavourited()) {
+                                                            isFav = "favourited";
+                                                        }
+                                                        //かうんと
+                                                        boostCount = String.valueOf(notification.getStatus().getReblogsCount());
+                                                        favCount = String.valueOf(notification.getStatus().getFavouritesCount());
 
 
                                                         //配列を作成
@@ -868,6 +920,11 @@ public class CustomStreamingFragment extends Fragment {
                                                         Item.add(cardURL);
                                                         Item.add(cardDescription);
                                                         Item.add(cardImage);
+                                                        //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                                        Item.add(isBoost);
+                                                        Item.add(isFav);
+                                                        Item.add(boostCount);
+                                                        Item.add(favCount);
 
 
                                                         if (getActivity() != null){

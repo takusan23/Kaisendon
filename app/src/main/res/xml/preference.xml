@@ -268,10 +268,10 @@
             android:title="@string/setting_toot_count_title" />
 
         <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_button_icon"
-            android:summary="@string/setting_button_icon_info"
-            android:title="@string/setting_button_icon" />
+            android:defaultValue="false"
+            android:key="pref_quick_profile"
+            android:summary="@string/setting_quick_profile_message"
+            android:title="@string/setting_quick_profile_title" />
 
         <CheckBoxPreference
             android:defaultValue="false"

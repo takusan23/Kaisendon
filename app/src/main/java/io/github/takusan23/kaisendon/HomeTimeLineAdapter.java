@@ -42,6 +42,7 @@ import android.text.Layout;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -51,6 +52,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,6 +67,9 @@ import io.github.takusan23.kaisendon.CustomTabURL.CustomTabURLSpan;
 import io.github.takusan23.kaisendon.CustomTabURL.LinkTransformationMethod;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -77,10 +82,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.FormBody;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
@@ -276,6 +287,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         String id_string = listItem.get(4);
         String media_url = listItem.get(8);
 
+        // ふぁぼった、ぶーすとした
+        final boolean[] favClick = {false};
+        final boolean[] boostClick = {false};
 
         //ホームのみ　ぶーすとのとき用
         //BoostしたTootのとき　ホーム用
@@ -456,6 +470,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         String finalAccessToken1 = AccessToken;
         View finalConvertView1 = view;
         View finalView1 = view;
+        boolean finalBoostFavCount = boostFavCount;
         nicoru.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -469,7 +484,11 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                         favourite_snackbar.setAction(finalFavorite_message, new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                TootAction(id_string, "favourite");
+                                TootAction(id_string, "favourite", nicoru);
+                                favClick[0] = true;
+                                if (finalBoostFavCount) {
+                                    item.getListItem().set(17, "favourited");
+                                }
                             }
                         });
                         favourite_snackbar.show();
@@ -480,7 +499,11 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                         alertDialog.setPositiveButton(finalFavorite_message, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                TootAction(id_string, "favourite");
+                                TootAction(id_string, "favourite", nicoru);
+                                favClick[0] = true;
+                                if (finalBoostFavCount) {
+                                    item.getListItem().set(17, "favourited");
+                                }
                             }
                         });
                         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -494,7 +517,11 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
                     //テキストボックが未選択
                 } else {
-                    TootAction(id_string, "favourite");
+                    TootAction(id_string, "favourite", nicoru);
+                    favClick[0] = true;
+                    if (finalBoostFavCount) {
+                        item.getListItem().set(17, "favourited");
+                    }
                 }
 
             }
@@ -518,7 +545,11 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                         snackbar.setAction(R.string.dialog_boost, new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                TootAction(id_string, "reblog");
+                                TootAction(id_string, "reblog", boost);
+                                boostClick[0] = true;
+                                if (finalBoostFavCount) {
+                                    item.getListItem().set(16, "reblogged");
+                                }
                             }
                         });
                         snackbar.show();
@@ -531,7 +562,11 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                TootAction(id_string, "reblog");
+                                TootAction(id_string, "reblog", boost);
+                                boostClick[0] = true;
+                                if (finalBoostFavCount) {
+                                    item.getListItem().set(16, "reblogged");
+                                }
                             }
 
                         });
@@ -546,7 +581,11 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
                     //チェックボックスが未チェックだったとき
                 } else {
-                    TootAction(id_string, "reblog");
+                    TootAction(id_string, "reblog", boost);
+                    boostClick[0] = true;
+                    if (finalBoostFavCount) {
+                        item.getListItem().set(16, "reblogged");
+                    }
                 }
 
             }
@@ -822,20 +861,181 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 //読み込み
                 boolean multipain_ui_mode = pref_setting.getBoolean("app_multipain_ui", false);
 
-                if (multipain_ui_mode) {
+                if (pref_setting.getBoolean("pref_quick_profile", false)) {
 
-                    Bundle bundle = new Bundle();
-                    bundle.putLong("Account_ID", finalAccount_id);
-                    fragment.setArguments(bundle);
+                    //APIを叩く
+                    String url = "https://" + finalInstance + "/api/v1/accounts/" + finalAccount_id + "?access_token=" + finalAccessToken;
+                    //作成
+                    Request request = new Request.Builder()
+                            .url(url)
+                            .get()
+                            .build();
+                    //GETリクエスト
+                    OkHttpClient okHttpClient = new OkHttpClient();
+                    okHttpClient.newCall(request).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
 
-                    ft.replace(R.id.fragment3, fragment).commit();
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response.body().string());
+
+                                String profile_note = jsonObject.getString("note");
+                                String avater_url = jsonObject.getString("avatar");
+                                String follow = jsonObject.getString("following_count");
+                                String follower = jsonObject.getString("followers_count");
+
+                                //フォローされているか（無駄にAPI叩いてね？）
+                                final String[] follow_back = {getContext().getString(R.string.follow_back_not)};
+                                String follow_url = "https://" + finalInstance + "/api/v1/accounts/relationships/?stream=user&access_token=" + finalAccessToken;
+
+                                //パラメータを設定
+                                HttpUrl.Builder builder = HttpUrl.parse(follow_url).newBuilder();
+                                builder.addQueryParameter("id", String.valueOf(finalAccount_id));
+                                String final_url = builder.build().toString();
+
+                                //作成
+                                Request request = new Request.Builder()
+                                        .url(final_url)
+                                        .get()
+                                        .build();
+
+                                //GETリクエスト
+                                OkHttpClient client = new OkHttpClient();
+                                client.newCall(request).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        //JSON化
+                                        //System.out.println("レスポンス : " + response.body().string());
+                                        String response_string = response.body().string();
+                                        try {
+                                            JSONArray jsonArray = new JSONArray(response_string);
+                                            JSONObject jsonObject = jsonArray.getJSONObject(0);
+                                            boolean followed_by = jsonObject.getBoolean("followed_by");
+                                            if (followed_by) {
+                                                follow_back[0] = getContext().getString(R.string.follow_back);
+                                            }
+
+
+                                            Snackbar snackbar = Snackbar.make(v, "", Snackbar.LENGTH_SHORT);
+                                            ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                                            LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                            progressBer_layoutParams.gravity = Gravity.CENTER;
+                                            //SnackBerを複数行対応させる
+                                            TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+                                            snackBer_textView.setMaxLines(Integer.MAX_VALUE);
+                                            //てきすと
+                                            //snackBer_textView.setText(Html.fromHtml(profile_note,Html.FROM_HTML_MODE_COMPACT));
+                                            //複数行対応させたおかげでずれたので修正
+                                            ImageView avater_ImageView = new ImageView(getContext());
+                                            avater_ImageView.setLayoutParams(progressBer_layoutParams);
+                                            //LinearLayout動的に生成
+                                            LinearLayout snackber_LinearLayout = new LinearLayout(getContext());
+                                            snackber_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+                                            LinearLayout.LayoutParams warp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                            snackber_LinearLayout.setLayoutParams(warp);
+                                            //そこにTextViewをいれる（もとからあるTextViewは無視）
+                                            TextView snackber_TextView = new TextView(getContext());
+                                            snackber_TextView.setLayoutParams(warp);
+                                            snackber_TextView.setTextColor(Color.parseColor("#ffffff"));
+                                            snackber_TextView.setText(follow_back[0] + "\n\n");
+                                            snackber_TextView.append(Html.fromHtml(profile_note, Html.FROM_HTML_MODE_COMPACT));
+                                            //ボタン追加
+                                            Button userPage_Button = new Button(getContext(), null, 0, R.style.Widget_AppCompat_Button_Borderless);
+                                            userPage_Button.setLayoutParams(warp);
+                                            userPage_Button.setTextColor(Color.parseColor("#ffffff"));
+                                            userPage_Button.setText(R.string.user);
+                                            Drawable boostIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_person_black_24dp, null);
+                                            boostIcon.setTint(Color.parseColor("#ffffff"));
+                                            userPage_Button.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+                                            userPage_Button.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    Intent intent = new Intent(getContext(), UserActivity.class);
+                                                    //IDを渡す
+                                                    intent.putExtra("Account_ID", finalAccount_id);
+                                                    getContext().startActivity(intent);
+                                                }
+                                            });
+
+                                            //ふぉろわー、ふぉろーようLinearLayout
+                                            LinearLayout follow_LinearLayout = new LinearLayout(getContext());
+                                            follow_LinearLayout.setLayoutParams(warp);
+
+                                            //ふぉろー
+                                            TextView follow_TextView = new TextView(getContext());
+                                            follow_TextView.setTextColor(Color.parseColor("#ffffff"));
+                                            follow_TextView.setText(getContext().getString(R.string.follow) + " : " + follow);
+                                            Drawable done = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_done_black_24dp, null);
+                                            done.setTint(Color.parseColor("#ffffff"));
+                                            follow_TextView.setCompoundDrawablesWithIntrinsicBounds(done, null, null, null);
+                                            //ふぉろわー
+                                            TextView follower_TextView = new TextView(getContext());
+                                            follower_TextView.setTextColor(Color.parseColor("#ffffff"));
+                                            follower_TextView.setText(getContext().getString(R.string.follower) + " : " + follower);
+                                            Drawable done_all = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_done_all_black_24dp, null);
+                                            done_all.setTint(Color.parseColor("#ffffff"));
+                                            follower_TextView.setCompoundDrawablesWithIntrinsicBounds(done_all, null, null, null);
+
+                                            //追加
+                                            follow_LinearLayout.addView(follow_TextView);
+                                            follow_LinearLayout.addView(follower_TextView);
+
+                                            //LinearLayoutについか
+                                            snackber_LinearLayout.addView(snackber_TextView);
+                                            snackber_LinearLayout.addView(follow_LinearLayout);
+                                            snackber_LinearLayout.addView(userPage_Button);
+
+                                            snackBer_viewGrop.addView(avater_ImageView, 0);
+                                            snackBer_viewGrop.addView(snackber_LinearLayout, 1);
+                                            //Bitmap
+                                            try {
+                                                Bitmap bitmap = Glide.with(getContext()).asBitmap().load(avater_url).submit(100, 100).get();
+                                                avater_ImageView.setImageBitmap(bitmap);
+                                            } catch (ExecutionException | InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
+                                            snackbar.show();
+
+
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+
 
                 } else {
+                    if (multipain_ui_mode) {
 
-                    Intent intent = new Intent(getContext(), UserActivity.class);
-                    //IDを渡す
-                    intent.putExtra("Account_ID", finalAccount_id);
-                    getContext().startActivity(intent);
+                        Bundle bundle = new Bundle();
+                        bundle.putLong("Account_ID", finalAccount_id);
+                        fragment.setArguments(bundle);
+
+                        ft.replace(R.id.fragment3, fragment).commit();
+
+                    } else {
+
+                        Intent intent = new Intent(getContext(), UserActivity.class);
+                        //IDを渡す
+                        intent.putExtra("Account_ID", finalAccount_id);
+                        getContext().startActivity(intent);
+                    }
                 }
             }
         });
@@ -1405,12 +1605,14 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             String boostCount = item.getListItem().get(18);
             String favCount = item.getListItem().get(19);
 
-            if (isBoost.contains("reblogged")) {
+            //りぶろぐした・りぶろぐおしたとき
+            if (isBoost.contains("reblogged") || boostClick[0]) {
                 Drawable boostIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
                 boostIcon.setTint(Color.parseColor("#008000"));
                 boost_button.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
             }
-            if (isFav.contains("favourited")) {
+            //ふぁぼした、ふぁぼおした
+            if (isFav.contains("favourited") || favClick[0]) {
                 Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
                 favIcon.setTint(Color.parseColor("#ffd700"));
                 nicoru.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
@@ -1420,7 +1622,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             nicoru.setText(favCount);
 
         }
-
 
         //ボタン非表示モード
         boolean button_hidden = pref_setting.getBoolean("pref_timeline_button", false);
@@ -1918,7 +2119,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         });
     }
 
-    public void TootAction(String id, String endPoint) {
+    public void TootAction(String id, String endPoint, TextView textView) {
         new AsyncTask<String, Void, String>() {
             @Override
             protected String doInBackground(String... params) {
@@ -1933,10 +2134,17 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             protected void onPostExecute(String result) {
                 if (endPoint.contains("reblog")) {
                     Toast.makeText(getContext(), getContext().getString(R.string.boost_ok) + " : " + result, Toast.LENGTH_SHORT).show();
+                    Drawable boostIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                    boostIcon.setTint(Color.parseColor("#008000"));
+                    textView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
                 }
                 if (endPoint.contains("favourite")) {
                     Toast.makeText(getContext(), nicoru_text + result, Toast.LENGTH_SHORT).show();
+                    Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                    favIcon.setTint(Color.parseColor("#ffd700"));
+                    textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
                 }
+
             }
         }.execute();
     }

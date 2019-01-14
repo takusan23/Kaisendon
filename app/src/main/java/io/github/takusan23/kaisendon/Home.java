@@ -28,6 +28,7 @@ import android.speech.tts.TextToSpeech;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
@@ -96,6 +97,8 @@ public class Home extends AppCompatActivity
     TextToSpeech textToSpeech;
 
     BroadcastReceiver networkChangeBroadcast;
+
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -259,9 +262,8 @@ public class Home extends AppCompatActivity
         }
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -1282,6 +1284,16 @@ public class Home extends AppCompatActivity
         pref_setting.unregisterOnSharedPreferenceChangeListener(this);
     }
 */
+
+
+    //TextViewがどうしても欲しかった
+    //TextViewを押す→ListViewの一番上に移動←これがしたかった
+    /*
+    https://stackoverflow.com/questions/31428086/access-toolbar-textview-from-fragment-in-android
+    */
+    public Toolbar getToolBer() {
+        return toolbar;
+    }
 
 
     @Override

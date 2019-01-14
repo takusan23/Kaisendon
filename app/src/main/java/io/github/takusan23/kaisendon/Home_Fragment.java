@@ -233,6 +233,17 @@ public class Home_Fragment extends Fragment {
 
         SwipeRefreshLayout swipeRefreshLayout = view.findViewById(R.id.swipe_refresh);
 
+        //ToolBerをクリックしたら一番上に移動するようにする
+        if (pref_setting.getBoolean("pref_listview_top", true)) {
+            ((Home) getActivity()).getToolBer().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //これ一番上に移動するやつ
+                    listView.smoothScrollToPosition(0);
+                }
+            });
+        }
+
         //カウンター機能！！！
         //レイアウト
         TextView countTextView = new TextView(getContext());
@@ -536,19 +547,18 @@ public class Home_Fragment extends Fragment {
                                         //System.out.println("TOP == " + top);
                                         // 要素追加前の状態になるようセットする
                                         adapter.notifyDataSetChanged();
-                                        listView.setSelectionFromTop(pos + 1, top);
-
-
                                         //一番上なら追いかける
-                                        if (pos <= 1) {
+                                        if (pos == 0) {
                                             listView.post(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    listView.smoothScrollToPosition(-10);
+                                                    listView.smoothScrollToPosition(0);
                                                     //listView.setSelectionFromTop(index, top_);
                                                 }
                                             });
                                             //System.out.println("ねてた");
+                                        } else {
+                                            listView.setSelectionFromTop(pos + 1, top);
                                         }
                                         int finalTop = top;
 
@@ -794,7 +804,7 @@ public class Home_Fragment extends Fragment {
                                 //かうんと
                                 boostCount = String.valueOf(reblogJsonObject.getInt("reblogs_count"));
                                 favCount = String.valueOf(reblogJsonObject.getInt("favourites_count"));
-                            }else{
+                            } else {
                                 if (toot_jsonObject.getBoolean("reblogged")) {
                                     isBoost = "reblogged";
                                 }
@@ -820,49 +830,48 @@ public class Home_Fragment extends Fragment {
                                 cardImage = cardObject.getString("image");
                             }
 
-                            //配列を作成
-                            ArrayList<String> Item = new ArrayList<>();
-                            //メモとか通知とかに
-                            Item.add("");
-                            //内容
-                            Item.add(toot_text);
-                            //ユーザー名
-                            Item.add(user_name + " @" + user);
-                            //時間、クライアント名等
-                            Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                            //Toot ID 文字列版
-                            Item.add(toot_id_string);
-                            //アバターURL
-                            Item.add(user_avater_url);
-                            //アカウントID
-                            Item.add(String.valueOf(account_id));
-                            //ユーザーネーム
-                            Item.add(user);
-                            //メディア
-                            Item.add(media_url_1);
-                            Item.add(media_url_2);
-                            Item.add(media_url_3);
-                            Item.add(media_url_4);
-                            //カード
-                            Item.add(cardTitle);
-                            Item.add(cardURL);
-                            Item.add(cardDescription);
-                            Item.add(cardImage);
-                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                            Item.add(isBoost);
-                            Item.add(isFav);
-                            Item.add(boostCount);
-                            Item.add(favCount);
-                            //Reblog ブースト用
-                            Item.add(boost_content);
-                            Item.add(boost_user_name + " @" + boost_user);
-                            Item.add(boost_avater_url);
-                            Item.add(String.valueOf(boost_account_id));
+                            if (getActivity() != null && isAdded()) {
 
+                                //配列を作成
+                                ArrayList<String> Item = new ArrayList<>();
+                                //メモとか通知とかに
+                                Item.add("");
+                                //内容
+                                Item.add(toot_text);
+                                //ユーザー名
+                                Item.add(user_name + " @" + user);
+                                //時間、クライアント名等
+                                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                //Toot ID 文字列版
+                                Item.add(toot_id_string);
+                                //アバターURL
+                                Item.add(user_avater_url);
+                                //アカウントID
+                                Item.add(String.valueOf(account_id));
+                                //ユーザーネーム
+                                Item.add(user);
+                                //メディア
+                                Item.add(media_url_1);
+                                Item.add(media_url_2);
+                                Item.add(media_url_3);
+                                Item.add(media_url_4);
+                                //カード
+                                Item.add(cardTitle);
+                                Item.add(cardURL);
+                                Item.add(cardDescription);
+                                Item.add(cardImage);
+                                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                Item.add(isBoost);
+                                Item.add(isFav);
+                                Item.add(boostCount);
+                                Item.add(favCount);
+                                //Reblog ブースト用
+                                Item.add(boost_content);
+                                Item.add(boost_user_name + " @" + boost_user);
+                                Item.add(boost_avater_url);
+                                Item.add(String.valueOf(boost_account_id));
 
-                            if (getActivity() != null) {
                                 ListItem listItem = new ListItem(Item);
-
 
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
@@ -1077,7 +1086,7 @@ public class Home_Fragment extends Fragment {
                                 //かうんと
                                 boostCount = String.valueOf(reblogJsonObject.getInt("reblogs_count"));
                                 favCount = String.valueOf(reblogJsonObject.getInt("favourites_count"));
-                            }else{
+                            } else {
                                 if (toot_jsonObject.getBoolean("reblogged")) {
                                     isBoost = "reblogged";
                                 }
@@ -1104,47 +1113,47 @@ public class Home_Fragment extends Fragment {
                                 cardImage = cardObject.getString("image");
                             }
 
-                            //配列を作成
-                            ArrayList<String> Item = new ArrayList<>();
-                            //メモとか通知とかに
-                            Item.add("");
-                            //内容
-                            Item.add(toot_text);
-                            //ユーザー名
-                            Item.add(user_name + " @" + user);
-                            //時間、クライアント名等
-                            Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                            //Toot ID 文字列版
-                            Item.add(toot_id_string);
-                            //アバターURL
-                            Item.add(user_avater_url);
-                            //アカウントID
-                            Item.add(String.valueOf(account_id));
-                            //ユーザーネーム
-                            Item.add(user);
-                            //メディア
-                            Item.add(media_url_1);
-                            Item.add(media_url_2);
-                            Item.add(media_url_3);
-                            Item.add(media_url_4);
-                            //カード
-                            Item.add(cardTitle);
-                            Item.add(cardURL);
-                            Item.add(cardDescription);
-                            Item.add(cardImage);
-                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                            Item.add(isBoost);
-                            Item.add(isFav);
-                            Item.add(boostCount);
-                            Item.add(favCount);
-                            //Reblog ブースト用
-                            Item.add(boost_content);
-                            Item.add(boost_user_name + " @" + boost_user);
-                            Item.add(boost_avater_url);
-                            Item.add(String.valueOf(boost_account_id));
+                            if (getActivity() != null && isAdded()) {
 
+                                //配列を作成
+                                ArrayList<String> Item = new ArrayList<>();
+                                //メモとか通知とかに
+                                Item.add("");
+                                //内容
+                                Item.add(toot_text);
+                                //ユーザー名
+                                Item.add(user_name + " @" + user);
+                                //時間、クライアント名等
+                                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                //Toot ID 文字列版
+                                Item.add(toot_id_string);
+                                //アバターURL
+                                Item.add(user_avater_url);
+                                //アカウントID
+                                Item.add(String.valueOf(account_id));
+                                //ユーザーネーム
+                                Item.add(user);
+                                //メディア
+                                Item.add(media_url_1);
+                                Item.add(media_url_2);
+                                Item.add(media_url_3);
+                                Item.add(media_url_4);
+                                //カード
+                                Item.add(cardTitle);
+                                Item.add(cardURL);
+                                Item.add(cardDescription);
+                                Item.add(cardImage);
+                                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                Item.add(isBoost);
+                                Item.add(isFav);
+                                Item.add(boostCount);
+                                Item.add(favCount);
+                                //Reblog ブースト用
+                                Item.add(boost_content);
+                                Item.add(boost_user_name + " @" + boost_user);
+                                Item.add(boost_avater_url);
+                                Item.add(String.valueOf(boost_account_id));
 
-                            if (getActivity() != null) {
                                 ListItem listItem = new ListItem(Item);
 
                                 getActivity().runOnUiThread(new Runnable() {
@@ -1374,7 +1383,7 @@ public class Home_Fragment extends Fragment {
                                         //かうんと
                                         boostCount = String.valueOf(reblogJsonObject.getInt("reblogs_count"));
                                         favCount = String.valueOf(reblogJsonObject.getInt("favourites_count"));
-                                    }else{
+                                    } else {
                                         if (toot_jsonObject.getBoolean("reblogged")) {
                                             isBoost = "reblogged";
                                         }
@@ -1400,46 +1409,47 @@ public class Home_Fragment extends Fragment {
                                         cardImage = cardObject.getString("image");
                                     }
 
-                                    //配列を作成
-                                    ArrayList<String> Item = new ArrayList<>();
-                                    //メモとか通知とかに
-                                    Item.add("");
-                                    //内容
-                                    Item.add(toot_text);
-                                    //ユーザー名
-                                    Item.add(user_name + " @" + user);
-                                    //時間、クライアント名等
-                                    Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                                    //Toot ID 文字列版
-                                    Item.add(toot_id_string);
-                                    //アバターURL
-                                    Item.add(user_avater_url);
-                                    //アカウントID
-                                    Item.add(String.valueOf(account_id));
-                                    //ユーザーネーム
-                                    Item.add(user);
-                                    //メディア
-                                    Item.add(media_url_1);
-                                    Item.add(media_url_2);
-                                    Item.add(media_url_3);
-                                    Item.add(media_url_4);
-                                    //カード
-                                    Item.add(cardTitle);
-                                    Item.add(cardURL);
-                                    Item.add(cardDescription);
-                                    Item.add(cardImage);
-                                    //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                                    Item.add(isBoost);
-                                    Item.add(isFav);
-                                    Item.add(boostCount);
-                                    Item.add(favCount);
-                                    //Reblog ブースト用
-                                    Item.add(boost_content);
-                                    Item.add(boost_user_name + " @" + boost_user);
-                                    Item.add(boost_avater_url);
-                                    Item.add(String.valueOf(boost_account_id));
+                                    if (getActivity() != null && isAdded()) {
 
-                                    if (getActivity() != null) {
+                                        //配列を作成
+                                        ArrayList<String> Item = new ArrayList<>();
+                                        //メモとか通知とかに
+                                        Item.add("");
+                                        //内容
+                                        Item.add(toot_text);
+                                        //ユーザー名
+                                        Item.add(user_name + " @" + user);
+                                        //時間、クライアント名等
+                                        Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                        //Toot ID 文字列版
+                                        Item.add(toot_id_string);
+                                        //アバターURL
+                                        Item.add(user_avater_url);
+                                        //アカウントID
+                                        Item.add(String.valueOf(account_id));
+                                        //ユーザーネーム
+                                        Item.add(user);
+                                        //メディア
+                                        Item.add(media_url_1);
+                                        Item.add(media_url_2);
+                                        Item.add(media_url_3);
+                                        Item.add(media_url_4);
+                                        //カード
+                                        Item.add(cardTitle);
+                                        Item.add(cardURL);
+                                        Item.add(cardDescription);
+                                        Item.add(cardImage);
+                                        //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                        Item.add(isBoost);
+                                        Item.add(isFav);
+                                        Item.add(boostCount);
+                                        Item.add(favCount);
+                                        //Reblog ブースト用
+                                        Item.add(boost_content);
+                                        Item.add(boost_user_name + " @" + boost_user);
+                                        Item.add(boost_avater_url);
+                                        Item.add(String.valueOf(boost_account_id));
+
                                         ListItem listItem = new ListItem(Item);
 
                                         getActivity().runOnUiThread(new Runnable() {
@@ -1720,7 +1730,7 @@ public class Home_Fragment extends Fragment {
                                                 //かうんと
                                                 boostCount = String.valueOf(reblogJsonObject.getInt("reblogs_count"));
                                                 favCount = String.valueOf(reblogJsonObject.getInt("favourites_count"));
-                                            }else{
+                                            } else {
                                                 if (toot_jsonObject.getBoolean("reblogged")) {
                                                     isBoost = "reblogged";
                                                 }
@@ -1746,47 +1756,47 @@ public class Home_Fragment extends Fragment {
                                                 cardImage = cardObject.getString("image");
                                             }
 
-                                            //配列を作成
-                                            ArrayList<String> Item = new ArrayList<>();
-                                            //メモとか通知とかに
-                                            Item.add("HomeTL");
-                                            //内容
-                                            Item.add(toot_text);
-                                            //ユーザー名
-                                            Item.add(user_name + " @" + user);
-                                            //時間、クライアント名等
-                                            Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                                            //Toot ID 文字列版
-                                            Item.add(toot_id_string);
-                                            //アバターURL
-                                            Item.add(user_avater_url);
-                                            //アカウントID
-                                            Item.add(String.valueOf(account_id));
-                                            //ユーザーネーム
-                                            Item.add(user);
-                                            //メディア
-                                            Item.add(media_url_1);
-                                            Item.add(media_url_2);
-                                            Item.add(media_url_3);
-                                            Item.add(media_url_4);
-                                            //カード
-                                            Item.add(cardTitle);
-                                            Item.add(cardURL);
-                                            Item.add(cardDescription);
-                                            Item.add(cardImage);
-                                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                                            Item.add(isBoost);
-                                            Item.add(isFav);
-                                            Item.add(boostCount);
-                                            Item.add(favCount);
-                                            //Reblog ブースト用
-                                            Item.add(boost_content);
-                                            Item.add(boost_user_name + " @" + boost_user);
-                                            Item.add(boost_avater_url);
-                                            Item.add(String.valueOf(boost_account_id));
+                                            if (getActivity() != null && isAdded()) {
 
+                                                //配列を作成
+                                                ArrayList<String> Item = new ArrayList<>();
+                                                //メモとか通知とかに
+                                                Item.add("HomeTL");
+                                                //内容
+                                                Item.add(toot_text);
+                                                //ユーザー名
+                                                Item.add(user_name + " @" + user);
+                                                //時間、クライアント名等
+                                                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                                //Toot ID 文字列版
+                                                Item.add(toot_id_string);
+                                                //アバターURL
+                                                Item.add(user_avater_url);
+                                                //アカウントID
+                                                Item.add(String.valueOf(account_id));
+                                                //ユーザーネーム
+                                                Item.add(user);
+                                                //メディア
+                                                Item.add(media_url_1);
+                                                Item.add(media_url_2);
+                                                Item.add(media_url_3);
+                                                Item.add(media_url_4);
+                                                //カード
+                                                Item.add(cardTitle);
+                                                Item.add(cardURL);
+                                                Item.add(cardDescription);
+                                                Item.add(cardImage);
+                                                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                                Item.add(isBoost);
+                                                Item.add(isFav);
+                                                Item.add(boostCount);
+                                                Item.add(favCount);
+                                                //Reblog ブースト用
+                                                Item.add(boost_content);
+                                                Item.add(boost_user_name + " @" + boost_user);
+                                                Item.add(boost_avater_url);
+                                                Item.add(String.valueOf(boost_account_id));
 
-                                            if (getActivity() != null) {
                                                 ListItem listItem = new ListItem(Item);
 
                                                 getActivity().runOnUiThread(new Runnable() {
@@ -1826,7 +1836,6 @@ public class Home_Fragment extends Fragment {
                 }
             }
         });
-
     }
 
     //フラグメントが外されたときに呼ばれる
@@ -1847,5 +1856,4 @@ public class Home_Fragment extends Fragment {
             editor.apply();
         }
     }
-
 }

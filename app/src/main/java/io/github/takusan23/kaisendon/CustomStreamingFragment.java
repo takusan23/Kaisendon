@@ -116,10 +116,9 @@ public class CustomStreamingFragment extends Fragment {
         EditText custom_steaming_toot_edittext = view.findViewById(R.id.custom_streaming_toot_text);
 
         //スリープを無効にする
-        if (pref_setting.getBoolean("pref_no_sleep", false)){
+        if (pref_setting.getBoolean("pref_no_sleep", false)) {
             getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
-
 
 
         //背景画像
@@ -167,6 +166,17 @@ public class CustomStreamingFragment extends Fragment {
             AccessToken = pref_setting.getString("main_token", "");
             Instance = pref_setting.getString("main_instance", "");
 
+        }
+
+        //ToolBerをクリックしたら一番上に移動するようにする
+        if (pref_setting.getBoolean("pref_listview_top", true)) {
+            ((Home) getActivity()).getToolBer().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //これ一番上に移動するやつ
+                    custom_streaming_listview.smoothScrollToPosition(0);
+                }
+            });
         }
 
 
@@ -415,41 +425,41 @@ public class CustomStreamingFragment extends Fragment {
                                                     boostCount = String.valueOf(status.getReblogsCount());
                                                     favCount = String.valueOf(status.getFavouritesCount());
 
-                                                    //配列を作成
-                                                    ArrayList<String> Item = new ArrayList<>();
-                                                    //メモとか通知とかに
-                                                    Item.add("custom_local");
-                                                    //内容
-                                                    Item.add(toot_text);
-                                                    //ユーザー名
-                                                    Item.add(user_name + " @" + user);
-                                                    //時間、クライアント名等
-                                                    Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                                                    //Toot ID 文字列版
-                                                    Item.add(toot_id_string);
-                                                    //アバターURL
-                                                    Item.add(user_avater_url);
-                                                    //アカウントID
-                                                    Item.add(String.valueOf(account_id));
-                                                    //ユーザーネーム
-                                                    Item.add(user);
-                                                    //メディア
-                                                    Item.add(media_url_1);
-                                                    Item.add(media_url_2);
-                                                    Item.add(media_url_3);
-                                                    Item.add(media_url_4);
-                                                    //カード
-                                                    Item.add(cardTitle);
-                                                    Item.add(cardURL);
-                                                    Item.add(cardDescription);
-                                                    Item.add(cardImage);
-                                                    //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                                                    Item.add(isBoost);
-                                                    Item.add(isFav);
-                                                    Item.add(boostCount);
-                                                    Item.add(favCount);
+                                                    if (getActivity() != null && isAdded()) {
+                                                        //配列を作成
+                                                        ArrayList<String> Item = new ArrayList<>();
+                                                        //メモとか通知とかに
+                                                        Item.add("custom_local");
+                                                        //内容
+                                                        Item.add(toot_text);
+                                                        //ユーザー名
+                                                        Item.add(user_name + " @" + user);
+                                                        //時間、クライアント名等
+                                                        Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                                        //Toot ID 文字列版
+                                                        Item.add(toot_id_string);
+                                                        //アバターURL
+                                                        Item.add(user_avater_url);
+                                                        //アカウントID
+                                                        Item.add(String.valueOf(account_id));
+                                                        //ユーザーネーム
+                                                        Item.add(user);
+                                                        //メディア
+                                                        Item.add(media_url_1);
+                                                        Item.add(media_url_2);
+                                                        Item.add(media_url_3);
+                                                        Item.add(media_url_4);
+                                                        //カード
+                                                        Item.add(cardTitle);
+                                                        Item.add(cardURL);
+                                                        Item.add(cardDescription);
+                                                        Item.add(cardImage);
+                                                        //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                                        Item.add(isBoost);
+                                                        Item.add(isFav);
+                                                        Item.add(boostCount);
+                                                        Item.add(favCount);
 
-                                                    if (getActivity() != null) {
                                                         listItem[0] = new ListItem(Item);
                                                         getActivity().runOnUiThread(new Runnable() {
                                                             @Override
@@ -469,17 +479,18 @@ public class CustomStreamingFragment extends Fragment {
                                                                 custom_streaming_listview.setAdapter(adapter);
                                                                 //System.out.println("TOP == " + top);
                                                                 // 要素追加前の状態になるようセットする
-                                                                custom_streaming_listview.setSelectionFromTop(pos + 1, top);
-
                                                                 //一番上なら追いかける
-                                                                if (pos <= 1) {
+                                                                if (pos == 0) {
                                                                     custom_streaming_listview.post(new Runnable() {
                                                                         @Override
                                                                         public void run() {
-                                                                            custom_streaming_listview.smoothScrollToPosition(-10);
+                                                                            custom_streaming_listview.smoothScrollToPosition(0);
+                                                                            //listView.setSelectionFromTop(index, top_);
                                                                         }
                                                                     });
-                                                                    System.out.println("ねてた");
+                                                                    //System.out.println("ねてた");
+                                                                } else {
+                                                                    custom_streaming_listview.setSelectionFromTop(pos + 1, top);
                                                                 }
 
                                                                 int finalTop = top;
@@ -499,7 +510,7 @@ public class CustomStreamingFragment extends Fragment {
                                                                 });
 
                                                                 //カウンター
-                                                                if (count_text != null && pref_setting.getBoolean("pref_toot_count",false)) {
+                                                                if (count_text != null && pref_setting.getBoolean("pref_toot_count", false)) {
                                                                     //含んでいるか
                                                                     if (toot_text.contains(count_text)) {
                                                                         String count_template = "　を含んだトゥート数 : ";
@@ -615,7 +626,7 @@ public class CustomStreamingFragment extends Fragment {
                                                         if (max_id == null) {
                                                             max_id = toot_id_string;
                                                         }
-                                                       // System.out.println("IDだよ : " + max_id);
+                                                        // System.out.println("IDだよ : " + max_id);
 
 
                                                         boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
@@ -680,44 +691,44 @@ public class CustomStreamingFragment extends Fragment {
                                                         boostCount = String.valueOf(status.getReblogsCount());
                                                         favCount = String.valueOf(status.getFavouritesCount());
 
-                                                        //配列を作成
-                                                        ArrayList<String> Item = new ArrayList<>();
-                                                        //メモとか通知とかに
-                                                        Item.add("custom_home");
-                                                        //内容
-                                                        Item.add(toot_text);
-                                                        //ユーザー名
-                                                        Item.add(user_name + " @" + user);
-                                                        //時間、クライアント名等
-                                                        Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                                                        //Toot ID 文字列版
-                                                        Item.add(toot_id_string);
-                                                        //アバターURL
-                                                        Item.add(user_avater_url);
-                                                        //アカウントID
-                                                        Item.add(String.valueOf(account_id));
-                                                        //ユーザーネーム
-                                                        Item.add(user);
-                                                        //メディア
-                                                        Item.add(media_url_1);
-                                                        Item.add(media_url_2);
-                                                        Item.add(media_url_3);
-                                                        Item.add(media_url_4);
-                                                        //カード
-                                                        Item.add(cardTitle);
-                                                        Item.add(cardURL);
-                                                        Item.add(cardDescription);
-                                                        Item.add(cardImage);
-                                                        //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                                                        Item.add(isBoost);
-                                                        Item.add(isFav);
-                                                        Item.add(boostCount);
-                                                        Item.add(favCount);
+                                                        if (getActivity() != null && isAdded()) {
 
+                                                            //配列を作成
+                                                            ArrayList<String> Item = new ArrayList<>();
+                                                            //メモとか通知とかに
+                                                            Item.add("custom_home");
+                                                            //内容
+                                                            Item.add(toot_text);
+                                                            //ユーザー名
+                                                            Item.add(user_name + " @" + user);
+                                                            //時間、クライアント名等
+                                                            Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                                            //Toot ID 文字列版
+                                                            Item.add(toot_id_string);
+                                                            //アバターURL
+                                                            Item.add(user_avater_url);
+                                                            //アカウントID
+                                                            Item.add(String.valueOf(account_id));
+                                                            //ユーザーネーム
+                                                            Item.add(user);
+                                                            //メディア
+                                                            Item.add(media_url_1);
+                                                            Item.add(media_url_2);
+                                                            Item.add(media_url_3);
+                                                            Item.add(media_url_4);
+                                                            //カード
+                                                            Item.add(cardTitle);
+                                                            Item.add(cardURL);
+                                                            Item.add(cardDescription);
+                                                            Item.add(cardImage);
+                                                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                                            Item.add(isBoost);
+                                                            Item.add(isFav);
+                                                            Item.add(boostCount);
+                                                            Item.add(favCount);
 
-                                                        ListItem listItem = null;
-                                                        //自分の住んでるインスタンス以外のトゥートを表示するためのいｆ
-                                                        if (getActivity() != null){
+                                                            ListItem listItem = null;
+                                                            //自分の住んでるインスタンス以外のトゥートを表示するためのいｆ
                                                             listItem = new ListItem(Item);
                                                             ListItem finalListItem = listItem;
                                                             getActivity().runOnUiThread(new Runnable() {
@@ -738,21 +749,23 @@ public class CustomStreamingFragment extends Fragment {
                                                                         custom_streaming_listview.setAdapter(adapter);
                                                                         //System.out.println("TOP == " + top);
                                                                         // 要素追加前の状態になるようセットする
-                                                                        custom_streaming_listview.setSelectionFromTop(pos + 1, top);
-
+                                                                        // 要素追加前の状態になるようセットする
                                                                         //一番上なら追いかける
-                                                                        if (pos <= 1) {
+                                                                        if (pos == 0) {
                                                                             custom_streaming_listview.post(new Runnable() {
                                                                                 @Override
                                                                                 public void run() {
-                                                                                    custom_streaming_listview.smoothScrollToPosition(-10);
+                                                                                    custom_streaming_listview.smoothScrollToPosition(0);
+                                                                                    //listView.setSelectionFromTop(index, top_);
                                                                                 }
                                                                             });
-                                                                            System.out.println("ねてた");
+                                                                            //System.out.println("ねてた");
+                                                                        } else {
+                                                                            custom_streaming_listview.setSelectionFromTop(pos + 1, top);
                                                                         }
 
                                                                         //カウンター
-                                                                        if (count_text != null && pref_setting.getBoolean("pref_toot_count",false)) {
+                                                                        if (count_text != null && pref_setting.getBoolean("pref_toot_count", false)) {
                                                                             //含んでいるか
                                                                             if (toot_text.contains(count_text)) {
                                                                                 String count_template = "　を含んだトゥート数 : ";
@@ -891,43 +904,42 @@ public class CustomStreamingFragment extends Fragment {
                                                         boostCount = String.valueOf(notification.getStatus().getReblogsCount());
                                                         favCount = String.valueOf(notification.getStatus().getFavouritesCount());
 
+                                                        if (getActivity() != null && isAdded()) {
 
-                                                        //配列を作成
-                                                        ArrayList<String> Item = new ArrayList<>();
-                                                        //メモとか通知とかに
-                                                        Item.add("custom_notification");
-                                                        //内容
-                                                        Item.add(toot_text);
-                                                        //ユーザー名
-                                                        Item.add(user_name + " @" + user);
-                                                        //時間、クライアント名等
-                                                        Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                                                        //Toot ID 文字列版
-                                                        Item.add(toot_id_string);
-                                                        //アバターURL
-                                                        Item.add(user_avater_url);
-                                                        //アカウントID
-                                                        Item.add(String.valueOf(account_id));
-                                                        //ユーザーネーム
-                                                        Item.add(user);
-                                                        //メディア
-                                                        Item.add(media_url_1);
-                                                        Item.add(media_url_2);
-                                                        Item.add(media_url_3);
-                                                        Item.add(media_url_4);
-                                                        //カード
-                                                        Item.add(cardTitle);
-                                                        Item.add(cardURL);
-                                                        Item.add(cardDescription);
-                                                        Item.add(cardImage);
-                                                        //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                                                        Item.add(isBoost);
-                                                        Item.add(isFav);
-                                                        Item.add(boostCount);
-                                                        Item.add(favCount);
+                                                            //配列を作成
+                                                            ArrayList<String> Item = new ArrayList<>();
+                                                            //メモとか通知とかに
+                                                            Item.add("custom_notification");
+                                                            //内容
+                                                            Item.add(toot_text);
+                                                            //ユーザー名
+                                                            Item.add(user_name + " @" + user);
+                                                            //時間、クライアント名等
+                                                            Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                                            //Toot ID 文字列版
+                                                            Item.add(toot_id_string);
+                                                            //アバターURL
+                                                            Item.add(user_avater_url);
+                                                            //アカウントID
+                                                            Item.add(String.valueOf(account_id));
+                                                            //ユーザーネーム
+                                                            Item.add(user);
+                                                            //メディア
+                                                            Item.add(media_url_1);
+                                                            Item.add(media_url_2);
+                                                            Item.add(media_url_3);
+                                                            Item.add(media_url_4);
+                                                            //カード
+                                                            Item.add(cardTitle);
+                                                            Item.add(cardURL);
+                                                            Item.add(cardDescription);
+                                                            Item.add(cardImage);
+                                                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                                            Item.add(isBoost);
+                                                            Item.add(isFav);
+                                                            Item.add(boostCount);
+                                                            Item.add(favCount);
 
-
-                                                        if (getActivity() != null){
                                                             ListItem listItem = new ListItem(Item);
 
                                                             //UI変更
@@ -949,17 +961,19 @@ public class CustomStreamingFragment extends Fragment {
                                                                         custom_streaming_listview.setAdapter(adapter);
                                                                         //System.out.println("TOP == " + top);
                                                                         // 要素追加前の状態になるようセットする
-                                                                        custom_streaming_listview.setSelectionFromTop(pos + 1, top);
-
+                                                                        // 要素追加前の状態になるようセットする
                                                                         //一番上なら追いかける
-                                                                        if (pos <= 1) {
+                                                                        if (pos == 0) {
                                                                             custom_streaming_listview.post(new Runnable() {
                                                                                 @Override
                                                                                 public void run() {
-                                                                                    custom_streaming_listview.smoothScrollToPosition(-10);
+                                                                                    custom_streaming_listview.smoothScrollToPosition(0);
+                                                                                    //listView.setSelectionFromTop(index, top_);
                                                                                 }
                                                                             });
-                                                                            System.out.println("ねてた");
+                                                                            //System.out.println("ねてた");
+                                                                        } else {
+                                                                            custom_streaming_listview.setSelectionFromTop(pos + 1, top);
                                                                         }
                                                                     }
                                                                 }

@@ -425,5 +425,7 @@
     <string name="reblog">Boost</string>
     <string name="setting_quick_profile_title">Use Quick Profile</string>
     <string name="setting_quick_profile_message">You can display a simplified version of your profile on the snack bar when you press the profile image on the timeline.</string>
+    <string name="setting_warp_listview_top_title">Move to top by toolbar click</string>
+    <string name="setting_warp_listview_top_message">You can move to the top by clicking on the toolbar. It is a required function.</string>
 
 </resources>

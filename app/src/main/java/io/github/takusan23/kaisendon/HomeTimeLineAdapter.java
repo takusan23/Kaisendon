@@ -863,8 +863,23 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
                 if (pref_setting.getBoolean("pref_quick_profile", false)) {
 
+                    //読み込み中お知らせ
+                    Snackbar snackbar = Snackbar.make(v, getContext().getString(R.string.loading_user_info) + "\r\n /api/v1/accounts/" + finalAccount_id, Snackbar.LENGTH_INDEFINITE);
+                    ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                    //SnackBerを複数行対応させる
+                    TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+                    snackBer_textView.setMaxLines(2);
+                    //複数行対応させたおかげでずれたので修正
+                    ProgressBar progressBar = new ProgressBar(getContext());
+                    LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    progressBer_layoutParams.gravity = Gravity.CENTER;
+                    progressBar.setLayoutParams(progressBer_layoutParams);
+                    snackBer_viewGrop.addView(progressBar, 0);
+                    snackbar.show();
+
+
                     //APIを叩く
-                    String url = "https://" + finalInstance + "/api/v1/accounts/" + finalAccount_id + "?access_token=" + finalAccessToken;
+                    String url = "https://" + finalInstance + "/api/v1/accounts/" + finalAccount_id;
                     //作成
                     Request request = new Request.Builder()
                             .url(url)
@@ -946,8 +961,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                             TextView snackber_TextView = new TextView(getContext());
                                             snackber_TextView.setLayoutParams(warp);
                                             snackber_TextView.setTextColor(Color.parseColor("#ffffff"));
-                                            snackber_TextView.setText(follow_back[0] + "\n\n");
-                                            snackber_TextView.append(Html.fromHtml(profile_note, Html.FROM_HTML_MODE_COMPACT));
+                                            snackber_TextView.setText(Html.fromHtml(profile_note, Html.FROM_HTML_MODE_COMPACT));
                                             //ボタン追加
                                             Button userPage_Button = new Button(getContext(), null, 0, R.style.Widget_AppCompat_Button_Borderless);
                                             userPage_Button.setLayoutParams(warp);
@@ -966,35 +980,56 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                                 }
                                             });
 
-                                            //ふぉろわー、ふぉろーようLinearLayout
-                                            LinearLayout follow_LinearLayout = new LinearLayout(getContext());
-                                            follow_LinearLayout.setLayoutParams(warp);
 
                                             //ふぉろー
                                             TextView follow_TextView = new TextView(getContext());
                                             follow_TextView.setTextColor(Color.parseColor("#ffffff"));
-                                            follow_TextView.setText(getContext().getString(R.string.follow) + " : " + follow);
+                                            follow_TextView.setText(getContext().getString(R.string.follow) + " : \n" + follow);
                                             Drawable done = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_done_black_24dp, null);
                                             done.setTint(Color.parseColor("#ffffff"));
+                                            follow_TextView.setLayoutParams(warp);
                                             follow_TextView.setCompoundDrawablesWithIntrinsicBounds(done, null, null, null);
                                             //ふぉろわー
                                             TextView follower_TextView = new TextView(getContext());
                                             follower_TextView.setTextColor(Color.parseColor("#ffffff"));
-                                            follower_TextView.setText(getContext().getString(R.string.follower) + " : " + follower);
+                                            follower_TextView.setText(getContext().getString(R.string.follower) + " : \n" + follower);
                                             Drawable done_all = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_done_all_black_24dp, null);
                                             done_all.setTint(Color.parseColor("#ffffff"));
+                                            follower_TextView.setLayoutParams(warp);
                                             follower_TextView.setCompoundDrawablesWithIntrinsicBounds(done_all, null, null, null);
 
+                                            //ふぉろーされているか
+                                            TextView follow_info = new TextView(getContext());
+                                            follow_info.setTextColor(Color.parseColor("#ffffff"));
+                                            follow_info.setLayoutParams(warp);
+                                            Drawable follow_info_drawable = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_info_outline_black_24dp, null);
+                                            follow_info_drawable.setTint(Color.parseColor("#ffffff"));
+                                            follow_info.setCompoundDrawablesWithIntrinsicBounds(follow_info_drawable, null, null, null);
+                                            //日本語のときだけ改行する
+                                            StringBuilder stringBuilder = new StringBuilder(follow_back[0]);
+                                            if (!follow_back[0].contains("Following") && !follow_back[0].contains("not following")) {
+                                                follow_info.setText(stringBuilder.insert(4, "\n"));
+                                            } else {
+                                                follow_info.setText(follow_back[0]);
+                                            }
+
+
+                                            //ぷろが、ふぉろーふぉろわー、ふぉろーじょうたい、アカウントベージ移動、用LinearLayout
+                                            LinearLayout account_info_LinearLayout = new LinearLayout(getContext());
+                                            account_info_LinearLayout.setLayoutParams(warp);
+                                            account_info_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+
                                             //追加
-                                            follow_LinearLayout.addView(follow_TextView);
-                                            follow_LinearLayout.addView(follower_TextView);
+                                            account_info_LinearLayout.addView(avater_ImageView);
+                                            account_info_LinearLayout.addView(follow_info);
+                                            account_info_LinearLayout.addView(follow_TextView);
+                                            account_info_LinearLayout.addView(follower_TextView);
+                                            account_info_LinearLayout.addView(userPage_Button);
 
                                             //LinearLayoutについか
                                             snackber_LinearLayout.addView(snackber_TextView);
-                                            snackber_LinearLayout.addView(follow_LinearLayout);
-                                            snackber_LinearLayout.addView(userPage_Button);
 
-                                            snackBer_viewGrop.addView(avater_ImageView, 0);
+                                            snackBer_viewGrop.addView(account_info_LinearLayout, 0);
                                             snackBer_viewGrop.addView(snackber_LinearLayout, 1);
                                             //Bitmap
                                             try {

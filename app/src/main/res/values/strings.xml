@@ -352,7 +352,7 @@
     <string name="following">following</string>
     <string name="loading_user_info">Retrieving user information</string>
     <string name="follow_back">Following</string>
-    <string name="follow_back_not">I am not following</string>
+    <string name="follow_back_not">not following</string>
     <string name="block">Block</string>
     <string name="Mute">Mute</string>
     <string name="follow_message">Would you like to follow?</string>

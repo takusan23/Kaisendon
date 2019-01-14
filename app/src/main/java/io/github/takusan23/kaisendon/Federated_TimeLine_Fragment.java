@@ -1,5 +1,6 @@
 package io.github.takusan23.kaisendon;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
@@ -9,8 +10,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
@@ -33,6 +36,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
@@ -51,6 +55,7 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -237,6 +242,16 @@ public class Federated_TimeLine_Fragment extends Fragment {
 
         final ListItem[] listItem = new ListItem[1];
 
+        //ToolBerをクリックしたら一番上に移動するようにする
+        if (pref_setting.getBoolean("pref_listview_top", true)) {
+            ((Home) getActivity()).getToolBer().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //これ一番上に移動するやつ
+                    listView.smoothScrollToPosition(0);
+                }
+            });
+        }
 
         //カウンター機能！！！
         //レイアウト
@@ -447,42 +462,41 @@ public class Federated_TimeLine_Fragment extends Fragment {
                             boostCount = String.valueOf(status.getReblogsCount());
                             favCount = String.valueOf(status.getFavouritesCount());
 
-                            //配列を作成
-                            ArrayList<String> Item = new ArrayList<>();
-                            //メモとか通知とかに
-                            Item.add("");
-                            //内容
-                            Item.add(toot_text);
-                            //ユーザー名
-                            Item.add(user_name + " @" + user);
-                            //時間、クライアント名等
-                            Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                            //Toot ID 文字列版
-                            Item.add(toot_id_string);
-                            //アバターURL
-                            Item.add(user_avater_url);
-                            //アカウントID
-                            Item.add(String.valueOf(account_id));
-                            //ユーザーネーム
-                            Item.add(user);
-                            //メディア
-                            Item.add(media_url_1);
-                            Item.add(media_url_2);
-                            Item.add(media_url_3);
-                            Item.add(media_url_4);
-                            //カード
-                            Item.add(cardTitle);
-                            Item.add(cardURL);
-                            Item.add(cardDescription);
-                            Item.add(cardImage);
-                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                            Item.add(isBoost);
-                            Item.add(isFav);
-                            Item.add(boostCount);
-                            Item.add(favCount);
+                            if (getActivity() != null && isAdded()) {
+                                //配列を作成
+                                ArrayList<String> Item = new ArrayList<>();
+                                //メモとか通知とかに
+                                Item.add("");
+                                //内容
+                                Item.add(toot_text);
+                                //ユーザー名
+                                Item.add(user_name + " @" + user);
+                                //時間、クライアント名等
+                                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                //Toot ID 文字列版
+                                Item.add(toot_id_string);
+                                //アバターURL
+                                Item.add(user_avater_url);
+                                //アカウントID
+                                Item.add(String.valueOf(account_id));
+                                //ユーザーネーム
+                                Item.add(user);
+                                //メディア
+                                Item.add(media_url_1);
+                                Item.add(media_url_2);
+                                Item.add(media_url_3);
+                                Item.add(media_url_4);
+                                //カード
+                                Item.add(cardTitle);
+                                Item.add(cardURL);
+                                Item.add(cardDescription);
+                                Item.add(cardImage);
+                                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                Item.add(isBoost);
+                                Item.add(isFav);
+                                Item.add(boostCount);
+                                Item.add(favCount);
 
-
-                            if (getActivity() != null) {
                                 listItem[0] = new ListItem(Item);
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
@@ -502,20 +516,23 @@ public class Federated_TimeLine_Fragment extends Fragment {
                                         //System.out.println("TOP == " + top);
                                         // 要素追加前の状態になるようセットする
                                         adapter.notifyDataSetChanged();
-                                        listView.setSelectionFromTop(pos + 1, top);
 
 
                                         //一番上なら追いかける
-                                        if (pos <= 1) {
+                                        if (pos == 0) {
                                             listView.post(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    listView.smoothScrollToPosition(-10);
+                                                    listView.smoothScrollToPosition(0);
                                                     //listView.setSelectionFromTop(index, top_);
                                                 }
                                             });
                                             //System.out.println("ねてた");
+                                        } else {
+                                            listView.setSelectionFromTop(pos + 1, top);
                                         }
+
+
                                         int finalTop = top;
 
                                         //くるくるを終了
@@ -579,7 +596,7 @@ public class Federated_TimeLine_Fragment extends Fragment {
 
 
             //もういい！okhttpで実装する！！
-            String max_id_url = "https://" + finalInstance + "/api/v1/timelines/public";
+            String max_id_url = "https://" + finalInstance + "/api/v1/timelines/public/?access_token=" + finalAccessToken;
             //パラメータを設定
             HttpUrl.Builder max_id_builder = HttpUrl.parse(max_id_url).newBuilder();
             //max_id_builder.addQueryParameter("local", "true");
@@ -732,41 +749,42 @@ public class Federated_TimeLine_Fragment extends Fragment {
                             boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
                             favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
-                            //配列を作成
-                            ArrayList<String> Item = new ArrayList<>();
-                            //メモとか通知とかに
-                            Item.add("");
-                            //内容
-                            Item.add(toot_text);
-                            //ユーザー名
-                            Item.add(user_name + " @" + user);
-                            //時間、クライアント名等
-                            Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                            //Toot ID 文字列版
-                            Item.add(toot_id_string);
-                            //アバターURL
-                            Item.add(user_avater_url);
-                            //アカウントID
-                            Item.add(String.valueOf(account_id));
-                            //ユーザーネーム
-                            Item.add(user);
-                            //メディア
-                            Item.add(media_url_1);
-                            Item.add(media_url_2);
-                            Item.add(media_url_3);
-                            Item.add(media_url_4);
-                            //カード
-                            Item.add(cardTitle);
-                            Item.add(cardURL);
-                            Item.add(cardDescription);
-                            Item.add(cardImage);
-                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                            Item.add(isBoost);
-                            Item.add(isFav);
-                            Item.add(boostCount);
-                            Item.add(favCount);
+                            if (getActivity() != null && isAdded()) {
 
-                            if (getActivity() != null) {
+                                //配列を作成
+                                ArrayList<String> Item = new ArrayList<>();
+                                //メモとか通知とかに
+                                Item.add("");
+                                //内容
+                                Item.add(toot_text);
+                                //ユーザー名
+                                Item.add(user_name + " @" + user);
+                                //時間、クライアント名等
+                                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                //Toot ID 文字列版
+                                Item.add(toot_id_string);
+                                //アバターURL
+                                Item.add(user_avater_url);
+                                //アカウントID
+                                Item.add(String.valueOf(account_id));
+                                //ユーザーネーム
+                                Item.add(user);
+                                //メディア
+                                Item.add(media_url_1);
+                                Item.add(media_url_2);
+                                Item.add(media_url_3);
+                                Item.add(media_url_4);
+                                //カード
+                                Item.add(cardTitle);
+                                Item.add(cardURL);
+                                Item.add(cardDescription);
+                                Item.add(cardImage);
+                                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                Item.add(isBoost);
+                                Item.add(isFav);
+                                Item.add(boostCount);
+                                Item.add(favCount);
+
                                 ListItem listItem = new ListItem(Item);
 
                                 getActivity().runOnUiThread(new Runnable() {
@@ -971,42 +989,42 @@ public class Federated_TimeLine_Fragment extends Fragment {
                             boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
                             favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
-                            //配列を作成
-                            ArrayList<String> Item = new ArrayList<>();
-                            //メモとか通知とかに
-                            Item.add("");
-                            //内容
-                            Item.add(toot_text);
-                            //ユーザー名
-                            Item.add(user_name + " @" + user);
-                            //時間、クライアント名等
-                            Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                            //Toot ID 文字列版
-                            Item.add(toot_id_string);
-                            //アバターURL
-                            Item.add(user_avater_url);
-                            //アカウントID
-                            Item.add(String.valueOf(account_id));
-                            //ユーザーネーム
-                            Item.add(user);
-                            //メディア
-                            Item.add(media_url_1);
-                            Item.add(media_url_2);
-                            Item.add(media_url_3);
-                            Item.add(media_url_4);
-                            //カード
-                            Item.add(cardTitle);
-                            Item.add(cardURL);
-                            Item.add(cardDescription);
-                            Item.add(cardImage);
-                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                            Item.add(isBoost);
-                            Item.add(isFav);
-                            Item.add(boostCount);
-                            Item.add(favCount);
+                            if (getActivity() != null && isAdded()) {
 
+                                //配列を作成
+                                ArrayList<String> Item = new ArrayList<>();
+                                //メモとか通知とかに
+                                Item.add("");
+                                //内容
+                                Item.add(toot_text);
+                                //ユーザー名
+                                Item.add(user_name + " @" + user);
+                                //時間、クライアント名等
+                                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                //Toot ID 文字列版
+                                Item.add(toot_id_string);
+                                //アバターURL
+                                Item.add(user_avater_url);
+                                //アカウントID
+                                Item.add(String.valueOf(account_id));
+                                //ユーザーネーム
+                                Item.add(user);
+                                //メディア
+                                Item.add(media_url_1);
+                                Item.add(media_url_2);
+                                Item.add(media_url_3);
+                                Item.add(media_url_4);
+                                //カード
+                                Item.add(cardTitle);
+                                Item.add(cardURL);
+                                Item.add(cardDescription);
+                                Item.add(cardImage);
+                                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                Item.add(isBoost);
+                                Item.add(isFav);
+                                Item.add(boostCount);
+                                Item.add(favCount);
 
-                            if (getActivity() != null) {
                                 ListItem listItem = new ListItem(Item);
 
                                 getActivity().runOnUiThread(new Runnable() {
@@ -1222,41 +1240,42 @@ public class Federated_TimeLine_Fragment extends Fragment {
                                     boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
                                     favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
-                                    //配列を作成
-                                    ArrayList<String> Item = new ArrayList<>();
-                                    //メモとか通知とかに
-                                    Item.add("");
-                                    //内容
-                                    Item.add(toot_text);
-                                    //ユーザー名
-                                    Item.add(user_name + " @" + user);
-                                    //時間、クライアント名等
-                                    Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                                    //Toot ID 文字列版
-                                    Item.add(toot_id_string);
-                                    //アバターURL
-                                    Item.add(user_avater_url);
-                                    //アカウントID
-                                    Item.add(String.valueOf(account_id));
-                                    //ユーザーネーム
-                                    Item.add(user);
-                                    //メディア
-                                    Item.add(media_url_1);
-                                    Item.add(media_url_2);
-                                    Item.add(media_url_3);
-                                    Item.add(media_url_4);
-                                    //カード
-                                    Item.add(cardTitle);
-                                    Item.add(cardURL);
-                                    Item.add(cardDescription);
-                                    Item.add(cardImage);
-                                    //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                                    Item.add(isBoost);
-                                    Item.add(isFav);
-                                    Item.add(boostCount);
-                                    Item.add(favCount);
+                                    if (getActivity() != null && isAdded()) {
 
-                                    if (getActivity() != null) {
+                                        //配列を作成
+                                        ArrayList<String> Item = new ArrayList<>();
+                                        //メモとか通知とかに
+                                        Item.add("");
+                                        //内容
+                                        Item.add(toot_text);
+                                        //ユーザー名
+                                        Item.add(user_name + " @" + user);
+                                        //時間、クライアント名等
+                                        Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                        //Toot ID 文字列版
+                                        Item.add(toot_id_string);
+                                        //アバターURL
+                                        Item.add(user_avater_url);
+                                        //アカウントID
+                                        Item.add(String.valueOf(account_id));
+                                        //ユーザーネーム
+                                        Item.add(user);
+                                        //メディア
+                                        Item.add(media_url_1);
+                                        Item.add(media_url_2);
+                                        Item.add(media_url_3);
+                                        Item.add(media_url_4);
+                                        //カード
+                                        Item.add(cardTitle);
+                                        Item.add(cardURL);
+                                        Item.add(cardDescription);
+                                        Item.add(cardImage);
+                                        //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                        Item.add(isBoost);
+                                        Item.add(isFav);
+                                        Item.add(boostCount);
+                                        Item.add(favCount);
+
                                         ListItem listItem = new ListItem(Item);
 
                                         getActivity().runOnUiThread(new Runnable() {
@@ -1541,41 +1560,42 @@ public class Federated_TimeLine_Fragment extends Fragment {
                                             boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
                                             favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
-                                            //配列を作成
-                                            ArrayList<String> Item = new ArrayList<>();
-                                            //メモとか通知とかに
-                                            Item.add("");
-                                            //内容
-                                            Item.add(toot_text);
-                                            //ユーザー名
-                                            Item.add(user_name + " @" + user);
-                                            //時間、クライアント名等
-                                            Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                                            //Toot ID 文字列版
-                                            Item.add(toot_id_string);
-                                            //アバターURL
-                                            Item.add(user_avater_url);
-                                            //アカウントID
-                                            Item.add(String.valueOf(account_id));
-                                            //ユーザーネーム
-                                            Item.add(user);
-                                            //メディア
-                                            Item.add(media_url_1);
-                                            Item.add(media_url_2);
-                                            Item.add(media_url_3);
-                                            Item.add(media_url_4);
-                                            //カード
-                                            Item.add(cardTitle);
-                                            Item.add(cardURL);
-                                            Item.add(cardDescription);
-                                            Item.add(cardImage);
-                                            //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                                            Item.add(isBoost);
-                                            Item.add(isFav);
-                                            Item.add(boostCount);
-                                            Item.add(favCount);
+                                            if (getActivity() != null && isAdded()) {
 
-                                            if (getActivity() != null) {
+                                                //配列を作成
+                                                ArrayList<String> Item = new ArrayList<>();
+                                                //メモとか通知とかに
+                                                Item.add("");
+                                                //内容
+                                                Item.add(toot_text);
+                                                //ユーザー名
+                                                Item.add(user_name + " @" + user);
+                                                //時間、クライアント名等
+                                                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                                //Toot ID 文字列版
+                                                Item.add(toot_id_string);
+                                                //アバターURL
+                                                Item.add(user_avater_url);
+                                                //アカウントID
+                                                Item.add(String.valueOf(account_id));
+                                                //ユーザーネーム
+                                                Item.add(user);
+                                                //メディア
+                                                Item.add(media_url_1);
+                                                Item.add(media_url_2);
+                                                Item.add(media_url_3);
+                                                Item.add(media_url_4);
+                                                //カード
+                                                Item.add(cardTitle);
+                                                Item.add(cardURL);
+                                                Item.add(cardDescription);
+                                                Item.add(cardImage);
+                                                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                                                Item.add(isBoost);
+                                                Item.add(isFav);
+                                                Item.add(boostCount);
+                                                Item.add(favCount);
+
                                                 ListItem listItem = new ListItem(Item);
 
                                                 getActivity().runOnUiThread(new Runnable() {

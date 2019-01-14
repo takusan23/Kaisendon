@@ -780,36 +780,36 @@ public class HomeCrad_Fragment extends Fragment {
 
                         ListItem listItem = null;
 
-                        //配列を作成
-                        ArrayList<String> Item = new ArrayList<>();
-                        //メモとか通知とかに
-                        Item.add("");
-                        //内容
-                        Item.add(toot_text);
-                        //ユーザー名
-                        Item.add(user_name + " @" + user);
-                        //時間、クライアント名等
-                        Item.add("トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                        //Toot ID 文字列版
-                        Item.add(toot_id_string);
-                        //アバターURL
-                        Item.add(user_avater_url);
-                        //アカウントID
-                        Item.add(String.valueOf(account_id));
-                        //ユーザーネーム
-                        Item.add(user);
-                        //メディア
-                        Item.add(media_url[0]);
-                        Item.add(null);
-                        Item.add(null);
-                        Item.add(null);
-                        //カード
-                        Item.add(null);
-                        Item.add(null);
-                        Item.add(null);
-                        Item.add(null);
+                        if (getActivity() != null && isAdded()) {
+                            //配列を作成
+                            ArrayList<String> Item = new ArrayList<>();
+                            //メモとか通知とかに
+                            Item.add("");
+                            //内容
+                            Item.add(toot_text);
+                            //ユーザー名
+                            Item.add(user_name + " @" + user);
+                            //時間、クライアント名等
+                            Item.add("トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                            //Toot ID 文字列版
+                            Item.add(toot_id_string);
+                            //アバターURL
+                            Item.add(user_avater_url);
+                            //アカウントID
+                            Item.add(String.valueOf(account_id));
+                            //ユーザーネーム
+                            Item.add(user);
+                            //メディア
+                            Item.add(media_url[0]);
+                            Item.add(null);
+                            Item.add(null);
+                            Item.add(null);
+                            //カード
+                            Item.add(null);
+                            Item.add(null);
+                            Item.add(null);
+                            Item.add(null);
 
-                        if (getActivity() != null) {
                             listItem = new ListItem(Item);
                             ListItem finalListItem = listItem;
                             getActivity().runOnUiThread(new Runnable() {
@@ -922,39 +922,38 @@ public class HomeCrad_Fragment extends Fragment {
                             toot_time = status.getCreatedAt();
                         }
 
+                        if (getActivity() != null && isAdded()) {
+                            //配列を作成
+                            ArrayList<String> Item = new ArrayList<>();
+                            //メモとか通知とかに
+                            Item.add("");
+                            //内容
+                            Item.add(toot_text);
+                            //ユーザー名
+                            Item.add(user_name + " @" + user);
+                            //時間、クライアント名等
+                            Item.add("トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                            //Toot ID 文字列版
+                            Item.add(toot_id_string);
+                            //アバターURL
+                            Item.add(user_avater_url);
+                            //アカウントID
+                            Item.add(String.valueOf(account_id));
+                            //ユーザーネーム
+                            Item.add(user);
+                            //メディア
+                            Item.add(media_url[0]);
+                            Item.add(null);
+                            Item.add(null);
+                            Item.add(null);
+                            //カード
+                            Item.add(null);
+                            Item.add(null);
+                            Item.add(null);
+                            Item.add(null);
 
-                        //配列を作成
-                        ArrayList<String> Item = new ArrayList<>();
-                        //メモとか通知とかに
-                        Item.add("");
-                        //内容
-                        Item.add(toot_text);
-                        //ユーザー名
-                        Item.add(user_name + " @" + user);
-                        //時間、クライアント名等
-                        Item.add("トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                        //Toot ID 文字列版
-                        Item.add(toot_id_string);
-                        //アバターURL
-                        Item.add(user_avater_url);
-                        //アカウントID
-                        Item.add(String.valueOf(account_id));
-                        //ユーザーネーム
-                        Item.add(user);
-                        //メディア
-                        Item.add(media_url[0]);
-                        Item.add(null);
-                        Item.add(null);
-                        Item.add(null);
-                        //カード
-                        Item.add(null);
-                        Item.add(null);
-                        Item.add(null);
-                        Item.add(null);
+                            ListItem listItem = null;
 
-                        ListItem listItem = null;
-
-                        if (getActivity() != null) {
                             listItem = new ListItem(Item);
                             ListItem finalListItem = listItem;
                             getActivity().runOnUiThread(new Runnable() {
@@ -1735,39 +1734,37 @@ public class HomeCrad_Fragment extends Fragment {
                             layout_type = "Notification_follow";
                         }
 
-                        //配列を作成
-                        ArrayList<String> Item = new ArrayList<>();
-                        //メモとか通知とかに
-                        Item.add(layout_type);
-                        //内容
-                        Item.add( toot[0]);
-                        //ユーザー名
-                        Item.add(account[0] + " @" + user_acct + " / " + type);
-                        //時間、クライアント名等
-                        Item.add("トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time);
-                        //Toot ID 文字列版
-                        Item.add(toot_id_string);
-                        //アバターURL
-                        Item.add(avater_url);
-                        //アカウントID
-                        Item.add(String.valueOf(account_id));
-                        //ユーザーネーム
-                        Item.add(avater_url);
-                        //メディア
-                        Item.add(null);
-                        Item.add(null);
-                        Item.add(null);
-                        Item.add(null);
-                        //カード
-                        Item.add(null);
-                        Item.add(null);
-                        Item.add(null);
-                        Item.add(null);
+                        if (getActivity() != null && isAdded()) {
+                            //配列を作成
+                            ArrayList<String> Item = new ArrayList<>();
+                            //メモとか通知とかに
+                            Item.add(layout_type);
+                            //内容
+                            Item.add(toot[0]);
+                            //ユーザー名
+                            Item.add(account[0] + " @" + user_acct + " / " + type);
+                            //時間、クライアント名等
+                            Item.add("トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + time);
+                            //Toot ID 文字列版
+                            Item.add(toot_id_string);
+                            //アバターURL
+                            Item.add(avater_url);
+                            //アカウントID
+                            Item.add(String.valueOf(account_id));
+                            //ユーザーネーム
+                            Item.add(avater_url);
+                            //メディア
+                            Item.add(null);
+                            Item.add(null);
+                            Item.add(null);
+                            Item.add(null);
+                            //カード
+                            Item.add(null);
+                            Item.add(null);
+                            Item.add(null);
+                            Item.add(null);
 
-
-                        ListItem listItem = null;
-
-                        if (getActivity() != null) {
+                            ListItem listItem = null;
                             listItem = new ListItem(Item);
                             ListItem finalListItem = listItem;
                             getActivity().runOnUiThread(new Runnable() {

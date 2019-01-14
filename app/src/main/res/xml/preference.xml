@@ -261,6 +261,12 @@
             android:title="@string/setting_use_streamingapi_title" />
 
         <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_listview_top"
+            android:summary="@string/setting_warp_listview_top_message"
+            android:title="@string/setting_warp_listview_top_title" />
+
+        <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_toot_count"
             android:dependency="pref_streaming_api"

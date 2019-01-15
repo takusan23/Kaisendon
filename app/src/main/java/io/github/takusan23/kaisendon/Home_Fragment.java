@@ -263,8 +263,8 @@ public class Home_Fragment extends Fragment {
             layoutParams.weight = 1;
             countTextView.setLayoutParams(layoutParams);
             countEditText.setLayoutParams(layoutParams);
-            countButton.setText("カウント開始");
-            countEditText.setHint("カウントしたい文字を入れてね");
+            countButton.setText(getString(R.string.toot_count_start));
+            countEditText.setHint(getString(R.string.toot_count_hint));
 
             //コレ呼ばないとえらー
             if (countTextView.getParent() != null) {
@@ -287,7 +287,7 @@ public class Home_Fragment extends Fragment {
                 public void onClick(View v) {
                     count_text = countEditText.getText().toString();
                     akeome_count = 0;
-                    String count_template = "　を含んだトゥート数 : ";
+                    String count_template = "　" + getString(R.string.toot_count_text) + " : ";
                     countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
                     //Toast.makeText(getContext(),count_text,Toast.LENGTH_SHORT).show();
                 }

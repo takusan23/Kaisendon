@@ -323,5 +323,8 @@
     <string name="setting_quick_profile_message">タイムラインのプロフィール画像を押したときにプロフィールの簡略版をスナックバーに表示できます。</string>
     <string name="setting_warp_listview_top_title">タイムライン最前線</string>
     <string name="setting_warp_listview_top_message">ツールバーをクリックすることでタイムラインの一番上に移動します。</string>
+    <string name="toot_count_text">を含んだトゥート数</string>
+    <string name="toot_count_start">カウント開始</string>
+    <string name="toot_count_hint">カウントしたい文字を入れてね</string>
 
 </resources>

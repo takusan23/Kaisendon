@@ -8,56 +8,74 @@
     tools:context=".PublicTimeLine">
 
 
-        <ImageView
-            android:id="@+id/publictimeline_background_imageview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+    <ImageView
+        android:id="@+id/publictimeline_background_imageview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/timeline_linearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:orientation="vertical">
 
-                <android.support.v4.widget.SwipeRefreshLayout
-                    android:id="@+id/localtimeline_swiperefreh"
+            <android.support.v4.widget.SwipeRefreshLayout
+                android:id="@+id/localtimeline_swiperefreh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ListView
+                    android:id="@+id/public_time_line_list"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1">
-
-                        <ListView
-                            android:id="@+id/public_time_line_list"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_weight="0"
-                            app:layout_constraintBottom_toTopOf="@+id/toot_text_public"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_bias="0.6">
-
-                        </ListView>
-                </android.support.v4.widget.SwipeRefreshLayout>
-
-                <EditText
-                    android:id="@+id/toot_text_public"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginEnd="32dp"
-                    android:descendantFocusability="beforeDescendants"
-                    android:ems="10"
-                    android:focusableInTouchMode="true"
-                    android:hint="@string/nagaoshi_toot"
-                    android:importantForAutofill="no"
-                    android:inputType="text"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="0"
+                    app:layout_constraintBottom_toTopOf="@+id/toot_text_public"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/public_time_line_list" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.6">
+
+                </ListView>
+            </android.support.v4.widget.SwipeRefreshLayout>
+
+            <EditText
+                android:id="@+id/toot_text_public"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="32dp"
+                android:descendantFocusability="beforeDescendants"
+                android:ems="10"
+                android:hint="@string/nagaoshi_toot"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/public_time_line_list" />
+
+<!--
+            <io.github.takusan23.kaisendon.MarqueeTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:singleLine="true"
+                android:text="🍣　　🍣　🍣　　　🍣　　　🍣🍣🍣　　　🍣　　　🍣　　　🍣🍣🍣　　🍣　🍣　　　🍣　　　🍣🍣🍣　　　🍣　　　🍣　　　🍣🍣🍣　　🍣　🍣　　　🍣　　　🍣🍣🍣　　　🍣　　　🍣　　　🍣🍣" />
+-->
 
         </LinearLayout>
+
+    </LinearLayout>
+
 </RelativeLayout>

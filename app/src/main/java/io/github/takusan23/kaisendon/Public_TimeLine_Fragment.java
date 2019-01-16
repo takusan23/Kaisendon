@@ -17,12 +17,14 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,6 +53,7 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -258,6 +261,25 @@ public class Public_TimeLine_Fragment extends Fragment {
                 }
             });
         }
+
+
+        //LinearLayout
+        LinearLayout public_timeline_LinearLayout = view.findViewById(R.id.timeline_linearLayout);
+
+
+        if (pref_setting.getBoolean("command_sushi",false)){
+            //寿司を流す（開発中）
+            MarqueeTextView sushi_TextView = new MarqueeTextView(getContext());
+            //これで流れるように
+            sushi_TextView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+            //レイアウト
+            sushi_TextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            sushi_TextView.setMarqueeRepeatLimit(-1);
+            //寿司設定
+            sushi_TextView.setText("🍣　　🍣　🍣　　🍣　　🍣🍣🍣　　　🍣　　　🍣　　🍣🍣　🍣　　🍣　🍣　　🍣　　🍣🍣🍣　　　🍣　　　🍣　　🍣🍣　🍣　　🍣　🍣　　🍣　　🍣🍣🍣　　　🍣　　　🍣　　🍣🍣　🍣　　🍣　🍣　　🍣　　🍣🍣🍣　　　🍣　　　🍣　　🍣🍣");
+            public_timeline_LinearLayout.addView(sushi_TextView);
+        }
+
 
         //カウンター機能！！！
         //レイアウト

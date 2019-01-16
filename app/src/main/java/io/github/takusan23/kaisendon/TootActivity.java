@@ -168,6 +168,9 @@ public class TootActivity extends AppCompatActivity {
         //すぴなー
         Spinner spinner = findViewById(R.id.visibility_spinner);
 
+        //LinearLayou
+        LinearLayout toot_LinearLayout = findViewById(R.id.toot_LinearLayout);
+
 
         //作者に連絡
         try {
@@ -175,7 +178,6 @@ public class TootActivity extends AppCompatActivity {
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
-
 
         //背景
         ImageView background_imageView = findViewById(R.id.activity_toot_background_imageview);
@@ -247,9 +249,7 @@ public class TootActivity extends AppCompatActivity {
         //アバター画像と名前
         String finalInstance1 = instance;
         String finalAccessToken1 = AccessToken;
-        new AsyncTask<String, Void, String>()
-
-        {
+        new AsyncTask<String, Void, String>() {
 
             @Override
             protected String doInBackground(String... string) {
@@ -451,6 +451,9 @@ public class TootActivity extends AppCompatActivity {
         toot_count.setText("文字数カウント : " + "0/500");
 
 
+        //文字カウント
+        //コマンド機能？
+        Button button = new Button(TootActivity.this);
         toot_textbox.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -465,6 +468,38 @@ public class TootActivity extends AppCompatActivity {
                     textColor = Color.RED;
                 }
                 toot_count.setTextColor(textColor);
+
+
+                //コマンド機能
+                if (toot_textbox.getText().toString().contains("/sushi")) {
+                    ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    button.setLayoutParams(layoutParams);
+                    button.setText("コマンド実行");
+                    button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Snackbar.make(v, "コマンドを実行します", Snackbar.LENGTH_SHORT).setAction("実行", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    SharedPreferences.Editor editor = pref_setting.edit();
+                                    //モード切替
+                                    if (pref_setting.getBoolean("command_sushi",false)){
+                                        //ONのときはOFFにする
+                                        editor.putBoolean("command_sushi", false);
+                                        editor.apply();
+                                    }else{
+                                        //OFFのときはONにする
+                                        editor.putBoolean("command_sushi", true);
+                                        editor.apply();
+                                    }
+                                }
+                            }).show();
+                        }
+                    });
+                    toot_LinearLayout.addView(button);
+                } else {
+                    toot_LinearLayout.removeView(button);
+                }
             }
 
             @Override
@@ -666,7 +701,7 @@ public class TootActivity extends AppCompatActivity {
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                BatteryManager bm = (BatteryManager)getSystemService(BATTERY_SERVICE);
+                                BatteryManager bm = (BatteryManager) getSystemService(BATTERY_SERVICE);
 
                                 //テキストボックスに入れる
                                 if (device_name[0]) {
@@ -689,7 +724,7 @@ public class TootActivity extends AppCompatActivity {
                                     toot_textbox.append(finalCodeName);
                                     toot_textbox.append("\r\n");
                                 }
-                                if (battery[0]){
+                                if (battery[0]) {
                                     toot_textbox.append(String.valueOf(bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)) + "%");
                                     toot_textbox.append("\r\n");
                                 }

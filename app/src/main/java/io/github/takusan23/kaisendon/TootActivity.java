@@ -64,12 +64,14 @@ import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.internal.http2.Header;
 
 import static io.github.takusan23.kaisendon.Preference_ApplicationContext.getContext;
 
@@ -100,6 +102,10 @@ public class TootActivity extends AppCompatActivity {
 
     String contact = null;
 
+    LinearLayout toot_LinearLayout;
+    TextView toot_textbox;
+    Button command_Button;
+    SharedPreferences pref_setting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +114,7 @@ public class TootActivity extends AppCompatActivity {
         String AccessToken = null;
         String instance = null;
         //設定のプリファレンス
-        SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(getContext());
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(getContext());
 
         //ダークテーマに切り替える機能
         //setContentViewより前に実装する必要あり？
@@ -132,7 +138,7 @@ public class TootActivity extends AppCompatActivity {
 
         contact = getIntent().getStringExtra("contact");
 
-        final TextView toot_textbox = findViewById(R.id.toot_text_public);
+        toot_textbox = findViewById(R.id.toot_text_public);
         final TextView toot_count = findViewById(R.id.toot_count);
         Button toot_button = findViewById(R.id.toot);
         Button nya = findViewById(R.id.nya_n);
@@ -169,7 +175,7 @@ public class TootActivity extends AppCompatActivity {
         Spinner spinner = findViewById(R.id.visibility_spinner);
 
         //LinearLayou
-        LinearLayout toot_LinearLayout = findViewById(R.id.toot_LinearLayout);
+        toot_LinearLayout = findViewById(R.id.toot_LinearLayout);
 
 
         //作者に連絡
@@ -453,7 +459,7 @@ public class TootActivity extends AppCompatActivity {
 
         //文字カウント
         //コマンド機能？
-        Button button = new Button(TootActivity.this);
+        command_Button = new Button(TootActivity.this);
         toot_textbox.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -471,36 +477,9 @@ public class TootActivity extends AppCompatActivity {
 
 
                 //コマンド機能
-                if (toot_textbox.getText().toString().contains("/sushi")) {
-                    ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    button.setLayoutParams(layoutParams);
-                    button.setText(R.string.command_run);
-                    button.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            //スナックばー
-                            Snackbar.make(v, R.string.command_run_message, Snackbar.LENGTH_SHORT).setAction(R.string.run, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    SharedPreferences.Editor editor = pref_setting.edit();
-                                    //モード切替
-                                    if (pref_setting.getBoolean("command_sushi",false)){
-                                        //ONのときはOFFにする
-                                        editor.putBoolean("command_sushi", false);
-                                        editor.apply();
-                                    }else{
-                                        //OFFのときはONにする
-                                        editor.putBoolean("command_sushi", true);
-                                        editor.apply();
-                                    }
-                                }
-                            }).show();
-                        }
-                    });
-                    toot_LinearLayout.addView(button);
-                } else {
-                    toot_LinearLayout.removeView(button);
-                }
+                commandSet("/sushi", "command_sushi");
+                commandSetNotPreference("/rate-limit", "rate-limit");
+
             }
 
             @Override
@@ -1190,6 +1169,7 @@ public class TootActivity extends AppCompatActivity {
         return cursor.getString(column_index);
     }
 
+/*
     private static class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1198,10 +1178,128 @@ public class TootActivity extends AppCompatActivity {
             Log.i(getClass().getSimpleName(), intent.getStringExtra("KEY"));
         }
     }
+*/
 
     private void stopNowPlayingService() {
         Intent intent_stop = new Intent(TootActivity.this, Kaisendon_NowPlaying_Service.class);
         stopService(intent_stop);
     }
+
+    private void commandSet(String commandText, String prefKey) {
+        //コマンド機能
+        if (toot_textbox.getText().toString().contains(commandText)) {
+            ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            command_Button.setLayoutParams(layoutParams);
+            command_Button.setText(R.string.command_run);
+            command_Button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //スナックばー
+                    Snackbar.make(v, R.string.command_run_message, Snackbar.LENGTH_SHORT).setAction(R.string.run, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //preference書かないコマンド
+                            //設定変更
+                            SharedPreferences.Editor editor = pref_setting.edit();
+                            //モード切替
+                            if (pref_setting.getBoolean(prefKey, false)) {
+                                //ONのときはOFFにする
+                                editor.putBoolean(prefKey, false);
+                                editor.apply();
+                            } else {
+                                //OFFのときはONにする
+                                editor.putBoolean(prefKey, true);
+                                editor.apply();
+                            }
+                        }
+                    }).show();
+                }
+            });
+            toot_LinearLayout.addView(command_Button);
+        } else {
+            toot_LinearLayout.removeView(command_Button);
+        }
+
+    }
+
+    private void commandSetNotPreference(String commandText, String commandType) {
+        //コマンド機能
+        if (toot_textbox.getText().toString().contains(commandText)) {
+            ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            command_Button.setLayoutParams(layoutParams);
+            command_Button.setText(R.string.command_run);
+            command_Button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //スナックばー
+                    Snackbar.make(v, R.string.command_run_message, Snackbar.LENGTH_SHORT).setAction(R.string.run, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //レートリミット
+                            if (commandType.contains("rate-limit")) {
+                                getMyRateLimit();
+                            }
+                        }
+                    }).show();
+                }
+            });
+            toot_LinearLayout.addView(command_Button);
+        } else {
+            toot_LinearLayout.removeView(command_Button);
+        }
+    }
+
+    private void getMyRateLimit() {
+        //アクセストークンがあってるかユーザー情報を取得して確認する
+        String AccessToken, instance;
+        boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
+        if (accessToken_boomelan) {
+            AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
+            instance = pref_setting.getString("pref_mastodon_instance", "");
+        } else {
+            AccessToken = pref_setting.getString("main_token", "");
+            instance = pref_setting.getString("main_instance", "");
+        }
+        String url = "https://" + instance + "/api/v1/accounts/verify_credentials/?access_token=" + AccessToken;
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+
+        //GETリクエスト
+        OkHttpClient client_1 = new OkHttpClient();
+        client_1.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                //レスポンスヘッダー
+                Headers headers = response.headers();
+                //残機確認
+                String rateLimit = headers.get("x-ratelimit-limit");
+                String rateLimit_nokori = headers.get("x-ratelimit-remaining");
+                String rateLimit_time = headers.get("x-ratelimit-reset");
+
+                //UI すれっどから動かす
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        toot_textbox.append("\n");
+                        toot_textbox.append(getString(R.string.ratelimit_limit) + "(x-ratelimit-limit) : " + rateLimit + "\n");
+                        toot_textbox.append(getString(R.string.ratelimit_remaining) +"(x-ratelimit-remaining) : " + rateLimit_nokori + "\n");
+                        toot_textbox.append(getString(R.string.ratelimit_reset) +"(x-ratelimit-reset) : " + rateLimit_time + "\n");
+                    }
+                });
+
+
+            }
+        });
+    }
+
 
 }

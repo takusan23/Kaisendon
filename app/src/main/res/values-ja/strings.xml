@@ -329,5 +329,8 @@
     <string name="command_run">コマンドを実行</string>
     <string name="run">実行</string>
     <string name="command_run_message">コマンドを実行しますか？</string>
+    <string name="ratelimit_limit">制限数</string>
+    <string name="ratelimit_remaining">残り回数</string>
+    <string name="ratelimit_reset">回復時間</string>
 
 </resources>

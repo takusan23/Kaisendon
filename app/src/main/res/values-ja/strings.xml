@@ -326,5 +326,8 @@
     <string name="toot_count_text">を含んだトゥート数</string>
     <string name="toot_count_start">カウント開始</string>
     <string name="toot_count_hint">カウントしたい文字を入れてね</string>
+    <string name="command_run">コマンドを実行</string>
+    <string name="run">実行</string>
+    <string name="command_run_message">コマンドを実行しますか？</string>
 
 </resources>

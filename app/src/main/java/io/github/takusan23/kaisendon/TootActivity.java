@@ -474,11 +474,11 @@ public class TootActivity extends AppCompatActivity {
                 if (toot_textbox.getText().toString().contains("/sushi")) {
                     ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                     button.setLayoutParams(layoutParams);
-                    button.setText("コマンド実行");
+                    button.setText(R.string.command_run);
                     button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Snackbar.make(v, "コマンドを実行します", Snackbar.LENGTH_SHORT).setAction("実行", new View.OnClickListener() {
+                            Snackbar.make(v, R.string.command_run_message, Snackbar.LENGTH_SHORT).setAction(R.string.run, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     SharedPreferences.Editor editor = pref_setting.edit();

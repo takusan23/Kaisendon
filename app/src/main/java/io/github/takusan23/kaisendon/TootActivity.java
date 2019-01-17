@@ -478,6 +478,7 @@ public class TootActivity extends AppCompatActivity {
                     button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            //スナックばー
                             Snackbar.make(v, R.string.command_run_message, Snackbar.LENGTH_SHORT).setAction(R.string.run, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {

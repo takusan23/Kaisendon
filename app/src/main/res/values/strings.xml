@@ -433,5 +433,8 @@
     <string name="command_run">Execute command</string>
     <string name="run">Run</string>
     <string name="command_run_message">Do you want to execute the command?</string>
+    <string name="ratelimit_limit">Limited number</string>
+    <string name="ratelimit_remaining">Number of times remaining</string>
+    <string name="ratelimit_reset">ratelimit-reset</string>
 
 </resources>

@@ -85,7 +85,7 @@
             android:id="@+id/client"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp" />
+            android:textSize="10dp" />
 
         <Space
             android:layout_width="match_parent"

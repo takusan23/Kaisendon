@@ -478,7 +478,9 @@ public class TootActivity extends AppCompatActivity {
 
                 //コマンド機能
                 commandSet("/sushi", "command_sushi");
-                commandSetNotPreference("/rate-limit", "rate-limit");
+                if (toot_textbox.getText().toString().contains("/rate-limit")){
+                    commandSetNotPreference("/rate-limit", "rate-limit");
+                }
 
             }
 

@@ -14,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -244,11 +245,26 @@ public class Home_Fragment extends Fragment {
             });
         }
 
+        LinearLayout timelineLinearLayout = view.findViewById(R.id.home_timeline_linerLayout);
+
+        if (pref_setting.getBoolean("command_sushi",false)){
+            //寿司を流す（開発中）
+            MarqueeTextView sushi_TextView = new MarqueeTextView(getContext());
+            //これで流れるように
+            sushi_TextView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+            //レイアウト
+            sushi_TextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            sushi_TextView.setMarqueeRepeatLimit(-1);
+            //寿司設定
+            sushi_TextView.setText("🍣　　🍣　🍣　　🍣　　🍣🍣🍣　　　🍣　　　🍣　　🍣🍣　🍣　　🍣　🍣　　🍣　　🍣🍣🍣　　　🍣　　　🍣　　🍣🍣　🍣　　🍣　🍣　　🍣　　🍣🍣🍣　　　🍣　　　🍣　　🍣🍣　🍣　　🍣　🍣　　🍣　　🍣🍣🍣　　　🍣　　　🍣　　🍣🍣");
+            timelineLinearLayout.addView(sushi_TextView);
+        }
+
+
         //カウンター機能！！！
         //レイアウト
         TextView countTextView = new TextView(getContext());
         if (pref_setting.getBoolean("pref_toot_count", false)) {
-            LinearLayout timelineLinearLayout = view.findViewById(R.id.home_timeline_linerLayout);
             //カウンターようレイアウト
             LinearLayout.LayoutParams LayoutlayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             LinearLayout countLinearLayout = new LinearLayout(getContext());

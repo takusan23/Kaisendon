@@ -478,9 +478,8 @@ public class TootActivity extends AppCompatActivity {
 
                 //コマンド機能
                 commandSet("/sushi", "command_sushi");
-                if (toot_textbox.getText().toString().contains("/rate-limit")){
-                    commandSetNotPreference("/rate-limit", "rate-limit");
-                }
+                commandSetNotPreference("/fav-home", "fav-home");
+                commandSetNotPreference("/rate-limit", "rate-limit");
 
             }
 
@@ -1221,8 +1220,8 @@ public class TootActivity extends AppCompatActivity {
         } else {
             toot_LinearLayout.removeView(command_Button);
         }
-
     }
+
 
     private void commandSetNotPreference(String commandText, String commandType) {
         //コマンド機能
@@ -1241,13 +1240,17 @@ public class TootActivity extends AppCompatActivity {
                             if (commandType.contains("rate-limit")) {
                                 getMyRateLimit();
                             }
+                            //favコマンド
+                            if (commandType.contains("fav-home")) {
+                                toot_textbox.append("\nこれから実装するよ");
+                            }
                         }
                     }).show();
                 }
             });
             toot_LinearLayout.addView(command_Button);
         } else {
-            toot_LinearLayout.removeView(command_Button);
+            //toot_LinearLayout.removeView(command_Button);
         }
     }
 
@@ -1293,8 +1296,8 @@ public class TootActivity extends AppCompatActivity {
                     public void run() {
                         toot_textbox.append("\n");
                         toot_textbox.append(getString(R.string.ratelimit_limit) + "(x-ratelimit-limit) : " + rateLimit + "\n");
-                        toot_textbox.append(getString(R.string.ratelimit_remaining) +"(x-ratelimit-remaining) : " + rateLimit_nokori + "\n");
-                        toot_textbox.append(getString(R.string.ratelimit_reset) +"(x-ratelimit-reset) : " + rateLimit_time + "\n");
+                        toot_textbox.append(getString(R.string.ratelimit_remaining) + "(x-ratelimit-remaining) : " + rateLimit_nokori + "\n");
+                        toot_textbox.append(getString(R.string.ratelimit_reset) + "(x-ratelimit-reset) : " + rateLimit_time + "\n");
                     }
                 });
 

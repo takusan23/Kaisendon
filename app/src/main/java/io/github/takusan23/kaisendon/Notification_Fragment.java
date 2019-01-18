@@ -171,16 +171,6 @@ public class Notification_Fragment extends Fragment {
 
         ListView listView = view.findViewById(R.id.notifications_list);
 
-        //くるくる
-/*
-        dialog = new ProgressDialog(getContext());
-        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog.setMessage("通知を取得中 \r\n /api/v1/notifications");
-        dialog.show();
-*/
-        //くるくる
-        //ProgressDialog API 26から非推奨に
-
         Snackbar snackbar = Snackbar.make(view, "通知を取得中 \r\n /api/v1/notifications", Snackbar.LENGTH_INDEFINITE);
         ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる

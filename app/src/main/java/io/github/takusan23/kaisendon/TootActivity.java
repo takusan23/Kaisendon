@@ -55,6 +55,7 @@ import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Accounts;
 import com.sys1yagi.mastodon4j.api.method.Statuses;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -64,6 +65,7 @@ import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -1242,7 +1244,7 @@ public class TootActivity extends AppCompatActivity {
                             }
                             //favコマンド
                             if (commandType.contains("fav-home")) {
-                                toot_textbox.append("\nこれから実装するよ");
+                                favCommand("home");
                             }
                         }
                     }).show();
@@ -1254,6 +1256,7 @@ public class TootActivity extends AppCompatActivity {
         }
     }
 
+    //れーとりみっとかくにん
     private void getMyRateLimit() {
         //アクセストークンがあってるかユーザー情報を取得して確認する
         String AccessToken, instance;
@@ -1302,6 +1305,77 @@ public class TootActivity extends AppCompatActivity {
                 });
 
 
+            }
+        });
+    }
+
+    //ふぁぼる
+    public void favCommand(String timeline) {
+        String AccessToken, instance;
+        boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
+        if (accessToken_boomelan) {
+            AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
+            instance = pref_setting.getString("pref_mastodon_instance", "");
+        } else {
+            AccessToken = pref_setting.getString("main_token", "");
+            instance = pref_setting.getString("main_instance", "");
+        }
+
+        String url = "https://" + instance + "/api/v1/timelines/" + timeline + "/?access_token=" + AccessToken;
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+
+        //GETリクエスト
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String response_string = response.body().string();
+                    //JSONArray
+                    JSONArray jsonArray = new JSONArray(response_string);
+                    //ぱーす
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        //ID取得
+                        String id = jsonObject.getString("id");
+                        System.out.println("れすぽんす : " + id);
+                        //Favouriteする
+                        String url = "https://" + instance + "/api/v1/statuses/" + id + "/favourite/?access_token=" + AccessToken;
+                        //ぱらめーたー
+                        RequestBody requestBody = new FormBody.Builder()
+                                .build();
+                        Request request = new Request.Builder()
+                                .url(url)
+                                .post(requestBody)
+                                .build();
+
+                        //POST
+                        OkHttpClient client = new OkHttpClient();
+                        client.newCall(request).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+
+                            }
+                        });
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

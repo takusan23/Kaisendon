@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
+import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -33,6 +34,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -41,13 +43,18 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.Spanned;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,11 +74,18 @@ import com.sys1yagi.mastodon4j.api.method.Streaming;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -100,13 +114,16 @@ public class Home extends AppCompatActivity
 
     Toolbar toolbar;
 
+    Snackbar toot_snackbar;
+    SharedPreferences pref_setting;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 
         //設定のプリファレンス
-        SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
 
         //Wi-Fi接続状況確認
         ConnectivityManager connectivityManager =
@@ -188,6 +205,26 @@ public class Home extends AppCompatActivity
         }
 
 
+        //アクセストークン
+        String AccessToken = null;
+
+        //インスタンス
+        String Instance = null;
+
+        boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
+        if (accessToken_boomelan) {
+
+            AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
+            Instance = pref_setting.getString("pref_mastodon_instance", "");
+
+        } else {
+
+            AccessToken = pref_setting.getString("main_token", "");
+            Instance = pref_setting.getString("main_instance", "");
+
+        }
+
+
 /*
         //ウィジェットから起動
         try {
@@ -266,11 +303,29 @@ public class Home extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        String finalInstance2 = Instance;
+        String finalAccessToken1 = AccessToken;
+
+        //TootSnackBerのコードがクソ長いのでメゾット化
+        tootSnackBer();
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent toot = new Intent(Home.this, TootActivity.class);
-                startActivity(toot);
+                //startActivity(toot);
+
+                if (!toot_snackbar.isShown()) {
+                    //アイコン変更
+                    fab.setImageDrawable(getDrawable(R.drawable.ic_arrow_downward_black_24dp));
+                    toot_snackbar.show();
+                } else {
+                    //アイコン変更
+                    fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
+                    toot_snackbar.dismiss();
+                }
+
             }
         });
 
@@ -283,26 +338,6 @@ public class Home extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-
-        //アクセストークン
-        String AccessToken = null;
-
-        //インスタンス
-        String Instance = null;
-
-        boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
-        if (accessToken_boomelan) {
-
-            AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
-            Instance = pref_setting.getString("pref_mastodon_instance", "");
-
-        } else {
-
-            AccessToken = pref_setting.getString("main_token", "");
-            Instance = pref_setting.getString("main_instance", "");
-
-        }
 
         String finalInstance = Instance;
         String finalAccessToken = AccessToken;
@@ -1314,6 +1349,147 @@ public class Home extends AppCompatActivity
         if (pref_setting.getBoolean("pref_speech", false)) {
             textToSpeech.shutdown();
         }
+    }
+
+    private void tootSnackBer() {
+
+        //アクセストークン
+        String AccessToken = null;
+
+        //インスタンス
+        String Instance = null;
+
+        boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
+        if (accessToken_boomelan) {
+
+            AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
+            Instance = pref_setting.getString("pref_mastodon_instance", "");
+
+        } else {
+
+            AccessToken = pref_setting.getString("main_token", "");
+            Instance = pref_setting.getString("main_instance", "");
+
+        }
+
+        View view = findViewById(R.id.container_public);
+        toot_snackbar = Snackbar.make(view, "", Snackbar.LENGTH_INDEFINITE);
+        //Snackber生成
+        ViewGroup snackBer_viewGrop = (ViewGroup) toot_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+        LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        progressBer_layoutParams.gravity = Gravity.CENTER;
+        //LinearLayout動的に生成
+        LinearLayout snackber_LinearLayout = new LinearLayout(Home.this);
+        snackber_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams warp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        snackber_LinearLayout.setLayoutParams(warp);
+        //テキストボックス
+        EditText toot_EditText = new EditText(Home.this);
+        //ヒント
+        toot_EditText.setHint(R.string.imananisiteru);
+        //色
+        toot_EditText.setTextColor(Color.parseColor("#ffffff"));
+        toot_EditText.setHintTextColor(Color.parseColor("#ffffff"));
+        //サイズ
+        toot_EditText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        //ボタン追加用LinearLayout
+        LinearLayout toot_Button_LinearLayout = new LinearLayout(Home.this);
+        toot_Button_LinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        toot_Button_LinearLayout.setLayoutParams(warp);
+
+        //Button
+        Button add_image_Button = new Button(Home.this);
+        add_image_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_image_black_24dp, 0, 0, 0);
+        add_image_Button.setTextColor(Color.parseColor("#ffffff"));
+        add_image_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toot_EditText.append("\nこれからやるよ");
+            }
+        });
+
+
+        //投稿、キャンセル用LinearLayout
+        LinearLayout toot_LinearLayout = new LinearLayout(Home.this);
+        toot_LinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams toot_button_LayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        toot_button_LayoutParams.gravity = Gravity.RIGHT;
+        toot_LinearLayout.setLayoutParams(toot_button_LayoutParams);
+
+        //投稿用Button
+        Button post_button = new Button(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        post_button.setText(R.string.toot);
+        post_button.setTextColor(Color.parseColor("#ffffff"));
+        Drawable toot_icon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_create_black_24dp_black, null);
+        toot_icon.setTint(Color.parseColor("#ffffff"));
+        post_button.setCompoundDrawablesWithIntrinsicBounds(toot_icon, null, null, null);
+
+        //キャンセルボタン
+        Button cancel_Button = new Button(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        cancel_Button.setText(R.string.cancel);
+        cancel_Button.setTextColor(Color.parseColor("#ffffff"));
+        cancel_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toot_snackbar.dismiss();
+            }
+        });
+
+
+        String finalAccessToken = AccessToken;
+        String finalInstance = Instance;
+        post_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Tootする
+                //確認SnackBer
+                Snackbar.make(v, R.string.toot_dialog, Snackbar.LENGTH_SHORT).setAction(R.string.toot, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String url = "https://" + finalInstance + "/api/v1/statuses/?access_token=" + finalAccessToken;
+                        //ぱらめーたー
+                        RequestBody requestBody = new FormBody.Builder()
+                                .add("status", toot_EditText.getText().toString())
+                                .add("visibility", "public")
+                                .build();
+                        Request request = new Request.Builder()
+                                .url(url)
+                                .post(requestBody)
+                                .build();
+
+                        //POST
+                        OkHttpClient client = new OkHttpClient();
+                        client.newCall(request).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                toot_snackbar.dismiss();
+                            }
+                        });
+
+                    }
+                }).show();
+
+            }
+        });
+
+        //LinearLayoutに追加
+        //メイン
+        snackber_LinearLayout.addView(toot_EditText);
+        snackber_LinearLayout.addView(toot_Button_LinearLayout);
+        snackber_LinearLayout.addView(toot_LinearLayout);
+        //ボタン追加
+        toot_Button_LinearLayout.addView(add_image_Button);
+        //Toot LinearLayout
+        toot_LinearLayout.addView(cancel_Button);
+        toot_LinearLayout.addView(post_button);
+        //SnackBerに追加
+        snackBer_viewGrop.addView(snackber_LinearLayout);
     }
 
 }

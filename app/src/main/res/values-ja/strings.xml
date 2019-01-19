@@ -319,7 +319,7 @@
     <string name="setting_toot_count_message">タイムラインに指定した文字列が含まれているとカウントします。ストリーミングAPIを利用していることが前提です。(例 :  あけおめ)</string>
     <string name="battery_level">バッテリー残量</string>
     <string name="reblog">さんがブーストしました</string>
-    <string name="setting_quick_profile_title">クイックプロフィール（実験中）</string>
+    <string name="setting_quick_profile_title">クイックプロフィール</string>
     <string name="setting_quick_profile_message">タイムラインのプロフィール画像を押したときにプロフィールの簡略版をスナックバーに表示できます。</string>
     <string name="setting_warp_listview_top_title">タイムライン最前線</string>
     <string name="setting_warp_listview_top_message">ツールバーをクリックすることでタイムラインの一番上に移動します。</string>

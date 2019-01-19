@@ -313,8 +313,6 @@ public class Home extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent toot = new Intent(Home.this, TootActivity.class);
-                //startActivity(toot);
 
                 if (!toot_snackbar.isShown()) {
                     //アイコン変更
@@ -326,6 +324,16 @@ public class Home extends AppCompatActivity
                     toot_snackbar.dismiss();
                 }
 
+            }
+        });
+        //長押し
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                //従来のTootActivityへー
+                Intent toot = new Intent(Home.this, TootActivity.class);
+                startActivity(toot);
+                return false;
             }
         });
 

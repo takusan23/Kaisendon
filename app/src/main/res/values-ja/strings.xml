@@ -202,10 +202,10 @@
     <string name="setting_custom_streaming_notification_color">通知の背景色を設定</string>
     <string name="setting_custom_streaming_local_color">ローカルタイムラインの背景色を設定</string>
     <string name="setting_custom_streaming_color_message">カラーコードで入力してください。透明度は#のあとに付け加えることで利用できます。（初期値 : ホーム #1Aff0000、通知 1A008000、ローカル 1A0000ff）</string>
-    <string name="visibility_public">公開（ローカルTL表示）</string>
-    <string name="visibility_unlisted">未収載（ローカル非公開）</string>
-    <string name="visibility_private">フォロワー限定</string>
-    <string name="visibility_direct">ダイレクト</string>
+    <string name="visibility_public">公開（公開TLに投稿）</string>
+    <string name="visibility_unlisted">未収載（公開TLで公開しない）</string>
+    <string name="visibility_private">フォロワー限定（フォロワー限定公開）</string>
+    <string name="visibility_direct">ダイレクト（メンションしたユーザー限定公開）</string>
     <string name="show_image">画像を表示</string>
     <string name="setting_one_hand_mode_title">片手モード</string>
     <string name="setting_one_hand_mode_message">"ダイアログをスナックバーに置き換えます。 "</string>

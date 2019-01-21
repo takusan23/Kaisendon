@@ -248,7 +248,7 @@ public class Home_Fragment extends Fragment {
         LinearLayout timelineLinearLayout = view.findViewById(R.id.home_timeline_linerLayout);
 
         if (pref_setting.getBoolean("command_sushi",false)){
-            //寿司を流す（開発中）
+            //寿司を流す
             MarqueeTextView sushi_TextView = new MarqueeTextView(getContext());
             //これで流れるように
             sushi_TextView.setEllipsize(TextUtils.TruncateAt.MARQUEE);

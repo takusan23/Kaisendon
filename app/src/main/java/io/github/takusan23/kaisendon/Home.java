@@ -51,8 +51,10 @@ import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -1635,7 +1637,6 @@ public class Home extends AppCompatActivity
             public void onClick(View v) {
                 //表示
                 optionsMenu.show();
-
                 //押したときの反応
                 menuBuilder.setCallback(new MenuBuilder.Callback() {
                     @Override
@@ -1739,6 +1740,35 @@ public class Home extends AppCompatActivity
             }
         });
 
+        //コマンド実行ボタン
+        Button command_Button  = new Button(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        command_Button.setText(R.string.command_run);
+        command_Button.setTextColor(Color.parseColor("#ffffff"));
+        //EditTextを監視する
+        toot_EditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //コマンド実行メゾット？
+                CommandCode.commandSet(toot_EditText,toot_LinearLayout,command_Button,"/sushi","command_sushi");
+                CommandCode.commandSetNotPreference(Home.this,toot_EditText,toot_LinearLayout,command_Button,"/rate-limit","rate-limit");
+                CommandCode.commandSetNotPreference(Home.this,toot_EditText,toot_LinearLayout,command_Button,"/fav-home","home");
+                CommandCode.commandSetNotPreference(Home.this,toot_EditText,toot_LinearLayout,command_Button,"/fav-local","local");
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+
+
+
         //画像追加用LinearLayout
         media_LinearLayout = new LinearLayout(Home.this);
         media_LinearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -1753,7 +1783,7 @@ public class Home extends AppCompatActivity
         //ボタン追加
         toot_Button_LinearLayout.addView(add_image_Button);
         toot_Button_LinearLayout.addView(toot_area_Button);
-//Toot LinearLayout
+        //Toot LinearLayout
         toot_LinearLayout.addView(post_button);
         //SnackBerに追加
         snackBer_viewGrop.addView(snackber_LinearLayout);

@@ -1360,6 +1360,7 @@ public class TootActivity extends AppCompatActivity {
 
                         //POST
                         OkHttpClient client = new OkHttpClient();
+/*
                         client.newCall(request).enqueue(new Callback() {
                             @Override
                             public void onFailure(Call call, IOException e) {
@@ -1371,6 +1372,7 @@ public class TootActivity extends AppCompatActivity {
 
                             }
                         });
+*/
 
                     }
                 } catch (JSONException e) {

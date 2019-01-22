@@ -61,7 +61,6 @@ public class TootSnackberActivity extends AppCompatActivity {
 
     Snackbar toot_snackbar;
     SharedPreferences pref_setting;
-    FloatingActionButton fab;
     LinearLayout media_LinearLayout;
     Button post_button;
     EditText toot_EditText;
@@ -79,7 +78,9 @@ public class TootSnackberActivity extends AppCompatActivity {
 
         //設定のプリファレンス
         pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
+        //スナックバー生成
         tootSnackBer();
+        //表示
         toot_snackbar.show();
 
         //共有受け取る
@@ -87,13 +88,33 @@ public class TootSnackberActivity extends AppCompatActivity {
         String action = intent.getAction();
         if (Intent.ACTION_SEND.equals(action)) {
             Bundle extras = intent.getExtras();
-            if (extras != null) {
-                CharSequence ext = extras.getCharSequence(Intent.EXTRA_TEXT);
-                if (ext != null) {
-                    toot_EditText.setText(ext);
+            if (extras != null && toot_snackbar.isShown()) {
+                toot_EditText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                //URL
+                CharSequence text = extras.getCharSequence(Intent.EXTRA_TEXT);
+                //タイトル
+                CharSequence title = extras.getCharSequence(Intent.EXTRA_SUBJECT);
+                //EXTRA TEXTにタイトルが含まれているかもしれない？
+                //含まれているときは消す
+                text = text.toString().replace(title,"");
+                if (title != null) {
+                    toot_EditText.append(title);
+                }
+                if (text != null){
+                    toot_EditText.append("\n");
+                    toot_EditText.append(text);
                 }
             }
         }
+
+        //FABで閉じれるようにする
+        FloatingActionButton fab = findViewById(R.id.toot_snackber_fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finishAndRemoveTask();
+            }
+        });
     }
 
     @Override
@@ -207,8 +228,6 @@ public class TootSnackberActivity extends AppCompatActivity {
                                 });
                             }
                             //画像がPOSTできたらトゥート実行
-                            //FABのアイコン戻す
-                            fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
                             //Tootする
                             //確認SnackBer
                             Snackbar.make(v, R.string.toot_dialog, Snackbar.LENGTH_SHORT).setAction(R.string.toot, new View.OnClickListener() {
@@ -216,9 +235,6 @@ public class TootSnackberActivity extends AppCompatActivity {
                                 public void onClick(View v) {
                                     //なんかアップロードしてないときある？
                                     if (media_list.size() == post_media_id.size()) {
-                                        //FABのアイコン戻す
-                                        fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-
                                         String url = "https://" + finalInstance + "/api/v1/statuses/?access_token=" + finalAccessToken;
                                         //ぱらめーたー
                                         MultipartBody.Builder form = new MultipartBody.Builder();
@@ -253,6 +269,8 @@ public class TootSnackberActivity extends AppCompatActivity {
                                                 media_list.clear();
                                                 post_media_id.clear();
                                                 media_LinearLayout.removeAllViews();
+                                                //アプリを閉じる
+                                                finishAndRemoveTask();
                                             }
                                         });
                                     }
@@ -333,7 +351,7 @@ public class TootSnackberActivity extends AppCompatActivity {
 
         }
 
-        toot_snackbar = Snackbar.make(findViewById(android.R.id.content), "", Snackbar.LENGTH_INDEFINITE);
+        toot_snackbar = Snackbar.make(findViewById(R.id.toot_snackber_coordinator), "", Snackbar.LENGTH_INDEFINITE);
         //Snackber生成
         ViewGroup snackBer_viewGrop = (ViewGroup) toot_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -470,16 +488,11 @@ public class TootSnackberActivity extends AppCompatActivity {
                 //画像添付なしのときはここを利用して、
                 //画像添付トゥートは別に書くよ
                 if (media_list.isEmpty() || media_list == null || media_list.get(0) == null) {
-                    //FABのアイコン戻す
-                    fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
                     //Tootする
                     //確認SnackBer
                     Snackbar.make(v, R.string.toot_dialog, Snackbar.LENGTH_SHORT).setAction(R.string.toot, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            //FABのアイコン戻す
-                            fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-
                             String url = "https://" + finalInstance + "/api/v1/statuses/?access_token=" + finalAccessToken;
                             //ぱらめーたー
                             RequestBody requestBody = new FormBody.Builder()
@@ -504,6 +517,8 @@ public class TootSnackberActivity extends AppCompatActivity {
                                     toot_snackbar.dismiss();
                                     //EditTextを空にする
                                     toot_EditText.setText("");
+                                    //アプリを閉じる
+                                    finishAndRemoveTask();
                                 }
                             });
 
@@ -629,4 +644,5 @@ public class TootSnackberActivity extends AppCompatActivity {
         //SnackBerに追加
         snackBer_viewGrop.addView(snackber_LinearLayout);
     }
+
 }

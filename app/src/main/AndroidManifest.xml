@@ -44,13 +44,14 @@
         </service>
 
         <!--トゥート画面-->
-        <activity android:name=".TootSnackberActivity"
+        <activity
+            android:name=".TootSnackberActivity"
             android:theme="@style/Theme.TranslucentBackground">
             <!--共有受け取る-->
-            <intent-filter>
+            <intent-filter android:label="@string/toot">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/*" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
 
@@ -71,17 +72,19 @@
             android:parentActivityName=".Home">
 
             <!-- The meta-data tag is required if you support API level 15 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Home" />
+            <!--
+                        <meta-data
+                            android:name="android.support.PARENT_ACTIVITY"
+                            android:value=".Home" />
 
-            <intent-filter android:label="@string/app_name">
-                <action android:name="android.intent.action.SEND" />
+                        <intent-filter android:label="@string/app_name">
+                            <action android:name="android.intent.action.SEND" />
 
-                <category android:name="android.intent.category.DEFAULT" />
+                            <category android:name="android.intent.category.DEFAULT" />
 
-                <data android:mimeType="text/plain" />
-            </intent-filter>
+                            <data android:mimeType="text/plain" />
+                        </intent-filter>
+            -->
         </activity>
         <activity
             android:name=".PublicTimeLine"

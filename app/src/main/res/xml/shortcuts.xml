@@ -10,12 +10,14 @@
 
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="io.github.takusan23.kaisendon.TootActivity"
-            android:targetPackage="io.github.takusan23.kaisendon" />
+            android:targetClass="io.github.takusan23.kaisendon.Home"
+            android:targetPackage="io.github.takusan23.kaisendon">
 
-        <categories android:name="android.shortcut.conversation" />
-
-    </shortcut>
+        <extra
+            android:name="toot"
+            android:value="true"
+            />
+        </intent>    </shortcut>
 
     <shortcut
         android:enabled="true"

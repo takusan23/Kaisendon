@@ -495,6 +495,9 @@ public class TootActivity extends AppCompatActivity {
         });
 
 
+        //新しいトゥート画面に
+        //お引越し
+/*
         //共有メニューから押したときの処理
         Intent share_intent = getIntent();
         String share_string = share_intent.getAction();
@@ -511,6 +514,7 @@ public class TootActivity extends AppCompatActivity {
         } catch (NullPointerException e) {
 
         }
+*/
 
         // thinking
         toot_button.setOnLongClickListener(new View.OnLongClickListener() {

@@ -26,6 +26,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -364,12 +365,6 @@ public class Home extends AppCompatActivity
                 return false;
             }
         });
-
-        //App Shortcutからも起動できるようにする
-        if (getIntent().getBooleanExtra("toot",false)){
-            tootSnackBer();
-            toot_snackbar.show();
-        }
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -1746,8 +1741,77 @@ public class Home extends AppCompatActivity
             }
         });
 
+        //端末情報とぅーと
+        ImageButton device_Button = new ImageButton(Home.this);
+        device_Button.setImageDrawable(getDrawable(R.drawable.ic_perm_device_information_black_24dp));
+        //ポップアップメニュー作成
+        MenuBuilder device_menuBuilder = new MenuBuilder(Home.this);
+        MenuInflater device_inflater = new MenuInflater(Home.this);
+        device_inflater.inflate(R.menu.device_info_menu, device_menuBuilder);
+        MenuPopupHelper device_optionsMenu = new MenuPopupHelper(Home.this, device_menuBuilder, device_Button);
+        device_optionsMenu.setForceShowIcon(true);
+        //コードネーム変換（手動
+        String codeName = "";
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.N || Build.VERSION.SDK_INT == Build.VERSION_CODES.N_MR1) {
+            codeName = "Nougat";
+        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+            codeName = "Oreo";
+        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            codeName = "Pie";
+        }
+        String finalCodeName = codeName;
+        BatteryManager bm = (BatteryManager) getSystemService(BATTERY_SERVICE);
+        device_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                device_optionsMenu.show();
+                device_menuBuilder.setCallback(new MenuBuilder.Callback() {
+                    @Override
+                    public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
+                        //名前
+                        if (menuItem.getTitle().toString().contains(getString(R.string.device_name))) {
+                            toot_EditText.append(Build.MODEL);
+                            toot_EditText.append("\r\n");
+                        }
+                        //Androidバージョン
+                        if (menuItem.getTitle().toString().contains(getString(R.string.android_version))) {
+                            toot_EditText.append(Build.VERSION.RELEASE);
+                            toot_EditText.append("\r\n");
+                        }
+                        //めーかー
+                        if (menuItem.getTitle().toString().contains(getString(R.string.maker))) {
+                            toot_EditText.append(Build.BRAND);
+                            toot_EditText.append("\r\n");
+                        }
+                        //SDKバージョン
+                        if (menuItem.getTitle().toString().contains(getString(R.string.sdk_version))) {
+                            toot_EditText.append(String.valueOf(Build.VERSION.SDK_INT));
+                            toot_EditText.append("\r\n");
+                        }
+                        //コードネーム
+                        if (menuItem.getTitle().toString().contains(getString(R.string.codename))) {
+                            toot_EditText.append(finalCodeName);
+                            toot_EditText.append("\r\n");
+                        }
+                        //バッテリーレベル
+                        if (menuItem.getTitle().toString().contains(getString(R.string.battery_level))) {
+                            toot_EditText.append(String.valueOf(bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)) + "%");
+                            toot_EditText.append("\r\n");
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public void onMenuModeChange(MenuBuilder menuBuilder) {
+
+                    }
+                });
+            }
+        });
+
+
         //コマンド実行ボタン
-        Button command_Button  = new Button(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        Button command_Button = new Button(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
         command_Button.setText(R.string.command_run);
         command_Button.setTextColor(Color.parseColor("#ffffff"));
         //EditTextを監視する
@@ -1760,10 +1824,10 @@ public class Home extends AppCompatActivity
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 //コマンド実行メゾット？
-                CommandCode.commandSet(toot_EditText,toot_LinearLayout,command_Button,"/sushi","command_sushi");
-                CommandCode.commandSetNotPreference(Home.this,toot_EditText,toot_LinearLayout,command_Button,"/rate-limit","rate-limit");
-                CommandCode.commandSetNotPreference(Home.this,toot_EditText,toot_LinearLayout,command_Button,"/fav-home","home");
-                CommandCode.commandSetNotPreference(Home.this,toot_EditText,toot_LinearLayout,command_Button,"/fav-local","local");
+                CommandCode.commandSet(toot_EditText, toot_LinearLayout, command_Button, "/sushi", "command_sushi");
+                CommandCode.commandSetNotPreference(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/rate-limit", "rate-limit");
+                CommandCode.commandSetNotPreference(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-home", "home");
+                CommandCode.commandSetNotPreference(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-local", "local");
             }
 
             @Override
@@ -1771,8 +1835,6 @@ public class Home extends AppCompatActivity
 
             }
         });
-
-
 
 
         //画像追加用LinearLayout
@@ -1789,6 +1851,7 @@ public class Home extends AppCompatActivity
         //ボタン追加
         toot_Button_LinearLayout.addView(add_image_Button);
         toot_Button_LinearLayout.addView(toot_area_Button);
+        toot_Button_LinearLayout.addView(device_Button);
         //Toot LinearLayout
         toot_LinearLayout.addView(post_button);
         //SnackBerに追加

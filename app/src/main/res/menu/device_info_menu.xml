@@ -1,0 +1,27 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/device_info_devce_name"
+        android:icon="@drawable/ic_perm_device_information_black_24dp"
+        android:title="@string/device_name"></item>
+    <item
+        android:id="@+id/device_info_version"
+        android:icon="@drawable/ic_android_black_24dp"
+        android:title="@string/android_version"></item>
+    <item
+        android:id="@+id/device_info_maker"
+        android:icon="@drawable/ic_domain_black_24dp"
+        android:title="@string/maker"></item>
+    <item
+        android:id="@+id/device_info_sdk_version"
+        android:icon="@drawable/ic_adb_black_24dp"
+        android:title="@string/sdk_version"></item>
+    <item
+        android:id="@+id/device_info_codename"
+        android:icon="@drawable/ic_code_black_24dp"
+        android:title="@string/codename"></item>
+    <item
+        android:id="@+id/device_info_battery_level"
+        android:icon="@drawable/ic_battery_unknown_black_24dp"
+        android:title="@string/battery_level"></item>
+
+</menu>

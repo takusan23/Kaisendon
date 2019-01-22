@@ -365,6 +365,12 @@ public class Home extends AppCompatActivity
             }
         });
 
+        //App Shortcutからも起動できるようにする
+        if (getIntent().getBooleanExtra("toot",false)){
+            tootSnackBer();
+            toot_snackbar.show();
+        }
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

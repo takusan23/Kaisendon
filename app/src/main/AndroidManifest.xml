@@ -30,13 +30,10 @@
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
-        </activity>
-
-        <!-- 明示的ブロードキャストする時 -->
+        </activity> <!-- 明示的ブロードキャストする時 -->
         <receiver android:name=".BroadcastRecever_Notification_Button" />
         <receiver android:name=".BroadcastReciver_Widget_ToastTimeline" />
         <receiver android:name=".BroadcastReceiver_Notification_Timeline" />
-
         <!-- なうぷれいんぐのサービス登録 -->
         <service
             android:name=".Kaisendon_NowPlaying_Service"
@@ -45,6 +42,18 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
+        <!--トゥート画面-->
+        <activity android:name=".TootSnackberActivity"
+            android:theme="@style/Theme.TranslucentBackground">
+            <!--共有受け取る-->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/*" />
+            </intent-filter>
+        </activity>
+
 
         <activity
             android:name=".LoginActivity"
@@ -130,7 +139,6 @@
                 android:value=".Home" />
         </activity>
         <activity android:name=".MultiPainActivity" />
-
         <!--
                 <activity
                     android:name=".ScrollingUser"
@@ -141,7 +149,6 @@
                         android:value=".Home" />
                 </activity>
         -->
-
         <receiver android:name=".NewAppWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -162,11 +169,10 @@
             android:name=".AccountInfoUpdateActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_account_info_update"
-            android:parentActivityName=".UserActivity"></activity>
-        <activity android:name=".KonoAppNiTuite"
-            android:parentActivityName=".Home">
-        </activity>
-
+            android:parentActivityName=".UserActivity" />
+        <activity
+            android:name=".KonoAppNiTuite"
+            android:parentActivityName=".Home"></activity>
     </application>
 
 </manifest>

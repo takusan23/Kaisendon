@@ -10,14 +10,10 @@
 
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="io.github.takusan23.kaisendon.Home"
+            android:targetClass="io.github.takusan23.kaisendon.TootSnackberActivity"
             android:targetPackage="io.github.takusan23.kaisendon">
-
-        <extra
-            android:name="toot"
-            android:value="true"
-            />
-        </intent>    </shortcut>
+        </intent>
+    </shortcut>
 
     <shortcut
         android:enabled="true"
@@ -34,8 +30,7 @@
 
             <extra
                 android:name="home_card"
-                android:value="true"
-                />
+                android:value="true" />
 
         </intent>
 

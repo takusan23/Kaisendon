@@ -1395,7 +1395,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         //client.setText(item.getClient());
         client.setTextSize(18);
         //フォントサイズ変更
-        String client_textsize = pref_setting.getString("pref_fontsize_client", "18");
+        String client_textsize = pref_setting.getString("pref_fontsize_client", "10");
         client.setTextSize(Integer.parseInt(client_textsize));
 
         //フォントの色設定

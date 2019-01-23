@@ -1828,6 +1828,7 @@ public class Home extends AppCompatActivity
                 CommandCode.commandSetNotPreference(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/rate-limit", "rate-limit");
                 CommandCode.commandSetNotPreference(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-home", "home");
                 CommandCode.commandSetNotPreference(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-local", "local");
+                CommandCode.commandSetNotPreference(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/じゃんけん", "じゃんけん");
             }
 
             @Override

@@ -96,11 +96,11 @@ public class TootSnackberActivity extends AppCompatActivity {
                 CharSequence title = extras.getCharSequence(Intent.EXTRA_SUBJECT);
                 //EXTRA TEXTにタイトルが含まれているかもしれない？
                 //含まれているときは消す
-                text = text.toString().replace(title,"");
+                text = text.toString().replace(title, "");
                 if (title != null) {
                     toot_EditText.append(title);
                 }
-                if (text != null){
+                if (text != null) {
                     toot_EditText.append("\n");
                     toot_EditText.append(text);
                 }

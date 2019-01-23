@@ -2,6 +2,7 @@ package io.github.takusan23.kaisendon;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -99,6 +100,11 @@ public class CommandCode {
                             //レートリミット
                             if (commandType.contains("rate-limit")) {
                                 getMyRateLimit(context, editText);
+                            }
+                            //じゃんけん
+                            if (commandType.contains("じゃんけん")) {
+                                Intent intent = new Intent(context,Zyanken.class);
+                                context.startActivity(intent);
                             }
                             //favコマンド
                             if (commandType.contains("home")) {

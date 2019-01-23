@@ -16,6 +16,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".Zyanken"></activity>
         <activity
             android:name=".Home"
             android:configChanges="orientation"
@@ -33,29 +34,27 @@
         </activity> <!-- 明示的ブロードキャストする時 -->
         <receiver android:name=".BroadcastRecever_Notification_Button" />
         <receiver android:name=".BroadcastReciver_Widget_ToastTimeline" />
-        <receiver android:name=".BroadcastReceiver_Notification_Timeline" />
-        <!-- なうぷれいんぐのサービス登録 -->
+        <receiver android:name=".BroadcastReceiver_Notification_Timeline" /> <!-- なうぷれいんぐのサービス登録 -->
         <service
             android:name=".Kaisendon_NowPlaying_Service"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
-        </service>
-
-        <!--トゥート画面-->
+        </service> <!-- トゥート画面 -->
         <activity
             android:name=".TootSnackberActivity"
             android:theme="@style/Theme.TranslucentBackground">
-            <!--共有受け取る-->
+
+            <!-- 共有受け取る -->
             <intent-filter android:label="@string/toot">
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="text/*" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".LoginActivity"
             android:label="@string/login_nemu"
@@ -175,7 +174,7 @@
             android:parentActivityName=".UserActivity" />
         <activity
             android:name=".KonoAppNiTuite"
-            android:parentActivityName=".Home"></activity>
+            android:parentActivityName=".Home" />
     </application>
 
 </manifest>

@@ -16,8 +16,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ZyankenMenu"></activity>
-        <activity android:name=".Zyanken" />
+        <activity android:name=".Zyanken.ZyankenSetup"></activity>
+        <activity android:name=".Zyanken.ZyankenMenu" />
+        <activity android:name=".Zyanken.Zyanken" />
         <activity
             android:name=".Home"
             android:configChanges="orientation"

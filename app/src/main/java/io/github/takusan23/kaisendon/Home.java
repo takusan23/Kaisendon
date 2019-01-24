@@ -975,9 +975,6 @@ public class Home extends AppCompatActivity
                             String finaltoot = Html.fromHtml(toot, Html.FROM_HTML_MODE_COMPACT).toString();
 
 
-                            // 検索する文字列を用意
-                            String str = "http://www.sejuku.net/blog";
-
                             // 正規表現
                             finaltoot = Html.fromHtml(finaltoot, Html.FROM_HTML_MODE_COMPACT).toString();
                             //finaltoot = finaltoot.replaceFirst("^https?://[a-z\\\\.:/\\\\+\\\\-\\\\#\\\\?\\\\=\\\\&\\\\;\\\\%\\\\~]+$","Minecraft");

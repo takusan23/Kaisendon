@@ -1,10 +1,8 @@
 package io.github.takusan23.kaisendon;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -19,6 +17,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import io.github.takusan23.kaisendon.Zyanken.Zyanken;
+import io.github.takusan23.kaisendon.Zyanken.ZyankenMenu;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -103,7 +103,7 @@ public class CommandCode {
                             }
                             //じゃんけん
                             if (commandType.contains("じゃんけん")) {
-                                Intent intent = new Intent(context,Zyanken.class);
+                                Intent intent = new Intent(context, ZyankenMenu.class);
                                 context.startActivity(intent);
                             }
                             //favコマンド

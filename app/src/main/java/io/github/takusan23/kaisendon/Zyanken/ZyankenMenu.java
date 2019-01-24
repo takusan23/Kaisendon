@@ -1,11 +1,14 @@
-package io.github.takusan23.kaisendon;
+package io.github.takusan23.kaisendon.Zyanken;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+
+import io.github.takusan23.kaisendon.R;
 
 public class ZyankenMenu extends AppCompatActivity {
 
@@ -27,9 +30,9 @@ public class ZyankenMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_zyanken_menu);
 
-        host_Button.findViewById(R.id.zyanken_host);
-        client_Button.findViewById(R.id.zyanken_join);
-        zyanken_LinearLayout.findViewById(R.id.zyanken_menu_linearLayout);
+        Button host_Button = findViewById(R.id.zyanken_host);
+        Button client_Button = findViewById(R.id.zyanken_join);
+        LinearLayout zyanken_LinearLayout = findViewById(R.id.zyanken_menu_linearLayout);
 
         //枠をあける
         host_Button.setOnClickListener(new View.OnClickListener() {
@@ -39,14 +42,10 @@ public class ZyankenMenu extends AppCompatActivity {
                 start_host_button = new Button(ZyankenMenu.this);
                 start_host_button.setText("枠をあける");
                 start_host_EditText = new EditText(ZyankenMenu.this);
-                //レイアウトに追加
-                zyanken_LinearLayout.addView(start_host_button);
-                zyanken_LinearLayout.addView(start_host_EditText);
-                //他のレイアウトがあれば消す
-                if (start_client_button != null && start_client_EditText != null) {
-                    zyanken_LinearLayout.removeView(start_client_button);
-                    zyanken_LinearLayout.removeView(start_client_EditText);
-                }
+                //Intent
+                Intent intent = new Intent(ZyankenMenu.this, ZyankenSetup.class);
+                intent.putExtra("mode", "host");
+                startActivity(intent);
             }
         });
 
@@ -58,14 +57,10 @@ public class ZyankenMenu extends AppCompatActivity {
                 start_client_button = new Button(ZyankenMenu.this);
                 start_client_button.setText("枠をあける");
                 start_client_EditText = new EditText(ZyankenMenu.this);
-                //レイアウトに追加
-                zyanken_LinearLayout.addView(start_client_button);
-                zyanken_LinearLayout.addView(start_client_EditText);
-                //他のレイアウトがあれば消す
-                if (start_host_button != null && start_host_EditText != null) {
-                    zyanken_LinearLayout.removeView(start_host_button);
-                    zyanken_LinearLayout.removeView(start_host_EditText);
-                }
+                //Intent
+                Intent intent = new Intent(ZyankenMenu.this, Zyanken.class);
+                intent.putExtra("mode", "client");
+                startActivity(intent);
             }
         });
 

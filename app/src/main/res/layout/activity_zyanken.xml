@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Zyanken">
+    tools:context=".Zyanken.Zyanken">
 
     <ScrollView
         android:layout_width="match_parent"

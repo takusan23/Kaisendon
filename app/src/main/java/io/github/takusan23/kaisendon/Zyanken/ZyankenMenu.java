@@ -63,6 +63,7 @@ public class ZyankenMenu extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
+
+
 }

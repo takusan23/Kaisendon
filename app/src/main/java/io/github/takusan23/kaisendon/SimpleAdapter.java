@@ -206,6 +206,8 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
         String avater_url = listItem.get(5);
         String media_url = "";
 
+
+
         //メッセージ
         //設定で分けるように
         String favorite_message = null;
@@ -343,38 +345,70 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
         //通信量節約
         boolean setting_avater_hidden = pref_setting.getBoolean("pref_avater", false);
 
-
-        if (setting_avater_hidden) {
-            //thumbnail.setImageBitmap(item.getThumbnail());
-        }
-        //Wi-Fi
-        if (setting_avater_wifi) {
-            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true) {
-                if (setting_avater_gif) {
-
-                    //GIFアニメ再生させない
-                    Picasso.get()
-                            .load(avater_url)
-                            .into(thumbnail);
-
-                } else {
-
-                    //GIFアニメを再生
-                    Glide.with(view)
-                            .load(avater_url)
-                            .into(thumbnail);
-                }
+        //じゃんけんあいこん以外
+        if (!avater_url.contains("じゃんけん")){
+            if (setting_avater_hidden) {
+                //thumbnail.setImageBitmap(item.getThumbnail());
             }
-            //Wi-Fi no Connection
-            else {
+            //Wi-Fi
+            if (setting_avater_wifi) {
+                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true) {
+                    if (setting_avater_gif) {
+
+                        //GIFアニメ再生させない
+                        Picasso.get()
+                                .load(avater_url)
+                                .into(thumbnail);
+
+                    } else {
+
+                        //GIFアニメを再生
+                        Glide.with(view)
+                                .load(avater_url)
+                                .into(thumbnail);
+                    }
+                }
+                //Wi-Fi no Connection
+                else {
+                    //レイアウトを消す
+                    holder.vw1.removeView(holder.avaterImageview_linearLayout);
+                }
+
+            } else {
                 //レイアウトを消す
                 holder.vw1.removeView(holder.avaterImageview_linearLayout);
             }
+        }else {
+            String imageString = null;
+            //画像選択
+            if (avater_url.contains("勝ちました")) {
+                //GIFアニメを再生
+                Glide.with(view)
+                        .load(R.drawable.ic_thumb_up_black_24dp)
+                        .into(thumbnail);
+            }
+            if (avater_url.contains("負けました")) {
+                //GIFアニメを再生
+                Glide.with(view)
+                        .load(R.drawable.ic_thumb_down_black_24dp)
+                        .into(thumbnail);
+            }
+            if (avater_url.contains("あいこだぜ")) {
+                //GIFアニメを再生
+                Glide.with(view)
+                        .load(R.drawable.ic_thumbs_up_down_black_24dp)
+                        .into(thumbnail);
+            }
+            if (avater_url.contains("えらー")) {
+                //GIFアニメを再生
+                Glide.with(view)
+                        .load(R.drawable.ic_sync_problem_black_24dp)
+                        .into(thumbnail);
+            }
 
-        } else {
-            //レイアウトを消す
-            holder.vw1.removeView(holder.avaterImageview_linearLayout);
+
         }
+
 
 
         long account_id = Long.valueOf(listItem.get(6));
@@ -493,7 +527,7 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
                 public void onInitialized() {
                     if (client != null) {
                         client.setText(
-                                compat.process(listItem.get(3)));
+                                compat.process(listItem.get(4)));
                     }
                 }
             });
@@ -502,7 +536,7 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
             //無効時
             user.setText(userString);
             title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
-            client.setText(userString);
+            client.setText(listItem.get(4));
         }
 
         return view;

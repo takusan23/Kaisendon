@@ -75,7 +75,7 @@ public class ZyankenSetup extends AppCompatActivity {
         //ホスト側
         if (mode.contains("host")) {
             //テキスト変更
-            textView.setText("おもてなし");
+            textView.setText("@相手のID@インスタンス名\nを入力してください");
             //EditTextの内容
             //ボタンを押したらDM送信
             //ユーザー情報取得
@@ -90,8 +90,8 @@ public class ZyankenSetup extends AppCompatActivity {
                     String finalMessage = userID + " " + "//じゃんけん//\n招待だよ";
                     sendDirectMessage(finalMessage);
                     //Activity移動
-                    Intent intent = new Intent(ZyankenSetup.this,Zyanken.class);
-                    intent.putExtra("mode","host");
+                    Intent intent = new Intent(ZyankenSetup.this, Zyanken.class);
+                    intent.putExtra("mode", "host");
                     startActivity(intent);
                 }
             });

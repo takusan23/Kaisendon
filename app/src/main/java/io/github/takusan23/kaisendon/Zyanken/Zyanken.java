@@ -1,15 +1,18 @@
 package io.github.takusan23.kaisendon.Zyanken;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sys1yagi.mastodon4j.MastodonClient;
+import com.sys1yagi.mastodon4j.api.Handler;
 import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Notification;
 import com.sys1yagi.mastodon4j.api.entity.Status;
@@ -31,11 +35,19 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URI;
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import io.github.takusan23.kaisendon.ListItem;
 import io.github.takusan23.kaisendon.Preference_ApplicationContext;
 import io.github.takusan23.kaisendon.R;
+import io.github.takusan23.kaisendon.SimpleAdapter;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -54,20 +66,43 @@ public class Zyanken extends AppCompatActivity {
     //勝ったのは？
     String zyanken_final = null;
 
+    //主催側
     String acct;
-    String content;
+    //String content;
+    //主催側が文字列を時刻だけにするのに自分のacctを使う
+    String myAccountacct;
+    //Host/Client共に使う時間
+    String sendTime;
+    //正しく結果が出るように
+    String timeTemp;
 
     //じぶん、あいて切り替え
     //false 自分
     //true あいて
     boolean player = false;
-    TextView zyanken_TextView;
+    //TextView zyanken_TextView;
+    ListView listView;
+    //状況
+    TextView zyanken_TextView_info;
+    String zyanken_info;
+    int myCount = 0;
+    int OpponentCount = 0;
+    int totalCount = 0;
+    int aiko = 0;
+
+    //自分、相手のIDを控える
+    String myName;
+    String opponentName;
+    long opponentID;
+
+    //runningCheck
+    boolean runningCheck = false;
 
     Button rock_Button;
     Button caesar_Button;
     Button paper_Button;
 
-    WebSocketClient webSocketClient;
+
     SharedPreferences pref_setting;
 
     //mode
@@ -76,6 +111,10 @@ public class Zyanken extends AppCompatActivity {
     boolean ok = false;
 
     int startCount = 0;
+    Shutdownable shutdownable;
+    TimerTask task;
+
+    SimpleAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,13 +147,23 @@ public class Zyanken extends AppCompatActivity {
             client_boo = true;
         }
 
+        //メインアカウント
+        ArrayList<ListItem> toot_list = new ArrayList<>();
+
+        adapter = new SimpleAdapter(Zyanken.this, R.layout.timeline_item, toot_list);
 
         //find
-        zyanken_TextView = findViewById(R.id.zyanken_TextView);
+        //zyanken_TextView = findViewById(R.id.zyanken_TextView);
+        listView = findViewById(R.id.zyanken_listView);
+        zyanken_TextView_info = findViewById(R.id.zyanken_textView_info);
+        //scrollView = findViewById(R.id.zyanken_scrollView);
         rock_Button = findViewById(R.id.rock);
         caesar_Button = findViewById(R.id.caesar);
         paper_Button = findViewById(R.id.paper);
 
+        //@ID@Instance取得
+        //自分の名前も取ってくる
+        getMyUser();
 
         //通知取得
         String finalInstance = Instance;
@@ -128,7 +177,7 @@ public class Zyanken extends AppCompatActivity {
                         .accessToken(finalAccessToken)
                         .useStreamingApi()
                         .build();
-                com.sys1yagi.mastodon4j.api.Handler handler = new com.sys1yagi.mastodon4j.api.Handler() {
+                Handler handler = new Handler() {
                     @Override
                     public void onStatus(@NotNull com.sys1yagi.mastodon4j.api.entity.Status status) {
                     }
@@ -136,33 +185,73 @@ public class Zyanken extends AppCompatActivity {
                     @Override
                     public void onNotification(@NotNull Notification notification) {
                         if (notification.getType().contains("mention")) {
-                            content = notification.getStatus().getContent();
+                            String content = notification.getStatus().getContent();
+                            opponentName = notification.getStatus().getAccount().getDisplayName() + " @" + notification.getStatus().getAccount().getAcct();
                             acct = notification.getAccount().getAcct();
+                            opponentID = notification.getStatus().getAccount().getId();
+                            //timeTemp = notification.getStatus().getCreatedAt();
                             //参加
+                            //最初のゲームの開始時刻を一緒に送信する
                             if (client_boo) {
-                                String finalMessage = "@" + acct + " " + "//じゃんけん//\nいいよ";
+                                //ゲーム開始はDM送信から10秒後とする
+                                Date date = new Date();
+                                //10秒加算するのでCalendarを使う
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.setTime(date);
+                                //10秒追加しまーす（大物Youtubeｒ）
+                                calendar.add(Calendar.SECOND, +10);
+                                //Dateに戻しまーす
+                                Date finalDate = new Date(calendar.getTimeInMillis());
+                                //Stringへ
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                                String dateString = simpleDateFormat.format(finalDate);
+                                //送信時間確定
+                                //もしかして：見えない改行エスケープ文字が存在する？
+                                //参加側だけが改行されなかったのでなんとなく
+                                sendTime = dateString + "\n";
+                                startZyanken();
+
+                                //DM送信
+                                String finalMessage = "@" + acct + " " + "//じゃんけん//\nいいよ" + dateString;
                                 sendDirectMessage(finalMessage);
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        zyanken_TextView.append("準備完了/メッセージ送信完了\n");
+                                        //zyanken_TextView.append("準備完了/メッセージ送信完了\n");
+                                        Toast.makeText(Zyanken.this, "準備完了/メッセージ送信完了", Toast.LENGTH_SHORT).show();
                                         Toast.makeText(Zyanken.this, "ぐー・ちょき・ぱー\n選んでね！10秒後に勝負だよ！", Toast.LENGTH_SHORT).show();
                                     }
                                 });
+
+
                             }
                             //企画
+                            //参加側から送られてきた時刻をDateへ
                             if (host_boo) {
                                 if (content.contains("いいよ") && content.contains("//じゃんけん//")) {
+                                    //Date以外を取り除く
+                                    String htmlRemoveContent = Html.fromHtml(content, Html.FROM_HTML_MODE_COMPACT).toString();
+                                    String finalContent = htmlRemoveContent.replace("@" + myAccountacct + " " + "//じゃんけん//\nいいよ", "");
+                                    //送信時間確定
+                                    sendTime = finalContent;
+                                    startZyanken();
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            zyanken_TextView.append("あいて準備完了\n");
+                                            //zyanken_TextView.append("相手準備完了\n");
+                                            Toast.makeText(Zyanken.this, "相手準備完了", Toast.LENGTH_SHORT).show();
                                             Toast.makeText(Zyanken.this, "ぐー・ちょき・ぱー\n選んでね！10秒後に勝負だよ！", Toast.LENGTH_SHORT).show();
                                         }
                                     });
                                 }
                             }
-                            syoubu(content);
+                            //正負ちぇっく
+                            //最初の動作確認は動かさないようにする
+                            if (runningCheck) {
+                                syoubu(zyanken_String, content);
+                            }
+                            //最初か判断する
+                            runningCheck = true;
                             host_boo = false;
                             client_boo = false;
                         }
@@ -176,7 +265,7 @@ public class Zyanken extends AppCompatActivity {
 
                 Streaming streaming = new Streaming(client);
                 try {
-                    Shutdownable shutdownable = streaming.user(handler);
+                    shutdownable = streaming.user(handler);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -186,50 +275,26 @@ public class Zyanken extends AppCompatActivity {
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         //用意できた
-        if (zyanken_TextView.getText().length() == 0) {
-            //10秒間隔でジャンケン勝負を行う
-            sendButton(rock_Button);
-            sendButton(caesar_Button);
-            sendButton(paper_Button);
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //Toast.makeText(Zyanken.this, "ぐー・ちょき・ぱー\n選んでね！10秒後に勝負だよ！", Toast.LENGTH_SHORT).show();
-                }
-            });
-            //定期実行？
-            Handler handler = new Handler();
-            Timer timer = new Timer(true);
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (startCount >= 1){
-                                //準備OK!?
-                                //POST
-                                zyankenPost();
-                                //結果
-
-                                //入れる
-                                zyanken_TextView.append(zyanken_final + "\n");
-
-                            }
-
-
-                        }
-                    });
-                }
-            }, 1000, 15000);
-
-        }
-
-
+        //if (zyanken_TextView.getText().toString().length() == 0) {
+        //10秒間隔でジャンケン勝負を行う
+        sendButton(rock_Button);
+        sendButton(caesar_Button);
+        sendButton(paper_Button);
+        //}
     }
 
-    //先行
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        task.cancel();
+        if (shutdownable != null) {
+            shutdownable.shutdown();
+        }
+    }
+
+
+    //ボタンの動作
     private void sendButton(Button button) {
         final String[] dore = {""};
         button.setOnClickListener(new View.OnClickListener() {
@@ -247,60 +312,258 @@ public class Zyanken extends AppCompatActivity {
                     dore[0] = "ぱー";
                 }
                 zyanken_String = dore[0];
+
                 Toast.makeText(Zyanken.this, zyanken_String + "　を選びました", Toast.LENGTH_SHORT).show();
 
             }
         });
     }
 
-    //POST
+
+    //DMをPOSTする
     //定期的に動かす？
     private void zyankenPost() {
-        zyanken_TextView.append("自分 : " + zyanken_String + "\n");
         String finalMessage = "@" + acct + " " + "//じゃんけん//\n" + zyanken_String;
         sendDirectMessage(finalMessage);
-        zyanken_TextView.append("送信したよ！\n");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(Zyanken.this, "送信したよ！", Toast.LENGTH_SHORT).show();
+                //zyanken_TextView.append("送信したよ！\n");
+            }
+        });
+    }
+
+    //最初に使う
+    private void startZyanken() {
+        //UIすれっど
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //zyanken_TextView.append(sendTime);
+            }
+        });
+
+        //if (zyanken_TextView.getText().toString().length() == 0) {
+
+        //定期実行
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Timer timer = new Timer(true);
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                //POST
+                zyankenPost();
+            }
+        };
+        //第一引数　TimerTast
+        //第二引数　タイマー開始時間指定
+        //第三引数　実行間隔
+        try {
+            timer.schedule(task, simpleDateFormat.parse(sendTime), 10000);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        // }
+
     }
 
     //結果
-    private void syoubu(String content) {
-        //ぐー
-        if (zyanken_String.contains("ぐー")) {
-            //ぱーが勝ち
-            if (content.contains("ぱー")) {
-                zyanken_final = acct + "の勝ちです";
+    //毎回呼ばれる
+
+    /**
+     * @param my      自分の選んだ手
+     * @param player1 相手の選んだ手
+     */
+    private void syoubu(String my, String player1) {
+        String player_string = "";
+        //NullCheck
+        if (my != null && player1 != null) {
+            //ぐー
+            //自分
+            if (my.contains("ぐー")) {
+                //ぱーが勝ち
+                //相手
+                if (player1.contains("ぱー")) {
+                    zyanken_final = "負けました";
+                    player_string = "ぱー";
+                    //相手のカウント
+                    OpponentCount++;
+                }
+                if (player1.contains("ちょき")) {
+                    zyanken_final = "勝ちました";
+                    player_string = "ちょき";
+                    //勝カウント
+                    myCount++;
+                }
+                if (player1.contains("ぐー")) {
+                    zyanken_final = "あいこだぜ";
+                    player_string = "ぐー";
+                }
             }
-            if (content.contains("ちょき")) {
-                zyanken_final = "あなたの勝ちです";
+            //きょき
+            if (my.contains("ちょき")) {
+                //ぱーが勝ち
+                if (player1.contains("ぐー")) {
+                    zyanken_final = "負けました";
+                    player_string = "ぐー";
+                    //相手のカウント
+                    OpponentCount++;
+                }
+                if (player1.contains("ぱー")) {
+                    zyanken_final = "勝ちました";
+                    player_string = "ぱー";
+                    //勝カウント
+                    myCount++;
+                }
+                if (player1.contains("ちょき")) {
+                    zyanken_final = "あいこだぜ";
+                    player_string = "ちょき";
+                }
             }
-            if (content.contains("ぐー")) {
-                zyanken_final = "あいこです";
+            //ぱー
+            if (my.contains("ぱー")) {
+                //ぱーが勝ち
+                if (player1.contains("きょき")) {
+                    zyanken_final = "負けました";
+                    player_string = "ちょき";
+                    //相手のカウント
+                    OpponentCount++;
+                }
+                if (player1.contains("ぐー")) {
+                    zyanken_final = "勝ちました";
+                    player_string = "ぐー";
+                    //勝カウント
+                    myCount++;
+                }
+                if (player1.contains("ぱー")) {
+                    zyanken_final = "あいこだぜ";
+                    player_string = "ぱー";
+                }
             }
-        }
-        //きょき
-        if (zyanken_String.contains("ちょき")) {
-            //ぱーが勝ち
-            if (content.contains("ぐー")) {
-                zyanken_final = acct + "の勝ちです";
-            }
-            if (content.contains("ぱー")) {
-                zyanken_final = "あなたの勝ちです";
-            }
-            if (content.contains("ちょき")) {
-                zyanken_final = "あいこです";
-            }
-        }
-        //ぱー
-        if (zyanken_String.contains("ぱー")) {
-            //ぱーが勝ち
-            if (content.contains("きょき")) {
-                zyanken_final = acct + "の勝ちです";
-            }
-            if (content.contains("ぐー")) {
-                zyanken_final = "あなたの勝ちです";
-            }
-            if (content.contains("ぱー")) {
-                zyanken_final = "あいこです";
+            //総ゲーム数カウント
+            totalCount++;
+
+            //自分の選んだものを表示
+            //なーんかNullがあるっぽい？
+            if (zyanken_final != null) {
+                String finalPlayer_string = player_string;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //zyanken_TextView.append("自分 : " + myName + " / " + "相手 : " + opponentName + "\n");
+                        //zyanken_TextView.append("自分 : " + zyanken_String + " / " + "相手 : " + finalPlayer_string + "\n");
+                        //zyanken_TextView.append(zyanken_final + "\n");
+
+                        String imageString = null;
+                        //画像選択
+                        if (zyanken_final.contains("勝ちました")) {
+                            imageString = "じゃんけん " + "勝ちました";
+                        }
+                        if (zyanken_final.contains("負けました")) {
+                            imageString = "じゃんけん " + "負けました";
+                        }
+                        if (zyanken_final.contains("あいこだぜ")) {
+                            imageString = "じゃんけん " + "あいこだぜ";
+                        }
+
+                        //ListView
+                        //配列を作成
+                        ArrayList<String> Item = new ArrayList<>();
+                        //メモとか通知とかに
+                        Item.add("じゃんけん");
+                        //内容
+                        Item.add("自分 : " + zyanken_String + " / " + "相手 : " + finalPlayer_string + "<br>" + zyanken_final);
+                        //ユーザー名
+                        Item.add(opponentName);
+                        //時間、クライアント名等
+                        Item.add(null);
+                        //Toot ID 文字列版
+                        Item.add(null);
+                        //アバターURL
+                        Item.add(imageString);
+                        //アカウントID
+                        Item.add(String.valueOf(opponentID));
+                        //ユーザーネーム
+                        Item.add("");
+                        //メディア
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        //カード
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        ListItem listItem = new ListItem(Item);
+
+                        adapter.add(listItem);
+                        adapter.notifyDataSetChanged();
+                        listView.setAdapter(adapter);
+
+                        //状態を更新する
+                        setZyankenInfo();
+
+                        //ListView下にスクロール
+                        listView.setSelection(listView.getCount() - 1);
+                    }
+                });
+            } else {
+                //えらーめせーじ
+                String finalPlayer_string1 = player_string;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String finalPlayer_string = finalPlayer_string1;
+                        String imageString = null;
+                        imageString = "じゃんけん " + "あいこだぜ";
+
+                        //ListView
+                        //配列を作成
+                        ArrayList<String> Item = new ArrayList<>();
+                        //メモとか通知とかに
+                        Item.add("じゃんけん");
+                        //内容
+                        Item.add("相手の情報が取れなかったよ");
+                        //ユーザー名
+                        Item.add(opponentName);
+                        //時間、クライアント名等
+                        Item.add(null);
+                        //Toot ID 文字列版
+                        Item.add(null);
+                        //アバターURL
+                        Item.add(imageString);
+                        //アカウントID
+                        Item.add(String.valueOf(opponentID));
+                        //ユーザーネーム
+                        Item.add("");
+                        //メディア
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        //カード
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        Item.add(null);
+                        ListItem listItem = new ListItem(Item);
+
+                        adapter.add(listItem);
+                        adapter.notifyDataSetChanged();
+                        listView.setAdapter(adapter);
+                        //状態を更新する
+                        setZyankenInfo();
+
+                        //ListView下にスクロール
+                        listView.setSelection(listView.getCount() - 1);
+
+                        //zyanken_TextView.append("相手の情報が取れなかったよ \n");
+                    }
+                });
+
             }
         }
     }
@@ -322,7 +585,7 @@ public class Zyanken extends AppCompatActivity {
                 }
                 player = false;
                 zyanken_String_2 = dore[0];
-                zyanken_TextView.append("２番め : " + zyanken_String_2 + "\n");
+                //zyanken_TextView.append("２番め : " + zyanken_String_2 + "\n");
 /*
                 //結果
                 kati_make(zyanken_String_1, zyanken_String_2);
@@ -378,6 +641,21 @@ public class Zyanken extends AppCompatActivity {
         }
     }
 
+    //じゃんけんの状態
+    private void setZyankenInfo() {
+        //定型文
+        String player_my = "自分勝ち ";
+        String player_pair = "相手勝ち ";
+        String total = "ゲーム数 ";
+        String aikoString = "あいこ ";
+        zyanken_TextView_info.setText(total + intToString(totalCount) + " / " + player_my + intToString(myCount) + " / " + player_pair + intToString(OpponentCount) + " / " + aikoString + intToString(aiko));
+    }
+
+    //int→String
+    private String intToString(int convert) {
+        return String.valueOf(convert);
+    }
+
     private void sendDirectMessage(String message) {
         //アクセストークン
         String AccessToken = null;
@@ -419,6 +697,58 @@ public class Zyanken extends AppCompatActivity {
                         Toast.makeText(Zyanken.this, "送信しました", Toast.LENGTH_SHORT).show();
                     }
                 });
+            }
+        });
+    }
+
+    private void getMyUser() {
+        //アクセストークン
+        String AccessToken = null;
+        //インスタンス
+        String Instance = null;
+        boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
+        if (accessToken_boomelan) {
+            AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
+            Instance = pref_setting.getString("pref_mastodon_instance", "");
+        } else {
+            AccessToken = pref_setting.getString("main_token", "");
+            Instance = pref_setting.getString("main_instance", "");
+        }
+        String url = "https://" + Instance + "/api/v1/accounts/verify_credentials/?access_token=" + AccessToken;
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+
+        //GETリクエスト
+        OkHttpClient client_1 = new OkHttpClient();
+        client_1.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                try {
+                    JSONObject jsonObject = new JSONObject(response_string);
+                    myAccountacct = jsonObject.getString("acct");
+                    //名前（DisplayName+acct）
+                    myName = jsonObject.getString("display_name") + " @" + myAccountacct;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            //Titleber
+                            getSupportActionBar().setSubtitle(myName);
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
     }

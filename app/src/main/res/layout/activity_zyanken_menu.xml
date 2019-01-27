@@ -10,15 +10,23 @@
     tools:context=".Zyanken.ZyankenMenu">
 
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="--ゲーム解説--\n1対1のじゃんけんゲームができます。対戦にDMを使うので通知とDMが荒れます。\n準備でき次第１０秒ことに勝負を行います。不具合で正しく出ないときが多いです。\n参加者は先に参加するを押して招待を待ってください。\n企画者は企画を押して相手のID/インスタンス名を入力して接続してください。" />
+
     <Button
         android:id="@+id/zyanken_host"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="枠をあける" />
+        android:text="企画する" />
 
     <Button
         android:id="@+id/zyanken_join"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="参加する" />
+
 </LinearLayout>

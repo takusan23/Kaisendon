@@ -673,11 +673,11 @@ public class TootSnackberActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 //コマンド実行メゾット？
-                CommandCode.commandSet(toot_EditText, toot_LinearLayout, command_Button, "/sushi", "command_sushi");
-                CommandCode.commandSetNotPreference(TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/rate-limit", "rate-limit");
-                CommandCode.commandSetNotPreference(TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-home", "home");
-                CommandCode.commandSetNotPreference(TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-local", "local");
-                CommandCode.commandSetNotPreference(TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/じゃんけん", "じゃんけん");
+                CommandCode.commandSet(TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/sushi", "command_sushi");
+                CommandCode.commandSetNotPreference(TootSnackberActivity.this, TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/rate-limit", "rate-limit");
+                CommandCode.commandSetNotPreference(TootSnackberActivity.this, TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-home", "home");
+                CommandCode.commandSetNotPreference(TootSnackberActivity.this, TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-local", "local");
+                CommandCode.commandSetNotPreference(TootSnackberActivity.this, TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/じゃんけん", "じゃんけん");
             }
 
             @Override

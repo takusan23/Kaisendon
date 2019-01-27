@@ -1880,11 +1880,11 @@ public class Home extends AppCompatActivity
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 //コマンド実行メゾット？
-                CommandCode.commandSet(toot_EditText, toot_LinearLayout, command_Button, "/sushi", "command_sushi");
-                CommandCode.commandSetNotPreference(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/rate-limit", "rate-limit");
-                CommandCode.commandSetNotPreference(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-home", "home");
-                CommandCode.commandSetNotPreference(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-local", "local");
-                CommandCode.commandSetNotPreference(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/じゃんけん", "じゃんけん");
+                CommandCode.commandSet(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/sushi", "command_sushi");
+                CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/rate-limit", "rate-limit");
+                CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-home", "home");
+                CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-local", "local");
+                CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/じゃんけん", "じゃんけん");
             }
 
             @Override

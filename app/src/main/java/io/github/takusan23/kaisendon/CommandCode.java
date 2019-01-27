@@ -1,5 +1,6 @@
 package io.github.takusan23.kaisendon;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -39,7 +41,7 @@ public class CommandCode {
      * @param commandText       　コマンド実行文
      * @param prefKey           　プリファレンスに保存する値
      */
-    public static void commandSet(EditText editText, LinearLayout toot_LinearLayout, Button command_Button, String commandText, String prefKey) {
+    public static void commandSet(Activity activity, EditText editText, LinearLayout toot_LinearLayout, Button command_Button, String commandText, String prefKey) {
         //コマンド機能
         SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
         if (editText.getText().toString().contains(commandText)) {
@@ -49,6 +51,14 @@ public class CommandCode {
             command_Button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //クローズでソフトキーボード非表示
+                    InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        if (activity.getCurrentFocus() != null) {
+                            imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+                        }
+                    }
+
                     //スナックばー
                     Snackbar.make(v, R.string.command_run_message, Snackbar.LENGTH_SHORT).setAction(R.string.run, new View.OnClickListener() {
                         @Override
@@ -70,7 +80,7 @@ public class CommandCode {
                     }).show();
                 }
             });
-            toot_LinearLayout.addView(command_Button,0);
+            toot_LinearLayout.addView(command_Button, 0);
         } else {
             toot_LinearLayout.removeView(command_Button);
         }
@@ -84,7 +94,7 @@ public class CommandCode {
      * @param commandText       　コマンド実行文
      * @param commandType       コマンド詳細（fav/btコマンドはタイムライン名）
      */
-    public static void commandSetNotPreference(Context context, EditText editText, LinearLayout toot_LinearLayout, Button command_Button, String commandText, String commandType) {
+    public static void commandSetNotPreference(Activity activity, Context context, EditText editText, LinearLayout toot_LinearLayout, Button command_Button, String commandText, String commandType) {
         //コマンド機能
         if (editText.getText().toString().contains(commandText)) {
             ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -97,6 +107,14 @@ public class CommandCode {
                     Snackbar.make(v, R.string.command_run_message, Snackbar.LENGTH_SHORT).setAction(R.string.run, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            //クローズでソフトキーボード非表示
+                            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                            if (imm != null) {
+                                if (activity.getCurrentFocus() != null) {
+                                    imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+                                }
+                            }
+
                             //レートリミット
                             if (commandType.contains("rate-limit")) {
                                 getMyRateLimit(context, editText);
@@ -117,7 +135,7 @@ public class CommandCode {
                     }).show();
                 }
             });
-            toot_LinearLayout.addView(command_Button,0);
+            toot_LinearLayout.addView(command_Button, 0);
         } else {
             //toot_LinearLayout.removeView(command_Button);
         }

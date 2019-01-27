@@ -4,13 +4,17 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -31,13 +35,20 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -70,6 +81,18 @@ public class TootSnackberActivity extends AppCompatActivity {
     int count = 0;
     ArrayList<String> media_list = new ArrayList<>();
     ArrayList<String> post_media_id = new ArrayList<>();
+    //名前とか
+    String snackber_Name = "";
+    String Instance;
+    String snackber_Avatar;
+    ImageView snackberAccountAvaterImageView;
+    TextView snackberAccount_TextView;
+    MenuBuilder account_menuBuilder;
+    MenuPopupHelper account_optionsMenu;
+    LinearLayout account_LinearLayout;
+    //マルチアカウント読み込み用
+    ArrayList<String> multi_account_instance;
+    ArrayList<String> multi_account_access_token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,11 +100,19 @@ public class TootSnackberActivity extends AppCompatActivity {
         setContentView(R.layout.activity_toot_snackber);
 
         //設定のプリファレンス
-        pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(this);
         //スナックバー生成
         tootSnackBer();
         //表示
         toot_snackbar.show();
+        //ふぉーかす
+        toot_EditText.requestFocus();
+        //キーボード表示
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+        }
+
 
         //共有受け取る
         Intent intent = getIntent();
@@ -107,12 +138,27 @@ public class TootSnackberActivity extends AppCompatActivity {
             }
         }
 
+        //作者に連絡
+        try {
+            toot_EditText.append(getIntent().getStringExtra("contact"));
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+
+
         //FABで閉じれるようにする
         FloatingActionButton fab = findViewById(R.id.toot_snackber_fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finishAndRemoveTask();
+                //クローズでソフトキーボード非表示
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    if (TootSnackberActivity.this.getCurrentFocus() != null){
+                        imm.hideSoftInputFromWindow(TootSnackberActivity.this.getCurrentFocus().getWindowToken(),0);
+                    }
+                }
             }
         });
     }
@@ -149,7 +195,7 @@ public class TootSnackberActivity extends AppCompatActivity {
                         imageView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                //Toast.makeText(Home.this, "位置 : " + String.valueOf((Integer) imageView.getTag()), Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(TootSnackberActivity.this, "位置 : " + String.valueOf((Integer) imageView.getTag()), Toast.LENGTH_SHORT).show();
                                 //要素の削除
                                 //media_list.remove(0);
                                 //再生成
@@ -182,6 +228,13 @@ public class TootSnackberActivity extends AppCompatActivity {
                     post_button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            //クローズでソフトキーボード非表示
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            if (imm != null) {
+                                if (TootSnackberActivity.this.getCurrentFocus() != null){
+                                    imm.hideSoftInputFromWindow(TootSnackberActivity.this.getCurrentFocus().getWindowToken(),0);
+                                }
+                            }
                             //配列からUriを取り出す
                             for (int i = 0; i < media_list.size(); i++) {
                                 //ひつようなやつ
@@ -308,7 +361,7 @@ public class TootSnackberActivity extends AppCompatActivity {
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(TootSnackberActivity.this, "位置 : " + String.valueOf((Integer) imageView.getTag()), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(TootSnackberActivity.this, "位置 : " + String.valueOf((Integer) imageView.getTag()), Toast.LENGTH_SHORT).show();
                     //要素の削除
                     //なんだこのくそｇｍコードは
                     //removeにgetTagそのまま書くとなんかだめなんだけど何これ意味不
@@ -351,7 +404,8 @@ public class TootSnackberActivity extends AppCompatActivity {
 
         }
 
-        toot_snackbar = Snackbar.make(findViewById(R.id.toot_snackber_coordinator), "", Snackbar.LENGTH_INDEFINITE);
+        View view = findViewById(R.id.toot_snackber_coordinator);
+        toot_snackbar = Snackbar.make(view, "", Snackbar.LENGTH_INDEFINITE);
         //Snackber生成
         ViewGroup snackBer_viewGrop = (ViewGroup) toot_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -378,7 +432,8 @@ public class TootSnackberActivity extends AppCompatActivity {
 
         //Button
         //画像追加
-        ImageButton add_image_Button = new ImageButton(TootSnackberActivity.this);
+        ImageButton add_image_Button = new ImageButton(TootSnackberActivity.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        add_image_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
         add_image_Button.setImageDrawable(getDrawable(R.drawable.ic_image_black_24dp));
         add_image_Button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -411,8 +466,9 @@ public class TootSnackberActivity extends AppCompatActivity {
         });
 
         //公開範囲選択用Button
-        ImageButton toot_area_Button = new ImageButton(TootSnackberActivity.this);
+        ImageButton toot_area_Button = new ImageButton(TootSnackberActivity.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
         toot_area_Button.setImageDrawable(getDrawable(R.drawable.ic_public_black_24dp));
+        toot_area_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
         //toot_area_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_public_black_24dp, 0, 0, 0);
 
         //ポップアップメニュー作成
@@ -485,6 +541,13 @@ public class TootSnackberActivity extends AppCompatActivity {
         post_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //クローズでソフトキーボード非表示
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    if (TootSnackberActivity.this.getCurrentFocus() != null){
+                        imm.hideSoftInputFromWindow(TootSnackberActivity.this.getCurrentFocus().getWindowToken(),0);
+                    }
+                }
                 //画像添付なしのときはここを利用して、
                 //画像添付トゥートは別に書くよ
                 if (media_list.isEmpty() || media_list == null || media_list.get(0) == null) {
@@ -517,8 +580,6 @@ public class TootSnackberActivity extends AppCompatActivity {
                                     toot_snackbar.dismiss();
                                     //EditTextを空にする
                                     toot_EditText.setText("");
-                                    //アプリを閉じる
-                                    finishAndRemoveTask();
                                 }
                             });
 
@@ -529,7 +590,8 @@ public class TootSnackberActivity extends AppCompatActivity {
         });
 
         //端末情報とぅーと
-        ImageButton device_Button = new ImageButton(TootSnackberActivity.this);
+        ImageButton device_Button = new ImageButton(TootSnackberActivity.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        device_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
         device_Button.setImageDrawable(getDrawable(R.drawable.ic_perm_device_information_black_24dp));
         //ポップアップメニュー作成
         MenuBuilder device_menuBuilder = new MenuBuilder(TootSnackberActivity.this);
@@ -615,6 +677,7 @@ public class TootSnackberActivity extends AppCompatActivity {
                 CommandCode.commandSetNotPreference(TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/rate-limit", "rate-limit");
                 CommandCode.commandSetNotPreference(TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-home", "home");
                 CommandCode.commandSetNotPreference(TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-local", "local");
+                CommandCode.commandSetNotPreference(TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/じゃんけん", "じゃんけん");
             }
 
             @Override
@@ -622,6 +685,35 @@ public class TootSnackberActivity extends AppCompatActivity {
 
             }
         });
+
+        //アカウント切り替えとか
+        account_LinearLayout = new LinearLayout(this);
+        account_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        LinearLayout.LayoutParams center_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        center_layoutParams.gravity = Gravity.CENTER;
+        //ImageView
+        snackberAccountAvaterImageView = new ImageView(this);
+        snackberAccountAvaterImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        snackberAccountAvaterImageView.setLayoutParams(center_layoutParams);
+        //TextView
+        snackberAccount_TextView = new TextView(this);
+        snackberAccount_TextView.setTextSize(14);
+        snackberAccount_TextView.setTextColor(Color.parseColor("#ffffff"));
+        snackberAccount_TextView.setLayoutParams(center_layoutParams);
+        //アカウント情報を取得するところにテキスト設定とか書いたで
+        getAccount();
+        //アカウント切り替えポップアップ
+        //ポップアップメニューを展開する
+        account_menuBuilder = new MenuBuilder(this);
+        account_optionsMenu = new MenuPopupHelper(this, account_menuBuilder, account_LinearLayout);
+        optionsMenu.setForceShowIcon(true);
+        //マルチアカウント読み込み
+        //押したときの処理とかもこっち
+        readMultiAccount();
+
+        //LinearLayoutに入れる
+        account_LinearLayout.addView(snackberAccountAvaterImageView);
+        account_LinearLayout.addView(snackberAccount_TextView);
 
 
         //画像追加用LinearLayout
@@ -631,6 +723,7 @@ public class TootSnackberActivity extends AppCompatActivity {
 
         //LinearLayoutに追加
         //メイン
+        snackber_LinearLayout.addView(account_LinearLayout);
         snackber_LinearLayout.addView(toot_EditText);
         snackber_LinearLayout.addView(toot_Button_LinearLayout);
         snackber_LinearLayout.addView(media_LinearLayout);
@@ -644,5 +737,212 @@ public class TootSnackberActivity extends AppCompatActivity {
         //SnackBerに追加
         snackBer_viewGrop.addView(snackber_LinearLayout);
     }
+
+
+    //自分の情報を手に入れる
+    private void getAccount() {
+        //Wi-Fi接続状況確認
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+
+        //通信量節約
+        boolean setting_avater_hidden = pref_setting.getBoolean("pref_drawer_avater", false);
+        //Wi-Fi接続時は有効？
+        boolean setting_avater_wifi = pref_setting.getBoolean("pref_avater_wifi", true);
+        //GIFを再生するか？
+        boolean setting_avater_gif = pref_setting.getBoolean("pref_avater_gif", false);
+        //アクセストークン
+        String AccessToken = null;
+        //インスタンス
+        String Instance = null;
+        boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
+        if (accessToken_boomelan) {
+            AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
+            Instance = pref_setting.getString("pref_mastodon_instance", "");
+        } else {
+            AccessToken = pref_setting.getString("main_token", "");
+            Instance = pref_setting.getString("main_instance", "");
+        }
+        String url = "https://" + Instance + "/api/v1/accounts/verify_credentials/?access_token=" + AccessToken;
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+
+        //GETリクエスト
+        OkHttpClient client_1 = new OkHttpClient();
+        String finalInstance = Instance;
+        client_1.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                try {
+                    JSONObject jsonObject = new JSONObject(response_string);
+                    String display_name = jsonObject.getString("display_name");
+                    String user_id = jsonObject.getString("acct");
+                    //スナックバー更新
+                    snackber_Name = display_name + " ( @" + user_id + " / " + finalInstance + " )";
+                    snackber_Avatar = jsonObject.getString("avatar");
+                    //UIスレッド
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            //画像を入れる
+                            //表示設定
+                            if (setting_avater_hidden) {
+                                snackberAccountAvaterImageView.setImageResource(R.drawable.ic_person_black_24dp);
+                                snackberAccountAvaterImageView.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
+                            }
+                            //Wi-Fi
+                            if (setting_avater_wifi) {
+                                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                                    if (setting_avater_gif) {
+                                        //GIFアニメ再生させない
+                                        Picasso.get()
+                                                .load(snackber_Avatar)
+                                                .resize(100, 100)
+                                                .placeholder(R.drawable.ic_refresh_black_24dp)
+                                                .into(snackberAccountAvaterImageView);
+                                    } else {
+                                        //GIFアニメを再生
+                                        Glide.with(getApplicationContext())
+                                                .load(snackber_Avatar)
+                                                .apply(new RequestOptions().override(100, 100).placeholder(R.drawable.ic_refresh_black_24dp))
+                                                .into(snackberAccountAvaterImageView);
+                                    }
+                                }
+                            } else {
+                                snackberAccountAvaterImageView.setImageResource(R.drawable.ic_person_black_24dp);
+                                snackberAccountAvaterImageView.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
+                            }
+                            //テキストビューに入れる
+                            snackberAccount_TextView.setText(snackber_Name);
+
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+    }
+
+
+    @SuppressLint("RestrictedApi")
+    private void readMultiAccount() {
+        multi_account_instance = new ArrayList<>();
+        multi_account_access_token = new ArrayList<>();
+        //とりあえずPreferenceに書き込まれた値を
+        String instance_instance_string = pref_setting.getString("instance_list", "");
+        String account_instance_string = pref_setting.getString("access_list", "");
+        if (!instance_instance_string.equals("")) {
+            try {
+                JSONArray instance_array = new JSONArray(instance_instance_string);
+                JSONArray access_array = new JSONArray(account_instance_string);
+                for (int i = 0; i < instance_array.length(); i++) {
+                    multi_account_access_token.add(access_array.getString(i));
+                    multi_account_instance.add(instance_array.getString(i));
+                }
+            } catch (Exception e) {
+
+            }
+        }
+
+        if (multi_account_instance.size() >= 1) {
+            for (int count = 0; count < multi_account_instance.size(); count++) {
+                String multi_instance = multi_account_instance.get(count);
+                String multi_access_token = multi_account_access_token.get(count);
+                int finalCount = count;
+                //GetAccount
+                String url = "https://" + multi_instance + "/api/v1/accounts/verify_credentials/?access_token=" + multi_access_token;
+                //作成
+                Request request = new Request.Builder()
+                        .url(url)
+                        .get()
+                        .build();
+
+                //GETリクエスト
+                OkHttpClient client_1 = new OkHttpClient();
+                String finalInstance = Instance;
+                client_1.newCall(request).enqueue(new Callback() {
+
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String response_string = response.body().string();
+                        try {
+                            JSONObject jsonObject = new JSONObject(response_string);
+                            String display_name = jsonObject.getString("display_name");
+                            String user_id = jsonObject.getString("acct");
+                            //スナックバー更新
+                            snackber_Name = display_name + " ( @" + user_id + " / " + finalInstance + " )";
+                            snackber_Avatar = jsonObject.getString("avatar");
+                            account_menuBuilder.add(0, finalCount, 0, display_name + "(" + user_id + " / " + multi_instance + ")");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        }
+
+        //押したときの処理
+        account_LinearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //追加中に押したら落ちるから回避
+                if (account_menuBuilder.size() == multi_account_instance.size()) {
+                    account_optionsMenu.show();
+                    account_menuBuilder.setCallback(new MenuBuilder.Callback() {
+                        @Override
+                        public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
+
+                            //ItemIdにマルチアカウントのカウントを入れている
+                            int position = menuItem.getItemId();
+
+                            String multi_instance = multi_account_instance.get(position);
+                            String multi_access_token = multi_account_access_token.get(position);
+
+                            SharedPreferences.Editor editor = pref_setting.edit();
+                            editor.putString("main_instance", multi_instance);
+                            editor.putString("main_token", multi_access_token);
+                            editor.apply();
+
+                            //アプリ再起動
+                            Intent intent = new Intent(getContext(), Home.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+
+                            return false;
+                        }
+
+                        @Override
+                        public void onMenuModeChange(MenuBuilder menuBuilder) {
+
+                        }
+                    });
+
+                } else {
+                    Toast.makeText(getContext(), R.string.loading, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+    }
+
 
 }

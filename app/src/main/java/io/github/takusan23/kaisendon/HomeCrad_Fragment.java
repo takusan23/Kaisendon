@@ -1525,9 +1525,7 @@ public class HomeCrad_Fragment extends Fragment {
                     }
                 }
             });
-
             setting_main.addView(multiaccount_LinearLayout);
-
         }
 
 

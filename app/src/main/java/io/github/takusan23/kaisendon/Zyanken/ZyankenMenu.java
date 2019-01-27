@@ -34,6 +34,8 @@ public class ZyankenMenu extends AppCompatActivity {
         Button client_Button = findViewById(R.id.zyanken_join);
         LinearLayout zyanken_LinearLayout = findViewById(R.id.zyanken_menu_linearLayout);
 
+        getSupportActionBar().setTitle("じゃんけんメニュー");
+
         //枠をあける
         host_Button.setOnClickListener(new View.OnClickListener() {
             @Override

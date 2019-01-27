@@ -22,8 +22,7 @@
         android:hint="@ID@instance"
         android:inputType="textPersonName" />
 
-    <ListView
-        android:id="@+id/zyanken_setup_listview"
+    <Space
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1" />

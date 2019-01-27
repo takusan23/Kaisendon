@@ -382,27 +382,28 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
             String imageString = null;
             //画像選択
             if (avater_url.contains("勝ちました")) {
-                //GIFアニメを再生
                 Glide.with(view)
                         .load(R.drawable.ic_thumb_up_black_24dp)
                         .into(thumbnail);
             }
             if (avater_url.contains("負けました")) {
-                //GIFアニメを再生
                 Glide.with(view)
                         .load(R.drawable.ic_thumb_down_black_24dp)
                         .into(thumbnail);
             }
             if (avater_url.contains("あいこだぜ")) {
-                //GIFアニメを再生
                 Glide.with(view)
                         .load(R.drawable.ic_thumbs_up_down_black_24dp)
                         .into(thumbnail);
             }
             if (avater_url.contains("えらー")) {
-                //GIFアニメを再生
                 Glide.with(view)
                         .load(R.drawable.ic_sync_problem_black_24dp)
+                        .into(thumbnail);
+            }
+            if (avater_url.contains("おわり")) {
+                Glide.with(view)
+                        .load(R.drawable.ic_local_hotel_black_18dp)
                         .into(thumbnail);
             }
 

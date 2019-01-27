@@ -200,8 +200,8 @@ public class KonoAppNiTuite extends AppCompatActivity {
         mastodon_contact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent toot = new Intent(KonoAppNiTuite.this, TootActivity.class);
-                toot.putExtra("contact", "@takusan_23");
+                Intent toot = new Intent(KonoAppNiTuite.this, TootSnackberActivity.class);
+                toot.putExtra("contact", "@takusan_23@friends.nico ");
                 startActivity(toot);
             }
         });

@@ -67,8 +67,8 @@ public class ZyankenSetup extends AppCompatActivity {
         connection = findViewById(R.id.zyanken_setup_connection);
         textView = findViewById(R.id.zyanken_setup_textView);
         editText = findViewById(R.id.zyanken_setup_editText);
-        listView = findViewById(R.id.zyanken_setup_listview);
 
+        getSupportActionBar().setTitle("招待");
 
         //Intentでデータを受け取る
         String mode = getIntent().getStringExtra("mode");

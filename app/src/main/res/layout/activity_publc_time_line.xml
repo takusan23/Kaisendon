@@ -48,6 +48,7 @@
                 </ListView>
             </android.support.v4.widget.SwipeRefreshLayout>
 
+<!--
             <EditText
                 android:id="@+id/toot_text_public"
                 android:layout_width="match_parent"
@@ -63,6 +64,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/public_time_line_list" />
+-->
 
 <!--
             <io.github.takusan23.kaisendon.MarqueeTextView

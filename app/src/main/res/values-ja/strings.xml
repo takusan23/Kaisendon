@@ -332,5 +332,7 @@
     <string name="ratelimit_limit">制限数</string>
     <string name="ratelimit_remaining">残り回数</string>
     <string name="ratelimit_reset">回復時間</string>
+    <string name="setting_fontsize_button_info">タイムラインに流れるボタンのサイズを変更できます。</string>
+    <string name="setting_fontsize_button">ボタンのザイズ変更</string>
 
 </resources>

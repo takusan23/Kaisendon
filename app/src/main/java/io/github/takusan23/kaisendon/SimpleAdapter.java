@@ -473,7 +473,7 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
         //クライアント
         TextView client = (TextView) holder.client_textview;
         //client.setText(item.getClient());
-        client.setTextSize(18);
+        client.setTextSize(10);
         //フォントサイズ変更
         String client_textsize = pref_setting.getString("pref_fontsize_client", "18");
         client.setTextSize(Integer.parseInt(client_textsize));

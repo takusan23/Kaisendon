@@ -436,5 +436,7 @@
     <string name="ratelimit_limit">Limited number</string>
     <string name="ratelimit_remaining">Number of times remaining</string>
     <string name="ratelimit_reset">ratelimit-reset</string>
+    <string name="setting_fontsize_button">Button Size</string>
+    <string name="setting_fontsize_button_info">You can change the size of buttons flowing in the timeline.</string>
 
 </resources>

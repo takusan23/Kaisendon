@@ -346,6 +346,13 @@
             android:summary="@string/setting_fontsize_client_info"
             android:title="@string/setting_fontsize_client" />
 
+        <EditTextPreference
+            android:defaultValue="15"
+            android:key="pref_fontsize_button"
+            android:summary="@string/setting_fontsize_button_info"
+            android:title="@string/setting_fontsize_button" />
+
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_fontcolor_setting"

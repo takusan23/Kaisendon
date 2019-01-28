@@ -36,6 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
+<!--
             <EditText
                 android:id="@+id/custom_streaming_toot_text"
                 android:layout_width="wrap_content"
@@ -44,6 +45,7 @@
                 android:ems="10"
                 android:hint="@string/nagaoshi_toot"
                 android:inputType="textPersonName" />
+-->
 
 
         </LinearLayout>

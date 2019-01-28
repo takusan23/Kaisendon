@@ -1641,7 +1641,7 @@ public class Federated_TimeLine_Fragment extends Fragment {
 
 
         //簡易トゥート
-        TextView toot_text_edit = view.findViewById(R.id.toot_text_public);
+        //TextView toot_text_edit = view.findViewById(R.id.toot_text_public);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         String finalAccessToken1 = AccessToken;
@@ -1649,6 +1649,7 @@ public class Federated_TimeLine_Fragment extends Fragment {
         toot_count = "0/500";
 
 
+/*
         //トゥートのカウント
         toot_text_edit.addTextChangedListener(new TextWatcher() {
             @Override
@@ -1745,6 +1746,7 @@ public class Federated_TimeLine_Fragment extends Fragment {
                 return false;
             }
         });
+*/
     }
 
     //フラグメントが外されたときに呼ばれる

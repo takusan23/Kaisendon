@@ -93,6 +93,8 @@ public class TootSnackberActivity extends AppCompatActivity {
     //マルチアカウント読み込み用
     ArrayList<String> multi_account_instance;
     ArrayList<String> multi_account_access_token;
+    //文字数カウント
+    int tootTextCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,8 +157,8 @@ public class TootSnackberActivity extends AppCompatActivity {
                 //クローズでソフトキーボード非表示
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (imm != null) {
-                    if (TootSnackberActivity.this.getCurrentFocus() != null){
-                        imm.hideSoftInputFromWindow(TootSnackberActivity.this.getCurrentFocus().getWindowToken(),0);
+                    if (TootSnackberActivity.this.getCurrentFocus() != null) {
+                        imm.hideSoftInputFromWindow(TootSnackberActivity.this.getCurrentFocus().getWindowToken(), 0);
                     }
                 }
             }
@@ -231,8 +233,8 @@ public class TootSnackberActivity extends AppCompatActivity {
                             //クローズでソフトキーボード非表示
                             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                             if (imm != null) {
-                                if (TootSnackberActivity.this.getCurrentFocus() != null){
-                                    imm.hideSoftInputFromWindow(TootSnackberActivity.this.getCurrentFocus().getWindowToken(),0);
+                                if (TootSnackberActivity.this.getCurrentFocus() != null) {
+                                    imm.hideSoftInputFromWindow(TootSnackberActivity.this.getCurrentFocus().getWindowToken(), 0);
                                 }
                             }
                             //配列からUriを取り出す
@@ -318,6 +320,7 @@ public class TootSnackberActivity extends AppCompatActivity {
                                                 toot_snackbar.dismiss();
                                                 //EditTextを空にする
                                                 toot_EditText.setText("");
+                                                tootTextCount = 0;
                                                 //配列を空にする
                                                 media_list.clear();
                                                 post_media_id.clear();
@@ -531,7 +534,7 @@ public class TootSnackberActivity extends AppCompatActivity {
 
         //投稿用Button
         post_button = new Button(TootSnackberActivity.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
-        post_button.setText(R.string.toot);
+        post_button.setText(String.valueOf(tootTextCount) + "/" + "500 " + getString(R.string.toot));
         post_button.setTextColor(Color.parseColor("#ffffff"));
         Drawable toot_icon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_create_black_24dp, null);
         post_button.setCompoundDrawablesWithIntrinsicBounds(toot_icon, null, null, null);
@@ -544,8 +547,8 @@ public class TootSnackberActivity extends AppCompatActivity {
                 //クローズでソフトキーボード非表示
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (imm != null) {
-                    if (TootSnackberActivity.this.getCurrentFocus() != null){
-                        imm.hideSoftInputFromWindow(TootSnackberActivity.this.getCurrentFocus().getWindowToken(),0);
+                    if (TootSnackberActivity.this.getCurrentFocus() != null) {
+                        imm.hideSoftInputFromWindow(TootSnackberActivity.this.getCurrentFocus().getWindowToken(), 0);
                     }
                 }
                 //画像添付なしのときはここを利用して、
@@ -580,6 +583,9 @@ public class TootSnackberActivity extends AppCompatActivity {
                                     toot_snackbar.dismiss();
                                     //EditTextを空にする
                                     toot_EditText.setText("");
+                                    tootTextCount = 0;
+                                    //アプリを閉じる
+                                    finishAndRemoveTask();
                                 }
                             });
 
@@ -678,6 +684,9 @@ public class TootSnackberActivity extends AppCompatActivity {
                 CommandCode.commandSetNotPreference(TootSnackberActivity.this, TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-home", "home");
                 CommandCode.commandSetNotPreference(TootSnackberActivity.this, TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-local", "local");
                 CommandCode.commandSetNotPreference(TootSnackberActivity.this, TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/じゃんけん", "じゃんけん");
+                //カウント
+                tootTextCount = toot_EditText.getText().toString().length();
+                post_button.setText(String.valueOf(tootTextCount) + "/" + "500 " + getString(R.string.toot));
             }
 
             @Override

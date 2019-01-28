@@ -116,7 +116,7 @@ public class CustomStreamingFragment extends Fragment {
 
         ListView custom_streaming_listview = view.findViewById(R.id.custom_streaming_listview);
         Button custom_streaming_setting_button = view.findViewById(R.id.custom_streaming_setting);
-        EditText custom_steaming_toot_edittext = view.findViewById(R.id.custom_streaming_toot_text);
+        //EditText custom_steaming_toot_edittext = view.findViewById(R.id.custom_streaming_toot_text);
 
         //スリープを無効にする
         if (pref_setting.getBoolean("pref_no_sleep", false)) {
@@ -1025,6 +1025,7 @@ public class CustomStreamingFragment extends Fragment {
             }
         });
 
+/*
         custom_steaming_toot_edittext.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -1088,6 +1089,7 @@ public class CustomStreamingFragment extends Fragment {
                 return false;
             }
         });
+*/
 
     }
 

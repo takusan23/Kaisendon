@@ -161,6 +161,8 @@ public class Home extends AppCompatActivity
     //マルチアカウント読み込み用
     ArrayList<String> multi_account_instance;
     ArrayList<String> multi_account_access_token;
+    //文字数カウント
+    int tootTextCount = 0;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -1233,6 +1235,7 @@ public class Home extends AppCompatActivity
                                                 toot_snackbar.dismiss();
                                                 //EditTextを空にする
                                                 toot_EditText.setText("");
+                                                tootTextCount = 0;
                                                 //配列を空にする
                                                 media_list.clear();
                                                 post_media_id.clear();
@@ -1732,7 +1735,7 @@ public class Home extends AppCompatActivity
 
         //投稿用Button
         post_button = new Button(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
-        post_button.setText(R.string.toot);
+        post_button.setText(String.valueOf(tootTextCount) + "/" + "500 " + getString(R.string.toot));
         post_button.setTextColor(Color.parseColor("#ffffff"));
         Drawable toot_icon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_create_black_24dp, null);
         post_button.setCompoundDrawablesWithIntrinsicBounds(toot_icon, null, null, null);
@@ -1786,7 +1789,7 @@ public class Home extends AppCompatActivity
                                     toot_snackbar.dismiss();
                                     //EditTextを空にする
                                     toot_EditText.setText("");
-
+                                    tootTextCount = 0;
                                 }
                             });
 
@@ -1885,6 +1888,9 @@ public class Home extends AppCompatActivity
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-home", "home");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-local", "local");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/じゃんけん", "じゃんけん");
+                //カウント
+                tootTextCount = toot_EditText.getText().toString().length();
+                post_button.setText(String.valueOf(tootTextCount) + "/" + "500 " + getString(R.string.toot));
             }
 
             @Override

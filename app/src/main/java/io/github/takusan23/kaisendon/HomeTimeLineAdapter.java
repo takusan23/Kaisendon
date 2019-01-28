@@ -268,10 +268,10 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
             Locale locale = Locale.getDefault();
             if (locale.equals(Locale.JAPAN)) {
-                nicoru.setText("お気に入り");
+                //nicoru.setText("お気に入り");
                 nicoru_text = "お気に入りに登録しました : ";
             } else {
-                nicoru.setText("Favorite");
+                //nicoru.setText("Favorite");
                 nicoru_text = "add Favorite";
             }
         } else {
@@ -1393,10 +1393,18 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         //クライアント
         TextView client = (TextView) holder.client_textview;
         //client.setText(item.getClient());
-        client.setTextSize(18);
+        client.setTextSize(10);
         //フォントサイズ変更
         String client_textsize = pref_setting.getString("pref_fontsize_client", "10");
         client.setTextSize(Integer.parseInt(client_textsize));
+
+        //各アイコンはトゥートサイズに合わせる
+        String button_textsize = pref_setting.getString("pref_fontsize_button", "15");
+        nicoru.setTextSize(Integer.parseInt(button_textsize));
+        boost.setTextSize(Integer.parseInt(button_textsize));
+        holder.bookmark_button.setTextSize(Integer.parseInt(button_textsize));
+        web_button.setTextSize(Integer.parseInt(button_textsize));
+
 
         //フォントの色設定
         boolean font_setting_swich = pref_setting.getBoolean("pref_fontcolor_setting", false);

@@ -220,7 +220,7 @@ public class Zyanken extends AppCompatActivity {
                             //Toot ID 文字列版
                             Item.add(null);
                             //アバターURL
-                            Item.add("おわり");
+                            Item.add("じゃんけん おわり");
                             //アカウントID
                             Item.add(String.valueOf(opponentID));
                             //ユーザーネーム

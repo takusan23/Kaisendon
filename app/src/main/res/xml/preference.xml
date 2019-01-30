@@ -240,7 +240,7 @@
             android:title="@string/setting_enquate" />
 
         <CheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="pref_one_hand_mode"
             android:summary="@string/setting_one_hand_mode_message"
             android:title="@string/setting_one_hand_mode_title" />

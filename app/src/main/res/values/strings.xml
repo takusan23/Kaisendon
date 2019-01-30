@@ -438,5 +438,10 @@
     <string name="ratelimit_reset">ratelimit-reset</string>
     <string name="setting_fontsize_button">Button Size</string>
     <string name="setting_fontsize_button_info">You can change the size of buttons flowing in the timeline.</string>
+    <string name="delete_fav">Would you like to cancel your favorite?</string>
+    <string name="delete_bt">Do you want to cancel the boost?</string>
+    <string name="delete_text">Detele</string>
+    <string name="delete_fav_toast">I canceled my favorite</string>
+    <string name="delete_bt_toast">Boost canceled</string>
 
 </resources>

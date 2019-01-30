@@ -334,5 +334,10 @@
     <string name="ratelimit_reset">回復時間</string>
     <string name="setting_fontsize_button_info">タイムラインに流れるボタンのサイズを変更できます。</string>
     <string name="setting_fontsize_button">ボタンのザイズ変更</string>
+    <string name="delete_fav">お気に入りを取り消しますか？</string>
+    <string name="delete_text">取り消し</string>
+    <string name="delete_bt">ブーストを取り消しますか？</string>
+    <string name="delete_fav_toast">お気に入りを取り消しました</string>
+    <string name="delete_bt_toast">ブーストを取り消しました</string>
 
 </resources>

@@ -474,17 +474,34 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         nicoru.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //もってくる
+                String apiURL = "favourite";
+                //Snackber Text
+                String snackberTitle = finalFavorite_title;
+                String snackberButton = finalFavorite_message;
+                //配列の範囲内にするため
+                if (finalBoostFavCount) {
+                    String isFav = item.getListItem().get(17);
+                    //すでにFav済みの場合は外すAPIを叩く
+                    if (isFav.contains("favourited") || favClick[0]) {
+                        apiURL = "unfavourite";
+                        snackberTitle = getContext().getString(R.string.delete_fav);
+                        snackberButton = getContext().getString(R.string.delete_text);
+                    }
+                }
+                String finalApiURL = apiURL;
 
-                boolean favorite = pref_setting.getBoolean("pref_nicoru_dialog", false);
-                boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", false);
+                boolean favorite = pref_setting.getBoolean("pref_nicoru_dialog", true);
+                boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", true);
                 if (favorite) {
                     if (replace_snackber) {
+
                         Snackbar favourite_snackbar;
-                        favourite_snackbar = Snackbar.make(finalView1, finalFavorite_title, Snackbar.LENGTH_SHORT);
-                        favourite_snackbar.setAction(finalFavorite_message, new View.OnClickListener() {
+                        favourite_snackbar = Snackbar.make(finalView1, snackberTitle, Snackbar.LENGTH_SHORT);
+                        favourite_snackbar.setAction(snackberButton, new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                TootAction(id_string, "favourite", nicoru);
+                                TootAction(id_string, finalApiURL, nicoru);
                                 favClick[0] = true;
                                 if (finalBoostFavCount) {
                                     item.getListItem().set(17, "favourited");
@@ -495,11 +512,11 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                     } else {
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
                         alertDialog.setTitle(R.string.confirmation);
-                        alertDialog.setMessage(finalFavorite_title);
-                        alertDialog.setPositiveButton(finalFavorite_message, new DialogInterface.OnClickListener() {
+                        alertDialog.setMessage(snackberTitle);
+                        alertDialog.setPositiveButton(snackberButton, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                TootAction(id_string, "favourite", nicoru);
+                                TootAction(id_string, finalApiURL, nicoru);
                                 favClick[0] = true;
                                 if (finalBoostFavCount) {
                                     item.getListItem().set(17, "favourited");
@@ -517,7 +534,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
                     //テキストボックが未選択
                 } else {
-                    TootAction(id_string, "favourite", nicoru);
+                    TootAction(id_string, finalApiURL, nicoru);
                     favClick[0] = true;
                     if (finalBoostFavCount) {
                         item.getListItem().set(17, "favourited");
@@ -534,18 +551,32 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
             @Override
             public void onClick(View v) {
+                //すでにブースト済みの場合は外すAPIにする
+                String apiURL = "reblog";
+                //Snackber
+                String snackberTitle = getContext().getString(R.string.dialog_boost_info);
+                String snackberButton = getContext().getString(R.string.dialog_boost);
 
+                if (finalBoostFavCount) {
+                    String isBoost = item.getListItem().get(16);
+                    if (isBoost.contains("reblogged") || boostClick[0]) {
+                        apiURL = "unreblog";
+                        snackberTitle = getContext().getString(R.string.delete_bt);
+                        snackberButton = getContext().getString(R.string.delete_text);
+                    }
+                }
+                String finalApiURL = apiURL;
                 //設定でダイアログをだすかどうか
-                boolean boost_dialog = pref_setting.getBoolean("pref_boost_dialog", false);
-                boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", false);
+                boolean boost_dialog = pref_setting.getBoolean("pref_boost_dialog", true);
+                boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", true);
                 if (boost_dialog) {
                     if (replace_snackber) {
                         Snackbar snackbar;
-                        snackbar = Snackbar.make(finalView1, R.string.dialog_boost_info, Snackbar.LENGTH_SHORT);
-                        snackbar.setAction(R.string.dialog_boost, new View.OnClickListener() {
+                        snackbar = Snackbar.make(finalView1, snackberTitle, Snackbar.LENGTH_SHORT);
+                        snackbar.setAction(snackberButton, new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                TootAction(id_string, "reblog", boost);
+                                TootAction(id_string, finalApiURL, boost);
                                 boostClick[0] = true;
                                 if (finalBoostFavCount) {
                                     item.getListItem().set(16, "reblogged");
@@ -557,12 +588,12 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                         //ダイアログ
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
                         alertDialog.setTitle(R.string.confirmation);
-                        alertDialog.setMessage(R.string.dialog_boost_info);
-                        alertDialog.setPositiveButton(R.string.dialog_boost, new DialogInterface.OnClickListener() {
+                        alertDialog.setMessage(snackberTitle);
+                        alertDialog.setPositiveButton(snackberButton, new DialogInterface.OnClickListener() {
 
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                TootAction(id_string, "reblog", boost);
+                                TootAction(id_string, finalApiURL, boost);
                                 boostClick[0] = true;
                                 if (finalBoostFavCount) {
                                     item.getListItem().set(16, "reblogged");
@@ -581,7 +612,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
                     //チェックボックスが未チェックだったとき
                 } else {
-                    TootAction(id_string, "reblog", boost);
+                    TootAction(id_string, finalApiURL, boost);
                     boostClick[0] = true;
                     if (finalBoostFavCount) {
                         item.getListItem().set(16, "reblogged");
@@ -1077,7 +1108,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
 
         //ブックマーク関係
-        boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", false);
+        boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", true);
         holder.bookmark_button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_bookmark_border_black_24dp, 0, 0, 0);
         holder.bookmark_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1647,7 +1678,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             String isFav = item.getListItem().get(17);
             String boostCount = item.getListItem().get(18);
             String favCount = item.getListItem().get(19);
-
             //りぶろぐした・りぶろぐおしたとき
             if (isBoost.contains("reblogged") || boostClick[0]) {
                 Drawable boostIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
@@ -2185,6 +2215,18 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                     Toast.makeText(getContext(), nicoru_text + result, Toast.LENGTH_SHORT).show();
                     Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
                     favIcon.setTint(Color.parseColor("#ffd700"));
+                    textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                }
+                if (endPoint.contains("unfavourite")) {
+                    Toast.makeText(getContext(), getContext().getString(R.string.delete_fav_toast) + result, Toast.LENGTH_SHORT).show();
+                    Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                    favIcon.setTint(Color.parseColor("#000000"));
+                    textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                }
+                if (endPoint.contains("unreblog")) {
+                    Toast.makeText(getContext(), getContext().getString(R.string.delete_bt_toast) + result, Toast.LENGTH_SHORT).show();
+                    Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                    favIcon.setTint(Color.parseColor("#000000"));
                     textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
                 }
 

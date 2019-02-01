@@ -75,7 +75,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
         Button document_button = findViewById(R.id.wiki_button);
 
 
-        KonoAppTextView_2.setText(getString(R.string.version) + " " + "1.2" + "\r\n" + "ねぎとろ丼");
+        KonoAppTextView_2.setText(getString(R.string.version) + " " + "1.3" + "\r\n" + "ねぎとろ丼");
         githubButton.setText(getString(R.string.sourceCode) + ": " + "GitHub");
 
         document_button.setText(getString(R.string.document) + "\n" + "GitHub Wiki");

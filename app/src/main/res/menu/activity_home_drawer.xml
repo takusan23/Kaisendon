@@ -72,6 +72,10 @@
             android:icon="@drawable/ic_view_agenda_black_24dp"
             android:title="@string/multipain_ui" />
         <item
+            android:id="@+id/menu_wear"
+            android:icon="@drawable/ic_watch_black_24dp"
+            android:title="Wear" />
+        <item
             android:id="@+id/setting"
             android:icon="@drawable/ic_menu_manage"
             android:title="@string/setting" />

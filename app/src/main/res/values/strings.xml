@@ -443,5 +443,6 @@
     <string name="delete_text">Detele</string>
     <string name="delete_fav_toast">I canceled my favorite</string>
     <string name="delete_bt_toast">Boost canceled</string>
+    <string name="wear_account_transport">Transfer account information</string>
 
 </resources>

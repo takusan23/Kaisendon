@@ -1487,6 +1487,14 @@ public class Home extends AppCompatActivity
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.container_container, new DirectMessage_Fragment());
             transaction.commit();
+        } else if (id == R.id.menu_wear) {
+            SharedPreferences.Editor editor = pref_setting.edit();
+            editor.putBoolean("app_multipain_ui", false);
+            editor.commit();
+
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.container_container, new WearFragment());
+            transaction.commit();
         } else if (id == R.id.konoAppmenu) {
             Intent login = new Intent(this, KonoAppNiTuite.class);
             startActivity(login);

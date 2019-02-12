@@ -342,5 +342,6 @@
     <string name="wear_account_transport">アカウント情報の転送</string>
     <string name="setting_fontsize_card">Cardのフォントサイズ変更</string>
     <string name="setting_fontsize_card_info">タイムラインに流れるCardのサイズを変更できます。</string>
+    <string name="kaisendon_wear">かいせんどんWear 連携</string>
 
 </resources>

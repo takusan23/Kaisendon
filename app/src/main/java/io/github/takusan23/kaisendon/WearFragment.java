@@ -53,6 +53,9 @@ public class WearFragment extends Fragment {
             Instance = pref_setting.getString("main_instance", "");
         }
 
+        //タイトル
+        getActivity().setTitle(R.string.kaisendon_wear);
+
         //アカウント転送ボタン
         String finalInstance = Instance;
         String finalAccessToken = AccessToken;

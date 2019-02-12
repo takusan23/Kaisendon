@@ -340,5 +340,7 @@
     <string name="delete_fav_toast">お気に入りを取り消しました</string>
     <string name="delete_bt_toast">ブーストを取り消しました</string>
     <string name="wear_account_transport">アカウント情報の転送</string>
+    <string name="setting_fontsize_card">Cardのフォントサイズ変更</string>
+    <string name="setting_fontsize_card_info">タイムラインに流れるCardのサイズを変更できます。</string>
 
 </resources>

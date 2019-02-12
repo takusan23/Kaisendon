@@ -323,7 +323,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         //ArrayList<String> arrayList = item.getStringList();
         if (card_title != null) {
 
-            System.out.println("カード" + card_title);
+            //System.out.println("カード" + card_title);
 
             LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             LinearLayout.LayoutParams imageLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -375,6 +375,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             holder.card_linearLayout.addView(holder.cardTextView);
             holder.cardTextView.setLayoutParams(textLayoutParams);
             holder.cardTextView.setText(card_title + "\n" + card_description);
+            holder.cardTextView.setTextSize(pref_setting.getInt("setting_fontsize_card",15));
             holder.cardImageView.setLayoutParams(imageLayoutParams);
 
         }

@@ -444,5 +444,7 @@
     <string name="delete_fav_toast">I canceled my favorite</string>
     <string name="delete_bt_toast">Boost canceled</string>
     <string name="wear_account_transport">Transfer account information</string>
+    <string name="setting_fontsize_card">Card font size change</string>
+    <string name="setting_fontsize_card_info">You can change the size of the Card flowing in the timeline.</string>
 
 </resources>

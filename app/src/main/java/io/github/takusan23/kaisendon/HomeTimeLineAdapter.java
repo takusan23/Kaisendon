@@ -375,7 +375,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             holder.card_linearLayout.addView(holder.cardTextView);
             holder.cardTextView.setLayoutParams(textLayoutParams);
             holder.cardTextView.setText(card_title + "\n" + card_description);
-            holder.cardTextView.setTextSize(pref_setting.getInt("setting_fontsize_card",15));
+            holder.cardTextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_card","15")));
             holder.cardImageView.setLayoutParams(imageLayoutParams);
 
         }

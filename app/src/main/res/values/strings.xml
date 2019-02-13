@@ -447,5 +447,8 @@
     <string name="setting_fontsize_card">Card font size change</string>
     <string name="setting_fontsize_card_info">You can change the size of the Card flowing in the timeline.</string>
     <string name="kaisendon_wear">Kaisendon Wear Collaboration</string>
+    <string name="favAndBT">Do you want to register as a favorite and Boost?</string>
+    <string name="setting_fav_boost_dialog_info">Display a dialog when boosting with favorites</string>
+    <string name="setting_fav_boost_dialog">Favorites and boost dialog</string>
 
 </resources>

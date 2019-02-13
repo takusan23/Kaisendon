@@ -623,6 +623,75 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             }
         });
 
+        //Fav/BT機能
+        nicoru.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                //面倒なので事前に調べたりはしない
+                //設定でダイアログをだすかどうか
+                boolean fav_bt = pref_setting.getBoolean("pref_fav_and_bt_dialog", true);
+                boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", true);
+                if (fav_bt) {
+                    if (replace_snackber) {
+                        Snackbar snackbar;
+                        snackbar = Snackbar.make(finalView1, R.string.favAndBT, Snackbar.LENGTH_SHORT);
+                        snackbar.setAction("Fav+BT", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                TootAction(id_string, "favourite", boost);
+                                TootAction(id_string, "reblog", boost);
+                                boostClick[0] = true;
+                                if (finalBoostFavCount) {
+                                    item.getListItem().set(16, "reblogged");
+                                    item.getListItem().set(17, "favourited");
+                                }
+                            }
+                        });
+                        snackbar.show();
+                    } else {
+                        //ダイアログ
+                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
+                        alertDialog.setTitle(R.string.confirmation);
+                        alertDialog.setMessage(R.string.favAndBT);
+                        alertDialog.setPositiveButton("Fav+BT", new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                TootAction(id_string, "favourite", boost);
+                                TootAction(id_string, "reblog", boost);
+                                boostClick[0] = true;
+                                if (finalBoostFavCount) {
+                                    item.getListItem().set(16, "reblogged");
+                                    item.getListItem().set(17, "favourited");
+                                }
+                            }
+
+                        });
+                        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        });
+                        alertDialog.create().show();
+                    }
+                    //チェックボックスが未チェックだったとき
+                } else {
+                    TootAction(id_string, "favourite", boost);
+                    TootAction(id_string, "reblog", boost);
+                    boostClick[0] = true;
+                    if (finalBoostFavCount) {
+                        item.getListItem().set(16, "reblogged");
+                        item.getListItem().set(17, "favourited");
+                    }
+                }
+
+                return false;
+            }
+        });
+
+
+
         //ブーストボタンにアイコンつける
         TextView boost_button = holder.boost_button;
         boost_button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_repeat_black_24dp, 0, 0, 0);

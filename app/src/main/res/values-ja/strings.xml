@@ -343,5 +343,8 @@
     <string name="setting_fontsize_card">Cardのフォントサイズ変更</string>
     <string name="setting_fontsize_card_info">タイムラインに流れるCardのサイズを変更できます。</string>
     <string name="kaisendon_wear">かいせんどんWear 連携</string>
+    <string name="favAndBT">お気に入り登録とブーストしますか？</string>
+    <string name="setting_fav_boost_dialog_info">お気に入りとブーストするときにダイアログを表示します</string>
+    <string name="setting_fav_boost_dialog">お気に入りとブーストダイアログ</string>
 
 </resources>

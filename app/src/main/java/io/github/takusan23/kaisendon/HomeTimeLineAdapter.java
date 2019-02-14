@@ -685,8 +685,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                         item.getListItem().set(17, "favourited");
                     }
                 }
-
-                return false;
+                //OnClickListenerが呼ばれないようにする
+                return true;
             }
         });
 

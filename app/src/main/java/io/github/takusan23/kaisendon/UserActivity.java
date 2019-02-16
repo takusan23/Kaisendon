@@ -297,7 +297,7 @@ public class UserActivity extends AppCompatActivity {
 
 
                     String profile_text = Html.fromHtml(profile, Html.FROM_HTML_MODE_COMPACT).toString();
-                   //System.out.println("でーん : " + final_toot_text);
+                    //System.out.println("でーん : " + final_toot_text);
                     String first_profile_text = null;
                     String second_profile_text = null;
                     Pattern pattern = Pattern.compile("\\:.+?\\:");
@@ -438,28 +438,28 @@ public class UserActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     button.setText("ニコニコ");
+                                    button.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            if (chrome_custom_tabs) {
+
+                                                String custom = CustomTabsHelper.getPackageNameToUse(UserActivity.this);
+
+                                                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                                                CustomTabsIntent customTabsIntent = builder.build();
+                                                customTabsIntent.intent.setPackage(custom);
+                                                customTabsIntent.launchUrl((Activity) UserActivity.this, Uri.parse(nico_url[0]));
+                                                //無効
+                                            } else {
+                                                Uri uri = Uri.parse(nico_url[0]);
+                                                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                                                startActivity(intent);
+                                            }
+                                        }
+                                    });
                                 }
                             });
 
-                            button.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    if (chrome_custom_tabs) {
-
-                                        String custom = CustomTabsHelper.getPackageNameToUse(UserActivity.this);
-
-                                        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
-                                        CustomTabsIntent customTabsIntent = builder.build();
-                                        customTabsIntent.intent.setPackage(custom);
-                                        customTabsIntent.launchUrl((Activity) UserActivity.this, Uri.parse(nico_url[0]));
-                                        //無効
-                                    } else {
-                                        Uri uri = Uri.parse(nico_url[0]);
-                                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                                        startActivity(intent);
-                                    }
-                                }
-                            });
                         }
                         //URLなかった
                     } catch (RuntimeException e) {
@@ -468,25 +468,25 @@ public class UserActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 button.setText("Web");
-                            }
-                        });
-                        button.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (chrome_custom_tabs) {
+                                button.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if (chrome_custom_tabs) {
 
-                                    String custom = CustomTabsHelper.getPackageNameToUse(UserActivity.this);
+                                            String custom = CustomTabsHelper.getPackageNameToUse(UserActivity.this);
 
-                                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
-                                    CustomTabsIntent customTabsIntent = builder.build();
-                                    customTabsIntent.intent.setPackage(custom);
-                                    customTabsIntent.launchUrl((Activity) UserActivity.this, Uri.parse("https://" + finalInstance + "/" + "@" + user_account_id));
-                                    //無効
-                                } else {
-                                    Uri uri = Uri.parse(nico_url[0]);
-                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://" + finalInstance + "/" + "@" + user_account_id));
-                                    startActivity(intent);
-                                }
+                                            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                                            CustomTabsIntent customTabsIntent = builder.build();
+                                            customTabsIntent.intent.setPackage(custom);
+                                            customTabsIntent.launchUrl((Activity) UserActivity.this, Uri.parse("https://" + finalInstance + "/" + "@" + user_account_id));
+                                            //無効
+                                        } else {
+                                            Uri uri = Uri.parse(nico_url[0]);
+                                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://" + finalInstance + "/" + "@" + user_account_id));
+                                            startActivity(intent);
+                                        }
+                                    }
+                                });
                             }
                         });
                     }
@@ -517,7 +517,7 @@ public class UserActivity extends AppCompatActivity {
                                             @Override
                                             public void run() {
                                                 LinearLayout fields_attributes_content = new LinearLayout(UserActivity.this);
-                                                fields_attributes_content.setOrientation(LinearLayout.HORIZONTAL);
+                                                fields_attributes_content.setOrientation(LinearLayout.VERTICAL);
                                                 //テキストビュー
                                                 TextView fields_attributes_name_textview = new TextView(UserActivity.this);
                                                 TextView fields_attributes_value_textview = new TextView(UserActivity.this);
@@ -539,6 +539,8 @@ public class UserActivity extends AppCompatActivity {
                                                 fields_attributes_value_textview.setLayoutParams(fields_attributes_params);
                                                 //空白
                                                 Space sp = new Space(UserActivity.this);
+                                                //枠
+                                                fields_attributes_content.setBackground(getDrawable(R.drawable.button_style));
                                                 //セット
                                                 fields_attributes_content.addView(fields_attributes_name_textview);
                                                 fields_attributes_content.addView(fields_attributes_value_textview);
@@ -740,7 +742,7 @@ public class UserActivity extends AppCompatActivity {
                                             }
 
                                         } else {
-                                           // System.out.println("-------------------");
+                                            // System.out.println("-------------------");
                                             try {
                                                 Relationship accounts = new Accounts(client).postFollow(follow_id).execute();
                                             } catch (Mastodon4jRequestException e) {

@@ -490,7 +490,7 @@ public class AccountActivity extends AppCompatActivity {
                                             @Override
                                             public void run() {
                                                 LinearLayout fields_attributes_content = new LinearLayout(AccountActivity.this);
-                                                fields_attributes_content.setOrientation(LinearLayout.HORIZONTAL);
+                                                fields_attributes_content.setOrientation(LinearLayout.VERTICAL);
                                                 //テキストビュー
                                                 TextView fields_attributes_name_textview = new TextView(AccountActivity.this);
                                                 TextView fields_attributes_value_textview = new TextView(AccountActivity.this);
@@ -512,6 +512,8 @@ public class AccountActivity extends AppCompatActivity {
                                                 fields_attributes_value_textview.setLayoutParams(fields_attributes_params);
                                                 //空白
                                                 Space sp = new Space(AccountActivity.this);
+                                                //枠
+                                                fields_attributes_content.setBackground(getDrawable(R.drawable.button_style));
                                                 //セット
                                                 fields_attributes_content.addView(fields_attributes_name_textview);
                                                 fields_attributes_content.addView(fields_attributes_value_textview);

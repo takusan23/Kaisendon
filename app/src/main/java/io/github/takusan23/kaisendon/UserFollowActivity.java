@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.sys1yagi.mastodon4j.MastodonClient;
@@ -72,6 +73,10 @@ public class UserFollowActivity extends AppCompatActivity {
 
     int position;
     int y;
+
+    //追加読み込み制御
+    private boolean scroll = false;
+    private Snackbar snackbar;
 
     //↓これ！！！！はもう内容が無いのに取得してしまうのを抑えるために使うよ！！！！！！！！！！！！！！！！！
     int max_count;
@@ -157,7 +162,7 @@ public class UserFollowActivity extends AppCompatActivity {
 
 
         View view = findViewById(android.R.id.content);
-        Snackbar snackbar = Snackbar.make(view, snackber_text, Snackbar.LENGTH_INDEFINITE);
+        snackbar = Snackbar.make(view, snackber_text, Snackbar.LENGTH_INDEFINITE);
         ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
         TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
@@ -168,7 +173,6 @@ public class UserFollowActivity extends AppCompatActivity {
         progressBer_layoutParams.gravity = Gravity.CENTER;
         progressBar.setLayoutParams(progressBer_layoutParams);
         snackBer_viewGrop.addView(progressBar, 0);
-        snackbar.show();
 
 
         ArrayList<ListItem> toot_list = new ArrayList<>();
@@ -178,8 +182,7 @@ public class UserFollowActivity extends AppCompatActivity {
 
         if (follow_follower == 1) {
             //ふぉろー
-            LoadFollow(Instance, AccessToken, simpleAdapter, false, false);
-            snackbar.dismiss();
+            LoadFollow(Instance, AccessToken, simpleAdapter, false, false, null);
 /*
             //追加
             ListView listView = (ListView) findViewById(R.id.follow_follower_list);
@@ -210,8 +213,7 @@ public class UserFollowActivity extends AppCompatActivity {
         if (follow_follower == 2) {
 
             //ふぉろわー
-            LoadFollow(Instance, AccessToken, simpleAdapter, false, true);
-            snackbar.dismiss();
+            LoadFollow(Instance, AccessToken, simpleAdapter, false, true, null);
 /*
             //追加
             ListView listView = (ListView) findViewById(R.id.follow_follower_list);
@@ -242,7 +244,6 @@ public class UserFollowActivity extends AppCompatActivity {
         //toot
         if (follow_follower == 3) {
             LoadUserToot(Instance, AccessToken, adapter, false);
-            snackbar.dismiss();
             //追加
             ListView listView = (ListView) findViewById(R.id.follow_follower_list);
             listView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -485,14 +486,25 @@ public class UserFollowActivity extends AppCompatActivity {
         });
     }
 
-    public void LoadFollow(String Instance, String AccessToken, SimpleAdapter adapter, boolean addLoad, boolean follower) {
+    /**
+     * @param customURL URLを直接入力する。nullで無効にできます
+     */
+    public void LoadFollow(String Instance, String AccessToken, SimpleAdapter adapter, boolean addLoad, boolean follower, String customURL) {
+        //くるくる
+        snackbar.show();
+
         String url = null;
-        if (follower) {
-            //フォロワー
-            url = "https://" + Instance + "/api/v1/accounts/" + account_id + "/followers/?access_token=" + AccessToken;
+        //直接URLを指定
+        if (customURL != null) {
+            url = customURL + "&access_token=" + AccessToken;
         } else {
-            //フォロー
-            url = "https://" + Instance + "/api/v1/accounts/" + account_id + "/following/?access_token=" + AccessToken;
+            if (follower) {
+                //フォロワー
+                url = "https://" + Instance + "/api/v1/accounts/" + account_id + "/followers/?access_token=" + AccessToken + "&limit=80";
+            } else {
+                //フォロー
+                url = "https://" + Instance + "/api/v1/accounts/" + account_id + "/following/?access_token=" + AccessToken + "&limit=80";
+            }
         }
         //パラメータを設定
         HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
@@ -537,6 +549,8 @@ public class UserFollowActivity extends AppCompatActivity {
                         String account_info = jsonObject.getString("note");
                         long account_id_follow = jsonObject.getLong("id");
 
+                        //追加読み込み
+                        String header_url = response.headers().get("link");
 
 
                         //配列を作成
@@ -584,9 +598,56 @@ public class UserFollowActivity extends AppCompatActivity {
                                 ListView listView = (ListView) findViewById(R.id.follow_follower_list);
                                 listView.setAdapter(adapter);
                                 setTitle(getString(R.string.follow));
-                                if (addLoad) {
-                                    listView.setSelectionFromTop(position, y);
-                                }
+
+                                listView.setSelectionFromTop(position, y);
+                                scroll = false;
+                                //おわり
+                                snackbar.dismiss();
+
+                                //追加読み込み
+                                listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                                    @Override
+                                    public void onScrollStateChanged(AbsListView view, int scrollState) {
+                                        position = listView.getFirstVisiblePosition();
+                                        y = listView.getChildAt(0).getTop();
+                                    }
+
+                                    @Override
+                                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                                        if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
+                                            scroll = true;
+                                            //１個以上で動くように
+                                            //URLを正規表現で取る？
+                                            String url = null;
+                                            ArrayList<String> url_list = new ArrayList<>();
+                                            //正規表現実行
+                                            //判定するパターンを生成
+                                            Pattern p = Pattern.compile("(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+");
+                                            Matcher m = p.matcher(header_url);
+                                            //正規表現で取り出す
+                                            //ループ
+                                            while (m.find()) {
+                                                url_list.add(m.group());
+                                            }
+
+                                            //max_idを配列から探す
+                                            //ないときは-1を返すのでちぇっく
+                                            if (url_list.get(0).contains("max_id")) {
+                                                url = url_list.get(0);
+                                                System.out.println("max_id りんく : " + url);
+                                                //実行
+                                                if (url != null) {
+                                                    LoadFollow(Instance, AccessToken, adapter, false, false, url);
+                                                }
+                                            }
+
+                                            //System.out.println("配列 : " + url_list.toString());
+                                        }
+
+
+                                    }
+                                });
+
                             }
                         });
                     }

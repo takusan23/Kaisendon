@@ -183,107 +183,39 @@ public class UserFollowActivity extends AppCompatActivity {
         if (follow_follower == 1) {
             //ふぉろー
             LoadFollow(Instance, AccessToken, simpleAdapter, false, false, null);
-/*
-            //追加
-            ListView listView = (ListView) findViewById(R.id.follow_follower_list);
-            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-                }
-
-                @Override
-                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (totalItemCount > 79 && totalItemCount == firstVisibleItem + visibleItemCount && simpleAdapter.getCount() != max_count) {
-                        Snackbar snackbar_ = Snackbar.make(view, R.string.add_loading, Snackbar.LENGTH_LONG);
-                        snackbar_.show();
-                        if (snackbar_.isShown()) {
-                            System.out.println("渡された : " + String.valueOf(simpleAdapter.getCount()));
-                            snackbar.show();
-                            position = listView.getFirstVisiblePosition();
-                            y = listView.getChildAt(0).getTop();
-                            LoadFollow(finalInstance, finalAccessToken, simpleAdapter, true, false);
-                            snackbar.dismiss();
-                        }
-                    }
-                }
-            });
-*/
         }
         if (follow_follower == 2) {
-
             //ふぉろわー
             LoadFollow(Instance, AccessToken, simpleAdapter, false, true, null);
-/*
-            //追加
-            ListView listView = (ListView) findViewById(R.id.follow_follower_list);
-            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-                }
-
-                @Override
-                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (totalItemCount > 79 && totalItemCount == firstVisibleItem + visibleItemCount && totalItemCount != max_count) {
-                        Snackbar snackbar_ = Snackbar.make(view, R.string.add_loading, Snackbar.LENGTH_LONG);
-                        snackbar_.show();
-                        if (snackbar_.isShown()) {
-                            snackbar.show();
-                            position = listView.getFirstVisiblePosition();
-                            y = listView.getChildAt(0).getTop();
-                            LoadFollow(finalInstance, finalAccessToken, simpleAdapter, true, true);
-                            snackbar.dismiss();
-                        }
-                    }
-                }
-            });
-*/
         }
 
-        //toot
         if (follow_follower == 3) {
-            LoadUserToot(Instance, AccessToken, adapter, false);
-            //追加
-            ListView listView = (ListView) findViewById(R.id.follow_follower_list);
-            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-                }
-
-                @Override
-                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (totalItemCount > 39 && totalItemCount == firstVisibleItem + visibleItemCount && totalItemCount != max_count) {
-                        Snackbar snackbar_ = Snackbar.make(view, R.string.add_loading, Snackbar.LENGTH_LONG);
-                        snackbar_.show();
-                        if (snackbar_.isShown()) {
-                            snackbar.show();
-                            position = listView.getFirstVisiblePosition();
-                            y = listView.getChildAt(0).getTop();
-                            LoadUserToot(finalInstance, finalAccessToken, adapter, true);
-                            snackbar.dismiss();
-                        }
-                    }
-                }
-            });
+            //toot
+            LoadUserToot(Instance, AccessToken, adapter, null);
         }
 
     }
 
 
-    public void LoadUserToot(String Instance, String AccessToken, HomeTimeLineAdapter adapter, boolean addLoad) {
+    /**
+     * @param customURL URL指定できる。nullを入力すると既定値になるよ。
+     */
+    public void LoadUserToot(String Instance, String AccessToken, HomeTimeLineAdapter adapter, String customURL) {
+        //くるくる
+        snackbar.show();
         String url = "https://" + Instance + "/api/v1/accounts/" + account_id + "/statuses/?access_token=" + AccessToken;
-        //パラメータを設定
-        HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
-        builder.addQueryParameter("limit", "40");
-        if (addLoad) {
-            builder.addQueryParameter("max_id", max_id);
+        //カスタムURL
+
+        //直接URLを指定
+        if (customURL != null) {
+            url = customURL + "&access_token=" + AccessToken;
+        } else {
+            url = "https://" + Instance + "/api/v1/accounts/" + account_id + "/statuses/?access_token=" + AccessToken;
         }
-        String final_url = builder.build().toString();
+
         //作成
         Request max_id_request = new Request.Builder()
-                .url(final_url)
+                .url(url)
                 .get()
                 .build();
 
@@ -300,6 +232,8 @@ public class UserFollowActivity extends AppCompatActivity {
             public void onResponse(Call call, Response response) throws IOException {
                 String response_string = response.body().string();
                 JSONArray jsonArray = null;
+                //追加読み込み
+                String header_url = response.headers().get("link");
                 try {
                     jsonArray = new JSONArray(response_string);
                     //max_count = jsonArray.length();
@@ -448,22 +382,55 @@ public class UserFollowActivity extends AppCompatActivity {
                             public void run() {
                                 adapter.add(listItem);
                                 adapter.notifyDataSetChanged();
-                            }
-                        });
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
                                 ListView listView = (ListView) findViewById(R.id.follow_follower_list);
                                 listView.setAdapter(adapter);
-                                //listView.setSelection(scrollPosition);
-                                if (addLoad) {
-                                    listView.setSelectionFromTop(position, y);
-                                }
 
-                                //snackbar.dismiss();
-                                //maxid_snackbar.dismiss();
-                                //listView.setSelection(scrollPosition);
+                                listView.setSelectionFromTop(position, y);
+                                scroll = false;
+                                //おわり
+                                snackbar.dismiss();
+
+                                //追加読み込み
+                                listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                                    @Override
+                                    public void onScrollStateChanged(AbsListView view, int scrollState) {
+                                        position = listView.getFirstVisiblePosition();
+                                        y = listView.getChildAt(0).getTop();
+                                    }
+
+                                    @Override
+                                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                                        if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
+                                            scroll = true;
+                                            //１個以上で動くように
+                                            //URLを正規表現で取る？
+                                            String url = null;
+                                            ArrayList<String> url_list = new ArrayList<>();
+                                            //正規表現実行
+                                            //判定するパターンを生成
+                                            Pattern p = Pattern.compile("(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+");
+                                            Matcher m = p.matcher(header_url);
+                                            //正規表現で取り出す
+                                            //ループ
+                                            while (m.find()) {
+                                                url_list.add(m.group());
+                                            }
+
+                                            //max_idを配列から探す
+                                            //ないときは-1を返すのでちぇっく
+                                            if (url_list.get(0).contains("max_id")) {
+                                                url = url_list.get(0);
+                                                System.out.println("max_id りんく : " + url);
+                                                //実行
+                                                if (url != null) {
+                                                    LoadUserToot(Instance, AccessToken, adapter, url);
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+
+
                             }
                         });
                         media_url_1 = null;
@@ -640,30 +607,16 @@ public class UserFollowActivity extends AppCompatActivity {
                                                     LoadFollow(Instance, AccessToken, adapter, false, false, url);
                                                 }
                                             }
-
-                                            //System.out.println("配列 : " + url_list.toString());
                                         }
-
-
                                     }
                                 });
-
                             }
                         });
                     }
 
-                    int getmax_id_int;
-
-                    if (79 < jsonArray.length()) {
-                        getmax_id_int = 79;
-                    } else {
-                        getmax_id_int = jsonArray.length();
-                    }
-
-
-                    //最後のIDを更新する
+/*                    //最後のIDを更新する
                     JSONObject last_toot = jsonArray.getJSONObject(79);
-                    max_id = last_toot.getString("id");
+                    max_id = last_toot.getString("id");*/
 
                 } catch (JSONException e) {
                     e.printStackTrace();

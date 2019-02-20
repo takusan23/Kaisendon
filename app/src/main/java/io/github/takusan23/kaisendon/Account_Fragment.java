@@ -63,7 +63,7 @@ public class Account_Fragment extends Fragment{
 
         super.onCreateView(inflater, container, savedInstanceState);
 
-        view = inflater.inflate(R.layout.activity_user, container, false);
+        view = inflater.inflate(R.layout.activity_user_old, container, false);
         return view;
     }
 

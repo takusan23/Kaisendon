@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
@@ -39,6 +40,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import com.squareup.picasso.Picasso;
@@ -117,6 +119,7 @@ public class UserActivity extends AppCompatActivity {
 
     private SharedPreferences pref_setting;
 
+    private Snackbar snackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,7 +203,7 @@ public class UserActivity extends AppCompatActivity {
 //        dialog.show();
 
         View view = findViewById(android.R.id.content);
-        Snackbar snackbar = Snackbar.make(view, getString(R.string.loading_user_info) + "\r\n /api/v1/accounts", Snackbar.LENGTH_INDEFINITE);
+        snackbar = Snackbar.make(view, getString(R.string.loading_user_info) + "\r\n /api/v1/accounts", Snackbar.LENGTH_INDEFINITE);
         ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
         TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
@@ -1021,18 +1024,30 @@ public class UserActivity extends AppCompatActivity {
                             ImageView avatarImageView = new ImageView(UserActivity.this);
                             TextView display_name_TextView = new TextView(UserActivity.this);
                             FrameLayout frameLayout = new FrameLayout(UserActivity.this);
-                            frameLayout.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                            //frameLayout.setLayoutParams(display_name_avatar_LayoutParams);
+                            ViewGroup.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                            frameLayout.setLayoutParams(lp);
 
-                            //Display_name用TextViewとかAvatarいれるLinearLayoutを作成
+                            //warp_content と layout_gravity の設定
+                            FrameLayout.LayoutParams lp1 = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                            lp1.gravity = Gravity.CENTER;
+
+                            ViewGroup.LayoutParams lp2 = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                            FrameLayout.LayoutParams lp3 = new FrameLayout.LayoutParams(200, 200);
+                            lp3.gravity = Gravity.CENTER;
+
                             LinearLayout display_name_avatar_LinearLayout = new LinearLayout(UserActivity.this);
                             display_name_avatar_LinearLayout.setOrientation(LinearLayout.VERTICAL);
-                            display_name_avatar_LinearLayout.setLayoutParams(display_name_avatar_LayoutParams);
+                            display_name_avatar_LinearLayout.setLayoutParams(lp1);
                             //TextView ImageView　等
                             display_name_TextView.setText(display_name + "\n@" + remote);
-                            display_name_TextView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                            Glide.with(UserActivity.this).load(avater_url).into(avatarImageView);
-                            //display_name_avatar_LinearLayout.addView(avatarImageView);
+                            display_name_TextView.setLayoutParams(lp2);
+                            display_name_TextView.setGravity(Gravity.CENTER);
+                            display_name_TextView.setBackground(getDrawable(R.drawable.textview_transparent));
+
+                            Glide.with(UserActivity.this).load(avater_url).apply(new RequestOptions().override(200)).into(avatarImageView);
+                            avatarImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+                            display_name_avatar_LinearLayout.addView(avatarImageView);
                             display_name_avatar_LinearLayout.addView(display_name_TextView);
 
                             //FrameLayoutに入れる
@@ -1044,12 +1059,13 @@ public class UserActivity extends AppCompatActivity {
 
 
                             //追加
-                            main_LinearLayout.addView(headerImageView);
                             cardView.addView(frameLayout);
+                            main_LinearLayout.addView(headerImageView);
 
 
                             //CardView追加
                             user_activity_LinearLayout.addView(top_linearLayout);
+                            snackbar.dismiss();
 
                         }
                     });

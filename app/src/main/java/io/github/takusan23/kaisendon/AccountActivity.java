@@ -127,9 +127,10 @@ public class AccountActivity extends AppCompatActivity {
         }
 
 
-        setContentView(R.layout.activity_user);
+        setContentView(R.layout.activity_user_old);
 
         final android.os.Handler handler_1 = new android.os.Handler();
+
 
         //先に
         TextView displayname_textview = findViewById(R.id.username);

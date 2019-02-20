@@ -17,16 +17,20 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -66,21 +70,29 @@ import java.util.regex.Pattern;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class UserActivity extends AppCompatActivity {
     private final static String TAG = "TestImageGetter";
     //private TextView mTv;
+    String AccessToken = null;
+    String Instance = null;
+
+
+    //がんばってレイアウト作り直すわ
+    private LinearLayout user_activity_LinearLayout;
 
     long account_id;
 
     String display_name = null;
     String user_account_id = null;
     String avater_url = null;
-    String heander_url = null;
+    String header_url = null;
     String profile = null;
     String create_at = null;
     String remote = null;
@@ -103,11 +115,14 @@ public class UserActivity extends AppCompatActivity {
     //フォロー/フォローしてない
     boolean following = false;
 
+    private SharedPreferences pref_setting;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
 
         //ダークテーマに切り替える機能
         //setContentViewより前に実装する必要あり？
@@ -135,29 +150,6 @@ public class UserActivity extends AppCompatActivity {
         Intent intent = getIntent();
         account_id = intent.getLongExtra("Account_ID", 0);
 
-        //先に
-        TextView displayname_textview = findViewById(R.id.username);
-        TextView id_textview = findViewById(R.id.account_id);
-        profile_textview = findViewById(R.id.profile);
-        TextView user_info_textView = findViewById(R.id.user_info_textview);
-
-        //画像
-        ImageView avater = findViewById(R.id.avater_user);
-        ImageView header = findViewById(R.id.header_user);
-
-        //ボタン
-        Button follower_button = findViewById(R.id.follower_button);
-        Button follow_button = findViewById(R.id.follow_button);
-        Button follow_request_button = findViewById(R.id.follow_request_button);
-        Button toot_button = findViewById(R.id.toot_button);
-        //補足情報
-        LinearLayout fields_attributes_linearLayout = findViewById(R.id.fields_attributes_linearLayout);
-
-
-        //設定を読み込み
-        SharedPreferences pref = getSharedPreferences("preferences", MODE_PRIVATE);
-        String AccessToken = null;
-        String Instance = null;
 
         boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
         if (accessToken_boomelan) {
@@ -246,7 +238,13 @@ public class UserActivity extends AppCompatActivity {
             }
         };
 
-        String finalInstance2 = Instance;
+        //アカウント情報読み込み
+        loadAccount();
+
+
+
+
+        /*
         AsyncTask<String, Void, String> asyncTask = new AsyncTask<String, Void, String>() {
             @Override
             protected String doInBackground(String... string) {
@@ -572,8 +570,10 @@ public class UserActivity extends AppCompatActivity {
                 //dialog.dismiss();
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+*/
 
 
+/*
         //ふぉろーされてるか
         AsyncTask<String, Void, String> asyncTask_follow_check = new AsyncTask<String, Void, String>() {
 
@@ -647,8 +647,10 @@ public class UserActivity extends AppCompatActivity {
                 return null;
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+*/
 
 
+/*
         //ボタンクリック
         follow_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -682,9 +684,10 @@ public class UserActivity extends AppCompatActivity {
                 startActivity(toot_intent);
             }
         });
+*/
 
 
-        //フォローする
+/*        //フォローする
         String finalInstance1 = Instance;
         String finalAccessToken1 = AccessToken;
         follow_request_button.setOnClickListener(new View.OnClickListener() {
@@ -949,14 +952,281 @@ public class UserActivity extends AppCompatActivity {
                             }
                         }.execute();
                     }
-
                 }
+            }
+        });*/
+    }
+
+    /**
+     * アカウント情報を取得する
+     */
+    private void loadAccount() {
+        //APIを叩く
+        String url = "https://" + Instance + "/api/v1/accounts/" + String.valueOf(account_id);
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+        //GETリクエスト
+        OkHttpClient okHttpClient = new OkHttpClient();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
 
             }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                try {
+                    JSONObject jsonObject = new JSONObject(response_string);
+
+                    display_name = jsonObject.getString("display_name");
+                    user_account_id = jsonObject.getString("acct");
+                    profile = jsonObject.getString("note");
+                    avater_url = jsonObject.getString("avatar");
+                    header_url = jsonObject.getString("header");
+                    //create_at = accounts.getCreatedAt();
+                    remote = jsonObject.getString("acct");
+
+                    follow = jsonObject.getInt("following_count");
+                    follower = jsonObject.getInt("followers_count");
+                    status_count = jsonObject.getInt("statuses_count");
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            user_activity_LinearLayout = findViewById(R.id.user_activity_linearLayout);
+                            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+                            //カードUIの用な感じに
+                            LinearLayout top_linearLayout = (LinearLayout) inflater.inflate(R.layout.cardview_layout, null);
+                            CardView cardView = (CardView) top_linearLayout.findViewById(R.id.cardview);
+                            TextView textView = (TextView) top_linearLayout.findViewById(R.id.cardview_textview);
+                            //ここについか
+                            LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
+
+                            Drawable title_icon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_create_black_24dp_black, null);
+                            title_icon.setBounds(0, 0, title_icon.getIntrinsicWidth(), title_icon.getIntrinsicHeight());
+                            //ImageViewとか
+                            ImageView headerImageView = new ImageView(UserActivity.this);
+                            headerImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                            //headerImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                            Glide.with(UserActivity.this).load(header_url).into(headerImageView);
+
+                            LinearLayout.LayoutParams display_name_avatar_LayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                            display_name_avatar_LayoutParams.gravity = Gravity.CENTER;
+
+                            ImageView avatarImageView = new ImageView(UserActivity.this);
+                            TextView display_name_TextView = new TextView(UserActivity.this);
+                            FrameLayout frameLayout = new FrameLayout(UserActivity.this);
+                            frameLayout.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                            //frameLayout.setLayoutParams(display_name_avatar_LayoutParams);
+
+                            //Display_name用TextViewとかAvatarいれるLinearLayoutを作成
+                            LinearLayout display_name_avatar_LinearLayout = new LinearLayout(UserActivity.this);
+                            display_name_avatar_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+                            display_name_avatar_LinearLayout.setLayoutParams(display_name_avatar_LayoutParams);
+                            //TextView ImageView　等
+                            display_name_TextView.setText(display_name + "\n@" + remote);
+                            display_name_TextView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                            Glide.with(UserActivity.this).load(avater_url).into(avatarImageView);
+                            //display_name_avatar_LinearLayout.addView(avatarImageView);
+                            display_name_avatar_LinearLayout.addView(display_name_TextView);
+
+                            //FrameLayoutに入れる
+                            frameLayout.addView(display_name_avatar_LinearLayout);
+
+
+                            //今回はタイトルを使ってないので消す
+                            ((LinearLayout) top_linearLayout.findViewById(R.id.cardview_linearLayout)).removeView(textView);
+
+
+                            //追加
+                            main_LinearLayout.addView(headerImageView);
+                            cardView.addView(frameLayout);
+
+
+                            //CardView追加
+                            user_activity_LinearLayout.addView(top_linearLayout);
+
+                        }
+                    });
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
         });
-
-
     }
+
+    /**
+     * フォローしている等状況を取得する
+     */
+    private void getFollowInfo() {
+        String url = "https://" + Instance + "/api/v1/accounts/relationships/?stream=user&access_token=" + AccessToken;
+
+        //パラメータを設定
+        HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
+        builder.addQueryParameter("id", String.valueOf(account_id));
+        String final_url = builder.build().toString();
+
+        //作成
+        Request request = new Request.Builder()
+                .url(final_url)
+                .get()
+                .build();
+
+        //GETリクエスト
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                //JSON化
+                //System.out.println("レスポンス : " + response.body().string());
+                String response_string = response.body().string();
+                try {
+                    JSONArray jsonArray = new JSONArray(response_string);
+                    JSONObject jsonObject = jsonArray.getJSONObject(0);
+                    boolean followed_by = jsonObject.getBoolean("followed_by");
+                    boolean blocking = jsonObject.getBoolean("blocking");
+                    boolean muting = jsonObject.getBoolean("muting");
+                    following = jsonObject.getBoolean("following");
+
+                    String follow = null;
+                    String block = null;
+                    String mute = null;
+                    String follow_back = getString(R.string.follow_back_not);
+
+                    if (followed_by) {
+                        follow_back = getString(R.string.follow_back);
+                    }
+/*
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            user_info_textView.setText(finalFollow_back + "\r\n" + getString(R.string.block) + " : " + yes_no_check(blocking, block, UserActivity.this) + " / " + getString(R.string.mute) + " : " + yes_no_check(muting, mute, UserActivity.this));
+                            //フォロー中ってテキスト変更
+                            if (following) {
+                                follow_request_button.setText(R.string.following);
+                            }
+                        }
+                    });
+*/
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /**
+     * ボタンを押したときに移動するやつを指定。
+     *
+     * @param i １でstatuses、２でfollowing、３でfollower
+     */
+    private void clickAcitvityMode(int i) {
+        Intent follow_intent = new Intent(UserActivity.this, UserFollowActivity.class);
+        follow_intent.putExtra("account_id", account_id);
+        follow_intent.putExtra("count", follow);
+        switch (i) {
+            case 1:
+                follow_intent.putExtra("follow_follower", 3);
+                startActivity(follow_intent);
+                break;
+            case 2:
+                follow_intent.putExtra("follow_follower", 2);
+                startActivity(follow_intent);
+                break;
+            case 3:
+                follow_intent.putExtra("follow_follower", 1);
+                startActivity(follow_intent);
+                break;
+        }
+    }
+
+    /**
+     * フォローする（同じインスタンスの場合）
+     *
+     * @param followUrl "follow"または"unfollow"
+     * @param message   POST終わったときに表示するメッセージ + account_id のToast
+     */
+    private void follow(String followUrl, final String message) {
+        String url = "https://" + Instance + "/api/v1/accounts/" + String.valueOf(account_id) + "/" + followUrl + "?access_token=" + AccessToken;
+        //ぱらめーたー
+        RequestBody requestBody = new FormBody.Builder()
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        //POST
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(UserActivity.this, message + " : " + String.valueOf(account_id), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * リモートフォロー（違うインスタンスでのフォロー）
+     *
+     * @param message POST終わったときに表示するメッセージ
+     */
+    private void remoteFollow(final String message) {
+        String url = "https://" + Instance + "/api/v1/follows?access_token=" + AccessToken;
+        //ぱらめーたー
+        RequestBody requestBody = new FormBody.Builder()
+                .add("uri", remote)
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        //POST
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(UserActivity.this, message + " : " + String.valueOf(account_id), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

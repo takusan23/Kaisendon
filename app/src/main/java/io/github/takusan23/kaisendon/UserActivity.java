@@ -276,11 +276,15 @@ public class UserActivity extends AppCompatActivity {
                             //ここについか
                             LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
 
+                            //名前とかアバター画像とか
+                            LinearLayout display_name_avatar_LinearLayout = new LinearLayout(UserActivity.this);
+                            display_name_avatar_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+                            display_name_avatar_LinearLayout.setGravity(Gravity.CENTER);
+
                             Drawable title_icon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_create_black_24dp_black, null);
                             title_icon.setBounds(0, 0, title_icon.getIntrinsicWidth(), title_icon.getIntrinsicHeight());
                             //ImageViewとか
                             ImageView headerImageView = new ImageView(UserActivity.this);
-                            headerImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 600));
                             headerImageView.setScaleType(ImageView.ScaleType.CENTER);
                             Glide.with(UserActivity.this).load(header_url).into(headerImageView);
 
@@ -291,9 +295,6 @@ public class UserActivity extends AppCompatActivity {
                             TextView display_name_TextView = new TextView(UserActivity.this);
                             FrameLayout frameLayout = new FrameLayout(UserActivity.this);
 
-                            LinearLayout display_name_avatar_LinearLayout = new LinearLayout(UserActivity.this);
-                            display_name_avatar_LinearLayout.setOrientation(LinearLayout.VERTICAL);
-                            display_name_avatar_LinearLayout.setGravity(Gravity.CENTER);
                             //TextView
                             display_name_TextView.setText(display_name + "\n@" + remote);
                             display_name_TextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -365,6 +366,7 @@ public class UserActivity extends AppCompatActivity {
                             display_name_avatar_LinearLayout.addView(avatarImageView);
                             display_name_avatar_LinearLayout.addView(display_name_TextView);
                             display_name_avatar_LinearLayout.addView(followButton);
+                            headerImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, display_name_avatar_LinearLayout.getHeight()));
 
                             //FrameLayoutに入れる
                             frameLayout.addView(display_name_avatar_LinearLayout);

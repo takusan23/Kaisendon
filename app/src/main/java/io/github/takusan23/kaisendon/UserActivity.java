@@ -30,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -73,6 +74,7 @@ import java.util.regex.Pattern;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
+import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -122,6 +124,8 @@ public class UserActivity extends AppCompatActivity {
     private Snackbar snackbar;
 
     private Button followButton;
+    private ImageView headerImageView;
+    private LinearLayout display_name_avatar_LinearLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -277,36 +281,38 @@ public class UserActivity extends AppCompatActivity {
                             LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
 
                             //名前とかアバター画像とか
-                            LinearLayout display_name_avatar_LinearLayout = new LinearLayout(UserActivity.this);
+                            display_name_avatar_LinearLayout = new LinearLayout(UserActivity.this);
                             display_name_avatar_LinearLayout.setOrientation(LinearLayout.VERTICAL);
                             display_name_avatar_LinearLayout.setGravity(Gravity.CENTER);
+                            display_name_avatar_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                            display_name_avatar_LinearLayout.setBackground(getDrawable(R.drawable.button_style_white));
 
                             Drawable title_icon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_create_black_24dp_black, null);
                             title_icon.setBounds(0, 0, title_icon.getIntrinsicWidth(), title_icon.getIntrinsicHeight());
                             //ImageViewとか
-                            ImageView headerImageView = new ImageView(UserActivity.this);
-                            headerImageView.setScaleType(ImageView.ScaleType.CENTER);
+                            headerImageView = new ImageView(UserActivity.this);
                             Glide.with(UserActivity.this).load(header_url).into(headerImageView);
 
-                            LinearLayout.LayoutParams display_name_avatar_LayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                            display_name_avatar_LayoutParams.gravity = Gravity.CENTER;
 
                             ImageView avatarImageView = new ImageView(UserActivity.this);
                             TextView display_name_TextView = new TextView(UserActivity.this);
                             FrameLayout frameLayout = new FrameLayout(UserActivity.this);
+                            //真ん中
+                            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                            layoutParams.gravity = Gravity.CENTER;
+                            frameLayout.setLayoutParams(layoutParams);
 
                             //TextView
                             display_name_TextView.setText(display_name + "\n@" + remote);
                             display_name_TextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                             display_name_TextView.setGravity(Gravity.CENTER);
-                            display_name_TextView.setBackground(getDrawable(R.drawable.textview_transparent));
                             //ImageView
                             Glide.with(UserActivity.this).load(avater_url).apply(new RequestOptions().override(200)).into(avatarImageView);
                             avatarImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                             //Button
                             followButton = new Button(UserActivity.this);
                             followButton.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                            followButton.setBackground(getDrawable(R.drawable.button_style_white));
+                            followButton.setBackground(getDrawable(R.drawable.button_style));
                             followButton.setText(getString(R.string.follow));
                             followButton.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_person_add_black_24dp), null, null, null);
                             //フォロー状態取得
@@ -366,7 +372,6 @@ public class UserActivity extends AppCompatActivity {
                             display_name_avatar_LinearLayout.addView(avatarImageView);
                             display_name_avatar_LinearLayout.addView(display_name_TextView);
                             display_name_avatar_LinearLayout.addView(followButton);
-                            headerImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, display_name_avatar_LinearLayout.getHeight()));
 
                             //FrameLayoutに入れる
                             frameLayout.addView(display_name_avatar_LinearLayout);
@@ -381,8 +386,13 @@ public class UserActivity extends AppCompatActivity {
                             cardView.addView(frameLayout);
 
 
+                            //ふぉろーふぉろわーすてーたす
+                            //なげえし分けるわ
+                            LinearLayout menuCardLinearLayout = followMenuCard();
+
                             //CardView追加
                             user_activity_LinearLayout.addView(top_linearLayout);
+                            user_activity_LinearLayout.addView(menuCardLinearLayout);
                             snackbar.dismiss();
 
                         }
@@ -450,6 +460,17 @@ public class UserActivity extends AppCompatActivity {
                                     favIcon.setTint(Color.parseColor("#2196f3"));
                                     followButton.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
                                 }
+                                //背景のImageViewの大きさを変更する
+                                //なんかボタンのテキストが改行されて二行になると下に白あまりができるので
+                                display_name_avatar_LinearLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                                    @Override
+                                    public void onGlobalLayout() {
+                                        headerImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                        headerImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, display_name_avatar_LinearLayout.getHeight()));
+                                        headerImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                    }
+                                });
+
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -486,11 +507,11 @@ public class UserActivity extends AppCompatActivity {
                 startActivity(follow_intent);
                 break;
             case 2:
-                follow_intent.putExtra("follow_follower", 2);
+                follow_intent.putExtra("follow_follower", 1);
                 startActivity(follow_intent);
                 break;
             case 3:
-                follow_intent.putExtra("follow_follower", 1);
+                follow_intent.putExtra("follow_follower", 2);
                 startActivity(follow_intent);
                 break;
         }
@@ -568,6 +589,43 @@ public class UserActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    private LinearLayout followMenuCard() {
+        user_activity_LinearLayout = findViewById(R.id.user_activity_linearLayout);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        //カードUIの用な感じに
+        LinearLayout top_linearLayout = (LinearLayout) inflater.inflate(R.layout.cardview_layout, null);
+        CardView cardView = (CardView) top_linearLayout.findViewById(R.id.cardview);
+        TextView textView = (TextView) top_linearLayout.findViewById(R.id.cardview_textview);
+        //名前とか
+        textView.setText(getString(R.string.follow) + "/" + getString(R.string.follower));
+        textView.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_person_black_24dp), null, null, null);
+        //ここについか
+        LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
+        //めにゅー
+        String[] menuList = {getString(R.string.toot) + " : " + String.valueOf(status_count), getString(R.string.follow) + " : " + String.valueOf(follow), getString(R.string.follower) + " : " + String.valueOf(follower)};
+        Drawable[] drawableList = {getDrawable(R.drawable.ic_create_black_24dp_black), getDrawable(R.drawable.ic_done_black_24dp_2), getDrawable(R.drawable.ic_done_all_black_24dp_2)};
+        //forで回すか
+        for (int i = 0; i < 3; i++) {
+            TextView menuTextView = new TextView(UserActivity.this);
+            menuTextView.setText(menuList[i]);
+            menuTextView.setTextSize(24);
+            menuTextView.setCompoundDrawablesWithIntrinsicBounds(drawableList[i], null, null, null);
+            menuTextView.setBackground(getDrawable(R.drawable.button_style));
+            menuTextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            main_LinearLayout.addView(menuTextView);
+            //クリックイベント
+            int finalI = i;
+            menuTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clickAcitvityMode(finalI + 1);
+                }
+            });
+        }
+        return top_linearLayout;
     }
 
 

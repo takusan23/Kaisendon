@@ -19,6 +19,7 @@ import android.preference.PreferenceManager;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.text.util.LinkifyCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -46,6 +47,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import com.squareup.picasso.Picasso;
 import com.sys1yagi.mastodon4j.MastodonClient;
+import com.sys1yagi.mastodon4j.api.Link;
 import com.sys1yagi.mastodon4j.api.entity.Account;
 import com.sys1yagi.mastodon4j.api.entity.Relationship;
 import com.sys1yagi.mastodon4j.api.entity.auth.AccessToken;
@@ -65,6 +67,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -113,6 +116,9 @@ public class UserActivity extends AppCompatActivity {
     int follow;
     int follower;
     int status_count;
+
+    private JSONArray fieldsJsonArray;
+    private String nico_url;
 
     private ProgressDialog dialog;
 
@@ -258,12 +264,19 @@ public class UserActivity extends AppCompatActivity {
                     profile = jsonObject.getString("note");
                     avater_url = jsonObject.getString("avatar");
                     header_url = jsonObject.getString("header");
-                    //create_at = accounts.getCreatedAt();
+                    create_at = jsonObject.getString("created_at");
                     remote = jsonObject.getString("acct");
 
                     follow = jsonObject.getInt("following_count");
                     follower = jsonObject.getInt("followers_count");
                     status_count = jsonObject.getInt("statuses_count");
+
+                    //nico_url
+                    if (!jsonObject.isNull("nico_url")) {
+                        nico_url = jsonObject.getString("nico_url");
+                    }
+
+                    fieldsJsonArray = jsonObject.getJSONArray("fields");
 
                     runOnUiThread(new Runnable() {
                         @Override
@@ -291,6 +304,8 @@ public class UserActivity extends AppCompatActivity {
                             title_icon.setBounds(0, 0, title_icon.getIntrinsicWidth(), title_icon.getIntrinsicHeight());
                             //ImageViewとか
                             headerImageView = new ImageView(UserActivity.this);
+                            //今はどっちもMATCH_PARENTになっているけどレイアウトが完成したときにサイズを調整するからおｋ
+                            headerImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                             Glide.with(UserActivity.this).load(header_url).into(headerImageView);
 
 
@@ -315,63 +330,107 @@ public class UserActivity extends AppCompatActivity {
                             followButton.setBackground(getDrawable(R.drawable.button_style));
                             followButton.setText(getString(R.string.follow));
                             followButton.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_person_add_black_24dp), null, null, null);
-                            //フォロー状態取得
-                            getFollowInfo();
-                            //クリックイベント
-                            followButton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    //フォローしてるかで条件分岐
-                                    if (!following) {
-                                        if (pref_setting.getBoolean("pref_follow_dialog", true)) {
-                                            AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserActivity.this);
-                                            alertDialog.setTitle(R.string.confirmation);
-                                            alertDialog.setMessage(display_name + "(@ " + user_account_id + ")" + getString(R.string.follow_message) + "\r\n /api/v1/follows" + "(" + remote + ")");
-                                            alertDialog.setPositiveButton(R.string.follow, new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    //リモートフォローかそうじゃないか
-                                                    //@があるかどうか
-                                                    if (remote.contains("@")) {
-                                                        //remote follow
-                                                        remoteFollow(getString(R.string.follow_ok));
-                                                    } else {
-                                                        follow("follow", getString(R.string.follow_ok));
+                            //自分の場合は編集ボタンを出す
+                            if (getIntent().getBooleanExtra("my", false)) {
+                                followButton.setText(getString(R.string.edit));
+                                followButton.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_create_black_24dp_black), null, null, null);
+                                followButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Intent intent = new Intent(UserActivity.this, AccountInfoUpdateActivity.class);
+                                        startActivity(intent);
+                                    }
+                                });
+                            } else {
+                                //フォロー状態取得
+                                getFollowInfo();
+                                //クリックイベント
+                                followButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        //フォローしてるかで条件分岐
+                                        if (!following) {
+                                            if (pref_setting.getBoolean("pref_follow_dialog", true)) {
+                                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserActivity.this);
+                                                alertDialog.setTitle(R.string.confirmation);
+                                                alertDialog.setMessage(display_name + "(@ " + user_account_id + ")" + getString(R.string.follow_message) + "\r\n /api/v1/follows" + "(" + remote + ")");
+                                                alertDialog.setPositiveButton(R.string.follow, new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        //リモートフォローかそうじゃないか
+                                                        //@があるかどうか
+                                                        if (remote.contains("@")) {
+                                                            //remote follow
+                                                            remoteFollow(getString(R.string.follow_ok));
+                                                        } else {
+                                                            follow("follow", getString(R.string.follow_ok));
+                                                        }
                                                     }
-                                                }
-                                            }).show();
-                                        } else {
-                                            //リモートフォローかそうじゃないか
-                                            //@があるかどうか
-                                            if (remote.contains("@")) {
-                                                //remote follow
-                                                remoteFollow(getString(R.string.follow_ok));
+                                                }).show();
                                             } else {
-                                                follow("follow", getString(R.string.follow_ok));
+                                                //リモートフォローかそうじゃないか
+                                                //@があるかどうか
+                                                if (remote.contains("@")) {
+                                                    //remote follow
+                                                    remoteFollow(getString(R.string.follow_ok));
+                                                } else {
+                                                    follow("follow", getString(R.string.follow_ok));
+                                                }
+                                            }
+                                        } else {
+                                            //ふぉろーはずし
+                                            if (pref_setting.getBoolean("pref_follow_dialog", true)) {
+                                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserActivity.this);
+                                                alertDialog.setTitle(R.string.confirmation);
+                                                alertDialog.setMessage(display_name + "(@ " + user_account_id + ")" + getString(R.string.unfollow_message) + "\r\n /api/v1/follows" + "(" + remote + ")");
+                                                alertDialog.setPositiveButton(R.string.follow, new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        follow("unfollow", getString(R.string.unfollow_ok));
+                                                    }
+                                                }).show();
+                                            } else {
+                                                follow("unfollow", getString(R.string.unfollow_ok));
                                             }
                                         }
-                                    } else {
-                                        //ふぉろーはずし
-                                        if (pref_setting.getBoolean("pref_follow_dialog", true)) {
-                                            AlertDialog.Builder alertDialog = new AlertDialog.Builder(UserActivity.this);
-                                            alertDialog.setTitle(R.string.confirmation);
-                                            alertDialog.setMessage(display_name + "(@ " + user_account_id + ")" + getString(R.string.unfollow_message) + "\r\n /api/v1/follows" + "(" + remote + ")");
-                                            alertDialog.setPositiveButton(R.string.follow, new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    follow("unfollow", getString(R.string.unfollow_ok));
-                                                }
-                                            }).show();
-                                        } else {
-                                            follow("unfollow", getString(R.string.unfollow_ok));
-                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
 
                             display_name_avatar_LinearLayout.addView(avatarImageView);
                             display_name_avatar_LinearLayout.addView(display_name_TextView);
                             display_name_avatar_LinearLayout.addView(followButton);
+
+                            //nico_url Button
+                            if (nico_url != null) {
+                                Button nicoButton = new Button(UserActivity.this);
+                                nicoButton.setText("niconico");
+                                nicoButton.setBackground(getDrawable(R.drawable.button_style));
+                                nicoButton.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                                nicoButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        boolean chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
+                                        //戻るアイコン
+                                        Bitmap back_icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_arrow_back);
+                                        //有効
+                                        if (chrome_custom_tabs) {
+                                            String custom = CustomTabsHelper.getPackageNameToUse(UserActivity.this);
+                                            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                                            CustomTabsIntent customTabsIntent = builder.build();
+                                            customTabsIntent.intent.setPackage(custom);
+                                            customTabsIntent.launchUrl(UserActivity.this, Uri.parse(nico_url));
+                                            //無効
+                                        } else {
+                                            Uri uri = Uri.parse(nico_url);
+                                            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                                            startActivity(intent);
+                                        }
+                                    }
+                                });
+                                display_name_avatar_LinearLayout.addView(nicoButton);
+                                headerImageSize();
+                            }
 
                             //FrameLayoutに入れる
                             frameLayout.addView(display_name_avatar_LinearLayout);
@@ -389,10 +448,20 @@ public class UserActivity extends AppCompatActivity {
                             //ふぉろーふぉろわーすてーたす
                             //なげえし分けるわ
                             LinearLayout menuCardLinearLayout = followMenuCard();
-
+                            //説明文
+                            LinearLayout noteCardLinearLayout = noteCard();
+                            //作成時
+                            LinearLayout create_atCard = create_atCard();
+                            //補足情報
+                            LinearLayout fieldsLinearLayout = fieldsCard();
                             //CardView追加
                             user_activity_LinearLayout.addView(top_linearLayout);
                             user_activity_LinearLayout.addView(menuCardLinearLayout);
+                            user_activity_LinearLayout.addView(create_atCard);
+                            user_activity_LinearLayout.addView(noteCardLinearLayout);
+                            if (!fieldsJsonArray.isNull(0)) {
+                                user_activity_LinearLayout.addView(fieldsLinearLayout);
+                            }
                             snackbar.dismiss();
 
                         }
@@ -462,14 +531,7 @@ public class UserActivity extends AppCompatActivity {
                                 }
                                 //背景のImageViewの大きさを変更する
                                 //なんかボタンのテキストが改行されて二行になると下に白あまりができるので
-                                display_name_avatar_LinearLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                                    @Override
-                                    public void onGlobalLayout() {
-                                        headerImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                                        headerImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, display_name_avatar_LinearLayout.getHeight()));
-                                        headerImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                                    }
-                                });
+                                headerImageSize();
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -594,7 +656,6 @@ public class UserActivity extends AppCompatActivity {
     private LinearLayout followMenuCard() {
         user_activity_LinearLayout = findViewById(R.id.user_activity_linearLayout);
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
         //カードUIの用な感じに
         LinearLayout top_linearLayout = (LinearLayout) inflater.inflate(R.layout.cardview_layout, null);
         CardView cardView = (CardView) top_linearLayout.findViewById(R.id.cardview);
@@ -629,6 +690,133 @@ public class UserActivity extends AppCompatActivity {
     }
 
 
+    private LinearLayout noteCard() {
+        user_activity_LinearLayout = findViewById(R.id.user_activity_linearLayout);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        //カードUIの用な感じに
+        LinearLayout top_linearLayout = (LinearLayout) inflater.inflate(R.layout.cardview_layout, null);
+        CardView cardView = (CardView) top_linearLayout.findViewById(R.id.cardview);
+        TextView textView = (TextView) top_linearLayout.findViewById(R.id.cardview_textview);
+        //名前とか
+        textView.setText(getString(R.string.note));
+        textView.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_create_black_24dp_black), null, null, null);
+        //ここについか
+        LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
+        //note
+        TextView noteTextView = new TextView(UserActivity.this);
+        noteTextView.setAutoLinkMask(Linkify.WEB_URLS);
+        noteTextView.setText(Html.fromHtml(profile, Html.FROM_HTML_MODE_COMPACT));
+        main_LinearLayout.addView(noteTextView);
+
+        return top_linearLayout;
+    }
+
+    private LinearLayout create_atCard() {
+        user_activity_LinearLayout = findViewById(R.id.user_activity_linearLayout);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        //カードUIの用な感じに
+        LinearLayout top_linearLayout = (LinearLayout) inflater.inflate(R.layout.cardview_layout, null);
+        CardView cardView = (CardView) top_linearLayout.findViewById(R.id.cardview);
+        TextView textView = (TextView) top_linearLayout.findViewById(R.id.cardview_textview);
+        //名前とか
+        textView.setText(getString(R.string.create_at_date));
+        textView.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_date_range_black_24dp), null, null, null);
+        //ここについか
+        LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
+        TextView dateTextView = new TextView(UserActivity.this);
+        dateTextView.setText(dateFormat(create_at));
+        dateTextView.setTextSize(18);
+
+        main_LinearLayout.addView(dateTextView);
+
+        return top_linearLayout;
+    }
+
+    private String dateFormat(String dateText) {
+        String dateString = dateText;
+        boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
+        if (japan_timeSetting) {
+            //時差計算？
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+            //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+            //日本用フォーマット
+            SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+            try {
+                Date date = simpleDateFormat.parse(dateText);
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+                //9時間足して日本時間へ
+                calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                dateString = japanDateFormat.format(calendar.getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            dateString = dateText;
+        }
+        return dateString;
+    }
+
+    private LinearLayout fieldsCard() {
+        user_activity_LinearLayout = findViewById(R.id.user_activity_linearLayout);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        //カードUIの用な感じに
+        LinearLayout top_linearLayout = (LinearLayout) inflater.inflate(R.layout.cardview_layout, null);
+        CardView cardView = (CardView) top_linearLayout.findViewById(R.id.cardview);
+        TextView textView = (TextView) top_linearLayout.findViewById(R.id.cardview_textview);
+        //名前とか
+        textView.setText(getString(R.string.fields_attributes));
+        textView.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_playlist_add_black_24dp), null, null, null);
+        //ここについか
+        LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
+        //forで回す
+        for (int i = 0; i < fieldsJsonArray.length(); i++) {
+            //ぱーす
+            try {
+                String name = fieldsJsonArray.getJSONObject(i).getString("name");
+                String value = fieldsJsonArray.getJSONObject(i).getString("value");
+                //LinearLayout
+                LinearLayout fieldsLinearLayout = new LinearLayout(UserActivity.this);
+                fieldsLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                fieldsLinearLayout.setOrientation(LinearLayout.VERTICAL);
+                fieldsLinearLayout.setBackground(getDrawable(R.drawable.button_style));
+                //TextView
+                TextView nameTextView = new TextView(UserActivity.this);
+                TextView valueTextView = new TextView(UserActivity.this);
+                nameTextView.setTextSize(18);
+                valueTextView.setTextSize(18);
+                valueTextView.setAutoLinkMask(Linkify.WEB_URLS);
+                nameTextView.setText(name);
+                valueTextView.setText(Html.fromHtml(value, Html.FROM_HTML_MODE_COMPACT));
+                //入れる
+                fieldsLinearLayout.addView(nameTextView);
+                fieldsLinearLayout.addView(valueTextView);
+                main_LinearLayout.addView(fieldsLinearLayout);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return top_linearLayout;
+    }
+
+    private void headerImageSize() {
+        //背景のImageViewの大きさを変更する
+        //なんかボタンのテキストが改行されて二行になると下に白あまりができるので
+        display_name_avatar_LinearLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                headerImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                headerImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, display_name_avatar_LinearLayout.getHeight()));
+                headerImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                headerImageView.invalidate();
+            }
+        });
+    }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -638,14 +826,6 @@ public class UserActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    static String yes_no_check(Boolean boomelan, String string, Context context) {
-        if (boomelan) {
-            string = context.getString(R.string.yes);
-        } else {
-            string = context.getString(R.string.no);
-        }
-        return string;
-    }
 
     class LoadImage extends AsyncTask<Object, Void, Bitmap> {
 

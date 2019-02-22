@@ -183,15 +183,18 @@ public class UserFollowActivity extends AppCompatActivity {
         if (follow_follower == 1) {
             //ふぉろー
             LoadFollow(Instance, AccessToken, simpleAdapter, false, false, null);
+            setTitle(getString(R.string.follow));
         }
         if (follow_follower == 2) {
             //ふぉろわー
             LoadFollow(Instance, AccessToken, simpleAdapter, false, true, null);
+            setTitle(getString(R.string.follower));
         }
 
         if (follow_follower == 3) {
             //toot
             LoadUserToot(Instance, AccessToken, adapter, null);
+            setTitle(getString(R.string.toot));
         }
 
     }
@@ -564,7 +567,6 @@ public class UserFollowActivity extends AppCompatActivity {
                             public void run() {
                                 ListView listView = (ListView) findViewById(R.id.follow_follower_list);
                                 listView.setAdapter(adapter);
-                                setTitle(getString(R.string.follow));
 
                                 listView.setSelectionFromTop(position, y);
                                 scroll = false;

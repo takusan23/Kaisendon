@@ -1348,9 +1348,10 @@ public class Home extends AppCompatActivity
             startActivity(login);
 
         } else if (id == R.id.account_menu) {
-            Intent login = new Intent(this, AccountActivity.class);
-            login.putExtra("Account_ID", account_id);
-            startActivity(login);
+            Intent intent = new Intent(this, UserActivity.class);
+            intent.putExtra("Account_ID", account_id);
+            intent.putExtra("my",true);
+            startActivity(intent);
 
         } else if (id == R.id.notifications) {
             SharedPreferences.Editor editor = pref_setting.edit();

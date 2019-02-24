@@ -1,5 +1,6 @@
 package io.github.takusan23.kaisendon;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -21,8 +22,9 @@ import java.util.concurrent.ExecutionException;
 public class WearFragment extends Fragment {
     View view;
 
-    Button accountTransportButton;
-    SharedPreferences pref_setting;
+    private Button accountTransportButton;
+    private SharedPreferences pref_setting;
+    private Button toot_shortcut_button;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -38,6 +40,7 @@ public class WearFragment extends Fragment {
         pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
 
         accountTransportButton = view.findViewById(R.id.account_transport_button);
+        toot_shortcut_button = view.findViewById(R.id.toot_shortcut_setting);
         //アクセストークンを変更してる場合のコード
         //アクセストークン
         String AccessToken = null;
@@ -65,6 +68,14 @@ public class WearFragment extends Fragment {
                 sendWearDeviceText("/instance", finalInstance);
                 sendWearDeviceText("/token", finalAccessToken);
                 sendWearDeviceText("/finish", "finish");
+            }
+        });
+
+        toot_shortcut_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(),WearTootShortcutListActivity.class);
+                startActivity(intent);
             }
         });
 

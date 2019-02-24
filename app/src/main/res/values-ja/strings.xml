@@ -352,5 +352,6 @@
     <string name="toot_shortcut_send">トゥートショートカットを転送</string>
     <string name="size_error">数が合いません。もう一度押してください。</string>
     <string name="toot_shortcut_delete">本当に削除しますか？</string>
+    <string name="verification_text">アカウントは認証済みです</string>
 
 </resources>

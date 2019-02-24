@@ -456,5 +456,6 @@
     <string name="toot_shortcut_send">Forwarding TootShortcut</string>
     <string name="size_error">The number does not suit. Please press it again.</string>
     <string name="toot_shortcut_delete">Do you really want to delete this?</string>
+    <string name="verification_text">Your account is already verified</string>
 
 </resources>

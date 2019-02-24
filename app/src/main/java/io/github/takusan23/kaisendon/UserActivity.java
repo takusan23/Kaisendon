@@ -774,6 +774,7 @@ public class UserActivity extends AppCompatActivity {
         for (int i = 0; i < fieldsJsonArray.length(); i++) {
             //ぱーす
             try {
+
                 String name = fieldsJsonArray.getJSONObject(i).getString("name");
                 String value = fieldsJsonArray.getJSONObject(i).getString("value");
                 //LinearLayout
@@ -784,6 +785,7 @@ public class UserActivity extends AppCompatActivity {
                 //TextView
                 TextView nameTextView = new TextView(UserActivity.this);
                 TextView valueTextView = new TextView(UserActivity.this);
+                TextView created_atTextView = new TextView(UserActivity.this);
                 nameTextView.setTextSize(18);
                 valueTextView.setTextSize(18);
                 valueTextView.setAutoLinkMask(Linkify.WEB_URLS);
@@ -791,6 +793,20 @@ public class UserActivity extends AppCompatActivity {
                 valueTextView.setText(Html.fromHtml(value, Html.FROM_HTML_MODE_COMPACT));
                 //入れる
                 fieldsLinearLayout.addView(nameTextView);
+                //認証済みのときはverified_atの値を取得する
+                if (!fieldsJsonArray.getJSONObject(i).isNull("verified_at")) {
+                    String verified_at_string = fieldsJsonArray.getJSONObject(i).getString("verified_at");
+                    fieldsLinearLayout.setBackground(getDrawable(R.drawable.button_style_green));
+                    //今までの方法だと使えない形なのでちょっと手を加える
+                    created_atTextView.setText(getString(R.string.verification_text) + " : " + timeFormat(verified_at_string.replace("+00:00", "Z")));
+                    created_atTextView.setTextSize(18);
+                    //ちぇっくまーく
+                    Drawable doneIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_done_black_24dp, null);
+                    doneIcon.setTint(Color.parseColor("#008c00"));
+                    created_atTextView.setCompoundDrawablesWithIntrinsicBounds(doneIcon, null, null, null);
+                    //入れる
+                    fieldsLinearLayout.addView(created_atTextView);
+                }
                 fieldsLinearLayout.addView(valueTextView);
                 main_LinearLayout.addView(fieldsLinearLayout);
 
@@ -864,6 +880,34 @@ public class UserActivity extends AppCompatActivity {
                 profile_textview.setText(t);
             }
         }
+    }
+
+    //時差計算
+    private String timeFormat(String time) {
+        String timeReturn = time;
+        //System.out.println("これかあ！ ： " + media_url_1 + " / " + media_url_2  + " / " + media_url_3 + " / " + media_url_4);
+        boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
+        if (japan_timeSetting) {
+            //時差計算？
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+            //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+            //日本用フォーマット
+            SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+            try {
+                Date date = simpleDateFormat.parse(time);
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+                //9時間足して日本時間へ
+                calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                timeReturn = japanDateFormat.format(calendar.getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            timeReturn = time;
+        }
+        return timeReturn;
     }
 
 }

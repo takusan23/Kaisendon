@@ -347,5 +347,10 @@
     <string name="setting_fav_boost_dialog_info">お気に入りとブーストするときにダイアログを表示します</string>
     <string name="setting_fav_boost_dialog">お気に入りとブーストダイアログ</string>
     <string name="create_at_date">アカウント作成日</string>
+    <string name="toot_shortcut_setting">トゥートショートカットの設定</string>
+    <string name="toot_shortcut_add">トゥートショートカットを追加</string>
+    <string name="toot_shortcut_send">トゥートショートカットを転送</string>
+    <string name="size_error">数が合いません。もう一度押してください。</string>
+    <string name="toot_shortcut_delete">本当に削除しますか？</string>
 
 </resources>

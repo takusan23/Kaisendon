@@ -451,5 +451,10 @@
     <string name="setting_fav_boost_dialog_info">Display a dialog when boosting with favorites</string>
     <string name="setting_fav_boost_dialog">Favorites and boost dialog</string>
     <string name="create_at_date">Account creation date</string>
+    <string name="toot_shortcut_setting">Setting of TootShortcut</string>
+    <string name="toot_shortcut_add">Add TootShortcut</string>
+    <string name="toot_shortcut_send">Forwarding TootShortcut</string>
+    <string name="size_error">The number does not suit. Please press it again.</string>
+    <string name="toot_shortcut_delete">Do you really want to delete this?</string>
 
 </resources>

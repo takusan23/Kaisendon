@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
@@ -207,7 +208,6 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
         String media_url = "";
 
 
-
         //メッセージ
         //設定で分けるように
         String favorite_message = null;
@@ -344,72 +344,83 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
         ImageView thumbnail = (ImageView) holder.avater_imageview;
         //通信量節約
         boolean setting_avater_hidden = pref_setting.getBoolean("pref_avater", false);
-
-        //じゃんけんあいこん以外
-        if (!avater_url.contains("じゃんけん")){
-            if (setting_avater_hidden) {
-                //thumbnail.setImageBitmap(item.getThumbnail());
-            }
-            //Wi-Fi
-            if (setting_avater_wifi) {
-                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true) {
-                    if (setting_avater_gif) {
-
-                        //GIFアニメ再生させない
-                        Picasso.get()
-                                .load(avater_url)
-                                .into(thumbnail);
-
-                    } else {
-
-                        //GIFアニメを再生
-                        Glide.with(view)
-                                .load(avater_url)
-                                .into(thumbnail);
-                    }
+        //avatarがnullかどうか
+        if (avater_url != null) {
+            //じゃんけんあいこん と　TootShortcut以外
+            if (!avater_url.contains("じゃんけん") || !avater_url.contains("toot_shortcut")) {
+                if (setting_avater_hidden) {
+                    //thumbnail.setImageBitmap(item.getThumbnail());
                 }
-                //Wi-Fi no Connection
-                else {
+                //Wi-Fi
+                if (setting_avater_wifi) {
+                    if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true) {
+                        if (setting_avater_gif) {
+
+                            //GIFアニメ再生させない
+                            Picasso.get()
+                                    .load(avater_url)
+                                    .into(thumbnail);
+
+                        } else {
+
+                            //GIFアニメを再生
+                            Glide.with(view)
+                                    .load(avater_url)
+                                    .into(thumbnail);
+                        }
+                    }
+
+                    //Wi-Fi no Connection
+                    else {
+                        //レイアウトを消す
+                        holder.vw1.removeView(holder.avaterImageview_linearLayout);
+                    }
+
+                } else {
                     //レイアウトを消す
                     holder.vw1.removeView(holder.avaterImageview_linearLayout);
                 }
-
             } else {
-                //レイアウトを消す
-                holder.vw1.removeView(holder.avaterImageview_linearLayout);
+                String imageString = null;
+                //画像選択
+                if (avater_url.contains("勝ちました")) {
+                    Glide.with(view)
+                            .load(R.drawable.ic_thumb_up_black_24dp)
+                            .into(thumbnail);
+                }
+                if (avater_url.contains("負けました")) {
+                    Glide.with(view)
+                            .load(R.drawable.ic_thumb_down_black_24dp)
+                            .into(thumbnail);
+                }
+                if (avater_url.contains("あいこだぜ")) {
+                    Glide.with(view)
+                            .load(R.drawable.ic_thumbs_up_down_black_24dp)
+                            .into(thumbnail);
+                }
+                if (avater_url.contains("えらー")) {
+                    Glide.with(view)
+                            .load(R.drawable.ic_sync_problem_black_24dp)
+                            .into(thumbnail);
+                }
+                if (avater_url.contains("おわり")) {
+                    Glide.with(view)
+                            .load(R.drawable.ic_local_hotel_black_18dp)
+                            .into(thumbnail);
+                }
             }
-        }else {
-            String imageString = null;
-            //画像選択
-            if (avater_url.contains("勝ちました")) {
-                Glide.with(view)
-                        .load(R.drawable.ic_thumb_up_black_24dp)
-                        .into(thumbnail);
-            }
-            if (avater_url.contains("負けました")) {
-                Glide.with(view)
-                        .load(R.drawable.ic_thumb_down_black_24dp)
-                        .into(thumbnail);
-            }
-            if (avater_url.contains("あいこだぜ")) {
-                Glide.with(view)
-                        .load(R.drawable.ic_thumbs_up_down_black_24dp)
-                        .into(thumbnail);
-            }
-            if (avater_url.contains("えらー")) {
-                Glide.with(view)
-                        .load(R.drawable.ic_sync_problem_black_24dp)
-                        .into(thumbnail);
-            }
-            if (avater_url.contains("おわり")) {
-                Glide.with(view)
-                        .load(R.drawable.ic_local_hotel_black_18dp)
-                        .into(thumbnail);
+
+            //TootShortcut用
+            if (avater_url.contains("toot_shortcut")) {
+                String icon_text = avater_url.replace("toot_shortcut ","");
+                    Glide.with(view)
+                            .load(stringToDrawable(icon_text))
+                            .into(thumbnail);
+
             }
 
 
         }
-
 
 
         long account_id = Long.valueOf(listItem.get(6));
@@ -419,30 +430,35 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
         FragmentTransaction ft = ((FragmentActivity) parent.getContext()).getSupportFragmentManager().beginTransaction();
         Fragment fragment = new User_Fragment();
         View finalConvertView = convertView;
-        thumbnail.setOnClickListener(new View.OnClickListener() {
+        //TootShortcutのときに呼ばれないようにする
+        if (!avater_url.contains("toot_shortcut")) {
+            thumbnail.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                //読み込み
-                boolean multipain_ui_mode = pref_setting.getBoolean("app_multipain_ui", false);
+                @Override
+                public void onClick(View v) {
+                    //読み込み
+                    boolean multipain_ui_mode = pref_setting.getBoolean("app_multipain_ui", false);
 
-                if (multipain_ui_mode) {
+                    if (multipain_ui_mode) {
 
-                    Bundle bundle = new Bundle();
-                    bundle.putLong("Account_ID", account_id);
-                    fragment.setArguments(bundle);
+                        Bundle bundle = new Bundle();
+                        bundle.putLong("Account_ID", account_id);
+                        fragment.setArguments(bundle);
 
-                    ft.replace(R.id.fragment3, fragment).commit();
+                        ft.replace(R.id.fragment3, fragment).commit();
 
-                } else {
+                    } else {
 
-                    Intent intent = new Intent(getContext(), UserActivity.class);
-                    //IDを渡す
-                    intent.putExtra("Account_ID", account_id);
-                    getContext().startActivity(intent);
+                        Intent intent = new Intent(getContext(), UserActivity.class);
+                        //IDを渡す
+                        intent.putExtra("Account_ID", account_id);
+                        getContext().startActivity(intent);
+                    }
                 }
-            }
-        });
+            });
+        }
+
+
 
 
         //カスタムストリーミングで背景色を変える機能
@@ -658,6 +674,28 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
                 customTabsIntent.launchUrl(getContext(), Uri.parse(mediaURL));
             }
         });
+    }
+
+
+    //String→Drawable
+    //Wear TootShortcut Setting 用
+    private Drawable stringToDrawable(String icon) {
+        Drawable drawable = getContext().getDrawable(R.drawable.ic_public_black_24dp);
+        switch (icon) {
+            case "public":
+                drawable = getContext().getDrawable(R.drawable.ic_public_black_24dp);
+                break;
+            case "unlisted":
+                drawable = getContext().getDrawable(R.drawable.ic_done_all_black_24dp_2);
+                break;
+            case "private":
+                drawable = getContext().getDrawable(R.drawable.ic_lock_open_black_24dp);
+                break;
+            case "direct":
+                drawable = getContext().getDrawable(R.drawable.ic_assignment_ind_black_24dp);
+                break;
+        }
+        return drawable;
     }
 
 

@@ -802,7 +802,7 @@ public class UserActivity extends AppCompatActivity {
                     created_atTextView.setTextSize(18);
                     //ちぇっくまーく
                     Drawable doneIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_done_black_24dp, null);
-                    doneIcon.setTint(Color.parseColor("#008c00"));
+                    doneIcon.setTint(Color.parseColor("#3c8e37"));
                     created_atTextView.setCompoundDrawablesWithIntrinsicBounds(doneIcon, null, null, null);
                     //入れる
                     fieldsLinearLayout.addView(created_atTextView);

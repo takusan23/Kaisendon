@@ -473,6 +473,7 @@ public class UserActivity extends AppCompatActivity {
                 }
             }
         });
+
     }
 
     /**
@@ -885,7 +886,6 @@ public class UserActivity extends AppCompatActivity {
     //時差計算
     private String timeFormat(String time) {
         String timeReturn = time;
-        //System.out.println("これかあ！ ： " + media_url_1 + " / " + media_url_2  + " / " + media_url_3 + " / " + media_url_4);
         boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
         if (japan_timeSetting) {
             //時差計算？

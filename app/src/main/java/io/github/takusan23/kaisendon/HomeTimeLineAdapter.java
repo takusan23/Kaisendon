@@ -2263,7 +2263,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                     public void onClick(View v) {
                                         Intent intent = new Intent(getContext(), UserActivity.class);
                                         //IDを渡す
-                                        intent.putExtra("Account_ID", accountID);
+                                        intent.putExtra("Account_ID", Long.valueOf(accountID));
                                         getContext().startActivity(intent);
                                     }
                                 });

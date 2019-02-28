@@ -2152,7 +2152,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
     private void quickProfileSnackber(View v, String accountID) {
         //読み込み中お知らせ
-        Snackbar snackbar = Snackbar.make(v, getContext().getString(R.string.loading_user_info) + "\r\n /api/v1/accounts/" + AccessToken, Snackbar.LENGTH_INDEFINITE);
+        Snackbar snackbar = Snackbar.make(v, getContext().getString(R.string.loading_user_info) + "\r\n /api/v1/accounts/" + accountID, Snackbar.LENGTH_INDEFINITE);
         ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
         TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);

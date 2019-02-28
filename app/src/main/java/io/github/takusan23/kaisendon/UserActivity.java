@@ -258,6 +258,7 @@ public class UserActivity extends AppCompatActivity {
                 String response_string = response.body().string();
                 try {
                     JSONObject jsonObject = new JSONObject(response_string);
+                    System.out.println(response_string);
 
                     display_name = jsonObject.getString("display_name");
                     user_account_id = jsonObject.getString("acct");

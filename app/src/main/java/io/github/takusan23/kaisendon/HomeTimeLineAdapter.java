@@ -14,7 +14,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.Animatable2;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -38,7 +37,6 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.text.Html;
-import android.text.Layout;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
@@ -63,7 +61,7 @@ import com.squareup.picasso.Picasso;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.entity.auth.AccessToken;
 
-import io.github.takusan23.kaisendon.CustomTabURL.CustomTabURLSpan;
+import io.github.takusan23.kaisendon.Activity.UserActivity;
 import io.github.takusan23.kaisendon.CustomTabURL.LinkTransformationMethod;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
@@ -74,7 +72,6 @@ import org.json.JSONObject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -84,6 +81,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import io.github.takusan23.kaisendon.Fragment.User_Fragment;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -2025,16 +2023,19 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     }
 
     public void ImageViewSetting(ViewHolder holder) {
-        ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        //適当にサイズ
+        ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(200, 200);
         ((LinearLayout.LayoutParams) layoutParams).weight = 1;
         holder.media_imageview_1.setLayoutParams(layoutParams);
         holder.media_imageview_2.setLayoutParams(layoutParams);
         holder.media_imageview_3.setLayoutParams(layoutParams);
         holder.media_imageview_4.setLayoutParams(layoutParams);
+/*
         holder.media_imageview_1.setScaleType(ImageView.ScaleType.CENTER);
         holder.media_imageview_2.setScaleType(ImageView.ScaleType.CENTER);
         holder.media_imageview_3.setScaleType(ImageView.ScaleType.CENTER);
         holder.media_imageview_4.setScaleType(ImageView.ScaleType.CENTER);
+*/
 
     }
 

@@ -5,7 +5,7 @@
     android:id="@+id/container_notification"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".NotificationsActivity">
+    tools:context=".Activity.NotificationsActivity">
 
     <ImageView
         android:id="@+id/notification_background_imageview"

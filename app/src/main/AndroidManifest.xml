@@ -17,12 +17,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".WearTootShortcutListActivity"
+            android:name=".CustomMenu.AddCustomMenuActivity"
+            android:parentActivityName=".Home"></activity>
+        <activity
+            android:name=".Activity.WearTootShortcutListActivity"
             android:parentActivityName=".Home" />
         <activity
             android:name=".Zyanken.ZyankenSetup"
             android:parentActivityName=".Zyanken.ZyankenMenu" />
-
         <activity
             android:name=".Zyanken.ZyankenMenu"
             android:parentActivityName=".Home" />
@@ -55,7 +57,7 @@
             </intent-filter>
         </service> <!-- トゥート画面 -->
         <activity
-            android:name=".TootSnackberActivity"
+            android:name=".Activity.TootSnackberActivity"
             android:theme="@style/Theme.TranslucentBackground">
 
             <!-- 共有受け取る -->
@@ -68,7 +70,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name=".Activity.LoginActivity"
             android:label="@string/login_nemu"
             android:parentActivityName=".Home">
 
@@ -78,7 +80,7 @@
                 android:value=".Home" />
         </activity>
         <activity
-            android:name=".TootActivity"
+            android:name=".Activity.TootActivity"
             android:label="@string/toot"
             android:parentActivityName=".Home">
 
@@ -109,7 +111,7 @@
                 android:value=".Home" />
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".Activity.SettingsActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/setting"
             android:parentActivityName=".Home">
@@ -120,7 +122,7 @@
                 android:value=".Home" />
         </activity>
         <activity
-            android:name=".NotificationsActivity"
+            android:name=".Activity.NotificationsActivity"
             android:label="@string/notifications"
             android:parentActivityName=".Home">
 
@@ -129,9 +131,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Home" />
         </activity>
-        <activity android:name=".UserActivity" />
+        <activity android:name=".Activity.UserActivity" />
         <activity
-            android:name=".AccountActivity"
+            android:name=".Activity.AccountActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/public_time_line"
             android:parentActivityName=".Home">
@@ -142,7 +144,7 @@
                 android:value=".Home" />
         </activity>
         <activity
-            android:name=".UserFollowActivity"
+            android:name=".Activity.UserFollowActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/user"
             android:parentActivityName=".Home">
@@ -152,7 +154,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Home" />
         </activity>
-        <activity android:name=".MultiPainActivity" />
+        <activity android:name=".Activity.MultiPainActivity" />
         <!--
                 <activity
                     android:name=".ScrollingUser"
@@ -180,12 +182,12 @@
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 
         <activity
-            android:name=".AccountInfoUpdateActivity"
+            android:name=".Activity.AccountInfoUpdateActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_account_info_update"
-            android:parentActivityName=".UserActivity" />
+            android:parentActivityName=".Activity.UserActivity" />
         <activity
-            android:name=".KonoAppNiTuite"
+            android:name=".Activity.KonoAppNiTuite"
             android:parentActivityName=".Home" />
     </application>
 

@@ -46,7 +46,7 @@ public class TootBookmark_SQLite extends SQLiteOpenHelper {
             "DROP TABLE IF EXISTS " + TABLE_NAME;
 
 
-    TootBookmark_SQLite(Context context) {
+    public TootBookmark_SQLite(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
     }

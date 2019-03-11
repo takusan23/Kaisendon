@@ -21,25 +21,22 @@
 
     <style name="OLED_Theme" parent="Theme.AppCompat">
         <item name="android:colorBackground">@color/background_material_dark</item>
-        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <!--ホーム用　ダークテーマ-->
 
     <style name="OLED_Theme_Home" parent="Theme.AppCompat.NoActionBar">
         <item name="android:colorBackground">@color/background_material_dark</item>
-        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <!--ダークテーマ　ステータスバーを透明に-->
 
-    <style name="DayNightNoActionBarClearStatusBer" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowTranslucentStatus">true</item>
-    </style>
+    <style name="DayNightNoActionBarClearStatusBer" parent="Theme.AppCompat.NoActionBar"></style>
 
     <!--TootSnackberActivity用　半透明Activity-->
     <!-- 半透明背景設定 -->
     <drawable name="transparameter">#7f000000</drawable>
+
     <style name="Theme.TranslucentBackground" parent="AppTheme.NoActionBar">
         <item name="android:windowBackground">@drawable/transparameter</item>
         <item name="android:colorBackgroundCacheHint">@null</item>

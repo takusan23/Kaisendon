@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".WearTootShortcutListActivity">
+    tools:context=".Activity.WearTootShortcutListActivity">
 
     <ListView
         android:id="@+id/toot_shortcut_listview"

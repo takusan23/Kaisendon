@@ -457,5 +457,19 @@
     <string name="size_error">The number does not suit. Please press it again.</string>
     <string name="toot_shortcut_delete">Do you really want to delete this?</string>
     <string name="verification_text">Your account is already verified</string>
+    <string name="custom_menu_mode">Enable or disable Custom Menu</string>
+    <string name="custom_menu_setting">Custom Menu settings</string>
+    <string name="custom_menu_add">Add CustomMenu</string>
+    <string name="custom_menu_name">Name of CustomMenu</string>
+    <string name="custom_menu_load">Contents displayed in the custom menu</string>
+    <string name="custom_menu_account">Account of CustomMenu</string>
+    <string name="custom_menu_dialog">Regardless of the setting, prevent the dialog from appearing in favorites etc.</string>
+    <string name="custom_menu_darkmode">Regardless of the setting, enable dark mode (OLED mode)</string>
+    <string name="custom_menu_image">Regardless of the setting, display an image</string>
+    <string name="custom_add_message">Would you like to register a custom menu?</string>
+    <string name="register">Registration</string>
+    <string name="custome_menu_delete">Delete CustomMenu</string>
+    <string name="custom_setting_delete_message">Delete CustomMenu?</string>
+    <string name="error">There was a problem</string>
 
 </resources>

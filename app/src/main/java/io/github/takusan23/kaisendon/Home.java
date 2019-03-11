@@ -17,12 +17,11 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Animatable;
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
@@ -34,11 +33,9 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
-import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
@@ -72,7 +69,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -85,7 +81,6 @@ import com.sys1yagi.mastodon4j.api.Handler;
 import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Account;
 import com.sys1yagi.mastodon4j.api.entity.Notification;
-import com.sys1yagi.mastodon4j.api.entity.Status;
 import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Accounts;
 import com.sys1yagi.mastodon4j.api.method.Streaming;
@@ -99,9 +94,31 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import io.github.takusan23.kaisendon.Activity.KonoAppNiTuite;
+import io.github.takusan23.kaisendon.Activity.LoginActivity;
+import io.github.takusan23.kaisendon.Activity.TootActivity;
+import io.github.takusan23.kaisendon.Activity.UserActivity;
+import io.github.takusan23.kaisendon.CustomMenu.AddCustomMenuActivity;
+import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
+import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSettingFragment;
+import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
+import io.github.takusan23.kaisendon.Fragment.Bookmark_Frament;
+import io.github.takusan23.kaisendon.Fragment.CustomStreamingFragment;
+import io.github.takusan23.kaisendon.Fragment.DirectMessage_Fragment;
+import io.github.takusan23.kaisendon.Fragment.Favourites_List_Fragment;
+import io.github.takusan23.kaisendon.Fragment.Federated_TimeLine_Fragment;
+import io.github.takusan23.kaisendon.Fragment.Follow_Suggestions_Fragment;
+import io.github.takusan23.kaisendon.Fragment.HomeCrad_Fragment;
+import io.github.takusan23.kaisendon.Fragment.Home_Fragment;
+import io.github.takusan23.kaisendon.Fragment.InstanceInfo_Fragment;
+import io.github.takusan23.kaisendon.Fragment.License_Fragment;
+import io.github.takusan23.kaisendon.Fragment.MultiAccountList_Fragment;
+import io.github.takusan23.kaisendon.Fragment.MultiPain_UI_Fragment;
+import io.github.takusan23.kaisendon.Fragment.Notification_Fragment;
+import io.github.takusan23.kaisendon.Fragment.Public_TimeLine_Fragment;
+import io.github.takusan23.kaisendon.Fragment.SettingFragment;
+import io.github.takusan23.kaisendon.Fragment.Start_Fragment;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -119,6 +136,10 @@ public class Home extends AppCompatActivity
 
     String toot_text = null;
     String user = null;
+
+    private CustomMenuSQLiteHelper helper;
+    private SQLiteDatabase db;
+
 
     String display_name = null;
     String user_id = null;
@@ -140,6 +161,7 @@ public class Home extends AppCompatActivity
     BroadcastReceiver networkChangeBroadcast;
 
     Toolbar toolbar;
+    NavigationView navigationView;
 
     Snackbar toot_snackbar;
     SharedPreferences pref_setting;
@@ -209,7 +231,7 @@ public class Home extends AppCompatActivity
 
         setContentView(R.layout.activity_home);
 
-        //System.out.println("アクセストークン : " + pref_setting.getString("token", ""));
+        navigationView = findViewById(R.id.nav_view);
 
         //ログイン情報があるか
         //アクセストークンがない場合はログイン画面へ飛ばす
@@ -271,42 +293,23 @@ public class Home extends AppCompatActivity
 
         }
 
-
-/*
-        //ウィジェットから起動
-        try {
-            if (getIntent().getBooleanExtra("Home",false)){
-                FragmentChange(new Home_Fragment());
-            }
-            if (getIntent().getBooleanExtra("Notification",false)){
-                FragmentChange(new Notification_Fragment());
-            }
-            if (getIntent().getBooleanExtra("Local",false)){
-                FragmentChange(new Public_TimeLine_Fragment());
-            }
-            if (getIntent().getBooleanExtra("Federated",false)){
-                FragmentChange(new Federated_TimeLine_Fragment());
-            }
-        }catch (RuntimeException e){
-            e.printStackTrace();
+        //SQLite
+        if (helper == null) {
+            helper = new CustomMenuSQLiteHelper(getContext());
         }
-*/
-
-/*
-        //絵文字用SharedPreferences
-        SharedPreferences pref_emoji = Preference_ApplicationContext.getContext().getSharedPreferences("preferences_emoji", Context.MODE_PRIVATE);
-        Toast.makeText(Home.this,pref_setting.getString("emoji",""),Toast.LENGTH_LONG).show();
-
-*/
-
-/*
-        boolean homecard = pref_setting.getBoolean("pref_home_homecard", true);
-        if (homecard) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new HomeCrad_Fragment());
-            transaction.commit();
+        if (db == null) {
+            db = helper.getWritableDatabase();
         }
-*/
+
+
+        //カスタムメニューの場合は追加処理
+        if (pref_setting.getBoolean("custom_menu", false)) {
+            //メニュー入れ替え
+            navigationView.getMenu().clear();
+            navigationView.inflateMenu(R.menu.custom_menu);
+            loadCustomMenu();
+        }
+
 
         //App Shortcutから起動
         if (getIntent().getBooleanExtra("home_card", false)) {
@@ -425,14 +428,16 @@ public class Home extends AppCompatActivity
 //        user_id_textView.setText(user_id);
 //        user_account_textView.setText(display_name);
 
-        Menu drawer_menu = navigationView.getMenu();
-        MenuItem favourite_menu = drawer_menu.findItem(R.id.favourite_list);
-        //ニコるかお気に入りか
-        boolean nicoru_favourite_check = pref_setting.getBoolean("pref_friends_nico_mode", false);
-        if (!nicoru_favourite_check) {
-            favourite_menu.setTitle(R.string.favourite_list);
-        } else {
-            favourite_menu.setTitle("ニコったリスト");
+        if (!pref_setting.getBoolean("custom_menu", false)) {
+            Menu drawer_menu = navigationView.getMenu();
+            MenuItem favourite_menu = drawer_menu.findItem(R.id.favourite_list);
+            //ニコるかお気に入りか
+            boolean nicoru_favourite_check = pref_setting.getBoolean("pref_friends_nico_mode", false);
+            if (!nicoru_favourite_check) {
+                favourite_menu.setTitle(R.string.favourite_list);
+            } else {
+                favourite_menu.setTitle("ニコったリスト");
+            }
         }
 
 
@@ -1350,7 +1355,7 @@ public class Home extends AppCompatActivity
         } else if (id == R.id.account_menu) {
             Intent intent = new Intent(this, UserActivity.class);
             intent.putExtra("Account_ID", account_id);
-            intent.putExtra("my",true);
+            intent.putExtra("my", true);
             startActivity(intent);
 
         } else if (id == R.id.notifications) {
@@ -1499,6 +1504,27 @@ public class Home extends AppCompatActivity
         } else if (id == R.id.konoAppmenu) {
             Intent login = new Intent(this, KonoAppNiTuite.class);
             startActivity(login);
+        } else if (id == R.id.custom_menu_mode_menu) {
+            //モード切替
+            NavigationView navigationView = findViewById(R.id.nav_view);
+            navigationView.getMenu().clear();
+            SharedPreferences.Editor editor = pref_setting.edit();
+            if (pref_setting.getBoolean("custom_menu", false)) {
+                editor.putBoolean("custom_menu", false);
+                //メニュー切り替え
+                navigationView.inflateMenu(R.menu.activity_home_drawer);
+            } else {
+                editor.putBoolean("custom_menu", true);
+                //メニュー切り替え
+                navigationView.inflateMenu(R.menu.custom_menu);
+                //適用処理
+                loadCustomMenu();
+            }
+            editor.apply();
+        } else if (id == R.id.custom_menu_setting_menu) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.container_container, new CustomMenuSettingFragment());
+            transaction.commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -2161,6 +2187,60 @@ public class Home extends AppCompatActivity
                 }
             }
         });
+    }
 
+    /**
+     * カスタムメニュー読み込み
+     */
+    private void loadCustomMenu() {
+        //SQLite読み込み
+        Cursor cursor = db.query(
+                "custom_menudb",
+                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "setting"},
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        cursor.moveToFirst();
+        for (int i = 0; i < cursor.getCount(); i++) {
+            String name = cursor.getString(0);
+            String content = cursor.getString(2);
+            String instance = cursor.getString(3);
+            String access_token = cursor.getString(4);
+            String image_load = cursor.getString(5);
+            String dialog = cursor.getString(6);
+            String dark_mode = cursor.getString(7);
+            String position = cursor.getString(8);
+            String setting = cursor.getString(9);
+            //メニュー追加
+            navigationView.getMenu().add(cursor.getString(0)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    //Fragment切り替え
+                    //受け渡す
+                    Bundle bundle = new Bundle();
+                    bundle.putString("name", name);
+                    bundle.putString("content", content);
+                    bundle.putString("instance", instance);
+                    bundle.putString("access_token", access_token);
+                    bundle.putString("image_load", image_load);
+                    bundle.putString("dialog", dialog);
+                    bundle.putString("dark_mode", dark_mode);
+                    bundle.putString("position", position);
+                    bundle.putString("setting", setting);
+                    CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
+                    customMenuTimeLine.setArguments(bundle);
+                    //置き換え
+                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                    transaction.replace(R.id.container_container, customMenuTimeLine);
+                    transaction.commit();
+                    return false;
+                }
+            });
+            cursor.moveToNext();
+        }
+        cursor.close();
     }
 }

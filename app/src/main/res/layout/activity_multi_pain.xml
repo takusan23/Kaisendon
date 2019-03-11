@@ -4,18 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MultiPainActivity">
+    tools:context=".Activity.MultiPainActivity">
 
     <fragment
         android:id="@+id/fragment2"
-        android:name="io.github.takusan23.kaisendon.Start_Fragment"
+        android:name="io.github.takusan23.kaisendon.Fragment.Start_Fragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1" />
 
     <fragment
         android:id="@+id/fragment3"
-        android:name="io.github.takusan23.kaisendon.Start_Fragment"
+        android:name="io.github.takusan23.kaisendon.Fragment.Start_Fragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1" />

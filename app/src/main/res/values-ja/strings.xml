@@ -353,5 +353,19 @@
     <string name="size_error">数が合いません。もう一度押してください。</string>
     <string name="toot_shortcut_delete">本当に削除しますか？</string>
     <string name="verification_text">アカウントは認証済みです</string>
+    <string name="custom_menu_mode">カスタムメニューの有効無効</string>
+    <string name="custom_menu_setting">カスタムメニューの設定</string>
+    <string name="custom_menu_add">カスタムメニュー追加</string>
+    <string name="custom_menu_name">カスタムメニューの名前</string>
+    <string name="custom_menu_load">カスタムメニューで表示するコンテンツ</string>
+    <string name="custom_menu_account">カスタムメニューで使うアカウント</string>
+    <string name="custom_menu_dialog">設定にかかわらず、お気に入り等でダイアログが出ないようにする</string>
+    <string name="custom_menu_darkmode">設定にかかわらず、ダークモード（OLEDモード）を有効にする</string>
+    <string name="custom_menu_image">設定にかかわらず、画像を表示させる</string>
+    <string name="custom_add_message">カスタムメニューを登録しますか？</string>
+    <string name="register">登録</string>
+    <string name="custome_menu_delete">カスタムメニューを削除</string>
+    <string name="custom_setting_delete_message">カスタムメニューを削除しますか？</string>
+    <string name="error">問題が発生しました</string>
 
 </resources>

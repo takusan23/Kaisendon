@@ -36,7 +36,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
 
+import io.github.takusan23.kaisendon.Activity.UserActivity;
 import io.github.takusan23.kaisendon.CustomTabURL.LinkTransformationMethod;
+import io.github.takusan23.kaisendon.Fragment.User_Fragment;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 

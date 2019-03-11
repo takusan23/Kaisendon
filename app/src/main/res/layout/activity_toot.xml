@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_vertical"
-    tools:context=".TootActivity">
+    tools:context=".Activity.TootActivity">
 
     <ImageView
         android:id="@+id/activity_toot_background_imageview"

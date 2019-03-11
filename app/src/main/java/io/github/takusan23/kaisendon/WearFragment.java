@@ -18,6 +18,8 @@ import com.google.android.gms.wearable.Wearable;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import io.github.takusan23.kaisendon.Activity.WearTootShortcutListActivity;
+
 
 public class WearFragment extends Fragment {
     View view;
@@ -74,7 +76,7 @@ public class WearFragment extends Fragment {
         toot_shortcut_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(),WearTootShortcutListActivity.class);
+                Intent intent = new Intent(getContext(), WearTootShortcutListActivity.class);
                 startActivity(intent);
             }
         });

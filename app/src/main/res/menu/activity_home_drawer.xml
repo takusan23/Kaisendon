@@ -76,6 +76,10 @@
             android:icon="@drawable/ic_watch_black_24dp"
             android:title="Wear" />
         <item
+            android:id="@+id/custom_menu_mode_menu"
+            android:icon="@drawable/ic_playlist_add_check_black_24dp"
+            android:title="@string/custom_menu_mode" />
+        <item
             android:id="@+id/setting"
             android:icon="@drawable/ic_menu_manage"
             android:title="@string/setting" />

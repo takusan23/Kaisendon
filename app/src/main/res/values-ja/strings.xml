@@ -369,5 +369,11 @@
     <string name="error">問題が発生しました</string>
     <string name="custom_menu_streaming">設定にかかわらず、ストリーミングAPIを無効にする</string>
     <string name="custom_menu_subtitle_hint">サブタイトルの文字を変更。空白にすると設定に従います。</string>
+    <string name="notification_favourite">お気に入りしました</string>
+    <string name="notification_Boost">ブーストしました</string>
+    <string name="notification_mention">返信しました</string>
+    <string name="notification_followed">フォローしました</string>
+    <string name="custom_menu_update">カスタムメニューを更新しますか？</string>
+    <string name="custom_menu_update_title">カスタムメニューを変更</string>
 
 </resources>

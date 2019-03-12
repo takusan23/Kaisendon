@@ -93,6 +93,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         //削除ボタン
         //ListViewから来たとき
         if (getIntent().getBooleanExtra("delete_button", false)) {
+            //タイトル変更
+            setTitle(R.string.custom_menu_update_title);
             String name = getIntent().getStringExtra("name");
             //ボタンを動的に生成
             Button delete_Button = new Button(getContext());
@@ -122,15 +124,31 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //SnackBer
-                Snackbar.make(v, R.string.custom_add_message, Toast.LENGTH_SHORT).setAction(R.string.register, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        saveSQLite();
-                        //戻る
-                        startActivity(new Intent(getContext(), Home.class));
-                    }
-                }).show();
+                //更新・新規作成
+                if (!getIntent().getBooleanExtra("delete_button", false)) {
+                    //新規作成
+                    //SnackBer
+                    Snackbar.make(v, R.string.custom_add_message, Toast.LENGTH_SHORT).setAction(R.string.register, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            saveSQLite();
+                            //戻る
+                            startActivity(new Intent(getContext(), Home.class));
+                        }
+                    }).show();
+                } else {
+                    //SnackBer
+                    Snackbar.make(v, R.string.custom_menu_update, Toast.LENGTH_SHORT).setAction(R.string.update, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //更新
+                            String name = getIntent().getStringExtra("name");
+                            updateSQLite(name);
+                            //戻る
+                            startActivity(new Intent(getContext(), Home.class));
+                        }
+                    }).show();
+                }
             }
         });
 
@@ -155,6 +173,27 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         values.put("setting", "");
 
         db.insert("custom_menudb", null, values);
+    }
+
+    /**
+     * SQLite更新
+     */
+    private void updateSQLite(String name) {
+        ContentValues values = new ContentValues();
+        values.put("name", name_EditText.getText().toString());
+        values.put("memo", "");
+        values.put("content", load_url);
+        values.put("instance", instance);
+        values.put("access_token", access_token);
+        values.put("image_load", String.valueOf(image_Switch.isChecked()));
+        values.put("dialog", String.valueOf(dialog_Switch.isChecked()));
+        values.put("dark_mode", String.valueOf(dark_Switch.isChecked()));
+        values.put("position", "");
+        values.put("streaming", String.valueOf(!streaming_Switch.isChecked())); //反転させてONのときStereaming有効に
+        values.put("subtitle", subtitle_EditText.getText().toString());
+        values.put("setting", "");
+
+        db.update("custom_menudb", values, "name=?", new String[]{name});
     }
 
 

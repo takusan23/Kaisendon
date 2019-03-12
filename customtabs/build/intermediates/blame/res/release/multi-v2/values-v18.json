@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "C:\\Users\\Taku 23\\Desktop\\Kaisendon\\customtabs\\build\\intermediates\\incremental\\mergeReleaseResources\\merged.dir\\values-v18\\values-v18.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Taku 23\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-27.0.2.aar\\37ed7902a2fabb9131f0b8984dd27ba3\\res\\values-v18\\values-v18.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "48",
+                        "endOffsets": "99"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "C:\\Users\\Taku 23\\Desktop\\Kaisendon\\customtabs\\build\\intermediates\\res\\merged\\release\\values-v18\\values-v18.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\Taku 23\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-27.0.2.aar\\37ed7902a2fabb9131f0b8984dd27ba3\\res\\values-v18\\values-v18.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "48",
+                        "endOffsets": "99"
+                    }
+                }
+            ]
+        }
+    ]
+}

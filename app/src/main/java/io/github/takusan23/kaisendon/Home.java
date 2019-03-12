@@ -2196,7 +2196,7 @@ public class Home extends AppCompatActivity
         //SQLite読み込み
         Cursor cursor = db.query(
                 "custom_menudb",
-                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "setting"},
+                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "streaming", "subtitle", "setting"},
                 null,
                 null,
                 null,
@@ -2213,7 +2213,9 @@ public class Home extends AppCompatActivity
             String dialog = cursor.getString(6);
             String dark_mode = cursor.getString(7);
             String position = cursor.getString(8);
-            String setting = cursor.getString(9);
+            String streaming = cursor.getString(9);
+            String subtitle = cursor.getString(10);
+            String setting = cursor.getString(11);
             //メニュー追加
             navigationView.getMenu().add(cursor.getString(0)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
@@ -2229,6 +2231,8 @@ public class Home extends AppCompatActivity
                     bundle.putString("dialog", dialog);
                     bundle.putString("dark_mode", dark_mode);
                     bundle.putString("position", position);
+                    bundle.putString("streaming",streaming);
+                    bundle.putString("subtitle", subtitle);
                     bundle.putString("setting", setting);
                     CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                     customMenuTimeLine.setArguments(bundle);

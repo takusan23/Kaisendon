@@ -96,6 +96,35 @@
                     android:text="@string/custom_menu_account" />
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/imageView10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_label_outline_black_24dp" />
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/custom_menu_subtitle_edittext"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/custom_menu_subtitle_edittext_edittext"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/custom_menu_subtitle_hint"
+                        android:inputType="textEmailAddress"
+                        android:singleLine="true" />
+
+                </android.support.design.widget.TextInputLayout>
+
+            </LinearLayout>
+
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="10dp" />
@@ -153,6 +182,26 @@
                     android:layout_height="wrap_content"
                     android:text="@string/custom_menu_darkmode" />
             </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/imageView9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_refresh_black_24dp" />
+
+                <Switch
+                    android:id="@+id/custom_menu_streaming"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/custom_menu_streaming" />
+            </LinearLayout>
+
 
         </LinearLayout>
     </ScrollView>

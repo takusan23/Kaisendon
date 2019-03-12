@@ -53,6 +53,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     private Switch dialog_Switch;
     private Switch image_Switch;
     private Switch dark_Switch;
+    private Switch streaming_Switch;
+    private EditText subtitle_EditText;
     private FloatingActionButton fab;
 
     private SharedPreferences pref_setting;
@@ -77,6 +79,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         dialog_Switch = findViewById(R.id.custom_menu_dialog);
         image_Switch = findViewById(R.id.custom_menu_image);
         dark_Switch = findViewById(R.id.custom_menu_darkmode);
+        streaming_Switch = findViewById(R.id.custom_menu_streaming);
+        subtitle_EditText = findViewById(R.id.custom_menu_subtitle_edittext_edittext);
 
         //SQLite
         if (helper == null) {
@@ -98,7 +102,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             delete_Button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Snackbar.make(v,R.string.custom_setting_delete_message,Toast.LENGTH_SHORT).setAction(R.string.delete_ok, new View.OnClickListener() {
+                    Snackbar.make(v, R.string.custom_setting_delete_message, Toast.LENGTH_SHORT).setAction(R.string.delete_ok, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             db.delete("custom_menudb", "name=?", new String[]{name});
@@ -146,6 +150,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         values.put("dialog", String.valueOf(dialog_Switch.isChecked()));
         values.put("dark_mode", String.valueOf(dark_Switch.isChecked()));
         values.put("position", "");
+        values.put("streaming", String.valueOf(!streaming_Switch.isChecked())); //反転させてONのときStereaming有効に
+        values.put("subtitle", subtitle_EditText.getText().toString());
         values.put("setting", "");
 
         db.insert("custom_menudb", null, values);
@@ -313,7 +319,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     private void loadSQLite(String name) {
         Cursor cursor = db.query(
                 "custom_menudb",
-                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "setting"},
+                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "streaming", "subtitle", "setting"},
                 "name=?",
                 new String[]{name},
                 null,
@@ -328,7 +334,9 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             access_token = cursor.getString(4);
             image_Switch.setChecked(Boolean.valueOf(cursor.getString(5)));
             dark_Switch.setChecked(Boolean.valueOf(cursor.getString(7)));
+            streaming_Switch.setChecked(!Boolean.valueOf(cursor.getString(9)));
             dialog_Switch.setChecked(Boolean.valueOf(cursor.getString(6)));
+            subtitle_EditText.setText(cursor.getString(10));
 
             cursor.moveToNext();
         }

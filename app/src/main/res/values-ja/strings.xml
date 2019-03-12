@@ -367,5 +367,7 @@
     <string name="custome_menu_delete">カスタムメニューを削除</string>
     <string name="custom_setting_delete_message">カスタムメニューを削除しますか？</string>
     <string name="error">問題が発生しました</string>
+    <string name="custom_menu_streaming">設定にかかわらず、ストリーミングAPIを無効にする</string>
+    <string name="custom_menu_subtitle_hint">サブタイトルの文字を変更。空白にすると設定に従います。</string>
 
 </resources>

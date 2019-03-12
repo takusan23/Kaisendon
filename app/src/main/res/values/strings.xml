@@ -473,5 +473,11 @@
     <string name="error">There was a problem</string>
     <string name="custom_menu_streaming">Disable streaming API regardless of settings</string>
     <string name="custom_menu_subtitle_hint">Change the subtitle text. If you leave blank, it will be as set</string>
+    <string name="notification_favourite">Favourited</string>
+    <string name="notification_Boost">Boosted</string>
+    <string name="notification_mention">Mentioned</string>
+    <string name="notification_followed">Followed</string>
+    <string name="custom_menu_update">Do you want to update CustomMenu?</string>
+    <string name="custom_menu_update_title">Change CustomMenu</string>
 
 </resources>

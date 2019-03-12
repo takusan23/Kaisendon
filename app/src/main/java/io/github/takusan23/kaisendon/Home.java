@@ -226,12 +226,11 @@ public class Home extends AppCompatActivity
             //なにもない
         }
 
-        //setTheme(R.style.Emoji);
-
 
         setContentView(R.layout.activity_home);
 
         navigationView = findViewById(R.id.nav_view);
+
 
         //ログイン情報があるか
         //アクセストークンがない場合はログイン画面へ飛ばす
@@ -272,6 +271,7 @@ public class Home extends AppCompatActivity
                 FragmentChange(new HomeCrad_Fragment());
             }
         }
+
 
 
         //アクセストークン
@@ -2189,6 +2189,8 @@ public class Home extends AppCompatActivity
         });
     }
 
+
+
     /**
      * カスタムメニュー読み込み
      */
@@ -2231,15 +2233,18 @@ public class Home extends AppCompatActivity
                     bundle.putString("dialog", dialog);
                     bundle.putString("dark_mode", dark_mode);
                     bundle.putString("position", position);
-                    bundle.putString("streaming",streaming);
+                    bundle.putString("streaming", streaming);
                     bundle.putString("subtitle", subtitle);
                     bundle.putString("setting", setting);
                     CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                     customMenuTimeLine.setArguments(bundle);
+
                     //置き換え
                     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                     transaction.replace(R.id.container_container, customMenuTimeLine);
                     transaction.commit();
+
+
                     return false;
                 }
             });

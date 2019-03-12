@@ -88,7 +88,7 @@ public class CustomMenuSettingFragment extends Fragment {
         ArrayList<String> list = new ArrayList<>();
         Cursor cursor = db.query(
                 "custom_menudb",
-                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "setting"},
+                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "streaming", "subtitle", "setting"},
                 null,
                 null,
                 null,

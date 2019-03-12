@@ -21,6 +21,8 @@ public class CustomMenuSQLiteHelper extends SQLiteOpenHelper {
     private static final String DIALOG = "dialog";
     private static final String DARKMODE = "dark_mode";
     private static final String POSITION = "position";
+    private static final String STREAMING = "streaming";
+    private static final String SUBTITLE = "subtitle";
     private static final String SETTING = "setting";
 
 
@@ -36,6 +38,8 @@ public class CustomMenuSQLiteHelper extends SQLiteOpenHelper {
                     DIALOG + " TEXT," +
                     DARKMODE + " TEXT," +
                     POSITION + " TEXT," +
+                    STREAMING + " TEXT," +
+                    SUBTITLE + " TEXT," +
                     SETTING + " TEXT" +
                     ")";
 

@@ -471,5 +471,7 @@
     <string name="custome_menu_delete">Delete CustomMenu</string>
     <string name="custom_setting_delete_message">Delete CustomMenu?</string>
     <string name="error">There was a problem</string>
+    <string name="custom_menu_streaming">Disable streaming API regardless of settings</string>
+    <string name="custom_menu_subtitle_hint">Change the subtitle text. If you leave blank, it will be as set</string>
 
 </resources>

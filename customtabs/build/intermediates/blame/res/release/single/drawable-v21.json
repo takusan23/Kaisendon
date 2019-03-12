@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "C:\\Users\\Taku 23\\Desktop\\Kaisendon\\customtabs\\build\\intermediates\\res\\merged\\release\\drawable-v21\\abc_action_bar_item_background_material.xml",
+        "source": "C:\\Users\\Taku 23\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-27.0.2.aar\\37ed7902a2fabb9131f0b8984dd27ba3\\res\\drawable-v21\\abc_action_bar_item_background_material.xml"
+    },
+    {
+        "merged": "C:\\Users\\Taku 23\\Desktop\\Kaisendon\\customtabs\\build\\intermediates\\res\\merged\\release\\drawable-v21\\abc_edit_text_material.xml",
+        "source": "C:\\Users\\Taku 23\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-27.0.2.aar\\37ed7902a2fabb9131f0b8984dd27ba3\\res\\drawable-v21\\abc_edit_text_material.xml"
+    },
+    {
+        "merged": "C:\\Users\\Taku 23\\Desktop\\Kaisendon\\customtabs\\build\\intermediates\\res\\merged\\release\\drawable-v21\\notification_action_background.xml",
+        "source": "C:\\Users\\Taku 23\\.gradle\\caches\\transforms-1\\files-1.1\\support-compat-27.0.2.aar\\2304b76ad348951d6619c2b2554c4242\\res\\drawable-v21\\notification_action_background.xml"
+    },
+    {
+        "merged": "C:\\Users\\Taku 23\\Desktop\\Kaisendon\\customtabs\\build\\intermediates\\res\\merged\\release\\drawable-v21\\abc_btn_colored_material.xml",
+        "source": "C:\\Users\\Taku 23\\.gradle\\caches\\transforms-1\\files-1.1\\appcompat-v7-27.0.2.aar\\37ed7902a2fabb9131f0b8984dd27ba3\\res\\drawable-v21\\abc_btn_colored_material.xml"
+    }
+]

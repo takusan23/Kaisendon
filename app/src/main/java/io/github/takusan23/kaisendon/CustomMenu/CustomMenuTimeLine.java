@@ -3,6 +3,7 @@ package io.github.takusan23.kaisendon.CustomMenu;
 
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -94,6 +95,10 @@ public class CustomMenuTimeLine extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        //OLED
+        if (Boolean.valueOf(getArguments().getString("dark_mode"))) {
+            getActivity().setTheme(R.style.OLED_Theme);
+        }
         return inflater.inflate(R.layout.fragment_custom_menu_time_line, container, false);
     }
 
@@ -103,6 +108,12 @@ public class CustomMenuTimeLine extends Fragment {
 
         listView = view.findViewById(R.id.custom_menu_listview);
         swipeRefreshLayout = view.findViewById(R.id.custom_menu_swipe_refresh);
+
+        //OLEDは背景を黒にする（一時的
+        if (Boolean.valueOf(getArguments().getString("dark_mode"))) {
+            listView.setBackgroundColor(Color.parseColor("#000000"));
+        }
+
 
         //データ受け取り
         url = getArguments().getString("content");
@@ -118,7 +129,6 @@ public class CustomMenuTimeLine extends Fragment {
 
         ArrayList<ListItem> toot_list = new ArrayList<>();
         adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_list);
-
 
 
         //サブタイトル更新
@@ -196,6 +206,7 @@ public class CustomMenuTimeLine extends Fragment {
                 }
             });
         }
+
 
         //最後までスクロール
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -592,7 +603,7 @@ public class CustomMenuTimeLine extends Fragment {
                     @Override
                     public void onStatus(@NotNull com.sys1yagi.mastodon4j.api.entity.Status status) {
                         //通知以外
-                        if (!notification_mode){
+                        if (!notification_mode) {
                             final String[] toot_text = {status.getContent()};
                             String user = status.getAccount().getUserName();
                             final String[] user_name = {status.getAccount().getDisplayName()};
@@ -799,11 +810,8 @@ public class CustomMenuTimeLine extends Fragment {
                                     @Override
                                     public void run() {
 
-                                        //adapter.add(listItem);
                                         adapter.insert(listItem, 0);
-
                                         // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
-
                                         int pos = listView.getFirstVisiblePosition();
                                         int top = 0;
                                         if (listView.getChildCount() > 0) {
@@ -826,10 +834,8 @@ public class CustomMenuTimeLine extends Fragment {
                                         } else {
                                             listView.setSelectionFromTop(pos + 1, top);
                                         }
-
-                                        //くるくるを終了
-                                        SnackberProgress.closeProgressSnackber();
-                                        loadTimeline(max_id);
+                                        //ストリーミングAPI前のStatus取得
+                                        loadNotification(max_id);
 /*
                             //カウンター
                             if (count_text != null && pref_setting.getBoolean("pref_toot_count", false)) {
@@ -844,7 +850,7 @@ public class CustomMenuTimeLine extends Fragment {
 
                                     }
                                 });
-                        }
+                            }
 
                         }
                     }
@@ -1038,31 +1044,14 @@ public class CustomMenuTimeLine extends Fragment {
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        position = listView.getFirstVisiblePosition();
+                                        y = listView.getChildAt(0).getTop();
                                         adapter.insert(listItem, 0);
-                                        adapter.notifyDataSetChanged();
-                                        listView.setAdapter(adapter);
-                                        // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
-
-                                        int pos = listView.getFirstVisiblePosition();
-                                        int top = 0;
-                                        if (listView.getChildCount() > 0) {
-                                            top = listView.getChildAt(0).getTop();
-                                        }
                                         listView.setAdapter(adapter);
                                         //System.out.println("TOP == " + top);
                                         // 要素追加前の状態になるようセットする
                                         adapter.notifyDataSetChanged();
-                                        //一番上なら追いかける
-                                        if (pos == 0) {
-                                            listView.post(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    listView.smoothScrollToPosition(0);
-                                                }
-                                            });
-                                        } else {
-                                            listView.setSelectionFromTop(pos + 1, top);
-                                        }
+                                        listView.setSelectionFromTop(position, y);
                                         //ストリーミングAPI前のStatus取得
                                         loadNotification(max_id);
                                     }

@@ -1246,7 +1246,6 @@ public class CustomMenuTimeLine extends Fragment {
             sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    Toast.makeText(getContext(), "fav" + String.valueOf(fav_filter), Toast.LENGTH_SHORT).show();
                     if (isChecked) {
                         notificationFilterBoolean(tag[finalI], true);
                     } else {

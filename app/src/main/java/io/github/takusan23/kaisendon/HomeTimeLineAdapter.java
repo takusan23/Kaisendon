@@ -10,14 +10,19 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.Animatable2;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
+import android.graphics.drawable.PaintDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
@@ -34,6 +39,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.text.Html;
@@ -1520,9 +1526,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         //ダークモード、OLEDモード時にアイコンが見えない問題
         //どちらかが有効の場合
-        boolean dark_mode = pref_setting.getBoolean("pref_dark_theme", false);
-        boolean oled_mode = pref_setting.getBoolean("pref_oled_mode", false);
-        if (dark_mode || oled_mode) {
+        //↑これ廃止ね。代わりに利用中のテーマを取得して変更する仕様にするからよろー
+        //Theme比較わからんから変わりにToolberの背景が黒だったら動くように
+        if (((ColorDrawable) ((Home) getContext()).getToolBer().getBackground()).getColor() == Color.parseColor("#000000")) {
             boost_button.setTextColor(Color.parseColor("#ffffff"));
             nicoru.setTextColor(Color.parseColor("#ffffff"));
             web_button.setTextColor(Color.parseColor("#ffffff"));
@@ -1551,6 +1557,23 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             if (friends_nico_check_box) {
                 holder.nicoru_button.setCompoundDrawablesWithIntrinsicBounds(favourite_icon_white, null, null, null);
             }
+        } else {
+            //アイコンを取得
+            Drawable boost_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp, null);
+            Drawable web_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_more_vert_black_24dp, null);
+            Drawable bookmark_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_bookmark_border_black_24dp, null);
+            Drawable favourite_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp, null);
+
+            //染色
+            boost_icon_white.setTint(Color.parseColor("#000000"));
+            web_icon_white.setTint(Color.parseColor("#000000"));
+            bookmark_icon_white.setTint(Color.parseColor("#000000"));
+            favourite_icon_white.setTint(Color.parseColor("#000000"));
+
+            //入れる
+            boost_button.setCompoundDrawablesWithIntrinsicBounds(boost_icon_white, null, null, null);
+            web_button.setCompoundDrawablesWithIntrinsicBounds(web_icon_white, null, null, null);
+            holder.bookmark_button.setCompoundDrawablesWithIntrinsicBounds(bookmark_icon_white, null, null, null);
         }
 
         //自分、ブーストいいですか？

@@ -141,6 +141,10 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     //通知のフラグメントのときは画像非表示モードでもレイアウトを消さないように
     boolean notification_layout = false;
 
+    //カスタムメニュー用
+    private boolean dialog_not_show = false;    //ダイアログ出さない
+    private boolean image_show = false;         //強制画像表示
+
 
     //絵文字用SharedPreferences
     SharedPreferences pref_emoji = Preference_ApplicationContext.getContext().getSharedPreferences("preferences_emoji", Context.MODE_PRIVATE);
@@ -204,10 +208,10 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             holder.cardTextView = new TextView(getContext());
 
             //添付メディア
-            holder.media_imageview_1 = new ImageView(holder.linearLayoutMedia.getContext());
-            holder.media_imageview_2 = new ImageView(holder.linearLayoutMedia.getContext());
-            holder.media_imageview_3 = new ImageView(holder.linearLayoutMedia.getContext());
-            holder.media_imageview_4 = new ImageView(holder.linearLayoutMedia.getContext());
+            holder.media_imageview_1 = new ImageView(getContext());
+            holder.media_imageview_2 = new ImageView(getContext());
+            holder.media_imageview_3 = new ImageView(getContext());
+            holder.media_imageview_4 = new ImageView(getContext());
             holder.imageButton = new Button(getContext());
             holder.notification_icon = new ImageView(getContext());
 
@@ -286,6 +290,17 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             nicoru_text = "ニコった！ : ";
         }
 
+        //カスタムメニュー用設定
+        if (listItem.get(0).contains("CustomMenu")) {
+            //ダイアログ出さない
+            if (Boolean.valueOf(listItem.get(25))) {
+                dialog_not_show = true;
+            }
+            //強制画像表示
+            if (Boolean.valueOf(listItem.get(26))) {
+                image_show = true;
+            }
+        }
 
         //ニコる
         String finalNicoru_text = nicoru_text;
@@ -370,7 +385,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                         holder.card_linearLayout.addView(holder.cardImageView);
                         Glide.with(getContext()).load(card_image).into(holder.cardImageView);
                     }
-                } else if (!toot_media) {
+                } else if (!toot_media || image_show) {
                     holder.card_linearLayout.addView(holder.cardImageView);
                     Glide.with(getContext()).load(card_image).into(holder.cardImageView);
                 }
@@ -500,7 +515,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
                 boolean favorite = pref_setting.getBoolean("pref_nicoru_dialog", true);
                 boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", true);
-                if (favorite) {
+                //ダイアログ表示する？
+                if (favorite && !dialog_not_show) {
                     if (replace_snackber) {
 
                         Snackbar favourite_snackbar;
@@ -576,7 +592,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 //設定でダイアログをだすかどうか
                 boolean boost_dialog = pref_setting.getBoolean("pref_boost_dialog", true);
                 boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", true);
-                if (boost_dialog) {
+                //ダイアログ表示する？
+                if (boost_dialog && !dialog_not_show) {
                     if (replace_snackber) {
                         Snackbar snackbar;
                         snackbar = Snackbar.make(finalView1, snackberTitle, Snackbar.LENGTH_SHORT);
@@ -637,7 +654,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 //設定でダイアログをだすかどうか
                 boolean fav_bt = pref_setting.getBoolean("pref_fav_and_bt_dialog", true);
                 boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", true);
-                if (fav_bt) {
+                if (fav_bt && !dialog_not_show) {
                     if (replace_snackber) {
                         Snackbar snackbar;
                         snackbar = Snackbar.make(finalView1, R.string.favAndBT, Snackbar.LENGTH_SHORT);
@@ -822,12 +839,10 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         if (media_url_1 != null) {
             //System.out.println("にゃーん :" + media_url_2);
             //非表示
-            if (toot_media) {
+            if (toot_media || image_show) {
                 holder.imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-
                         if (setting_avater_gif) {
                             //GIFアニメ再生させない
                             ImageViewSetting(holder);
@@ -850,8 +865,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 });
             }
 
-            //Wi-Fi接続時
-            if (setting_avater_wifi) {
+            //Wi-Fi接続時　か　強制画像表示
+            if (setting_avater_wifi || image_show) {
                 if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
 
                     if (setting_avater_gif) {
@@ -889,8 +904,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 holder.imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-
                         if (setting_avater_gif) {
                             //GIFアニメ再生させない
                             ImageViewSetting(holder);
@@ -923,8 +936,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         if (setting_avater_hidden) {
             //thumbnail.setImageBitmap(item.getThumbnail());
         }
-        //Wi-Fi
-        if (setting_avater_wifi) {
+        //Wi-Fi か　強制画像表示
+        if (setting_avater_wifi || image_show) {
             if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true) {
                 if (setting_avater_gif) {
                     //GIFアニメ再生させない
@@ -2027,7 +2040,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         }
     }
 
-    public void addMediaPicasso(String mediaURL, ImageView ImageView, LinearLayout linearLayout) {
+    private void addMediaPicasso(String mediaURL, ImageView ImageView, LinearLayout linearLayout) {
         if (mediaURL != null) {
             //画像を取ってくる
             Picasso.get()
@@ -2045,7 +2058,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         }
     }
 
-    public void ImageViewSetting(ViewHolder holder) {
+    private void ImageViewSetting(ViewHolder holder) {
         //適当にサイズ
         ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(200, 200);
         ((LinearLayout.LayoutParams) layoutParams).weight = 1;
@@ -2435,6 +2448,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             }
             Animatable2 animatable = (Animatable2) holder.notification_icon.getDrawable();
             animatable.start();
+/*
             animatable.registerAnimationCallback(new Animatable2.AnimationCallback() {
                 @Override
                 public void onAnimationEnd(Drawable drawable) {
@@ -2442,6 +2456,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                     super.onAnimationEnd(drawable);
                 }
             });
+*/
             holder.avaterImageview_linearLayout.addView(holder.notification_icon, 0);
         }
     }

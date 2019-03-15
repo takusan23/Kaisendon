@@ -178,15 +178,18 @@ public class CustomMenuTimeLine extends Fragment {
 
         //ストリーミングAPI。本来は無効のときチェックを付けてるけど保存時に反転してるのでおっけ
         //無効・有効
+        SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
         if (Boolean.valueOf(streaming)) {
             //有効
             //スワイプ無効
             swipeRefreshLayout.setEnabled(false);
             //通知以外
             if (!url.contains("/api/v1/notifications")) {
+                loadTimeline("");
                 //ストリーミング
                 useStreamingAPI(false);
             } else {
+                loadNotification("");
                 //ストリーミング
                 useStreamingAPI(true);
             }
@@ -204,6 +207,9 @@ public class CustomMenuTimeLine extends Fragment {
             }
         }
 
+
+
+/*
         //タイムラインを読み込む
         //通知以外のURL
         if (!url.contains("/api/v1/notifications")) {
@@ -216,6 +222,7 @@ public class CustomMenuTimeLine extends Fragment {
             //通知レイアウト
             notificationLayout();
         }
+*/
 
         //引っ張って更新
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -322,7 +329,7 @@ public class CustomMenuTimeLine extends Fragment {
                             JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
                             JSONObject toot_account = toot_jsonObject.getJSONObject("account");
                             String toot_text = toot_jsonObject.getString("content");
-                            String user = toot_account.getString("username");
+                            String user = toot_account.getString("acct");
                             String user_name = toot_account.getString("display_name");
                             String toot_id_string = toot_jsonObject.getString("id");
                             String user_avater_url = toot_account.getString("avatar");
@@ -648,7 +655,7 @@ public class CustomMenuTimeLine extends Fragment {
                         //通知以外
                         if (!notification_mode) {
                             final String[] toot_text = {status.getContent()};
-                            String user = status.getAccount().getUserName();
+                            String user = status.getAccount().getAcct();
                             final String[] user_name = {status.getAccount().getDisplayName()};
                             String user_use_client = null;
                             long toot_id = status.getId();
@@ -672,7 +679,7 @@ public class CustomMenuTimeLine extends Fragment {
                             try {
                                 boost_content = status.getReblog().getContent();
                                 boost_user_name = status.getReblog().getAccount().getDisplayName();
-                                boost_user = status.getReblog().getAccount().getUserName();
+                                boost_user = status.getReblog().getAccount().getAcct();
                                 boost_avater_url = status.getReblog().getAccount().getAvatar();
                                 boost_account_id = status.getReblog().getId();
                                 //BTしたTootのばあいがあるね
@@ -875,15 +882,13 @@ public class CustomMenuTimeLine extends Fragment {
                                                 @Override
                                                 public void run() {
                                                     listView.smoothScrollToPosition(0);
-                                                    //listView.setSelectionFromTop(index, top_);
                                                 }
                                             });
-                                            //System.out.println("ねてた");
                                         } else {
                                             listView.setSelectionFromTop(pos + 1, top);
                                         }
                                         //ストリーミングAPI前のStatus取得
-                                        loadTimeline(max_id);
+                                        //loadTimeline(max_id);
 /*
                             //カウンター
                             if (count_text != null && pref_setting.getBoolean("pref_toot_count", false)) {
@@ -908,22 +913,22 @@ public class CustomMenuTimeLine extends Fragment {
                         //通知のみ
                         if (notification_mode) {
                             if (fav_filter) {
-                                if (notification.getType().contains("favourite")){
+                                if (notification.getType().contains("favourite")) {
                                     streamingNotificationParse(notification);
                                 }
                             }
                             if (bt_filter) {
-                                if (notification.getType().contains("reblog")){
+                                if (notification.getType().contains("reblog")) {
                                     streamingNotificationParse(notification);
                                 }
                             }
                             if (mention_filter) {
-                                if (notification.getType().contains("mention")){
+                                if (notification.getType().contains("mention")) {
                                     streamingNotificationParse(notification);
                                 }
                             }
                             if (follow_filter) {
-                                if (notification.getType().contains("follow")){
+                                if (notification.getType().contains("follow")) {
                                     streamingNotificationParse(notification);
                                 }
                             }
@@ -1543,7 +1548,7 @@ public class CustomMenuTimeLine extends Fragment {
                     adapter.notifyDataSetChanged();
                     listView.setSelectionFromTop(position, y);
                     //ストリーミングAPI前のStatus取得
-                    loadNotification(max_id);
+                    //loadNotification(max_id);
                 }
             });
         }

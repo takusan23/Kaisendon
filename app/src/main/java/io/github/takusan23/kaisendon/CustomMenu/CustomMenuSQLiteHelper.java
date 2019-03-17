@@ -23,6 +23,9 @@ public class CustomMenuSQLiteHelper extends SQLiteOpenHelper {
     private static final String POSITION = "position";
     private static final String STREAMING = "streaming";
     private static final String SUBTITLE = "subtitle";
+    private static final String BACKGROUND_IMAGE = "image_url";
+    private static final String BACKGROUND_TRANSPARENCY = "background_transparency";
+    private static final String BACKGROUND_SCREEN_FIT = "background_screen_fit";
     private static final String SETTING = "setting";
 
 
@@ -40,6 +43,9 @@ public class CustomMenuSQLiteHelper extends SQLiteOpenHelper {
                     POSITION + " TEXT," +
                     STREAMING + " TEXT," +
                     SUBTITLE + " TEXT," +
+                    BACKGROUND_IMAGE + " TEXT," +
+                    BACKGROUND_TRANSPARENCY + " TEXT," +
+                    BACKGROUND_SCREEN_FIT + " TEXT," +
                     SETTING + " TEXT" +
                     ")";
 

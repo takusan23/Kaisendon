@@ -33,6 +33,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.Handler;
@@ -90,6 +91,10 @@ public class CustomMenuTimeLine extends Fragment {
     private String setting;
     private String streaming;
     private String subtitle;
+    private String image_url;
+    private String background_transparency;
+
+    private Boolean background_screen_fit;
 
     private String max_id;
 
@@ -97,6 +102,7 @@ public class CustomMenuTimeLine extends Fragment {
     private ListView listView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private HomeTimeLineAdapter adapter;
+    private ImageView imageView;
 
     private boolean scroll = false;
     private boolean streaming_mode;
@@ -135,18 +141,7 @@ public class CustomMenuTimeLine extends Fragment {
         linearLayout = view.findViewById(R.id.custom_menu_fragment_linearlayout);
         listView = view.findViewById(R.id.custom_menu_listview);
         swipeRefreshLayout = view.findViewById(R.id.custom_menu_swipe_refresh);
-
-        //OLEDは背景を黒にする
-        if (Boolean.valueOf(getArguments().getString("dark_mode"))) {
-            listView.setBackgroundColor(Color.parseColor("#000000"));
-            ((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#000000"));
-        } else {
-            //黒にしなくていい
-            listView.setBackgroundColor(Color.parseColor("#ffffff"));
-            //てーま
-            ((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#2196f3"));
-        }
-
+        imageView = view.findViewById(R.id.custom_tl_background_imageview);
 
         //データ受け取り
         url = getArguments().getString("content");
@@ -156,6 +151,25 @@ public class CustomMenuTimeLine extends Fragment {
         subtitle = getArguments().getString("subtitle");
         dialog = getArguments().getString("dialog");
         image_load = getArguments().getString("image_load");
+        image_url = getArguments().getString("image_url");
+        background_transparency = getArguments().getString("background_transparency");
+        background_screen_fit = Boolean.valueOf(getArguments().getString("background_screen_fit"));
+
+        //透明度設定は背景画像利用時のみ利用できるようにする
+        if (image_url.length() == 0) {
+            background_transparency = "";
+        }
+
+        //OLEDは背景を黒にする
+        if (Boolean.valueOf(getArguments().getString("dark_mode"))) {
+            listView.setBackgroundColor(Color.parseColor("#" + background_transparency + "000000"));
+            ((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#000000"));
+        } else {
+            //黒にしなくていい
+            listView.setBackgroundColor(Color.parseColor("#" + background_transparency + "ffffff"));
+            //てーま
+            ((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#2196f3"));
+        }
 
         //最終的なURL
         url = "https://" + instance + url;
@@ -165,6 +179,15 @@ public class CustomMenuTimeLine extends Fragment {
         ArrayList<ListItem> toot_list = new ArrayList<>();
         adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_list);
 
+        //背景画像セット
+        if (image_url.length() != 0) {
+            //URI画像を入れる
+            Glide.with(getContext()).load(image_url).into(imageView);
+            //画面に合わせる設定
+            if (background_screen_fit) {
+                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            }
+        }
 
         //サブタイトル更新
         //サブタイトルが空とかの処理
@@ -1560,5 +1583,15 @@ public class CustomMenuTimeLine extends Fragment {
         if (shutdownable != null) {
             shutdownable.shutdown();
         }
+    }
+
+    /**
+     * replaceしたときに最後に呼ばれるところ
+     * */
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        //OLEDとかかかわらず戻す
+        getActivity().setTheme(R.style.AppTheme);
     }
 }

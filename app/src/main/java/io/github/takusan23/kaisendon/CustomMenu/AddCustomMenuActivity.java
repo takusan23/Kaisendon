@@ -1,14 +1,23 @@
 package io.github.takusan23.kaisendon.CustomMenu;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.view.menu.MenuBuilder;
@@ -19,9 +28,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,11 +62,16 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     private EditText name_EditText;
     private Button load_Button;
     private Button account_Button;
+    private Button background_image_set_Button;
+    private Button background_image_reset_Button;
+    private ImageView background_image_ImageView;
     private Switch dialog_Switch;
     private Switch image_Switch;
     private Switch dark_Switch;
     private Switch streaming_Switch;
     private EditText subtitle_EditText;
+    private Switch background_screen_fit_Switch;
+    private EditText background_transparency;
     private FloatingActionButton fab;
 
     private SharedPreferences pref_setting;
@@ -62,6 +79,9 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     private String load_url;
     private String instance;
     private String access_token;
+
+    //画像のURL
+    private String image_url = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +101,11 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         dark_Switch = findViewById(R.id.custom_menu_darkmode);
         streaming_Switch = findViewById(R.id.custom_menu_streaming);
         subtitle_EditText = findViewById(R.id.custom_menu_subtitle_edittext_edittext);
+        background_image_set_Button = findViewById(R.id.custom_background_image_button);
+        background_image_reset_Button = findViewById(R.id.custom_background_image_reset_button);
+        background_image_ImageView = findViewById(R.id.custom_background_image_imageview);
+        background_screen_fit_Switch = findViewById(R.id.custom_menu_background_screen_fit_switch);
+        background_transparency = findViewById(R.id.custom_menu_background_transoarency_edittext_edittext);
 
         //SQLite
         if (helper == null) {
@@ -152,7 +177,83 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             }
         });
 
+        //背景画像
+        background_setting();
     }
+
+    /**
+     * 画像受け取り
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            if (resultData.getData() != null) {
+                Uri selectedImage = resultData.getData();
+                //完全パス取得
+                String get_Path = getPath(selectedImage);
+                String image_Path = "file:\\\\" + get_Path;
+                //置き換え
+                String final_Path = image_Path.replaceAll("\\\\", "/");
+                image_url = final_Path;
+                //いれておく？
+                background_image_set_Button.setText(image_url);
+                //URI画像を入れる
+                Glide.with(getContext())
+                        .load(get_Path)
+                        .into(background_image_ImageView);
+            }
+        }
+    }
+
+    /**
+     * 背景画像のボタンクリックイベントとか
+     */
+    private void background_setting() {
+        //画像選択画面に飛ばす
+        background_image_set_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //ストレージ読み込みの権限があるか確認
+                //許可してないときは許可を求める
+                if (ContextCompat.checkSelfPermission(AddCustomMenuActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    new AlertDialog.Builder(AddCustomMenuActivity.this)
+                            .setTitle(getString(R.string.permission_dialog_titile))
+                            .setMessage(getString(R.string.permission_dialog_message))
+                            .setPositiveButton(getString(R.string.permission_ok), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //権限をリクエストする
+                                    ActivityCompat.requestPermissions(AddCustomMenuActivity.this,
+                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                            1000);
+                                }
+                            })
+                            .setNegativeButton(getString(R.string.cancel), null)
+                            .show();
+                } else {
+                    //画像選択
+                    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                    photoPickerIntent.setType("image/*");
+                    startActivityForResult(photoPickerIntent, 1);
+                    //onActivityResultで処理
+                }
+            }
+        });
+
+        //リセットボタン
+        background_image_reset_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //リンクをリセット
+                image_url = "";
+                //URI画像を入れる
+                Glide.with(getContext()).load("").into(background_image_ImageView);
+                background_image_set_Button.setText(R.string.custom_setting_background_image);
+            }
+        });
+
+    }
+
 
     /**
      * SQLiteに保存する
@@ -170,6 +271,9 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         values.put("position", "");
         values.put("streaming", String.valueOf(!streaming_Switch.isChecked())); //反転させてONのときStereaming有効に
         values.put("subtitle", subtitle_EditText.getText().toString());
+        values.put("image_url", background_image_set_Button.getText().toString());
+        values.put("background_transparency", background_transparency.getText().toString());
+        values.put("background_screen_fit", String.valueOf(background_screen_fit_Switch.isChecked()));
         values.put("setting", "");
 
         db.insert("custom_menudb", null, values);
@@ -191,6 +295,9 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         values.put("position", "");
         values.put("streaming", String.valueOf(!streaming_Switch.isChecked())); //反転させてONのときStereaming有効に
         values.put("subtitle", subtitle_EditText.getText().toString());
+        values.put("image_url", background_image_set_Button.getText().toString());
+        values.put("background_transparency", background_transparency.getText().toString());
+        values.put("background_screen_fit", String.valueOf(background_screen_fit_Switch.isChecked()));
         values.put("setting", "");
 
         db.update("custom_menudb", values, "name=?", new String[]{name});
@@ -358,7 +465,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     private void loadSQLite(String name) {
         Cursor cursor = db.query(
                 "custom_menudb",
-                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "streaming", "subtitle", "setting"},
+                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "streaming", "subtitle", "image_url", "background_transparency", "background_screen_fit", "setting"},
                 "name=?",
                 new String[]{name},
                 null,
@@ -376,6 +483,11 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             streaming_Switch.setChecked(!Boolean.valueOf(cursor.getString(9)));
             dialog_Switch.setChecked(Boolean.valueOf(cursor.getString(6)));
             subtitle_EditText.setText(cursor.getString(10));
+            background_image_set_Button.setText(cursor.getString(11));
+            image_url = cursor.getString(11);
+            Glide.with(getContext()).load(cursor.getString(11)).into(background_image_ImageView);
+            background_transparency.setText(cursor.getString(12));
+            background_screen_fit_Switch.setChecked(Boolean.valueOf(cursor.getString(13)));
 
             cursor.moveToNext();
         }
@@ -414,4 +526,16 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 break;
         }
     }
+
+    public String getPath(Uri uri) {
+        String[] projection = {MediaStore.MediaColumns.DATA};
+        Cursor cursor = getContext().getContentResolver().query(uri, projection, null, null, null);
+        int column_index = cursor
+                .getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+        cursor.moveToFirst();
+        String imagePath = cursor.getString(column_index);
+
+        return cursor.getString(column_index);
+    }
+
 }

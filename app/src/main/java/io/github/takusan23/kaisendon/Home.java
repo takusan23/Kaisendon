@@ -273,7 +273,6 @@ public class Home extends AppCompatActivity
         }
 
 
-
         //アクセストークン
         String AccessToken = null;
 
@@ -2190,7 +2189,6 @@ public class Home extends AppCompatActivity
     }
 
 
-
     /**
      * カスタムメニュー読み込み
      */
@@ -2198,7 +2196,7 @@ public class Home extends AppCompatActivity
         //SQLite読み込み
         Cursor cursor = db.query(
                 "custom_menudb",
-                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "streaming", "subtitle", "setting"},
+                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "streaming", "subtitle", "image_url", "background_transparency", "background_screen_fit", "setting"},
                 null,
                 null,
                 null,
@@ -2217,7 +2215,10 @@ public class Home extends AppCompatActivity
             String position = cursor.getString(8);
             String streaming = cursor.getString(9);
             String subtitle = cursor.getString(10);
-            String setting = cursor.getString(11);
+            String image_url = cursor.getString(11);
+            String background_transparency = cursor.getString(12);
+            String background_screen_fit = cursor.getString(13);
+            String setting = cursor.getString(14);
             //メニュー追加
             navigationView.getMenu().add(cursor.getString(0)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
@@ -2235,6 +2236,9 @@ public class Home extends AppCompatActivity
                     bundle.putString("position", position);
                     bundle.putString("streaming", streaming);
                     bundle.putString("subtitle", subtitle);
+                    bundle.putString("image_url", image_url);
+                    bundle.putString("background_transparency", background_transparency);
+                    bundle.putString("background_screen_fit", background_screen_fit);
                     bundle.putString("setting", setting);
                     CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                     customMenuTimeLine.setArguments(bundle);

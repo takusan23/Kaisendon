@@ -479,5 +479,9 @@
     <string name="notification_followed">Followed</string>
     <string name="custom_menu_update">Do you want to update CustomMenu?</string>
     <string name="custom_menu_update_title">Change CustomMenu</string>
+    <string name="custom_setting_background_image">Background image settings</string>
+    <string name="custom_setting_background_image_reset">Reset background image</string>
+    <string name="custom_setting_background_transparency">Transparency (color code)</string>
+    <string name="custom_setting_backgroung_screen_fit">Fit to screen</string>
 
 </resources>

@@ -375,5 +375,9 @@
     <string name="notification_followed">フォローしました</string>
     <string name="custom_menu_update">カスタムメニューを更新しますか？</string>
     <string name="custom_menu_update_title">カスタムメニューを変更</string>
+    <string name="custom_setting_background_image_reset">背景画像をリセット</string>
+    <string name="custom_setting_background_image">背景画像の設定</string>
+    <string name="custom_setting_background_transparency">透明度（カラーコード）</string>
+    <string name="custom_setting_backgroung_screen_fit">画面に合わせる</string>
 
 </resources>

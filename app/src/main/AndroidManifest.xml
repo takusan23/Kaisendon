@@ -73,8 +73,12 @@
             android:name=".Activity.LoginActivity"
             android:label="@string/login_nemu"
             android:parentActivityName=".Home">
-
-            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="kaisendon" android:host="callback" />
+            </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Home" />

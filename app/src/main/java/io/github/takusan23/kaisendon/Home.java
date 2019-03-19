@@ -1650,15 +1650,13 @@ public class Home extends AppCompatActivity
         //Materialふうに
         LinearLayout toot_textBox_LinearLayout = new LinearLayout(Home.this);
         //レイアウト読み込み
-        getLayoutInflater().inflate(R.layout.textinput_edittext,toot_textBox_LinearLayout);
-        toot_EditText = getLayoutInflater().inflate(R.layout.textinput_edittext,toot_textBox_LinearLayout).findViewById(R.id.name_editText);
+        getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout);
+        toot_EditText = getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_editText);
         //ヒント
-        ((TextInputLayout)getLayoutInflater().inflate(R.layout.textinput_edittext,toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setHint(getString(R.string.imananisiteru));
+        ((TextInputLayout) getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setHint(getString(R.string.imananisiteru));
         //色
-        ((TextInputLayout)getLayoutInflater().inflate(R.layout.textinput_edittext,toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
-        ((TextInputLayout)getLayoutInflater().inflate(R.layout.textinput_edittext,toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setBoxStrokeColor(Color.parseColor("#ffffff"));
-        //カウンター
-        ((TextInputLayout)getLayoutInflater().inflate(R.layout.textinput_edittext,toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setCounterEnabled(true);
+        ((TextInputLayout) getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+        ((TextInputLayout) getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setBoxStrokeColor(Color.parseColor("#ffffff"));
         toot_EditText.setTextColor(Color.parseColor("#ffffff"));
         toot_EditText.setHintTextColor(Color.parseColor("#ffffff"));
         //サイズ
@@ -1928,7 +1926,8 @@ public class Home extends AppCompatActivity
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 //コマンド実行メゾット？
-                CommandCode.commandSet(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/sushi", "command_sushi");
+                //CommandCode.commandSet(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/sushi", "command_sushi");
+                CommandCode.commandSet(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/friends.nico", "pref_friends_nico_mode");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/rate-limit", "rate-limit");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-home", "home");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-local", "local");

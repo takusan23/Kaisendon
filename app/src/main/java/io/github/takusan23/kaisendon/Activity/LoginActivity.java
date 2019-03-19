@@ -705,7 +705,7 @@ public class LoginActivity extends AppCompatActivity {
         //OkHttp
         //ぱらめーたー
         RequestBody requestBody = new FormBody.Builder()
-                .add("client_name", client_name_EditText.getText().toString())
+                .add("client_name", instance_name_EditText.getText().toString())
                 .add("redirect_uris", "https://takusan23.github.io/Kaisendon-Callback-Website/")
                 .add("scopes", "read write follow")
                 .add("website", "https://play.google.com/store/apps/details?id=io.github.takusan23.kaisendon")
@@ -740,7 +740,7 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putString("client_secret", client_secret);
                         editor.putString("redirect_uri", redirect_url);
                         //リダイレクト時にインスタンス名飛ぶので保存
-                        editor.putString("register_instance", client_name_EditText.getText().toString());
+                        editor.putString("register_instance", instance_name_EditText.getText().toString());
                         editor.apply();
                         //Step2:認証画面を表示させる
                         showApplicationRequest();
@@ -758,7 +758,7 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void showApplicationRequest() {
         //PINを生成する
-        Uri url = Uri.parse("https://" + client_name_EditText.getText().toString() + "/oauth/authorize?client_id=" + client_id + "&redirect_uri=" + redirect_url + "&response_type=code&scope=read%20write%20follow");
+        Uri url = Uri.parse("https://" + instance_name_EditText.getText().toString() + "/oauth/authorize?client_id=" + client_id + "&redirect_uri=" + redirect_url + "&response_type=code&scope=read%20write%20follow");
         boolean chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
         //戻るアイコン
         Bitmap back_icon = BitmapFactory.decodeResource(LoginActivity.this.getApplicationContext().getResources(), R.drawable.ic_action_arrow_back);

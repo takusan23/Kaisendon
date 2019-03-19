@@ -159,6 +159,7 @@ public class CustomMenuTimeLine extends Fragment {
         if (image_url.length() == 0) {
             background_transparency = "";
         }
+        System.out.println("値：" + image_url);
 
         //OLEDは背景を黒にする
         if (Boolean.valueOf(getArguments().getString("dark_mode"))) {
@@ -1590,7 +1591,7 @@ public class CustomMenuTimeLine extends Fragment {
 
     /**
      * replaceしたときに最後に呼ばれるところ
-     * */
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

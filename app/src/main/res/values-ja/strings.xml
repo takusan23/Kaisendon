@@ -379,5 +379,6 @@
     <string name="custom_setting_background_image">背景画像の設定</string>
     <string name="custom_setting_background_transparency">透明度（カラーコード）</string>
     <string name="custom_setting_backgroung_screen_fit">画面に合わせる</string>
+    <string name="load_instance_list_button">インスタンス一覧を読み込む(非推奨)</string>
 
 </resources>

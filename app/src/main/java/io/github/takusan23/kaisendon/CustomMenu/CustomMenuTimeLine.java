@@ -212,6 +212,8 @@ public class CustomMenuTimeLine extends Fragment {
                 //ストリーミング
                 useStreamingAPI(false);
             } else {
+                notificationLayout();
+                //普通にAPI叩く
                 loadNotification("");
                 //ストリーミング
                 useStreamingAPI(true);
@@ -222,6 +224,8 @@ public class CustomMenuTimeLine extends Fragment {
             swipeRefreshLayout.setEnabled(true);
             //通知以外
             if (!url.contains("/api/v1/notifications")) {
+                //通知用レイアウト呼ぶ
+                notificationLayout();
                 //普通にAPI叩く
                 loadNotification("");
             } else {
@@ -1088,7 +1092,6 @@ public class CustomMenuTimeLine extends Fragment {
     /**
      * 通知メニューレイアウト
      */
-    @SuppressLint("RestrictedApi")
     private void notificationLayout() {
         //追加
         //新しいLinearlayout

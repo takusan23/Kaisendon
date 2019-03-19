@@ -15,7 +15,8 @@
     <LinearLayout
         android:id="@+id/custom_menu_fragment_linearlayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/custom_menu_swipe_refresh"

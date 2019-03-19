@@ -128,7 +128,7 @@ public class Favourites_List_Fragment extends Fragment {
 
         //ニコるかお気に入りか
         boolean nicoru_favourite_check = pref_setting.getBoolean("pref_friends_nico_mode", false);
-        if (nicoru_favourite_check) {
+        if (!nicoru_favourite_check) {
             nicoru_favourite = getString(R.string.dialog_favorite);
             getActivity().setTitle(getString(R.string.favourite_list));
         } else {
@@ -275,7 +275,7 @@ public class Favourites_List_Fragment extends Fragment {
                         //配列を作成
                         ArrayList<String> Item = new ArrayList<>();
                         //メモとか通知とかに
-                        Item.add(null);
+                        Item.add("");
                         //内容
                         Item.add(toot);
                         //ユーザー名
@@ -427,7 +427,7 @@ public class Favourites_List_Fragment extends Fragment {
                                 //配列を作成
                                 ArrayList<String> Item = new ArrayList<>();
                                 //メモとか通知とかに
-                                Item.add(null);
+                                Item.add("");
                                 //内容
                                 Item.add(toot);
                                 //ユーザー名
@@ -734,7 +734,7 @@ public class Favourites_List_Fragment extends Fragment {
                                             //配列を作成
                                             ArrayList<String> Item = new ArrayList<>();
                                             //メモとか通知とかに
-                                            Item.add(null);
+                                            Item.add("");
                                             //内容
                                             Item.add(toot);
                                             //ユーザー名

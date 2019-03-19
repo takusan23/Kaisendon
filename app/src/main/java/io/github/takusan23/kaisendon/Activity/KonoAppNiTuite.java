@@ -112,39 +112,40 @@ public class KonoAppNiTuite extends AppCompatActivity {
                     String userURL = jsonObject.getString("url");
                     long account_id = jsonObject.getLong("id");
 
-                    //ブラウザで起動
-                    producerIconBrowser.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (chrome_custom_tabs) {
-                                Bitmap back_icon = BitmapFactory.decodeResource(KonoAppNiTuite.this.getResources(), R.drawable.ic_action_arrow_back);
-                                String custom = CustomTabsHelper.getPackageNameToUse(KonoAppNiTuite.this);
-                                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
-                                CustomTabsIntent customTabsIntent = builder.build();
-                                customTabsIntent.intent.setPackage(custom);
-                                customTabsIntent.launchUrl(KonoAppNiTuite.this, Uri.parse(userURL));
-                            } else {
-                                Uri uri = Uri.parse(userURL);
-                                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                                startActivity(intent);
-                            }
-                        }
-                    });
-
-                    //アプリ内で起動
-                    producerIconApp.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent intent = new Intent(KonoAppNiTuite.this, UserActivity.class);
-                            //IDを渡す
-                            intent.putExtra("Account_ID", account_id);
-                            startActivity(intent);
-                        }
-                    });
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            //ブラウザで起動
+                            producerIconBrowser.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if (chrome_custom_tabs) {
+                                        Bitmap back_icon = BitmapFactory.decodeResource(KonoAppNiTuite.this.getResources(), R.drawable.ic_action_arrow_back);
+                                        String custom = CustomTabsHelper.getPackageNameToUse(KonoAppNiTuite.this);
+                                        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                                        CustomTabsIntent customTabsIntent = builder.build();
+                                        customTabsIntent.intent.setPackage(custom);
+                                        customTabsIntent.launchUrl(KonoAppNiTuite.this, Uri.parse(userURL));
+                                    } else {
+                                        Uri uri = Uri.parse(userURL);
+                                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                                        startActivity(intent);
+                                    }
+                                }
+                            });
+
+                            //アプリ内で起動
+                            producerIconApp.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent(KonoAppNiTuite.this, UserActivity.class);
+                                    //IDを渡す
+                                    intent.putExtra("Account_ID", account_id);
+                                    startActivity(intent);
+                                }
+                            });
+
                             producerTextview.setText(display_name + "\r\n" + acct + "@friends.nico");
                             Glide.with(KonoAppNiTuite.this).load(avatar).into(producerImageview);
                         }
@@ -207,6 +208,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
         });
 
 
+/*
         //うらわざ？
         titleLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -225,6 +227,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
             }
 
         });
+*/
 
 
         document_button.setOnClickListener(new View.OnClickListener() {

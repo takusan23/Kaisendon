@@ -271,7 +271,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         values.put("position", "");
         values.put("streaming", String.valueOf(!streaming_Switch.isChecked())); //反転させてONのときStereaming有効に
         values.put("subtitle", subtitle_EditText.getText().toString());
-        values.put("image_url", background_image_set_Button.getText().toString());
+        values.put("image_url", image_url);
         values.put("background_transparency", background_transparency.getText().toString());
         values.put("background_screen_fit", String.valueOf(background_screen_fit_Switch.isChecked()));
         values.put("setting", "");
@@ -295,7 +295,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         values.put("position", "");
         values.put("streaming", String.valueOf(!streaming_Switch.isChecked())); //反転させてONのときStereaming有効に
         values.put("subtitle", subtitle_EditText.getText().toString());
-        values.put("image_url", background_image_set_Button.getText().toString());
+        values.put("image_url", image_url);
         values.put("background_transparency", background_transparency.getText().toString());
         values.put("background_screen_fit", String.valueOf(background_screen_fit_Switch.isChecked()));
         values.put("setting", "");
@@ -485,6 +485,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             subtitle_EditText.setText(cursor.getString(10));
             background_image_set_Button.setText(cursor.getString(11));
             image_url = cursor.getString(11);
+            background_image_set_Button.setText(image_url);
             Glide.with(getContext()).load(cursor.getString(11)).into(background_image_ImageView);
             background_transparency.setText(cursor.getString(12));
             background_screen_fit_Switch.setChecked(Boolean.valueOf(cursor.getString(13)));

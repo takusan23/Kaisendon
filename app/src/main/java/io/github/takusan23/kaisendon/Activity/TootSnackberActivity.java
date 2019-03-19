@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -22,6 +23,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -422,14 +424,18 @@ public class TootSnackberActivity extends AppCompatActivity {
         LinearLayout.LayoutParams warp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         snackber_LinearLayout.setLayoutParams(warp);
         //テキストボックス
-        toot_EditText = new EditText(TootSnackberActivity.this);
+        //Materialふうに
+        LinearLayout toot_textBox_LinearLayout = new LinearLayout(TootSnackberActivity.this);
+        //レイアウト読み込み
+        getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout);
+        toot_EditText = getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_editText);
         //ヒント
-        toot_EditText.setHint(R.string.imananisiteru);
+        ((TextInputLayout) getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setHint(getString(R.string.imananisiteru));
         //色
+        ((TextInputLayout) getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+        ((TextInputLayout) getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setBoxStrokeColor(Color.parseColor("#ffffff"));
         toot_EditText.setTextColor(Color.parseColor("#ffffff"));
         toot_EditText.setHintTextColor(Color.parseColor("#ffffff"));
-        //サイズ
-        toot_EditText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         //ボタン追加用LinearLayout
         LinearLayout toot_Button_LinearLayout = new LinearLayout(TootSnackberActivity.this);
@@ -682,7 +688,8 @@ public class TootSnackberActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 //コマンド実行メゾット？
-                CommandCode.commandSet(TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/sushi", "command_sushi");
+                //CommandCode.commandSet(TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/sushi", "command_sushi");
+                CommandCode.commandSet(TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/friends.nico", "pref_friends_nico_mode");
                 CommandCode.commandSetNotPreference(TootSnackberActivity.this, TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/rate-limit", "rate-limit");
                 CommandCode.commandSetNotPreference(TootSnackberActivity.this, TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-home", "home");
                 CommandCode.commandSetNotPreference(TootSnackberActivity.this, TootSnackberActivity.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-local", "local");
@@ -736,7 +743,7 @@ public class TootSnackberActivity extends AppCompatActivity {
         //LinearLayoutに追加
         //メイン
         snackber_LinearLayout.addView(account_LinearLayout);
-        snackber_LinearLayout.addView(toot_EditText);
+        snackber_LinearLayout.addView(toot_textBox_LinearLayout);
         snackber_LinearLayout.addView(toot_Button_LinearLayout);
         snackber_LinearLayout.addView(media_LinearLayout);
         snackber_LinearLayout.addView(toot_LinearLayout);

@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -36,6 +37,7 @@ import android.speech.tts.TextToSpeech;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
@@ -1645,15 +1647,24 @@ public class Home extends AppCompatActivity
         LinearLayout.LayoutParams warp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         snackber_LinearLayout.setLayoutParams(warp);
         //テキストボックス
-        toot_EditText = new EditText(Home.this);
+        //Materialふうに
+        LinearLayout toot_textBox_LinearLayout = new LinearLayout(Home.this);
+        //レイアウト読み込み
+        getLayoutInflater().inflate(R.layout.textinput_edittext,toot_textBox_LinearLayout);
+        toot_EditText = getLayoutInflater().inflate(R.layout.textinput_edittext,toot_textBox_LinearLayout).findViewById(R.id.name_editText);
         //ヒント
-        toot_EditText.setHint(R.string.imananisiteru);
+        ((TextInputLayout)getLayoutInflater().inflate(R.layout.textinput_edittext,toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setHint(getString(R.string.imananisiteru));
         //色
+        ((TextInputLayout)getLayoutInflater().inflate(R.layout.textinput_edittext,toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+        ((TextInputLayout)getLayoutInflater().inflate(R.layout.textinput_edittext,toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setBoxStrokeColor(Color.parseColor("#ffffff"));
+        //カウンター
+        ((TextInputLayout)getLayoutInflater().inflate(R.layout.textinput_edittext,toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setCounterEnabled(true);
         toot_EditText.setTextColor(Color.parseColor("#ffffff"));
         toot_EditText.setHintTextColor(Color.parseColor("#ffffff"));
         //サイズ
-        toot_EditText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-/*
+        //toot_EditText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        /*
         //ふぉーかす
         toot_EditText.requestFocus();
         //キーボード表示
@@ -1971,7 +1982,7 @@ public class Home extends AppCompatActivity
         //LinearLayoutに追加
         //メイン
         snackber_LinearLayout.addView(account_LinearLayout);
-        snackber_LinearLayout.addView(toot_EditText);
+        snackber_LinearLayout.addView(toot_textBox_LinearLayout);
         snackber_LinearLayout.addView(toot_Button_LinearLayout);
         snackber_LinearLayout.addView(media_LinearLayout);
         snackber_LinearLayout.addView(toot_LinearLayout);

@@ -71,21 +71,25 @@
                     android:text="@string/instance_name" />
         -->
 
-        <AutoCompleteTextView
-            android:id="@+id/login_instance_textbox_textbox"
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/name_TextInputLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/instance_name"
-            android:inputType="textEmailAddress"
-            android:singleLine="true" />
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/instance_name_editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/instance_name"
+                android:inputType="textEmailAddress"
+                android:singleLine="true" />
+        </android.support.design.widget.TextInputLayout>
 
         <LinearLayout
-            android:id="@+id/login_access_token_linearLayout"
+            android:id="@+id/access_token_linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-        </LinearLayout>
+            android:layout_height="wrap_content"></LinearLayout>
 
         <Space
             android:layout_width="match_parent"

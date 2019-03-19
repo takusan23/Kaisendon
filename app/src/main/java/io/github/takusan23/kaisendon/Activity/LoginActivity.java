@@ -2,43 +2,23 @@ package io.github.takusan23.kaisendon.Activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.customtabs.CustomTabsIntent;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.gson.Gson;
-import com.sys1yagi.mastodon4j.MastodonClient;
-import com.sys1yagi.mastodon4j.api.Scope;
-import com.sys1yagi.mastodon4j.api.entity.auth.AccessToken;
-import com.sys1yagi.mastodon4j.api.entity.auth.AppRegistration;
-import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
-import com.sys1yagi.mastodon4j.api.method.Apps;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONArray;
@@ -71,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText client_name_EditText;
     private TextInputLayout client_name_TextInputEditText;
-    private AutoCompleteTextView instance_name_EditText;
+    private EditText instance_name_EditText;
     private Switch access_token_Switch;
     private Button login_Button;
     private LinearLayout access_token_LinearLayout;
@@ -113,12 +93,12 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         //ログイン画面再構築
-        client_name_EditText = findViewById(R.id.login_instance_textbox_textbox);
+        client_name_EditText = findViewById(R.id.client_name_textbox_textbox);
         client_name_TextInputEditText = findViewById(R.id.client_name_textbox);
-        instance_name_EditText = findViewById(R.id.login_instance_textbox_textbox);
+        instance_name_EditText = findViewById(R.id.instance_name_editText);
         access_token_Switch = findViewById(R.id.login_access_token_swich);
         login_Button = findViewById(R.id.login_button);
-        access_token_LinearLayout = findViewById(R.id.login_access_token_linearLayout);
+        access_token_LinearLayout = findViewById(R.id.access_token_linearLayout);
 
         //クライアント名をグレーアウトしない
         client_name_TextInputEditText.setEnabled(true);
@@ -140,21 +120,16 @@ public class LoginActivity extends AppCompatActivity {
                 if (isChecked) {
                     //クライアント名をグレーアウトする
                     client_name_TextInputEditText.setEnabled(false);
-                    //動的にアクセス入力レイアウト作成
-                    TextInputLayout textInputLayout = new TextInputLayout(LoginActivity.this);
-                    textInputLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                    //中に入れるTextView
-                    EditText editText = new EditText(LoginActivity.this);
-                    editText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                    editText.setHint(R.string.setting_mastodon_accesstoken);
-                    //textInputLayout.addView(editText);
-                    access_token_LinearLayout.addView(editText);
+                    //レイアウトを取り込む
+                    getLayoutInflater().inflate(R.layout.textinput_edittext,access_token_LinearLayout);
+                    //Hint
+                    ((TextInputLayout)getLayoutInflater().inflate(R.layout.textinput_edittext,access_token_LinearLayout).findViewById(R.id.name_TextInputLayout)).setHint(getString(R.string.setting_mastodon_accesstoken));
                     //保存
                     login_Button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             //アクセストークン検証あんd保存
-                            checkAccount(editText.getText().toString());
+                            checkAccount(((EditText)getLayoutInflater().inflate(R.layout.textinput_edittext,access_token_LinearLayout).findViewById(R.id.name_editText)).getText().toString());
                         }
                     });
                 } else {
@@ -173,7 +148,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
 
         //通常ログイン
         //ClientIDとClientSecretを取得

@@ -483,5 +483,6 @@
     <string name="custom_setting_background_image_reset">Reset background image</string>
     <string name="custom_setting_background_transparency">Transparency (color code)</string>
     <string name="custom_setting_backgroung_screen_fit">Fit to screen</string>
+    <string name="load_instance_list_button">Load instance list(not recommended)</string>
 
 </resources>

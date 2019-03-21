@@ -192,7 +192,7 @@ public class Follow_Suggestions_Fragment extends Fragment {
                         //配列を作成
                         ArrayList<String> Item = new ArrayList<>();
                         //メモとか通知とかに
-                        Item.add(null);
+                        Item.add("");
                         //内容
                         Item.add(profile);
                         //ユーザー名

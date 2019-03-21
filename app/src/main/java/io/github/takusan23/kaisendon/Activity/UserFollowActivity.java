@@ -237,7 +237,7 @@ public class UserFollowActivity extends AppCompatActivity {
                         String user = toot_account.getString("username");
                         String user_name = toot_account.getString("display_name");
                         toot_time = toot_jsonObject.getString("created_at");
-                        String type = null;
+                        String type = "";
                         String user_use_client = null;
 
                         //クライアント名がある？ない？
@@ -515,7 +515,7 @@ public class UserFollowActivity extends AppCompatActivity {
                         //配列を作成
                         ArrayList<String> Item = new ArrayList<>();
                         //メモとか通知とかに
-                        Item.add(null);
+                        Item.add("");
                         //内容
                         Item.add(account_info);
                         //ユーザー名

@@ -939,6 +939,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         //Wi-Fi か　強制画像表示
         if (setting_avater_wifi || image_show) {
             if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true) {
+
                 if (setting_avater_gif) {
                     //GIFアニメ再生させない
                     Picasso.get()

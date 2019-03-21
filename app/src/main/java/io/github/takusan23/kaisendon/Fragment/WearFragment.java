@@ -1,4 +1,4 @@
-package io.github.takusan23.kaisendon;
+package io.github.takusan23.kaisendon.Fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import io.github.takusan23.kaisendon.Activity.WearTootShortcutListActivity;
+import io.github.takusan23.kaisendon.Preference_ApplicationContext;
+import io.github.takusan23.kaisendon.R;
 
 
 public class WearFragment extends Fragment {

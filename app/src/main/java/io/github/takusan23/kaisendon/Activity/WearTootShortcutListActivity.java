@@ -26,6 +26,9 @@ import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.Wearable;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -78,10 +81,15 @@ public class WearTootShortcutListActivity extends AppCompatActivity implements M
                 sendWearDeviceText("/clear", "clear");
                 if (toot_list.size() != 0) {
                     //for
+                    //JSONArrayを投げる
+                    JSONArray text_array = new JSONArray();
+                    JSONArray icon_array = new JSONArray();
                     for (int i = 0; i < toot_list.size(); i++) {
-                        sendWearDeviceText("/toot_text", toot_list.get(i));
-                        sendWearDeviceText("/toot_icon", icon_list.get(i));
+                        text_array.put(toot_list.get(i));
+                        icon_array.put(icon_list.get(i));
                     }
+                    sendWearDeviceText("/toot_text", text_array.toString());
+                    sendWearDeviceText("/toot_icon", icon_array.toString());
                     sendWearDeviceText("/finish", "finish");
                 }
             }
@@ -169,11 +177,27 @@ public class WearTootShortcutListActivity extends AppCompatActivity implements M
         adapter.clear();
         //Text
         if (messageEvent.getPath().contains("/toot_text")) {
-            toot_list.add(new String(messageEvent.getData()));
+            //JSONParse
+            try {
+                JSONArray text_array = new JSONArray(new String(messageEvent.getData()));
+                for (int i = 0; i < text_array.length(); i++) {
+                    toot_list.add((String) text_array.get(i));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
         //Icon
         if (messageEvent.getPath().contains("/toot_icon")) {
-            icon_list.add(new String(messageEvent.getData()));
+            //JSONParse
+            try {
+                JSONArray icon_array = new JSONArray(new String(messageEvent.getData()));
+                for (int i = 0; i < icon_array.length(); i++) {
+                    icon_list.add((String) icon_array.get(i));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
         //終わり
         if (messageEvent.getPath().contains("/finish")) {

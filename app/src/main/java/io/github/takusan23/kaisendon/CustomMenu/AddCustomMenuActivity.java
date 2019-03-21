@@ -260,22 +260,29 @@ public class AddCustomMenuActivity extends AppCompatActivity {
      */
     private void saveSQLite() {
         ContentValues values = new ContentValues();
+        //JSON化
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("name", name_EditText.getText().toString());
+            jsonObject.put("memo", "");
+            jsonObject.put("content", load_url);
+            jsonObject.put("instance", instance);
+            jsonObject.put("access_token", access_token);
+            jsonObject.put("image_load", String.valueOf(image_Switch.isChecked()));
+            jsonObject.put("dialog", String.valueOf(dialog_Switch.isChecked()));
+            jsonObject.put("dark_mode", String.valueOf(dark_Switch.isChecked()));
+            jsonObject.put("position", "");
+            jsonObject.put("streaming", String.valueOf(!streaming_Switch.isChecked())); //反転させてONのときStereaming有効に
+            jsonObject.put("subtitle", subtitle_EditText.getText().toString());
+            jsonObject.put("image_url", image_url);
+            jsonObject.put("background_transparency", background_transparency.getText().toString());
+            jsonObject.put("background_screen_fit", String.valueOf(background_screen_fit_Switch.isChecked()));
+            jsonObject.put("setting", "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         values.put("name", name_EditText.getText().toString());
-        values.put("memo", "");
-        values.put("content", load_url);
-        values.put("instance", instance);
-        values.put("access_token", access_token);
-        values.put("image_load", String.valueOf(image_Switch.isChecked()));
-        values.put("dialog", String.valueOf(dialog_Switch.isChecked()));
-        values.put("dark_mode", String.valueOf(dark_Switch.isChecked()));
-        values.put("position", "");
-        values.put("streaming", String.valueOf(!streaming_Switch.isChecked())); //反転させてONのときStereaming有効に
-        values.put("subtitle", subtitle_EditText.getText().toString());
-        values.put("image_url", image_url);
-        values.put("background_transparency", background_transparency.getText().toString());
-        values.put("background_screen_fit", String.valueOf(background_screen_fit_Switch.isChecked()));
-        values.put("setting", "");
-
+        values.put("setting", jsonObject.toString());
         db.insert("custom_menudb", null, values);
     }
 
@@ -284,23 +291,74 @@ public class AddCustomMenuActivity extends AppCompatActivity {
      */
     private void updateSQLite(String name) {
         ContentValues values = new ContentValues();
+        //JSON化
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("name", name_EditText.getText().toString());
+            jsonObject.put("memo", "");
+            jsonObject.put("content", load_url);
+            jsonObject.put("instance", instance);
+            jsonObject.put("access_token", access_token);
+            jsonObject.put("image_load", String.valueOf(image_Switch.isChecked()));
+            jsonObject.put("dialog", String.valueOf(dialog_Switch.isChecked()));
+            jsonObject.put("dark_mode", String.valueOf(dark_Switch.isChecked()));
+            jsonObject.put("position", "");
+            jsonObject.put("streaming", String.valueOf(!streaming_Switch.isChecked())); //反転させてONのときStereaming有効に
+            jsonObject.put("subtitle", subtitle_EditText.getText().toString());
+            jsonObject.put("image_url", image_url);
+            jsonObject.put("background_transparency", background_transparency.getText().toString());
+            jsonObject.put("background_screen_fit", String.valueOf(background_screen_fit_Switch.isChecked()));
+            jsonObject.put("setting", "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         values.put("name", name_EditText.getText().toString());
-        values.put("memo", "");
-        values.put("content", load_url);
-        values.put("instance", instance);
-        values.put("access_token", access_token);
-        values.put("image_load", String.valueOf(image_Switch.isChecked()));
-        values.put("dialog", String.valueOf(dialog_Switch.isChecked()));
-        values.put("dark_mode", String.valueOf(dark_Switch.isChecked()));
-        values.put("position", "");
-        values.put("streaming", String.valueOf(!streaming_Switch.isChecked())); //反転させてONのときStereaming有効に
-        values.put("subtitle", subtitle_EditText.getText().toString());
-        values.put("image_url", image_url);
-        values.put("background_transparency", background_transparency.getText().toString());
-        values.put("background_screen_fit", String.valueOf(background_screen_fit_Switch.isChecked()));
-        values.put("setting", "");
-
+        values.put("setting", jsonObject.toString());
         db.update("custom_menudb", values, "name=?", new String[]{name});
+    }
+
+
+    //ListViewにあった場合は
+    //読み込む
+
+    /**
+     * 読み込む
+     */
+    private void loadSQLite(String name) {
+        Cursor cursor = db.query(
+                "custom_menudb",
+                new String[]{"setting"},
+                "name=?",
+                new String[]{name},
+                null,
+                null,
+                null
+        );
+        cursor.moveToFirst();
+        for (int i = 0; i < cursor.getCount(); i++) {
+            try {
+                JSONObject jsonObject = new JSONObject(cursor.getString(0));
+                name_EditText.setText(jsonObject.getString("name"));
+                urlToContent(jsonObject.getString("content"));
+                instance = jsonObject.getString("instance");
+                access_token = jsonObject.getString("access_token");
+                image_Switch.setChecked(Boolean.valueOf(jsonObject.getString("image_load")));
+                dark_Switch.setChecked(Boolean.valueOf(jsonObject.getString("dark_mode")));
+                streaming_Switch.setChecked(!Boolean.valueOf(jsonObject.getString("streaming")));
+                dialog_Switch.setChecked(Boolean.valueOf(jsonObject.getString("dialog")));
+                subtitle_EditText.setText(jsonObject.getString("subtitle"));
+                background_image_set_Button.setText(jsonObject.getString("image_url"));
+                image_url = jsonObject.getString("image_url");
+                background_image_set_Button.setText(image_url);
+                Glide.with(getContext()).load(jsonObject.getString("image_url")).into(background_image_ImageView);
+                background_transparency.setText(jsonObject.getString("background_transparency"));
+                background_screen_fit_Switch.setChecked(Boolean.valueOf(jsonObject.getString("background_screen_fit")));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            cursor.moveToNext();
+        }
+        cursor.close();
     }
 
 
@@ -454,45 +512,6 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    //ListViewにあった場合は
-    //読み込む
-
-    /**
-     * 読み込む
-     */
-    private void loadSQLite(String name) {
-        Cursor cursor = db.query(
-                "custom_menudb",
-                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "streaming", "subtitle", "image_url", "background_transparency", "background_screen_fit", "setting"},
-                "name=?",
-                new String[]{name},
-                null,
-                null,
-                null
-        );
-        cursor.moveToFirst();
-        for (int i = 0; i < cursor.getCount(); i++) {
-            name_EditText.setText(cursor.getString(0));
-            urlToContent(cursor.getString(2));
-            instance = cursor.getString(3);
-            access_token = cursor.getString(4);
-            image_Switch.setChecked(Boolean.valueOf(cursor.getString(5)));
-            dark_Switch.setChecked(Boolean.valueOf(cursor.getString(7)));
-            streaming_Switch.setChecked(!Boolean.valueOf(cursor.getString(9)));
-            dialog_Switch.setChecked(Boolean.valueOf(cursor.getString(6)));
-            subtitle_EditText.setText(cursor.getString(10));
-            background_image_set_Button.setText(cursor.getString(11));
-            image_url = cursor.getString(11);
-            background_image_set_Button.setText(image_url);
-            Glide.with(getContext()).load(cursor.getString(11)).into(background_image_ImageView);
-            background_transparency.setText(cursor.getString(12));
-            background_screen_fit_Switch.setChecked(Boolean.valueOf(cursor.getString(13)));
-
-            cursor.moveToNext();
-        }
-        cursor.close();
     }
 
     /**

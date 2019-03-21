@@ -19,9 +19,12 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Animatable;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
@@ -96,6 +99,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 import io.github.takusan23.kaisendon.Activity.KonoAppNiTuite;
 import io.github.takusan23.kaisendon.Activity.LoginActivity;
@@ -2206,7 +2210,7 @@ public class Home extends AppCompatActivity
         //SQLite読み込み
         Cursor cursor = db.query(
                 "custom_menudb",
-                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "streaming", "subtitle", "image_url", "background_transparency", "background_screen_fit", "setting"},
+                new String[]{"setting"},
                 null,
                 null,
                 null,
@@ -2215,55 +2219,85 @@ public class Home extends AppCompatActivity
         );
         cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); i++) {
-            String name = cursor.getString(0);
-            String content = cursor.getString(2);
-            String instance = cursor.getString(3);
-            String access_token = cursor.getString(4);
-            String image_load = cursor.getString(5);
-            String dialog = cursor.getString(6);
-            String dark_mode = cursor.getString(7);
-            String position = cursor.getString(8);
-            String streaming = cursor.getString(9);
-            String subtitle = cursor.getString(10);
-            String image_url = cursor.getString(11);
-            String background_transparency = cursor.getString(12);
-            String background_screen_fit = cursor.getString(13);
-            String setting = cursor.getString(14);
-            //メニュー追加
-            navigationView.getMenu().add(cursor.getString(0)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    //Fragment切り替え
-                    //受け渡す
-                    Bundle bundle = new Bundle();
-                    bundle.putString("name", name);
-                    bundle.putString("content", content);
-                    bundle.putString("instance", instance);
-                    bundle.putString("access_token", access_token);
-                    bundle.putString("image_load", image_load);
-                    bundle.putString("dialog", dialog);
-                    bundle.putString("dark_mode", dark_mode);
-                    bundle.putString("position", position);
-                    bundle.putString("streaming", streaming);
-                    bundle.putString("subtitle", subtitle);
-                    bundle.putString("image_url", image_url);
-                    bundle.putString("background_transparency", background_transparency);
-                    bundle.putString("background_screen_fit", background_screen_fit);
-                    bundle.putString("setting", setting);
-                    CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
-                    customMenuTimeLine.setArguments(bundle);
+            try {
+                JSONObject jsonObject = new JSONObject(cursor.getString(0));
+                String name = jsonObject.getString("name");
+                String content = jsonObject.getString("content");
+                String instance = jsonObject.getString("instance");
+                String access_token = jsonObject.getString("access_token");
+                String image_load = jsonObject.getString("image_load");
+                String dialog = jsonObject.getString("dialog");
+                String dark_mode = jsonObject.getString("dark_mode");
+                String position = jsonObject.getString("position");
+                String streaming = jsonObject.getString("streaming");
+                String subtitle = jsonObject.getString("subtitle");
+                String image_url = jsonObject.getString("image_url");
+                String background_transparency = jsonObject.getString("background_transparency");
+                String background_screen_fit = jsonObject.getString("background_screen_fit");
+                String setting = jsonObject.getString("setting");
 
-                    //置き換え
-                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                    transaction.replace(R.id.container_container, customMenuTimeLine);
-                    transaction.commit();
+                //メニュー追加
+                navigationView.getMenu().add(name).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        //Fragment切り替え
+                        //受け渡す
+                        Bundle bundle = new Bundle();
+                        bundle.putString("name", name);
+                        bundle.putString("content", content);
+                        bundle.putString("instance", instance);
+                        bundle.putString("access_token", access_token);
+                        bundle.putString("image_load", image_load);
+                        bundle.putString("dialog", dialog);
+                        bundle.putString("dark_mode", dark_mode);
+                        bundle.putString("position", position);
+                        bundle.putString("streaming", streaming);
+                        bundle.putString("subtitle", subtitle);
+                        bundle.putString("image_url", image_url);
+                        bundle.putString("background_transparency", background_transparency);
+                        bundle.putString("background_screen_fit", background_screen_fit);
+                        bundle.putString("setting", setting);
+                        CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
+                        customMenuTimeLine.setArguments(bundle);
+
+                        //置き換え
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.container_container, customMenuTimeLine);
+                        transaction.commit();
 
 
-                    return false;
-                }
-            });
+                        return false;
+                    }
+                });
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             cursor.moveToNext();
         }
         cursor.close();
     }
+
+    private Drawable urlToContent(String url) {
+        Drawable drawable = getDrawable(R.drawable.ic_home_black_24dp);
+        switch (url) {
+            case "/api/v1/timelines/home":
+                drawable = getDrawable(R.drawable.ic_home_black_24dp);
+                break;
+            case "/api/v1/notifications":
+                drawable = getDrawable(R.drawable.ic_notifications_black_24dp);
+                break;
+            case "/api/v1/timelines/public?local=true":
+                drawable = getDrawable(R.drawable.ic_train_black_24dp);
+                break;
+            case "/api/v1/timelines/public":
+                drawable = getDrawable(R.drawable.ic_flight_black_24dp);
+                break;
+            case "/api/v1/timelines/direct":
+                drawable = getDrawable(R.drawable.ic_assignment_ind_black_24dp);
+                break;
+        }
+        return drawable;
+    }
+
 }

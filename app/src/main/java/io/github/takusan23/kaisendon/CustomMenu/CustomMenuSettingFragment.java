@@ -16,6 +16,9 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 import io.github.takusan23.kaisendon.R;
@@ -88,7 +91,7 @@ public class CustomMenuSettingFragment extends Fragment {
         ArrayList<String> list = new ArrayList<>();
         Cursor cursor = db.query(
                 "custom_menudb",
-                new String[]{"name", "memo", "content", "instance", "access_token", "image_load", "dialog", "dark_mode", "position", "streaming", "subtitle", "image_url", "background_transparency", "background_screen_fit", "setting"},
+                new String[]{"setting"},
                 null,
                 null,
                 null,
@@ -97,8 +100,13 @@ public class CustomMenuSettingFragment extends Fragment {
         );
         cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); i++) {
-            list.add(cursor.getString(0));
-            cursor.moveToNext();
+            try {
+                JSONObject jsonObject = new JSONObject(cursor.getString(0));
+                list.add(jsonObject.getString("name"));
+                cursor.moveToNext();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
         cursor.close();
         ArrayAdapter adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, list);

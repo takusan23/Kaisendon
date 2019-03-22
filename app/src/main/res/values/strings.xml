@@ -274,7 +274,7 @@
     <string name="search">Search</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="setting_cutom_emoji_info">Deprecated as it is under development</string>
+    <string name="setting_cutom_emoji_info">It became usable</string>
     <string name="setting_custom_emoji">Enable custom emoticons</string>
     <string name="multi_account_text">Please press and hold to delete account.</string>
     <string name="setting_networkchange_info">Notify by SnackBar when changing the network.</string>
@@ -463,9 +463,9 @@
     <string name="custom_menu_name">Name of CustomMenu</string>
     <string name="custom_menu_load">Contents displayed in the custom menu</string>
     <string name="custom_menu_account">Account of CustomMenu</string>
-    <string name="custom_menu_dialog">Regardless of the setting, prevent the dialog from appearing in favorites etc.</string>
-    <string name="custom_menu_darkmode">Regardless of the setting, enable dark mode (OLED mode)</string>
-    <string name="custom_menu_image">Regardless of the setting, display an image</string>
+    <string name="custom_menu_dialog">prevent the dialog from appearing in favorites etc.</string>
+    <string name="custom_menu_darkmode">enable dark mode (OLED mode)</string>
+    <string name="custom_menu_image">display an image</string>
     <string name="custom_add_message">Would you like to register a custom menu?</string>
     <string name="register">Registration</string>
     <string name="custome_menu_delete">Delete CustomMenu</string>
@@ -486,5 +486,6 @@
     <string name="load_instance_list_button">Load instance list(not recommended)</string>
     <string name="custom_menu_quickprofile">Enable Quick Profile</string>
     <string name="custom_menu_tootcounter">Enable toot counter</string>
+    <string name="custom_menu_custom_emoji">Enable custom emojis</string>
 
 </resources>

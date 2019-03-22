@@ -292,13 +292,13 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:src="@drawable/ic_person_pin_black_24dp"/>
+                    android:src="@drawable/ic_person_pin_black_24dp" />
 
                 <Switch
                     android:id="@+id/custom_menu_quickprofile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/custom_menu_quickprofile"/>
+                    android:text="@string/custom_menu_quickprofile" />
 
             </LinearLayout>
 
@@ -317,6 +317,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/custom_menu_tootcounter" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_face_black_24dp" />
+
+                <Switch
+                    android:id="@+id/custom_menu_custom_emoji"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/setting_custom_emoji" />
             </LinearLayout>
 
         </LinearLayout>

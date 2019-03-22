@@ -135,6 +135,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     //ViewHolder
     ViewHolder holder;
 
+    //絵文字表示するか
+    private boolean emojis_show;
 
     //ブックマークのボタンの動作決定部分
     boolean bookmark_delete = false;
@@ -146,11 +148,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     private boolean dialog_not_show = false;    //ダイアログ出さない
     private boolean image_show = false;         //強制画像表示
     private boolean quick_profile = false;      //クイックプロフィール有効
-    private boolean toot_counter = false;       //トゥートカウンターを有効
-
-
-    //絵文字用SharedPreferences
-    SharedPreferences pref_emoji = Preference_ApplicationContext.getContext().getSharedPreferences("preferences_emoji", Context.MODE_PRIVATE);
+    private boolean custom_emoji = false;       //トゥートカウンターを有効
 
     //settingのプリファレンスをとる
     SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
@@ -262,13 +260,44 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         TextView nicoru = holder.nicoru_button;
         TextView boost = holder.boost_button;
 
-        //autoLinkを動的に設定
-        //holder.tile_textview.setAutoLinkMask(Linkify.ALL);
+        //カスタムメニュー用設定
+        if (listItem.get(0).contains("CustomMenu")) {
+            //ダイアログ出さない
+            if (Boolean.valueOf(listItem.get(25))) {
+                dialog_not_show = true;
+            }
+            //強制画像表示
+            if (Boolean.valueOf(listItem.get(26))) {
+                image_show = true;
+            }
+            //クイックプロフィール
+            if (Boolean.valueOf(listItem.get(27))) {
+                quick_profile = true;
+            }
+            //カスタム絵文字
+            if (Boolean.valueOf(listItem.get(28))) {
+                emojis_show = true;
+            }
+        }
 
 
-        Handler handler = new Handler();
+        //Wi-Fi接続状況確認
+        ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        View finalConvertView2 = view;
+        NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+        //カスタム絵文字有効/無効
+        if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+            if (pref_setting.getBoolean("pref_avater_wifi", true)) {
+                //WIFIのみ表示有効時
+                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                    //WIFI
+                    emojis_show = true;
+                }
+            } else {
+                //WIFI/MOBILE DATA 関係なく表示
+                emojis_show = true;
+            }
+        }
 
 
         //ニコるをお気に入りに変更 設定次第
@@ -291,22 +320,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             nicoru_image.setBounds(0, 0, 64, 47);
             nicoru.setCompoundDrawables(nicoru_image, null, null, null);
             nicoru_text = "ニコった！ : ";
-        }
-
-        //カスタムメニュー用設定
-        if (listItem.get(0).contains("CustomMenu")) {
-            //ダイアログ出さない
-            if (Boolean.valueOf(listItem.get(25))) {
-                dialog_not_show = true;
-            }
-            //強制画像表示
-            if (Boolean.valueOf(listItem.get(26))) {
-                image_show = true;
-            }
-            //クイックプロフィール
-            if (Boolean.valueOf(listItem.get(27))) {
-                quick_profile = true;
-            }
         }
 
         //ニコる
@@ -369,12 +382,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
             String finalCard_url = card_url;
             ImageViewClickCustomTab_LinearLayout(holder.card_linearLayout, finalCard_url);
-
-            //Wi-Fi接続状況確認
-            ConnectivityManager connectivityManager =
-                    (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
 
             //タイムラインに画像を表示
             //動的に画像を追加するよ
@@ -818,13 +825,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 });
             }
         });
-
-        //Wi-Fi接続状況確認
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
-
 
         //タイムラインに画像を表示
         //動的に画像を追加するよ
@@ -1396,11 +1396,13 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
          *
          * */
 
-        PicassoImageGetter imageGetter = new PicassoImageGetter(title);
+        PicassoImageGetter title_imageGetter = new PicassoImageGetter(title);
+        PicassoImageGetter user_imageGetter = new PicassoImageGetter(user);
         Spannable toot_html;
         Spannable user_html;
 
         if (title != null) {
+
             if (pref_setting.getBoolean("pref_custom_emoji", false)) {
                 //カスタム絵文字有効時
                 if (setting_avater_wifi) {
@@ -1409,13 +1411,13 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                         //WIFI接続中か確認
                         //接続中
                         try {
-                            user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
-                            toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
+                            user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, user_imageGetter, null);
+                            toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, title_imageGetter, null);
                             title.setText(toot_html);
                             user.setText(user_html);
                         } catch (NullPointerException e) {
-                            user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
-                            toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
+                            user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, user_imageGetter, null);
+                            toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, title_imageGetter, null);
                             title.setText(toot_html);
                             user.setText(user_html);
                         }
@@ -1428,13 +1430,13 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                     //WIFIのみ表示無効時
                     //そのまま表示させる
                     try {
-                        user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
-                        toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
+                        user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, user_imageGetter, null);
+                        toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, title_imageGetter, null);
                         title.setText(toot_html);
                         user.setText(user_html);
                     } catch (NullPointerException e) {
-                        user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
-                        toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
+                        user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, user_imageGetter, null);
+                        toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, title_imageGetter, null);
                         title.setText(toot_html);
                         user.setText(user_html);
                     }
@@ -1444,9 +1446,25 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 user.setText(Html.fromHtml(userString, Html.FROM_HTML_MODE_COMPACT));
             }
         }
+
+        //強制的に表示
+        if (emojis_show){
+            try {
+                user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, user_imageGetter, null);
+                toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, title_imageGetter, null);
+                title.setText(toot_html);
+                user.setText(user_html);
+            } catch (NullPointerException e) {
+                user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, user_imageGetter, null);
+                toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, title_imageGetter, null);
+                title.setText(toot_html);
+                user.setText(user_html);
+            }
+        }
+
+
         //title.setText((Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT)));
         client.setText(listItem.get(3));
-
 
 
         //URLをCustomTabで開くかどうか
@@ -1465,44 +1483,62 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             nicoru.setText("");
             web_button.setText("");
             holder.bookmark_button.setText("");
-        } else {
-
         }
 
         //ダークモード、OLEDモード時にアイコンが見えない問題
         //どちらかが有効の場合
         //↑これ廃止ね。代わりに利用中のテーマを取得して変更する仕様にするからよろー
         //Theme比較わからんから変わりにToolberの背景が黒だったら動くように
-        if (((ColorDrawable) ((Home) getContext()).getToolBer().getBackground()).getColor() == Color.parseColor("#000000")) {
-            boost_button.setTextColor(Color.parseColor("#ffffff"));
-            nicoru.setTextColor(Color.parseColor("#ffffff"));
-            web_button.setTextColor(Color.parseColor("#ffffff"));
-            holder.bookmark_button.setTextColor(Color.parseColor("#ffffff"));
+        //なんか落ちる（要検証）
+        try {
+            if (((ColorDrawable) ((Home) getContext()).getToolBer().getBackground()).getColor() == Color.parseColor("#000000")) {
+                boost_button.setTextColor(Color.parseColor("#ffffff"));
+                nicoru.setTextColor(Color.parseColor("#ffffff"));
+                web_button.setTextColor(Color.parseColor("#ffffff"));
+                holder.bookmark_button.setTextColor(Color.parseColor("#ffffff"));
 
-            //アイコンを取得
-            Drawable boost_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp, null);
-            Drawable web_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_more_vert_black_24dp, null);
-            Drawable bookmark_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_bookmark_border_black_24dp, null);
-            Drawable favourite_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp, null);
+                //アイコンを取得
+                Drawable boost_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp, null);
+                Drawable web_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_more_vert_black_24dp, null);
+                Drawable bookmark_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_bookmark_border_black_24dp, null);
+                Drawable favourite_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp, null);
 
-            //染色
-            boost_icon_white.setTint(Color.parseColor("#ffffff"));
-            web_icon_white.setTint(Color.parseColor("#ffffff"));
-            bookmark_icon_white.setTint(Color.parseColor("#ffffff"));
-            favourite_icon_white.setTint(Color.parseColor("#ffffff"));
+                //染色
+                boost_icon_white.setTint(Color.parseColor("#ffffff"));
+                web_icon_white.setTint(Color.parseColor("#ffffff"));
+                bookmark_icon_white.setTint(Color.parseColor("#ffffff"));
+                favourite_icon_white.setTint(Color.parseColor("#ffffff"));
 
-            //入れる
-            boost_button.setCompoundDrawablesWithIntrinsicBounds(boost_icon_white, null, null, null);
-            web_button.setCompoundDrawablesWithIntrinsicBounds(web_icon_white, null, null, null);
-            holder.bookmark_button.setCompoundDrawablesWithIntrinsicBounds(bookmark_icon_white, null, null, null);
+                //入れる
+                boost_button.setCompoundDrawablesWithIntrinsicBounds(boost_icon_white, null, null, null);
+                web_button.setCompoundDrawablesWithIntrinsicBounds(web_icon_white, null, null, null);
+                holder.bookmark_button.setCompoundDrawablesWithIntrinsicBounds(bookmark_icon_white, null, null, null);
 
 
-            //ニコるをお気に入りに変更 設定次第
-            //メッセージも変更できるようにする
-            if (friends_nico_check_box) {
-                holder.nicoru_button.setCompoundDrawablesWithIntrinsicBounds(favourite_icon_white, null, null, null);
+                //ニコるをお気に入りに変更 設定次第
+                //メッセージも変更できるようにする
+                if (friends_nico_check_box) {
+                    holder.nicoru_button.setCompoundDrawablesWithIntrinsicBounds(favourite_icon_white, null, null, null);
+                }
+            } else {
+                //アイコンを取得
+                Drawable boost_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp, null);
+                Drawable web_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_more_vert_black_24dp, null);
+                Drawable bookmark_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_bookmark_border_black_24dp, null);
+                Drawable favourite_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp, null);
+
+                //染色
+                boost_icon_white.setTint(Color.parseColor("#000000"));
+                web_icon_white.setTint(Color.parseColor("#000000"));
+                bookmark_icon_white.setTint(Color.parseColor("#000000"));
+                favourite_icon_white.setTint(Color.parseColor("#000000"));
+
+                //入れる
+                boost_button.setCompoundDrawablesWithIntrinsicBounds(boost_icon_white, null, null, null);
+                web_button.setCompoundDrawablesWithIntrinsicBounds(web_icon_white, null, null, null);
+                holder.bookmark_button.setCompoundDrawablesWithIntrinsicBounds(bookmark_icon_white, null, null, null);
             }
-        } else {
+        } catch (ClassCastException e) {
             //アイコンを取得
             Drawable boost_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp, null);
             Drawable web_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_more_vert_black_24dp, null);
@@ -2154,10 +2190,52 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 try {
                     JSONObject jsonObject = new JSONObject(response.body().string());
 
+                    String display_name = jsonObject.getString("display_name");
+                    String username = jsonObject.getString("acct");
                     String profile_note = jsonObject.getString("note");
                     String avater_url = jsonObject.getString("avatar");
                     String follow = jsonObject.getString("following_count");
                     String follower = jsonObject.getString("followers_count");
+
+                    //カスタム絵文字適用
+                    if (emojis_show) {
+                        //他のところでは一旦配列に入れてるけど今回はここでしか使ってないから省くね
+                        JSONArray emojis = jsonObject.getJSONArray("emojis");
+                        for (int i = 0; i < emojis.length(); i++) {
+                            JSONObject emojiObject = emojis.getJSONObject(i);
+                            String emoji_name = emojiObject.getString("shortcode");
+                            String emoji_url = emojiObject.getString("url");
+                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                            //display_name
+                            if (display_name.contains(emoji_name)) {
+                                //あったよ
+                                display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                            }
+                            //note
+                            if (profile_note.contains(emoji_name)) {
+                                //あったよ
+                                profile_note = profile_note.replace(":" + emoji_name + ":", custom_emoji_src);
+                            }
+                        }
+                        JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
+                        for (int i = 0; i < profile_emojis.length(); i++) {
+                            JSONObject emojiObject = profile_emojis.getJSONObject(i);
+                            String emoji_name = emojiObject.getString("shortcode");
+                            String emoji_url = emojiObject.getString("url");
+                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                            //display_name
+                            if (display_name.contains(emoji_name)) {
+                                //あったよ
+                                display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                            }
+                            //note
+                            if (profile_note.contains(emoji_name)) {
+                                //あったよ
+                                profile_note = profile_note.replace(":" + emoji_name + ":", custom_emoji_src);
+                            }
+                        }
+                    }
+
 
                     //フォローされているか（無駄にAPI叩いてね？）
                     final String[] follow_back = {getContext().getString(R.string.follow_back_not)};
@@ -2176,6 +2254,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
                     //GETリクエスト
                     OkHttpClient client = new OkHttpClient();
+                    String finalProfile_note = profile_note;
                     client.newCall(request).enqueue(new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
@@ -2215,9 +2294,10 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                 snackber_LinearLayout.setLayoutParams(warp);
                                 //そこにTextViewをいれる（もとからあるTextViewは無視）
                                 TextView snackber_TextView = new TextView(getContext());
+                                PicassoImageGetter imageGetter = new PicassoImageGetter(snackber_TextView);
                                 snackber_TextView.setLayoutParams(warp);
                                 snackber_TextView.setTextColor(Color.parseColor("#ffffff"));
-                                snackber_TextView.setText(Html.fromHtml(profile_note, Html.FROM_HTML_MODE_COMPACT));
+                                snackber_TextView.setText(Html.fromHtml(finalProfile_note, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
                                 //ボタン追加
                                 Button userPage_Button = new Button(getContext(), null, 0, R.style.Widget_AppCompat_Button_Borderless);
                                 userPage_Button.setLayoutParams(warp);

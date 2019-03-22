@@ -99,6 +99,7 @@ public class CustomMenuTimeLine extends Fragment {
     private String background_transparency;
     private String quick_profile;
     private String toot_counter;
+    private String custom_emoji;
 
     private Boolean background_screen_fit;
 
@@ -167,6 +168,7 @@ public class CustomMenuTimeLine extends Fragment {
         background_screen_fit = Boolean.valueOf(getArguments().getString("background_screen_fit"));
         quick_profile = getArguments().getString("quick_profile");
         toot_counter = getArguments().getString("toot_counter");
+        custom_emoji = getArguments().getString("custom_emoji");
 
         //透明度設定は背景画像利用時のみ利用できるようにする
         if (image_url.length() == 0) {
@@ -480,7 +482,7 @@ public class CustomMenuTimeLine extends Fragment {
                             }
 
                             //絵文字
-                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                            if (pref_setting.getBoolean("pref_custom_emoji", false) || Boolean.valueOf(custom_emoji)) {
                                 JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
                                 for (int e = 0; e < emoji.length(); e++) {
                                     JSONObject jsonObject = emoji.getJSONObject(e);
@@ -582,7 +584,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 Item.add(dialog);
                                 Item.add(image_load);
                                 Item.add(quick_profile);
-                                Item.add(toot_counter);
+                                Item.add(custom_emoji);
 
                                 ListItem listItem = new ListItem(Item);
 
@@ -812,12 +814,13 @@ public class CustomMenuTimeLine extends Fragment {
                             String media_url_4 = mediaURL[3];
 
 
-                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                            if (pref_setting.getBoolean("pref_custom_emoji", false) || Boolean.valueOf(custom_emoji)) {
                                 //カスタム絵文字
                                 List<Emoji> emoji_List = status.getEmojis();
                                 emoji_List.forEach(emoji -> {
                                     String emoji_name = emoji.getShortcode();
                                     String emoji_url = emoji.getUrl();
+                                    //System.out.println("絵文字:" + emoji_name);
                                     String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
                                     toot_text[0] = toot_text[0].replace(":" + emoji_name + ":", custom_emoji_src);
                                 });
@@ -827,6 +830,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 account_emoji_List.forEach(emoji -> {
                                     String emoji_name = emoji.getShortcode();
                                     String emoji_url = emoji.getUrl();
+                                    System.out.println("絵文字:" + emoji_name);
                                     String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
                                     user_name[0] = user_name[0].replace(":" + emoji_name + ":", custom_emoji_src);
                                 });
@@ -908,7 +912,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 Item.add(dialog);
                                 Item.add(image_load);
                                 Item.add(quick_profile);
-                                Item.add(toot_counter);
+                                Item.add(custom_emoji);
 
 
                                 ListItem listItem = new ListItem(Item);
@@ -1247,7 +1251,7 @@ public class CustomMenuTimeLine extends Fragment {
                 }
 
                 //絵文字
-                if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                if (pref_setting.getBoolean("pref_custom_emoji", false)|| Boolean.valueOf(custom_emoji)) {
                     JSONArray emoji = toot_text_status.getJSONArray("emojis");
                     for (int e = 0; e < emoji.length(); e++) {
                         JSONObject jsonObject = emoji.getJSONObject(e);
@@ -1468,7 +1472,7 @@ public class CustomMenuTimeLine extends Fragment {
         }
 
         //カスタム絵文字
-        if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+        if (pref_setting.getBoolean("pref_custom_emoji", false)|| Boolean.valueOf(custom_emoji)) {
 
             try {
                 //本文

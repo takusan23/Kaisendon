@@ -97,6 +97,7 @@ public class UserActivity extends AppCompatActivity {
     //カスタム絵文字表示に使う配列
     private ArrayList<String> emojis_shortcode = new ArrayList<>();
     private ArrayList<String> emojis_url = new ArrayList<>();
+    private boolean emojis_show = false;
 
     String custom_emoji_src = null;
 
@@ -279,6 +280,14 @@ public class UserActivity extends AppCompatActivity {
                         emojis_shortcode.add(emojiObject.getString("shortcode"));
                         emojis_url.add(emojiObject.getString("url"));
                     }
+                    //profile_emojis
+                    JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
+                    for (int i = 0; i < profile_emojis.length(); i++) {
+                        JSONObject emojiObject = profile_emojis.getJSONObject(i);
+                        emojis_shortcode.add(emojiObject.getString("shortcode"));
+                        emojis_url.add(emojiObject.getString("url"));
+                    }
+
 
                     //Wi-Fi接続状況確認
                     ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -291,10 +300,12 @@ public class UserActivity extends AppCompatActivity {
                             if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                                 //WIFI
                                 setCustomEmoji();
+                                emojis_show = true;
                             }
                         } else {
                             //WIFI/MOBILE DATA 関係なく表示
                             setCustomEmoji();
+                            emojis_show = true;
                         }
                     }
 
@@ -735,8 +746,9 @@ public class UserActivity extends AppCompatActivity {
         LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
         //note
         TextView noteTextView = new TextView(UserActivity.this);
+        PicassoImageGetter imageGetter = new PicassoImageGetter(noteTextView);
         noteTextView.setAutoLinkMask(Linkify.WEB_URLS);
-        noteTextView.setText(Html.fromHtml(profile, Html.FROM_HTML_MODE_COMPACT));
+        noteTextView.setText(Html.fromHtml(profile, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
         main_LinearLayout.addView(noteTextView);
 
         return top_linearLayout;
@@ -807,6 +819,25 @@ public class UserActivity extends AppCompatActivity {
             try {
                 String name = fieldsJsonArray.getJSONObject(i).getString("name");
                 String value = fieldsJsonArray.getJSONObject(i).getString("value");
+                //カスタム絵文字
+                if (emojis_show) {
+                    //forで回す
+                    for (int e = 0; e < emojis_shortcode.size(); e++) {
+                        String emoji_name = emojis_shortcode.get(e);
+                        String emoji_url = emojis_url.get(e);
+                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                        //name
+                        if (name.contains(emojis_shortcode.get(e))) {
+                            //あったよ
+                            name = name.replace(":" + emoji_name + ":", custom_emoji_src);
+                        }
+                        //value
+                        if (value.contains(emojis_shortcode.get(e))) {
+                            //あったよ
+                            value = value.replace(":" + emoji_name + ":", custom_emoji_src);
+                        }
+                    }
+                }
                 //LinearLayout
                 LinearLayout fieldsLinearLayout = new LinearLayout(UserActivity.this);
                 fieldsLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -819,8 +850,11 @@ public class UserActivity extends AppCompatActivity {
                 nameTextView.setTextSize(18);
                 valueTextView.setTextSize(18);
                 valueTextView.setAutoLinkMask(Linkify.WEB_URLS);
-                nameTextView.setText(name);
                 valueTextView.setText(Html.fromHtml(value, Html.FROM_HTML_MODE_COMPACT));
+                PicassoImageGetter value_imageGetter = new PicassoImageGetter(valueTextView);
+                PicassoImageGetter name_imageGetter = new PicassoImageGetter(nameTextView);
+                valueTextView.setText(Html.fromHtml(value, Html.FROM_HTML_MODE_LEGACY, value_imageGetter, null));
+                nameTextView.setText(Html.fromHtml(name, Html.FROM_HTML_MODE_LEGACY, name_imageGetter, null));
                 //入れる
                 fieldsLinearLayout.addView(nameTextView);
                 //認証済みのときはverified_atの値を取得する
@@ -873,45 +907,6 @@ public class UserActivity extends AppCompatActivity {
     }
 
 
-    class LoadImage extends AsyncTask<Object, Void, Bitmap> {
-
-        private LevelListDrawable mDrawable;
-
-        @Override
-        protected Bitmap doInBackground(Object... params) {
-            String source = (String) params[0];
-            mDrawable = (LevelListDrawable) params[1];
-            Log.d(TAG, "doInBackground " + source);
-            try {
-                InputStream is = new URL(source).openStream();
-                return BitmapFactory.decodeStream(is);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            Log.d(TAG, "onPostExecute drawable " + mDrawable);
-            Log.d(TAG, "onPostExecute bitmap " + bitmap);
-            if (bitmap != null) {
-                BitmapDrawable d = new BitmapDrawable(bitmap);
-                mDrawable.addLevel(1, 1, d);
-                mDrawable.setBounds(0, 0, 40, 40);
-                mDrawable.setLevel(1);
-                // i don't know yet a better way to refresh TextView
-                // mTv.invalidate() doesn't work as expected
-                CharSequence t = profile_textview.getText();
-                profile_textview.setText(t);
-            }
-        }
-    }
-
     //時差計算
     private String timeFormat(String time) {
         String timeReturn = time;
@@ -949,16 +944,16 @@ public class UserActivity extends AppCompatActivity {
         for (int i = 0; i < emojis_shortcode.size(); i++) {
             String emoji_name = emojis_shortcode.get(i);
             String emoji_url = emojis_url.get(i);
+            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
             //display_name
             if (display_name.contains(emojis_shortcode.get(i))) {
                 //あったよ
-                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
                 display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
             }
             //note
             if (profile.contains(emojis_shortcode.get(i))) {
                 //あったよ
-                System.out.println("あったよ！" + emojis_shortcode.get(i) + " / " + emojis_url.get(i));
+                profile = profile.replace(":" + emoji_name + ":", custom_emoji_src);
             }
             //fields
             //fields Cardのところに書く

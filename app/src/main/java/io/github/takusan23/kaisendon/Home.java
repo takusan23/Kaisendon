@@ -1829,10 +1829,16 @@ public class Home extends AppCompatActivity
 
                                 @Override
                                 public void onResponse(Call call, Response response) throws IOException {
-                                    toot_snackbar.dismiss();
-                                    //EditTextを空にする
-                                    toot_EditText.setText("");
-                                    tootTextCount = 0;
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            //EditTextを空にする
+                                            toot_EditText.setText("");
+                                            tootTextCount = 0;
+                                            //TootSnackber閉じる
+                                            toot_snackbar.dismiss();
+                                        }
+                                    });
                                 }
                             });
 
@@ -2206,7 +2212,7 @@ public class Home extends AppCompatActivity
         //SQLite読み込み
         Cursor cursor = db.query(
                 "custom_menudb",
-                new String[]{"setting"},
+                new String[]{"name","setting"},
                 null,
                 null,
                 null,
@@ -2216,7 +2222,7 @@ public class Home extends AppCompatActivity
         cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); i++) {
             try {
-                JSONObject jsonObject = new JSONObject(cursor.getString(0));
+                JSONObject jsonObject = new JSONObject(cursor.getString(1));
                 String name = jsonObject.getString("name");
                 String content = jsonObject.getString("content");
                 String instance = jsonObject.getString("instance");
@@ -2230,6 +2236,8 @@ public class Home extends AppCompatActivity
                 String image_url = jsonObject.getString("image_url");
                 String background_transparency = jsonObject.getString("background_transparency");
                 String background_screen_fit = jsonObject.getString("background_screen_fit");
+                String quick_profile = jsonObject.getString("quick_profile");
+                String toot_counter = jsonObject.getString("toot_counter");
                 String setting = jsonObject.getString("setting");
 
                 //メニュー追加
@@ -2252,6 +2260,8 @@ public class Home extends AppCompatActivity
                         bundle.putString("image_url", image_url);
                         bundle.putString("background_transparency", background_transparency);
                         bundle.putString("background_screen_fit", background_screen_fit);
+                        bundle.putString("quick_profile",quick_profile);
+                        bundle.putString("toot_counter",toot_counter);
                         bundle.putString("setting", setting);
                         CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                         customMenuTimeLine.setArguments(bundle);

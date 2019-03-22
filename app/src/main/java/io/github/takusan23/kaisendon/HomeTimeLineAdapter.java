@@ -144,6 +144,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     //カスタムメニュー用
     private boolean dialog_not_show = false;    //ダイアログ出さない
     private boolean image_show = false;         //強制画像表示
+    private boolean quick_profile = false;      //クイックプロフィール有効
+    private boolean toot_counter = false;       //トゥートカウンターを有効
 
 
     //絵文字用SharedPreferences
@@ -300,6 +302,10 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             if (Boolean.valueOf(listItem.get(26))) {
                 image_show = true;
             }
+            //クイックプロフィール
+            if (Boolean.valueOf(listItem.get(27))) {
+                quick_profile = true;
+            }
         }
 
         //ニコる
@@ -395,7 +401,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             holder.card_linearLayout.addView(holder.cardTextView);
             holder.cardTextView.setLayoutParams(textLayoutParams);
             holder.cardTextView.setText(card_title + "\n" + card_description);
-            holder.cardTextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_card", "15")));
+            holder.cardTextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_card", "10")));
             holder.cardImageView.setLayoutParams(imageLayoutParams);
             //Cardくそ見にくいから枠つけるか
             holder.card_linearLayout.setBackground(getContext().getDrawable(R.drawable.button_style));
@@ -753,7 +759,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                         if (item.toString().contains(getContext().getString(R.string.account))) {
                             //読み込み
                             //Quick Profile
-                            if (pref_setting.getBoolean("pref_quick_profile", false)) {
+                            if (pref_setting.getBoolean("pref_quick_profile", false) || quick_profile) {
                                 //クイックプロフィーる
                                 quickProfileSnackber(v, String.valueOf(account));
                             } else {
@@ -1312,17 +1318,17 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         // トゥート
         TextView title = (TextView) holder.tile_textview;
         //title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
-        title.setTextSize(18);
+        title.setTextSize(10);
         //フォントサイズの変更
-        String toot_textsize = pref_setting.getString("pref_fontsize_timeline", "18");
+        String toot_textsize = pref_setting.getString("pref_fontsize_timeline", "10");
         title.setTextSize(Integer.parseInt(toot_textsize));
 
         // ユーザー名
         TextView user = (TextView) holder.user_textview;
         //user.setText(item.getUser());
-        user.setTextSize(18);
+        user.setTextSize(10);
         //フォントサイズの変更
-        String username_textsize = pref_setting.getString("pref_fontsize_user", "18");
+        String username_textsize = pref_setting.getString("pref_fontsize_user", "10");
         user.setTextSize(Integer.parseInt(username_textsize));
 
         //クライアント
@@ -1334,7 +1340,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         client.setTextSize(Integer.parseInt(client_textsize));
 
         //各アイコンはトゥートサイズに合わせる
-        String button_textsize = pref_setting.getString("pref_fontsize_button", "15");
+        String button_textsize = pref_setting.getString("pref_fontsize_button", "10");
         nicoru.setTextSize(Integer.parseInt(button_textsize));
         boost.setTextSize(Integer.parseInt(button_textsize));
         holder.bookmark_button.setTextSize(Integer.parseInt(button_textsize));

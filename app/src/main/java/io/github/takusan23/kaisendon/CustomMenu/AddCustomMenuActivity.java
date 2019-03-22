@@ -71,6 +71,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     private Switch streaming_Switch;
     private Switch quickprofile_Switch;
     private Switch tootcounter_Switch;
+    private Switch custom_emoji_Switch;
     private EditText subtitle_EditText;
     private Switch background_screen_fit_Switch;
     private EditText background_transparency;
@@ -104,6 +105,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         streaming_Switch = findViewById(R.id.custom_menu_streaming);
         quickprofile_Switch = findViewById(R.id.custom_menu_quickprofile);
         tootcounter_Switch = findViewById(R.id.custom_menu_tootcounter);
+        custom_emoji_Switch = findViewById(R.id.custom_menu_custom_emoji);
         subtitle_EditText = findViewById(R.id.custom_menu_subtitle_edittext_edittext);
         background_image_set_Button = findViewById(R.id.custom_background_image_button);
         background_image_reset_Button = findViewById(R.id.custom_background_image_reset_button);
@@ -283,6 +285,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             jsonObject.put("background_screen_fit", String.valueOf(background_screen_fit_Switch.isChecked()));
             jsonObject.put("quick_profile",String.valueOf(quickprofile_Switch.isChecked()));
             jsonObject.put("toot_counter",String.valueOf(tootcounter_Switch.isChecked()));
+            jsonObject.put("custom_emoji",String.valueOf(custom_emoji_Switch.isChecked()));
             jsonObject.put("setting", "");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -316,6 +319,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             jsonObject.put("background_screen_fit", String.valueOf(background_screen_fit_Switch.isChecked()));
             jsonObject.put("quick_profile",String.valueOf(quickprofile_Switch.isChecked()));
             jsonObject.put("toot_counter",String.valueOf(tootcounter_Switch.isChecked()));
+            jsonObject.put("custom_emoji",String.valueOf(custom_emoji_Switch.isChecked()));
             jsonObject.put("setting", "");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -363,6 +367,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 background_screen_fit_Switch.setChecked(Boolean.valueOf(jsonObject.getString("background_screen_fit")));
                 quickprofile_Switch.setChecked(Boolean.valueOf(jsonObject.getString("quick_profile")));
                 tootcounter_Switch.setChecked(Boolean.valueOf(jsonObject.getString("toot_counter")));
+                custom_emoji_Switch.setChecked(Boolean.valueOf(jsonObject.getString("custom_emoji")));
             } catch (JSONException e) {
                 e.printStackTrace();
             }

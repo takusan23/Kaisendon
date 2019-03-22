@@ -26,7 +26,7 @@
             android:title="@string/setting_toot_media_hidden" />
 
         <CheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="pref_custom_emoji"
             android:summary="@string/setting_cutom_emoji_info"
             android:title="@string/setting_custom_emoji" />

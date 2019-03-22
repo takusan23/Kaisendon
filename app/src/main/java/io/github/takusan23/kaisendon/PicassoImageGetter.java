@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Html;
 import android.widget.TextView;
 
@@ -21,10 +23,17 @@ public class PicassoImageGetter implements Html.ImageGetter {
     @Override
     public Drawable getDrawable(String source) {
         BitmapDrawablePlaceHolder drawable = new BitmapDrawablePlaceHolder();
-        Picasso.get()
-                .load(source)
-                .placeholder(R.drawable.ic_sync_black_24dp)
-                .into(drawable);
+        Handler uiHandler = new Handler(Looper.getMainLooper());
+        uiHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Picasso.get()
+                        .load(source)
+                        .placeholder(R.drawable.ic_sync_black_24dp)
+                        .into(drawable);
+            }
+        });
+
         return drawable;
     }
 

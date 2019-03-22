@@ -173,7 +173,7 @@
     <string name="yes">はい</string>
     <string name="no">いいえ</string>
     <string name="setting_custom_emoji">カスタム絵文字を有効にします</string>
-    <string name="setting_cutom_emoji_info">開発中のため非推奨</string>
+    <string name="setting_cutom_emoji_info">使えるようになりました</string>
     <string name="multi_account_text">アカウントを削除する場合は長押ししてください。</string>
     <string name="setting_networkchange">ネットワーク変更を通知する</string>
     <string name="setting_networkchange_info">ネットワーク変更時にSnackBarで通知します。通信量を抑えたい方にどうぞ。</string>
@@ -359,9 +359,9 @@
     <string name="custom_menu_name">カスタムメニューの名前</string>
     <string name="custom_menu_load">カスタムメニューで表示するコンテンツ</string>
     <string name="custom_menu_account">カスタムメニューで使うアカウント</string>
-    <string name="custom_menu_dialog">設定にかかわらず、お気に入り等でダイアログが出ないようにする</string>
-    <string name="custom_menu_darkmode">設定にかかわらず、ダークモード（OLEDモード）を有効にする</string>
-    <string name="custom_menu_image">設定にかかわらず、画像を表示させる</string>
+    <string name="custom_menu_dialog">お気に入り等でダイアログが出ないようにする</string>
+    <string name="custom_menu_darkmode">ダークモード（OLEDモード）を有効にする</string>
+    <string name="custom_menu_image">画像を表示させる</string>
     <string name="custom_add_message">カスタムメニューを登録しますか？</string>
     <string name="register">登録</string>
     <string name="custome_menu_delete">カスタムメニューを削除</string>
@@ -382,5 +382,6 @@
     <string name="load_instance_list_button">インスタンス一覧を読み込む(非推奨)</string>
     <string name="custom_menu_quickprofile">クイックプロフィールを有効にする</string>
     <string name="custom_menu_tootcounter">トゥートカウンターを有効にする</string>
+    <string name="custom_menu_custom_emoji">カスタム絵文字を有効にする</string>
 
 </resources>

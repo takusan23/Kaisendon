@@ -43,6 +43,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.text.Html;
+import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
@@ -1297,7 +1298,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             }
         }
 
-
+/*
         //ImageGetter
         //カスタム絵文字
         Html.ImageGetter toot_imageGetter = new Html.ImageGetter() {
@@ -1312,7 +1313,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 new LoadImage().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, source, d[0]);
                 return d[0];
             }
-        };
+        };*/
 
 
         // トゥート
@@ -1367,161 +1368,85 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         //絵文字強制
         boolean emoji_compatibility = pref_setting.getBoolean("pref_emoji_compatibility", false);
-        if (emoji_compatibility) {
-/*
-            //ユーザー名
-            EmojiCompat.get().registerInitCallback(new EmojiCompat.InitCallback() {
-                @Override
-                public void onInitialized() {
-                    if (user != null) {
-                        user.setText(
-                                compat.process(item.getUser()));
-                    }
-                }
-            });
-*/
-            //本文 ユーザー名
-            EmojiCompat.get().registerInitCallback(new EmojiCompat.InitCallback() {
-                @Override
-                public void onInitialized() {
-                    String titleString = listItem.get(1);
-                    String userString = listItem.get(2);
-
-                    if (title != null) {
-                        if (pref_setting.getBoolean("pref_custom_emoji", false)) {
-                            //カスタム絵文字有効時
-                            if (setting_avater_wifi) {
-                                //WIFIのみ表示有効時
-                                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                                    //WIFI接続中か確認
-                                    //接続中
-                                    try {
-                                        if (titleString != null) {
-                                            title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
-                                        }
-                                        if (userString != null) {
-                                            user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
-                                        }
-                                    } catch (NullPointerException e) {
-                                        if (titleString != null) {
-                                            title.setText((Html.fromHtml(titleString, toot_imageGetter, null)));
-                                        }
-                                        if (userString != null) {
-                                            user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
-                                        }
-                                    }
-                                } else {
-                                    //確認したけどWIFI接続確認できなかった
-                                    if (titleString != null) {
-                                        title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
-                                    }
-                                    if (userString != null) {
-                                        user.setText(Html.fromHtml(userString, Html.FROM_HTML_MODE_COMPACT));
-                                    }
-                                }
-                            } else {
-                                //WIFIのみ表示無効時
-                                //そのまま表示させる
-                                try {
-                                    if (titleString != null) {
-                                        title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
-                                    }
-                                    if (userString != null) {
-                                        user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
-                                    }
-                                } catch (NullPointerException e) {
-                                    if (titleString != null) {
-                                        title.setText((Html.fromHtml(final_toot_text, toot_imageGetter, null)));
-                                    }
-                                    if (userString != null) {
-                                        user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
-                                    }
-                                }
-                            }
-                        } else {
-                            if (titleString != null) {
-                                title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
-                            }
-                            if (userString != null) {
-                                user.setText(Html.fromHtml(userString, Html.FROM_HTML_MODE_COMPACT));
-                            }
-                        }
-                    }
-
-                }
-            });
-            //クライアント
-            EmojiCompat.get().registerInitCallback(new EmojiCompat.InitCallback() {
-                @Override
-                public void onInitialized() {
-                    if (client != null) {
-                        client.setText(
-                                compat.process(listItem.get(3)));
-                    }
-                }
-            });
-
+        //ブースト　それ以外
+        String titleString = null;
+        String userString = null;
+        //ブーストの要素がnullだったらそのまま
+        if (reblogToot && listItem.get(20) != null) {
+            titleString = listItem.get(20);
+            userString = listItem.get(21) + "<br>" + listItem.get(2) + " " + getContext().getString(R.string.reblog);
+            //アイコンつける
+            Drawable drawable = getContext().getDrawable(R.drawable.ic_repeat_black_24dp_2);
+            drawable.setTint(Color.parseColor("#008000"));
+            user.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+            //色つける
+            user.setTextColor(Color.parseColor("#008000"));
         } else {
-            //無効時
-            //user.setText(item.getUser());
+            titleString = listItem.get(1);
+            userString = listItem.get(2);
+        }
 
-            //ブースト　それ以外
-            String titleString = null;
-            String userString = null;
-            //ブーストの要素がnullだったらそのまま
-            if (reblogToot && listItem.get(20) != null) {
-                titleString = listItem.get(20);
-                userString = listItem.get(21) + "<br>" + listItem.get(2) + " " + getContext().getString(R.string.reblog);
-                //アイコンつける
-                Drawable drawable = getContext().getDrawable(R.drawable.ic_repeat_black_24dp_2);
-                drawable.setTint(Color.parseColor("#008000"));
-                user.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-                //色つける
-                user.setTextColor(Color.parseColor("#008000"));
-            } else {
-                titleString = listItem.get(1);
-                userString = listItem.get(2);
-            }
+        /**
+         * 内容を表示する部分
+         * カスタム絵文字もほぼ動くように←これ重要
+         * ちなみに最新の絵文字サポート機能は削りましたいる？
+         *
+         *
+         * https://medium.com/@rajeefmk/android-textview-and-image-loading-from-url-part-1-a7457846abb6
+         *
+         * */
 
-            if (title != null) {
-                if (pref_setting.getBoolean("pref_custom_emoji", false)) {
-                    //カスタム絵文字有効時
-                    if (setting_avater_wifi) {
-                        //WIFIのみ表示有効時
-                        if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                            //WIFI接続中か確認
-                            //接続中
-                            try {
-                                title.setText((Html.fromHtml(titleString, toot_imageGetter, null)));
-                                user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
-                            } catch (NullPointerException e) {
-                                title.setText((Html.fromHtml(titleString, toot_imageGetter, null)));
-                                user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
-                            }
-                        } else {
-                            //確認したけどWIFI接続確認できなかった
-                            title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
-                            user.setText(Html.fromHtml(userString, Html.FROM_HTML_MODE_COMPACT));
+        PicassoImageGetter imageGetter = new PicassoImageGetter(title);
+        Spannable toot_html;
+        Spannable user_html;
+
+        if (title != null) {
+            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                //カスタム絵文字有効時
+                if (setting_avater_wifi) {
+                    //WIFIのみ表示有効時
+                    if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        //WIFI接続中か確認
+                        //接続中
+                        try {
+                            user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
+                            toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
+                            title.setText(toot_html);
+                            user.setText(user_html);
+                        } catch (NullPointerException e) {
+                            user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
+                            toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
+                            title.setText(toot_html);
+                            user.setText(user_html);
                         }
                     } else {
-                        //WIFIのみ表示無効時
-                        //そのまま表示させる
-                        try {
-                            title.setText((Html.fromHtml(titleString, toot_imageGetter, null)));
-                            user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
-                        } catch (NullPointerException e) {
-                            title.setText((Html.fromHtml(titleString, toot_imageGetter, null)));
-                            user.setText((Html.fromHtml(userString, toot_imageGetter, null)));
-                        }
+                        //確認したけどWIFI接続確認できなかった
+                        title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
+                        user.setText(Html.fromHtml(userString, Html.FROM_HTML_MODE_COMPACT));
                     }
                 } else {
-                    title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
-                    user.setText(Html.fromHtml(userString, Html.FROM_HTML_MODE_COMPACT));
+                    //WIFIのみ表示無効時
+                    //そのまま表示させる
+                    try {
+                        user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
+                        toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
+                        title.setText(toot_html);
+                        user.setText(user_html);
+                    } catch (NullPointerException e) {
+                        user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
+                        toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, imageGetter, null);
+                        title.setText(toot_html);
+                        user.setText(user_html);
+                    }
                 }
+            } else {
+                title.setText(Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT));
+                user.setText(Html.fromHtml(userString, Html.FROM_HTML_MODE_COMPACT));
             }
-            //title.setText((Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT)));
-            client.setText(listItem.get(3));
         }
+        //title.setText((Html.fromHtml(titleString, Html.FROM_HTML_MODE_COMPACT)));
+        client.setText(listItem.get(3));
+
 
 
         //URLをCustomTabで開くかどうか

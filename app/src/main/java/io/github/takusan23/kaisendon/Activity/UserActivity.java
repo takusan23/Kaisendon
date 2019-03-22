@@ -12,6 +12,8 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -22,6 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.text.Html;
+import android.text.Spannable;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.Gravity;
@@ -49,14 +52,17 @@ import org.json.JSONObject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import io.github.takusan23.kaisendon.PicassoImageGetter;
 import io.github.takusan23.kaisendon.Preference_ApplicationContext;
 import io.github.takusan23.kaisendon.R;
 import okhttp3.Call;
@@ -80,13 +86,17 @@ public class UserActivity extends AppCompatActivity {
 
     long account_id;
 
-    String display_name = null;
-    String user_account_id = null;
-    String avater_url = null;
-    String header_url = null;
-    String profile = null;
-    String create_at = null;
-    String remote = null;
+    private String display_name = null;
+    private String user_account_id = null;
+    private String avater_url = null;
+    private String header_url = null;
+    private String profile = null;
+    private String create_at = null;
+    private String remote = null;
+
+    //カスタム絵文字表示に使う配列
+    private ArrayList<String> emojis_shortcode = new ArrayList<>();
+    private ArrayList<String> emojis_url = new ArrayList<>();
 
     String custom_emoji_src = null;
 
@@ -262,11 +272,41 @@ public class UserActivity extends AppCompatActivity {
 
                     fieldsJsonArray = jsonObject.getJSONArray("fields");
 
+                    //emojisをパースして配列に入れる
+                    JSONArray emojis = jsonObject.getJSONArray("emojis");
+                    for (int i = 0; i < emojis.length(); i++) {
+                        JSONObject emojiObject = emojis.getJSONObject(i);
+                        emojis_shortcode.add(emojiObject.getString("shortcode"));
+                        emojis_url.add(emojiObject.getString("url"));
+                    }
+
+                    //Wi-Fi接続状況確認
+                    ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+
+                    //カスタム絵文字有効時
+                    if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                        if (pref_setting.getBoolean("pref_avater_wifi", true)) {
+                            //WIFIのみ表示有効時
+                            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                                //WIFI
+                                setCustomEmoji();
+                            }
+                        } else {
+                            //WIFI/MOBILE DATA 関係なく表示
+                            setCustomEmoji();
+                        }
+                    }
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-
-                            setTitle(display_name + " @" + remote);
+                            try {
+                                //display_nameはすでにカスタム絵文字用に置き換えてるので直接
+                                setTitle(jsonObject.getString("display_name") + " @" + remote);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                             user_activity_LinearLayout = findViewById(R.id.user_activity_linearLayout);
                             LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -302,7 +342,10 @@ public class UserActivity extends AppCompatActivity {
                             frameLayout.setLayoutParams(layoutParams);
 
                             //TextView
-                            display_name_TextView.setText(display_name + "\n@" + remote);
+                            //カスタム絵文字サポート
+                            PicassoImageGetter imageGetter = new PicassoImageGetter(display_name_TextView);
+                            display_name_TextView.setText(Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
+                            display_name_TextView.append("\n@" + remote);
                             display_name_TextView.setTextColor(Color.parseColor("#000000"));
                             display_name_TextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                             display_name_TextView.setGravity(Gravity.CENTER);
@@ -762,7 +805,6 @@ public class UserActivity extends AppCompatActivity {
         for (int i = 0; i < fieldsJsonArray.length(); i++) {
             //ぱーす
             try {
-
                 String name = fieldsJsonArray.getJSONObject(i).getString("name");
                 String value = fieldsJsonArray.getJSONObject(i).getString("value");
                 //LinearLayout
@@ -895,6 +937,33 @@ public class UserActivity extends AppCompatActivity {
             timeReturn = time;
         }
         return timeReturn;
+    }
+
+
+    /**
+     * DisplayName等にカスタム絵文字が含まれている場合は
+     * <img src="">を入れる
+     */
+    private void setCustomEmoji() {
+        //DisplayName/note/fieldsにカスタム絵文字が入ってるか回して確認
+        for (int i = 0; i < emojis_shortcode.size(); i++) {
+            String emoji_name = emojis_shortcode.get(i);
+            String emoji_url = emojis_url.get(i);
+            //display_name
+            if (display_name.contains(emojis_shortcode.get(i))) {
+                //あったよ
+                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
+            }
+            //note
+            if (profile.contains(emojis_shortcode.get(i))) {
+                //あったよ
+                System.out.println("あったよ！" + emojis_shortcode.get(i) + " / " + emojis_url.get(i));
+            }
+            //fields
+            //fields Cardのところに書く
+        }
+
     }
 
 }

@@ -299,7 +299,6 @@ public class Public_TimeLine_Fragment extends Fragment {
             countLinearLayout.setLayoutParams(LayoutlayoutParams);
             timelineLinearLayout.addView(countLinearLayout, 0);
             //いろいろ
-
             EditText countEditText = new EditText(getContext());
             Button countButton = new Button(getContext());
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);

@@ -91,7 +91,7 @@ public class CustomMenuSettingFragment extends Fragment {
         ArrayList<String> list = new ArrayList<>();
         Cursor cursor = db.query(
                 "custom_menudb",
-                new String[]{"setting"},
+                new String[]{"name","setting"},
                 null,
                 null,
                 null,
@@ -100,13 +100,8 @@ public class CustomMenuSettingFragment extends Fragment {
         );
         cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); i++) {
-            try {
-                JSONObject jsonObject = new JSONObject(cursor.getString(0));
-                list.add(jsonObject.getString("name"));
-                cursor.moveToNext();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            list.add(cursor.getString(0));
+            cursor.moveToNext();
         }
         cursor.close();
         ArrayAdapter adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, list);

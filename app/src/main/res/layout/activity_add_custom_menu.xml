@@ -285,6 +285,39 @@
                     android:text="@string/custom_menu_streaming" />
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_person_pin_black_24dp"/>
+
+                <Switch
+                    android:id="@+id/custom_menu_quickprofile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/custom_menu_quickprofile"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_plus_one_black_24dp" />
+
+                <Switch
+                    android:id="@+id/custom_menu_tootcounter"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/custom_menu_tootcounter" />
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>

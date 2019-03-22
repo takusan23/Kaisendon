@@ -589,15 +589,19 @@ public class TootSnackberActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onResponse(Call call, Response response) throws IOException {
-                                    toot_snackbar.dismiss();
-                                    //EditTextを空にする
-                                    toot_EditText.setText("");
-                                    tootTextCount = 0;
-                                    //アプリを閉じる
-                                    finishAndRemoveTask();
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            //EditTextを空にする
+                                            toot_EditText.setText("");
+                                            tootTextCount = 0;
+                                            //アプリを閉じる
+                                            finishAndRemoveTask();
+                                            toot_snackbar.dismiss();
+                                        }
+                                    });
                                 }
                             });
-
                         }
                     }).show();
                 }

@@ -3,6 +3,9 @@ package io.github.takusan23.kaisendon.CustomMenu;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -25,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -93,6 +97,8 @@ public class CustomMenuTimeLine extends Fragment {
     private String subtitle;
     private String image_url;
     private String background_transparency;
+    private String quick_profile;
+    private String toot_counter;
 
     private Boolean background_screen_fit;
 
@@ -118,6 +124,11 @@ public class CustomMenuTimeLine extends Fragment {
     private boolean follow_filter = true;
 
     private MastodonClient client;
+
+    //トゥートカウンター
+    private int akeome_count;
+    private String count_text;
+    private TextView countTextView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -154,6 +165,8 @@ public class CustomMenuTimeLine extends Fragment {
         image_url = getArguments().getString("image_url");
         background_transparency = getArguments().getString("background_transparency");
         background_screen_fit = Boolean.valueOf(getArguments().getString("background_screen_fit"));
+        quick_profile = getArguments().getString("quick_profile");
+        toot_counter = getArguments().getString("toot_counter");
 
         //透明度設定は背景画像利用時のみ利用できるようにする
         if (image_url.length() == 0) {
@@ -198,6 +211,12 @@ public class CustomMenuTimeLine extends Fragment {
         } else {
             //名前表示
             loadAccountName();
+        }
+
+        //トゥートカウンター
+        if (Boolean.valueOf(toot_counter)) {
+            setTootCounterLayout();
+            countTextView = new TextView(getContext());
         }
 
         //ストリーミングAPI。本来は無効のときチェックを付けてるけど保存時に反転してるのでおっけ
@@ -562,6 +581,8 @@ public class CustomMenuTimeLine extends Fragment {
                                 //カスタムメニュー用
                                 Item.add(dialog);
                                 Item.add(image_load);
+                                Item.add(quick_profile);
+                                Item.add(toot_counter);
 
                                 ListItem listItem = new ListItem(Item);
 
@@ -886,6 +907,8 @@ public class CustomMenuTimeLine extends Fragment {
                                 //カスタムメニュー用
                                 Item.add(dialog);
                                 Item.add(image_load);
+                                Item.add(quick_profile);
+                                Item.add(toot_counter);
 
 
                                 ListItem listItem = new ListItem(Item);
@@ -917,22 +940,19 @@ public class CustomMenuTimeLine extends Fragment {
                                         }
                                         //ストリーミングAPI前のStatus取得
                                         //loadTimeline(max_id);
-/*
-                            //カウンター
-                            if (count_text != null && pref_setting.getBoolean("pref_toot_count", false)) {
-                                //含んでいるか
-                                if (toot_text.contains(count_text)) {
-                                    String count_template = "　を含んだトゥート数 : ";
-                                    akeome_count++;
-                                    countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
-                                }
-                            }
-*/
 
+                                        //カウンター
+                                        if (Boolean.valueOf(toot_counter)) {
+                                            //含んでいるか
+                                            if (toot_text[0].contains(count_text)) {
+                                                String count_template = "　を含んだトゥート数 : ";
+                                                akeome_count++;
+                                                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                                            }
+                                        }
                                     }
                                 });
                             }
-
                         }
                     }
 
@@ -1597,5 +1617,56 @@ public class CustomMenuTimeLine extends Fragment {
         super.onDestroyView();
         //OLEDとかかかわらず戻す
         getActivity().setTheme(R.style.AppTheme);
+    }
+
+    /**
+     * トゥートカウンターようれいあうと
+     */
+    private void setTootCounterLayout() {
+        //カウンターようレイアウト
+        LinearLayout.LayoutParams LayoutlayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout countLinearLayout = new LinearLayout(getContext());
+        countLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        countLinearLayout.setLayoutParams(LayoutlayoutParams);
+        countTextView = new TextView(getContext());
+        linearLayout.addView(countLinearLayout, 0);
+        //いろいろ
+        EditText countEditText = new EditText(getContext());
+        Button countButton = new Button(getContext());
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.weight = 1;
+        countTextView.setLayoutParams(layoutParams);
+        countEditText.setLayoutParams(layoutParams);
+        countButton.setText(getString(R.string.toot_count_start));
+        countEditText.setHint(getString(R.string.toot_count_hint));
+
+
+        countLinearLayout.addView(countEditText);
+        countLinearLayout.addView(countButton);
+        countLinearLayout.addView(countTextView);
+
+        //テキストを決定
+        countButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                count_text = countEditText.getText().toString();
+                akeome_count = 0;
+                String count_template = "　" + getString(R.string.toot_count_text) + " : ";
+                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                //Toast.makeText(getContext(),count_text,Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //長押しでコピー
+        countEditText.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                assert clipboardManager != null;
+                clipboardManager.setPrimaryClip(ClipData.newPlainText("", String.valueOf(akeome_count)));
+                Toast.makeText(getContext(), R.string.copy, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
     }
 }

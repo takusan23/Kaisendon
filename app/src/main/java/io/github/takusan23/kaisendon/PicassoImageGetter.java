@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.text.Html;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 

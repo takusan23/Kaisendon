@@ -487,5 +487,6 @@
     <string name="custom_menu_quickprofile">Enable Quick Profile</string>
     <string name="custom_menu_tootcounter">Enable toot counter</string>
     <string name="custom_menu_custom_emoji">Enable custom emojis</string>
+    <string name="custom_menu_gif_load">Play GIF animation (It may consume CPU load and battery heavily)</string>
 
 </resources>

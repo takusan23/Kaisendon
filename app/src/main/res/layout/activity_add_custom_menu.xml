@@ -336,6 +336,23 @@
                     android:text="@string/setting_custom_emoji" />
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_photo_filter_black_24dp" />
+
+                <Switch
+                    android:id="@+id/custom_menu_gif"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/custom_menu_gif_load" />
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 

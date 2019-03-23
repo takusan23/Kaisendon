@@ -269,7 +269,7 @@ public class Notification_Fragment extends Fragment {
                             }
 
                             //カスタム絵文字
-                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                            if (pref_setting.getBoolean("pref_custom_emoji", true)) {
 
                                 try {
                                     //本文
@@ -551,7 +551,7 @@ public class Notification_Fragment extends Fragment {
                                 }
 
                                 //絵文字
-                                if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                     JSONArray emoji = toot_text_status.getJSONArray("emojis");
                                     for (int e = 0; e < emoji.length(); e++) {
                                         JSONObject jsonObject = emoji.getJSONObject(e);
@@ -802,7 +802,7 @@ public class Notification_Fragment extends Fragment {
                             }
 
                             //カスタム絵文字
-                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                            if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                 try {
                                     //本文
                                     List<Emoji> emoji_List = status.getStatus().getEmojis();
@@ -1048,7 +1048,7 @@ public class Notification_Fragment extends Fragment {
 
 
                                     //カスタム絵文字
-                                    if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                    if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                         try {
                                             List<Emoji> emoji_List = status.getStatus().getEmojis();
                                             emoji_List.forEach(emoji -> {
@@ -1380,7 +1380,7 @@ public class Notification_Fragment extends Fragment {
                                                 }
 
                                                 //絵文字
-                                                if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                                if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                                     JSONArray emoji = toot_text_status.getJSONArray("emojis");
                                                     for (int e = 0; e < emoji.length(); e++) {
                                                         JSONObject jsonObject = emoji.getJSONObject(e);

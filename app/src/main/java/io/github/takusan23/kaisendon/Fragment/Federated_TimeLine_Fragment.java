@@ -682,7 +682,7 @@ public class Federated_TimeLine_Fragment extends Fragment {
                             }
 
                             //絵文字
-                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                            if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                 JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
                                 for (int e = 0; e < emoji.length(); e++) {
                                     JSONObject jsonObject = emoji.getJSONObject(e);
@@ -895,7 +895,7 @@ public class Federated_TimeLine_Fragment extends Fragment {
 
 
                             //絵文字
-                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                            if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                 JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
                                 for (int e = 0; e < emoji.length(); e++) {
                                     JSONObject jsonObject = emoji.getJSONObject(e);
@@ -1145,7 +1145,7 @@ public class Federated_TimeLine_Fragment extends Fragment {
 
 
                                     //絵文字
-                                    if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                    if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                         JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
                                         for (int e = 0; e < emoji.length(); e++) {
                                             JSONObject jsonObject = emoji.getJSONObject(e);
@@ -1465,7 +1465,7 @@ public class Federated_TimeLine_Fragment extends Fragment {
 
 
                                             //絵文字
-                                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                            if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                                 JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
                                                 for (int e = 0; e < emoji.length(); e++) {
                                                     JSONObject jsonObject = emoji.getJSONObject(e);

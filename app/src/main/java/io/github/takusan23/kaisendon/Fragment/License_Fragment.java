@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -106,23 +107,38 @@ public class License_Fragment extends Fragment {
                 "See the License for the specific language governing permissions and\n" +
                 "limitations under the License.";
 
-        ArrayList<String> license_list = new ArrayList<>();
+        String java_websocket = "Copyright [2015] [Jacek Marchwicki <jacek.marchwicki@gmail.com>]\n" +
+                "\n" +
+                "Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
+                "you may not use this file except in compliance with the License.\n" +
+                "You may obtain a copy of the License at\n" +
+                "\n" +
+                "\thttp://www.apache.org/licenses/LICENSE-2.0\n" +
+                "    \n" +
+                "\n" +
+                "Unless required by applicable law or agreed to in writing, software\n" +
+                "distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+                "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+                "See the License for the specific language governing permissions and\n" +
+                "limitations under the License.";
 
-        ListView listView = view.findViewById(R.id.license_listview);
 
         getActivity().setTitle(getString(R.string.license));
+        TextView textView = view.findViewById(R.id.license_textview);
 
 
         //追加
-        license_list.add("square/okhttp\r\nhttps://github.com/square/okhttp\r\n\r\n" + apach);
-        license_list.add("sys1yagi/mastodon4j\r\nhttps://github.com/sys1yagi/mastodon4j\r\n\r\n" + mit);
-        license_list.add("square/picasso\r\nhttps://github.com/square/picasso\r\n\r\n" + "Copyright 2013 Square, Inc.\r\n\r\n" + apach);
-        license_list.add("bumptech/glide\r\nhttps://github.com/square/okhttp\r\n\r\n" + glide);
-        license_list.add("saschpe/android-customtabs\r\nhttps://github.com/saschpe/android-customtabs\r\n\r\n" + customtab);
-
-
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, license_list);
-        listView.setAdapter(arrayAdapter);
+        textView.append("square/okhttp\r\nhttps://github.com/square/okhttp\r\n\r\n" + apach);
+        textView.append("\n\n----------\n\n");
+        textView.append("sys1yagi/mastodon4j\r\nhttps://github.com/sys1yagi/mastodon4j\r\n\r\n" + mit);
+        textView.append("\n\n----------\n\n");
+        textView.append("square/picasso\r\nhttps://github.com/square/picasso\r\n\r\n" + "Copyright 2013 Square, Inc.\r\n\r\n" + apach);
+        textView.append("\n\n----------\n\n");
+        textView.append("bumptech/glide\r\nhttps://github.com/bumptech/glide\n\n" + glide);
+        textView.append("\n\n----------\n\n");
+        textView.append("saschpe/android-customtabs\nhttps://github.com/saschpe/android-customtabs\n\n" + customtab);
+        textView.append("\n\n----------\n\n");
+        textView.append("jacek-marchwicki/JavaWebsocketClient\nhttps://github.com/jacek-marchwicki/JavaWebsocketClient\n\n" + java_websocket);
 
     }
 }

@@ -294,7 +294,7 @@ public class UserActivity extends AppCompatActivity {
                     NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
 
                     //カスタム絵文字有効時
-                    if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                    if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                         if (pref_setting.getBoolean("pref_avater_wifi", true)) {
                             //WIFIのみ表示有効時
                             if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {

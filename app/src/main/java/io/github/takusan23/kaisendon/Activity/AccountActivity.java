@@ -315,7 +315,7 @@ public class AccountActivity extends AppCompatActivity {
                         displayname_textview.setText(display_name);
                         displayname_textview.setTextSize(20);
                         id_textview.setText("@" + user_account_id + "@" + finalInstance + "\r\n" + create_at);
-                        if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                        if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                             try {
                                 profile_textview.setText((Html.fromHtml(profile, toot_imageGetter, null)));
                             } catch (NullPointerException e) {

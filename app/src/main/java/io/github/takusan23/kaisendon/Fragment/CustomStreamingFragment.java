@@ -390,7 +390,7 @@ public class CustomStreamingFragment extends Fragment {
                                                     }
 
                                                     //カスタム絵文字
-                                                    if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                                    if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                                         List<Emoji> emoji_List = status.getEmojis();
                                                         emoji_List.forEach(emoji -> {
                                                             String emoji_name = emoji.getShortcode();
@@ -625,7 +625,7 @@ public class CustomStreamingFragment extends Fragment {
 
 
                                                         //カスタム絵文字
-                                                        if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                                        if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                                             List<Emoji> emoji_List = status.getEmojis();
                                                             emoji_List.forEach(emoji -> {
                                                                 String emoji_name = emoji.getShortcode();
@@ -870,7 +870,7 @@ public class CustomStreamingFragment extends Fragment {
                                                         }
 
                                                         //カスタム絵文字
-                                                        if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                                        if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                                             List<Emoji> emoji_List = notification.getStatus().getEmojis();
                                                             emoji_List.forEach(emoji -> {
                                                                 String emoji_name = emoji.getShortcode();

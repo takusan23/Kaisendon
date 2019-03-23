@@ -51,12 +51,16 @@ import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Statuses;
 import com.sys1yagi.mastodon4j.api.method.Streaming;
 
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -100,6 +104,7 @@ public class CustomMenuTimeLine extends Fragment {
     private String quick_profile;
     private String toot_counter;
     private String custom_emoji;
+    private String gif;
 
     private Boolean background_screen_fit;
 
@@ -130,6 +135,10 @@ public class CustomMenuTimeLine extends Fragment {
     private int akeome_count;
     private String count_text;
     private TextView countTextView;
+
+    //WebSocket
+    private WebSocketClient webSocketClient;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -169,20 +178,20 @@ public class CustomMenuTimeLine extends Fragment {
         quick_profile = getArguments().getString("quick_profile");
         toot_counter = getArguments().getString("toot_counter");
         custom_emoji = getArguments().getString("custom_emoji");
+        gif = getArguments().getString("gif");
 
         //透明度設定は背景画像利用時のみ利用できるようにする
         if (image_url.length() == 0) {
             background_transparency = "";
         }
-        System.out.println("値：" + image_url);
 
         //OLEDは背景を黒にする
         if (Boolean.valueOf(getArguments().getString("dark_mode"))) {
-            listView.setBackgroundColor(Color.parseColor("#" + background_transparency + "000000"));
+            linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "000000"));
             ((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#000000"));
         } else {
             //黒にしなくていい
-            listView.setBackgroundColor(Color.parseColor("#" + background_transparency + "ffffff"));
+            linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "ffffff"));
             //てーま
             ((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#2196f3"));
         }
@@ -218,7 +227,6 @@ public class CustomMenuTimeLine extends Fragment {
         //トゥートカウンター
         if (Boolean.valueOf(toot_counter)) {
             setTootCounterLayout();
-            countTextView = new TextView(getContext());
         }
 
         //ストリーミングAPI。本来は無効のときチェックを付けてるけど保存時に反転してるのでおっけ
@@ -226,7 +234,7 @@ public class CustomMenuTimeLine extends Fragment {
         SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
         if (Boolean.valueOf(streaming)) {
             //有効
-            //スワイプ無効
+            //引っ張って更新無効
             swipeRefreshLayout.setEnabled(false);
             //通知以外
             if (!url.contains("/api/v1/notifications")) {
@@ -242,7 +250,7 @@ public class CustomMenuTimeLine extends Fragment {
             }
         } else {
             //無効
-            //スワイプ有効
+            //引っ張って更新有効
             swipeRefreshLayout.setEnabled(true);
             //通知以外
             if (!url.contains("/api/v1/notifications")) {
@@ -278,6 +286,9 @@ public class CustomMenuTimeLine extends Fragment {
             @Override
             public void onRefresh() {
                 adapter.clear();
+                //トゥートカウンター
+                countTextView.setText("");
+                akeome_count = 0;
                 SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
                 //通知以外
                 if (!url.contains("/api/v1/notifications")) {
@@ -482,20 +493,10 @@ public class CustomMenuTimeLine extends Fragment {
                             }
 
                             //絵文字
-                            if (pref_setting.getBoolean("pref_custom_emoji", false) || Boolean.valueOf(custom_emoji)) {
+                            if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
                                 JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
                                 for (int e = 0; e < emoji.length(); e++) {
                                     JSONObject jsonObject = emoji.getJSONObject(e);
-                                    String emoji_name = jsonObject.getString("shortcode");
-                                    String emoji_url = jsonObject.getString("url");
-                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
-                                }
-
-                                //アバター絵文字
-                                JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
-                                for (int a = 0; a < avater_emoji.length(); a++) {
-                                    JSONObject jsonObject = avater_emoji.getJSONObject(a);
                                     String emoji_name = jsonObject.getString("shortcode");
                                     String emoji_url = jsonObject.getString("url");
                                     String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
@@ -512,14 +513,28 @@ public class CustomMenuTimeLine extends Fragment {
                                     user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                 }
 
-                                //ユーザーネームの方のアバター絵文字
-                                JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
-                                for (int a = 0; a < account_avater_emoji.length(); a++) {
-                                    JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
-                                    String emoji_name = jsonObject.getString("shortcode");
-                                    String emoji_url = jsonObject.getString("url");
-                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                //Pawooで取れない？
+                                if (!toot_jsonObject.isNull("profile_emojis")) {
+                                    //アバター絵文字
+                                    JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
+                                    for (int a = 0; a < avater_emoji.length(); a++) {
+                                        JSONObject jsonObject = avater_emoji.getJSONObject(a);
+                                        String emoji_name = jsonObject.getString("shortcode");
+                                        String emoji_url = jsonObject.getString("url");
+                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                        toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                                    }
+
+
+                                    //ユーザーネームの方のアバター絵文字
+                                    JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
+                                    for (int a = 0; a < account_avater_emoji.length(); a++) {
+                                        JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
+                                        String emoji_name = jsonObject.getString("shortcode");
+                                        String emoji_url = jsonObject.getString("url");
+                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                        user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                    }
                                 }
                             }
 
@@ -585,6 +600,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 Item.add(image_load);
                                 Item.add(quick_profile);
                                 Item.add(custom_emoji);
+                                Item.add(gif);
 
                                 ListItem listItem = new ListItem(Item);
 
@@ -691,6 +707,124 @@ public class CustomMenuTimeLine extends Fragment {
      * ストリーミングAPI
      */
     private void useStreamingAPI(boolean notification_mode) {
+        //接続先設定
+        String link = "";
+        //通知
+        boolean notification = false;
+        //DM
+        boolean direct = false;
+        switch (getArguments().getString("content")) {
+            case "/api/v1/timelines/home":
+                link = "wss://" + instance + "/api/v1/streaming/?stream=user&access_token=" + access_token;
+                break;
+            case "/api/v1/notifications":
+                notification = true;
+                link = "wss://" + instance + "/api/v1/streaming/?stream=user:notification&access_token=" + access_token;
+                break;
+            case "/api/v1/timelines/public?local=true":
+                link = "wss://" + instance + "/api/v1/streaming/?stream=public:local&access_token=" + access_token;
+                break;
+            case "/api/v1/timelines/public":
+                link = "wss://" + instance + "/api/v1/streaming/?stream=public&access_token=" + access_token;
+                break;
+            case "/api/v1/timelines/direct":
+                direct = true;
+                link = "wss://" + instance + "/api/v1/streaming/?stream=direct&access_token=" + access_token;
+                break;
+        }
+        if ("sdk".equals(Build.PRODUCT)) {
+            // エミュレータの場合はIPv6を無効    ----1
+            java.lang.System.setProperty("java.net.preferIPv6Addresses", "false");
+            java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
+        }
+        try {
+            URI uri = new URI(link);
+
+            //WebSocket
+            boolean finalNotification = notification;
+            boolean finalDirect = direct;
+            webSocketClient = new WebSocketClient(uri) {
+                @Override
+                public void onOpen(ServerHandshake handshakedata) {
+                    System.out.println("おーぷん");
+                }
+
+                @Override
+                public void onMessage(String message) {
+                    //JSONParse
+                    try {
+                        if (!finalNotification && !finalDirect) {
+                            JSONObject jsonObject = new JSONObject(message);
+                            //一回文字列として取得してから再度JSONObjectにする
+                            String payload = jsonObject.getString("payload");
+                            JSONObject toot_jsonObject = new JSONObject(payload);
+                            //これでストリーミング有効・無効でもJSONパースになるので楽になる（？）
+                            timelineJSONParse(toot_jsonObject, true);
+                        } else if (finalNotification) {
+                            JSONObject jsonObject = new JSONObject(message);
+                            String payload = jsonObject.getString("payload");
+                            JSONObject toot_text_jsonObject = new JSONObject(payload);
+                            JSONObject toot_text_account = toot_text_jsonObject.getJSONObject("account");
+                            //Type!!!!!!!!
+                            String type = toot_text_jsonObject.getString("type");
+                            //振り分け
+                            if (fav_filter) {
+                                if (type.contains("favourite")) {
+                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type, true);
+                                }
+                            }
+                            if (bt_filter) {
+                                if (type.contains("reblog")) {
+                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type, true);
+                                }
+                            }
+                            if (mention_filter) {
+                                if (type.contains("mention")) {
+                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type, true);
+                                }
+                            }
+                            if (follow_filter) {
+                                if (type.contains("follow")) {
+                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type, true);
+                                }
+                            }
+                        } else if (finalDirect) {
+                            //DM
+                            JSONObject jsonObject = new JSONObject(message);
+                            String payload = jsonObject.getString("payload");
+                            JSONObject toot_text_jsonObject = new JSONObject(payload);
+                            streamingAPIDirect(toot_text_jsonObject);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onClose(int code, String reason, boolean remote) {
+                    //失敗時
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), getString(R.string.error) + "\n" + reason, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(Exception ex) {
+
+                }
+            };
+            //接続
+            webSocketClient.connect();
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+
+/*
         client = new MastodonClient.Builder(instance, new OkHttpClient.Builder(), new Gson())
                 .accessToken(access_token)
                 .useStreamingApi()
@@ -830,7 +964,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 account_emoji_List.forEach(emoji -> {
                                     String emoji_name = emoji.getShortcode();
                                     String emoji_url = emoji.getUrl();
-                                    System.out.println("絵文字:" + emoji_name);
+                                    //System.out.println("絵文字:" + emoji_name);
                                     String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
                                     user_name[0] = user_name[0].replace(":" + emoji_name + ":", custom_emoji_src);
                                 });
@@ -1018,6 +1152,7 @@ public class CustomMenuTimeLine extends Fragment {
                 return null;
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+*/
     }
 
     /**
@@ -1070,22 +1205,22 @@ public class CustomMenuTimeLine extends Fragment {
                             //振り分け
                             if (fav_filter) {
                                 if (type.contains("favourite")) {
-                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type);
+                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type, false);
                                 }
                             }
                             if (bt_filter) {
                                 if (type.contains("reblog")) {
-                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type);
+                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type, false);
                                 }
                             }
                             if (mention_filter) {
                                 if (type.contains("mention")) {
-                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type);
+                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type, false);
                                 }
                             }
                             if (follow_filter) {
                                 if (type.contains("follow")) {
-                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type);
+                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type, false);
                                 }
                             }
                         }
@@ -1129,6 +1264,12 @@ public class CustomMenuTimeLine extends Fragment {
                 getContext().getDrawable(R.drawable.ic_announcement_black_24dp),
                 getContext().getDrawable(R.drawable.ic_person_add_black_24dp)};
         String tag[] = {"fav_filter", "bt_filter", "mention_filter", "follow_filter"};
+        //背景
+        String background = "ffffff";
+        if (Boolean.valueOf(dark_mode)) {
+            background = "000000";
+        }
+
         for (int i = 0; i < 4; i++) {
             Switch sw = new Switch(getContext());
             sw.setCompoundDrawablesWithIntrinsicBounds(icon[i], null, null, null);
@@ -1195,13 +1336,296 @@ public class CustomMenuTimeLine extends Fragment {
                     break;
             }
         }
-
     }
 
     /**
-     * 通知のJSONParse
+     * ホーム、ローカル、連合のJSONParse
+     *
+     * @param streaming ストリーミングAPIのときはtrueにしてね（一番上に追加するため）
      */
-    private void notificationJSONPase(JSONObject toot_text_account, JSONObject toot_text_jsonObject, String type) {
+    private void timelineJSONParse(JSONObject toot_jsonObject, boolean streaming) {
+        JSONObject toot_account = null;
+        try {
+            toot_account = toot_jsonObject.getJSONObject("account");
+            String toot_text = toot_jsonObject.getString("content");
+            String user = toot_account.getString("acct");
+            String user_name = toot_account.getString("display_name");
+            String toot_id_string = toot_jsonObject.getString("id");
+            String user_avater_url = toot_account.getString("avatar");
+            int account_id = toot_account.getInt("id");
+            String toot_time = "";
+            //ブースト　ふぁぼ
+            String isBoost = "no";
+            String isFav = "no";
+            String boostCount = "0";
+            String favCount = "0";
+            //画像各位
+            String media_url_1 = null;
+            String media_url_2 = null;
+            String media_url_3 = null;
+            String media_url_4 = null;
+            //クライアント
+            String user_use_client = "";
+            //頑張ってApplication取ろう
+            if (!toot_jsonObject.isNull("application")) {
+                JSONObject application = toot_jsonObject.getJSONObject("application");
+                user_use_client = application.getString("name");
+            }
+
+            //ブーストかも
+            //ブーストあったよ
+            String boost_content = null;
+            String boost_user_name = null;
+            String boost_user = null;
+            String boost_avater_url = null;
+            long boost_account_id = 0;
+
+            if (!toot_jsonObject.isNull("reblog")) {
+                JSONObject reblogJsonObject = toot_jsonObject.getJSONObject("reblog");
+                JSONObject reblogAccountJsonObject = reblogJsonObject.getJSONObject("account");
+                boost_content = reblogJsonObject.getString("content");
+                boost_user_name = reblogAccountJsonObject.getString("display_name");
+                boost_user = reblogAccountJsonObject.getString("username");
+                boost_avater_url = reblogAccountJsonObject.getString("avatar");
+                boost_account_id = reblogAccountJsonObject.getLong("id");
+                if (reblogJsonObject.getBoolean("reblogged")) {
+                    isBoost = "reblogged";
+                }
+                if (reblogJsonObject.getBoolean("favourited")) {
+                    isFav = "favourited";
+                }
+                //かうんと
+                boostCount = String.valueOf(reblogJsonObject.getInt("reblogs_count"));
+                favCount = String.valueOf(reblogJsonObject.getInt("favourites_count"));
+            } else {
+                //Streaming APIだとこれら取れないっぽい
+                if (!streaming) {
+                    if (toot_jsonObject.getBoolean("reblogged")) {
+                        isBoost = "reblogged";
+                    }
+                    if (toot_jsonObject.getBoolean("favourited")) {
+                        isFav = "favourited";
+                    }
+                    //かうんと
+                    boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+                    favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
+                }
+            }
+
+
+            //かうんと
+            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
+            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
+
+
+            boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
+            if (japan_timeSetting) {
+                //時差計算？
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+                //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+                //日本用フォーマット
+                SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+                try {
+                    Date date = simpleDateFormat.parse(toot_jsonObject.getString("created_at"));
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(date);
+                    //9時間足して日本時間へ
+                    calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                    //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                    toot_time = japanDateFormat.format(calendar.getTime());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                toot_time = toot_jsonObject.getString("created_at");
+            }
+
+            JSONArray media_array = toot_jsonObject.getJSONArray("media_attachments");
+            if (!media_array.isNull(0)) {
+                media_url_1 = media_array.getJSONObject(0).getString("url");
+            }
+            if (!media_array.isNull(1)) {
+                media_url_2 = media_array.getJSONObject(1).getString("url");
+            }
+            if (!media_array.isNull(2)) {
+                media_url_3 = media_array.getJSONObject(2).getString("url");
+            }
+            if (!media_array.isNull(3)) {
+                media_url_4 = media_array.getJSONObject(3).getString("url");
+            }
+
+            //絵文字
+            if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
+                JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
+                for (int e = 0; e < emoji.length(); e++) {
+                    JSONObject jsonObject = emoji.getJSONObject(e);
+                    String emoji_name = jsonObject.getString("shortcode");
+                    String emoji_url = jsonObject.getString("url");
+                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                    toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                }
+
+                //ユーザーネームの方の絵文字
+                JSONArray account_emoji = toot_account.getJSONArray("emojis");
+                for (int e = 0; e < account_emoji.length(); e++) {
+                    JSONObject jsonObject = account_emoji.getJSONObject(e);
+                    String emoji_name = jsonObject.getString("shortcode");
+                    String emoji_url = jsonObject.getString("url");
+                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                }
+
+                //Pawooだとprofile_emojisない
+                if (!toot_jsonObject.isNull("profile_emojis")) {
+                    //アバター絵文字
+                    JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
+                    for (int a = 0; a < avater_emoji.length(); a++) {
+                        JSONObject jsonObject = avater_emoji.getJSONObject(a);
+                        String emoji_name = jsonObject.getString("shortcode");
+                        String emoji_url = jsonObject.getString("url");
+                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                        toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                    }
+
+                    //ユーザーネームの方のアバター絵文字
+                    JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
+                    for (int a = 0; a < account_avater_emoji.length(); a++) {
+                        JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
+                        String emoji_name = jsonObject.getString("shortcode");
+                        String emoji_url = jsonObject.getString("url");
+                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                        user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                    }
+                }
+            }
+
+            //カード情報
+            String cardTitle = null;
+            String cardURL = null;
+            String cardDescription = null;
+            String cardImage = null;
+
+            if (!toot_jsonObject.isNull("card")) {
+                JSONObject cardObject = toot_jsonObject.getJSONObject("card");
+                cardURL = cardObject.getString("url");
+                cardTitle = cardObject.getString("title");
+                cardDescription = cardObject.getString("description");
+                cardImage = cardObject.getString("image");
+            }
+
+            if (getActivity() != null && isAdded()) {
+
+                //配列を作成
+                ArrayList<String> Item = new ArrayList<>();
+                //メモとか通知とかに
+                Item.add("CustomMenu");
+                //内容
+                Item.add(toot_text);
+                //ユーザー名
+                Item.add(user_name + " @" + user);
+                //時間、クライアント名等
+                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                //Toot ID 文字列版
+                Item.add(toot_id_string);
+                //アバターURL
+                Item.add(user_avater_url);
+                //アカウントID
+                Item.add(String.valueOf(account_id));
+                //ユーザーネーム
+                Item.add(user);
+                //メディア
+                Item.add(media_url_1);
+                Item.add(media_url_2);
+                Item.add(media_url_3);
+                Item.add(media_url_4);
+                //カード
+                Item.add(cardTitle);
+                Item.add(cardURL);
+                Item.add(cardDescription);
+                Item.add(cardImage);
+                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                Item.add(isBoost);
+                Item.add(isFav);
+                Item.add(boostCount);
+                Item.add(favCount);
+                //Reblog ブースト用
+                Item.add(boost_content);
+                Item.add(boost_user_name + " @" + boost_user);
+                Item.add(boost_avater_url);
+                Item.add(String.valueOf(boost_account_id));
+                //警告テキスト
+                //TODO 警告文実装する
+                Item.add("");
+                //カスタムメニュー用
+                Item.add(dialog);
+                Item.add(image_load);
+                Item.add(quick_profile);
+                Item.add(custom_emoji);
+                Item.add(gif);
+
+                ListItem listItem = new ListItem(Item);
+
+                String finalToot_text = toot_text;
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (streaming) {
+                            adapter.insert(listItem, 0);
+                            // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
+                            int pos = listView.getFirstVisiblePosition();
+                            int top = 0;
+                            if (listView.getChildCount() > 0) {
+                                top = listView.getChildAt(0).getTop();
+                            }
+                            listView.setAdapter(adapter);
+                            // 要素追加前の状態になるようセットする
+                            adapter.notifyDataSetChanged();
+                            //一番上なら追いかける
+                            if (pos == 0) {
+                                listView.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listView.smoothScrollToPosition(0);
+                                    }
+                                });
+                            } else {
+                                listView.setSelectionFromTop(pos + 1, top);
+                            }
+                        } else {
+                            adapter.add(listItem);
+                            adapter.notifyDataSetChanged();
+                            listView.setAdapter(adapter);
+                            //くるくる終了
+                            SnackberProgress.closeProgressSnackber();
+                            listView.setSelectionFromTop(position, y);
+                            scroll = false;
+                        }
+                        //カウンター
+                        if (Boolean.valueOf(toot_counter)) {
+                            if (count_text != null) {
+                                //含んでいるか
+                                if (finalToot_text.contains(count_text)) {
+                                    String count_template = " : ";
+                                    akeome_count++;
+                                    countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * 通知のJSONParse
+     *
+     * @param streaming ストリーミングAPIの場合はtrue
+     */
+    private void notificationJSONPase(JSONObject toot_text_account, JSONObject toot_text_jsonObject, String type, boolean streaming) throws JSONException {
         try {
             String user_id = toot_text_account.getString("username");
 
@@ -1251,7 +1675,7 @@ public class CustomMenuTimeLine extends Fragment {
                 }
 
                 //絵文字
-                if (pref_setting.getBoolean("pref_custom_emoji", false)|| Boolean.valueOf(custom_emoji)) {
+                if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
                     JSONArray emoji = toot_text_status.getJSONArray("emojis");
                     for (int e = 0; e < emoji.length(); e++) {
                         JSONObject jsonObject = emoji.getJSONObject(e);
@@ -1261,8 +1685,19 @@ public class CustomMenuTimeLine extends Fragment {
                         toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
                     }
 
+                    //ユーザーネームの方の絵文字
+                    JSONArray account_emoji = toot_text_account.getJSONArray("emojis");
+                    for (int e = 0; e < account_emoji.length(); e++) {
+                        JSONObject jsonObject = account_emoji.getJSONObject(e);
+                        String emoji_name = jsonObject.getString("shortcode");
+                        String emoji_url = jsonObject.getString("url");
+                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                        user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                    }
+
                     //アバター絵文字
-                    try {
+                    //
+                    if (!toot_text_jsonObject.isNull("profile_emojis")) {
                         JSONArray avater_emoji = toot_text_jsonObject.getJSONArray("profile_emojis");
                         for (int a = 0; a < avater_emoji.length(); a++) {
                             JSONObject jsonObject = avater_emoji.getJSONObject(a);
@@ -1282,18 +1717,6 @@ public class CustomMenuTimeLine extends Fragment {
                             String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
                             user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                         }
-                    } catch (JSONException e) {
-
-                    }
-
-                    //ユーザーネームの方の絵文字
-                    JSONArray account_emoji = toot_text_account.getJSONArray("emojis");
-                    for (int e = 0; e < account_emoji.length(); e++) {
-                        JSONObject jsonObject = account_emoji.getJSONObject(e);
-                        String emoji_name = jsonObject.getString("shortcode");
-                        String emoji_url = jsonObject.getString("url");
-                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                        user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                     }
                 }
 
@@ -1387,12 +1810,37 @@ public class CustomMenuTimeLine extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        adapter.add(listItem);
-                        adapter.notifyDataSetChanged();
-                        listView.setAdapter(adapter);
-                        SnackberProgress.closeProgressSnackber();
-                        listView.setSelectionFromTop(position, y);
-                        scroll = false;
+                        if (streaming) {
+                            adapter.insert(listItem, 0);
+                            // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
+                            int pos = listView.getFirstVisiblePosition();
+                            int top = 0;
+                            if (listView.getChildCount() > 0) {
+                                top = listView.getChildAt(0).getTop();
+                            }
+                            listView.setAdapter(adapter);
+                            // 要素追加前の状態になるようセットする
+                            adapter.notifyDataSetChanged();
+                            //一番上なら追いかける
+                            if (pos == 0) {
+                                listView.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listView.smoothScrollToPosition(0);
+                                    }
+                                });
+                            } else {
+                                listView.setSelectionFromTop(pos + 1, top);
+                            }
+                        } else {
+                            adapter.add(listItem);
+                            adapter.notifyDataSetChanged();
+                            listView.setAdapter(adapter);
+                            SnackberProgress.closeProgressSnackber();
+                            listView.setSelectionFromTop(position, y);
+                            scroll = false;
+                        }
+
                     }
                 });
             }
@@ -1400,6 +1848,262 @@ public class CustomMenuTimeLine extends Fragment {
             e.printStackTrace();
         }
     }
+
+    /**
+     * ダイレクトメッセージ（ストリーミングAPI）
+     */
+    private void streamingAPIDirect(JSONObject jsonObject) {
+        //絵文字の配列
+        ArrayList<String> emoji_shortcode = new ArrayList<>();
+        ArrayList<String> emoji_url = new ArrayList<>();
+        try {
+            //配列
+            JSONArray jsonArray = jsonObject.getJSONArray("accounts");
+            JSONObject toot_JsonObject = jsonObject.getJSONObject("last_status");
+            JSONObject account_JsonObject = toot_JsonObject.getJSONObject("account");
+            JSONArray media_JsonArray = toot_JsonObject.getJSONArray("media_attachments");
+            //emojis
+            JSONArray emojis = toot_JsonObject.getJSONArray("emojis");
+            JSONArray profile_emojis = toot_JsonObject.getJSONArray("profile_emojis");
+            //Account
+            JSONArray account_emojis = account_JsonObject.getJSONArray("emojis");
+            JSONArray account_profile_emojis = account_JsonObject.getJSONArray("profile_emojis");
+            //last_status
+            JSONArray laststatus_emojis = jsonArray.getJSONObject(0).getJSONArray("emojis");
+            JSONArray laststatus_profile_emojis = jsonArray.getJSONObject(0).getJSONArray("profile_emojis");
+
+            String user = account_JsonObject.getString("acct");
+            String user_name = account_JsonObject.getString("display_name");
+            String toot_id_string = account_JsonObject.getString("id");
+            String user_avater_url = account_JsonObject.getString("avatar");
+            int account_id = account_JsonObject.getInt("id");
+
+            String toot_text = toot_JsonObject.getString("content");
+
+            String toot_time = "";
+            //ブースト　ふぁぼ
+            String isBoost = "no";
+            String isFav = "no";
+            String boostCount = "0";
+            String favCount = "0";
+            //画像各位
+            String media_url_1 = null;
+            String media_url_2 = null;
+            String media_url_3 = null;
+            String media_url_4 = null;
+            //クライアント
+            String user_use_client = "";
+            //頑張ってApplication取ろう
+            if (!toot_JsonObject.isNull("application")) {
+                JSONObject application = toot_JsonObject.getJSONObject("application");
+                user_use_client = application.getString("name");
+            }
+
+            //ブーストかも
+            //ブーストあったよ
+            String boost_content = null;
+            String boost_user_name = null;
+            String boost_user = null;
+            String boost_avater_url = null;
+            long boost_account_id = 0;
+
+            //かうんと
+            favCount = String.valueOf(toot_JsonObject.getInt("favourites_count"));
+
+            boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
+            if (japan_timeSetting) {
+                //時差計算？
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+                //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+                //日本用フォーマット
+                SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+                try {
+                    Date date = simpleDateFormat.parse(toot_JsonObject.getString("created_at"));
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(date);
+                    //9時間足して日本時間へ
+                    calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                    //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                    toot_time = japanDateFormat.format(calendar.getTime());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                toot_time = toot_JsonObject.getString("created_at");
+            }
+
+            if (!media_JsonArray.isNull(0)) {
+                media_url_1 = media_JsonArray.getJSONObject(0).getString("url");
+            }
+            if (!media_JsonArray.isNull(1)) {
+                media_url_2 = media_JsonArray.getJSONObject(1).getString("url");
+            }
+            if (!media_JsonArray.isNull(2)) {
+                media_url_3 = media_JsonArray.getJSONObject(2).getString("url");
+            }
+            if (!media_JsonArray.isNull(3)) {
+                media_url_4 = media_JsonArray.getJSONObject(3).getString("url");
+            }
+
+
+            //絵文字
+            if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
+                //絵文字のデータが色んな所（emojis,accountsのemoji,laststatusのemoji）を一旦配列に入れる
+                for (int e = 0; e < emojis.length(); e++) {
+                    JSONObject emoji_jsonObject = emojis.getJSONObject(e);
+                    emoji_shortcode.add(emoji_jsonObject.getString("shortcode"));
+                    emoji_url.add(emoji_jsonObject.getString("url"));
+                }
+                for (int e = 0; e < profile_emojis.length(); e++) {
+                    JSONObject emoji_jsonObject = profile_emojis.getJSONObject(e);
+                    emoji_shortcode.add(emoji_jsonObject.getString("shortcode"));
+                    emoji_url.add(emoji_jsonObject.getString("url"));
+                }
+                for (int e = 0; e < account_emojis.length(); e++) {
+                    JSONObject emoji_jsonObject = account_emojis.getJSONObject(e);
+                    emoji_shortcode.add(emoji_jsonObject.getString("shortcode"));
+                    emoji_url.add(emoji_jsonObject.getString("url"));
+                }
+                for (int e = 0; e < account_profile_emojis.length(); e++) {
+                    JSONObject emoji_jsonObject = account_profile_emojis.getJSONObject(e);
+                    emoji_shortcode.add(emoji_jsonObject.getString("shortcode"));
+                    emoji_url.add(emoji_jsonObject.getString("url"));
+                }
+                for (int e = 0; e < laststatus_emojis.length(); e++) {
+                    JSONObject emoji_jsonObject = laststatus_emojis.getJSONObject(e);
+                    emoji_shortcode.add(emoji_jsonObject.getString("shortcode"));
+                    emoji_url.add(emoji_jsonObject.getString("url"));
+                }
+                for (int e = 0; e < laststatus_profile_emojis.length(); e++) {
+                    JSONObject emoji_jsonObject = laststatus_profile_emojis.getJSONObject(e);
+                    emoji_shortcode.add(emoji_jsonObject.getString("shortcode"));
+                    emoji_url.add(emoji_jsonObject.getString("url"));
+                }
+
+                //絵文字対応
+                //配列をすべて回す
+                for (int i = 0; i < emoji_shortcode.size(); i++) {
+                    String name = emoji_shortcode.get(i);
+                    String url = emoji_url.get(i);
+                    String custom_emoji_src = "<img src=\'" + url + "\'>";
+                    //一致で置き換え
+                    toot_text = toot_text.replace(":" + name + ":", custom_emoji_src);
+                    user_name = user_name.replace(":" + name + ":", custom_emoji_src);
+                }
+            }
+
+            //カード情報
+            String cardTitle = null;
+            String cardURL = null;
+            String cardDescription = null;
+            String cardImage = null;
+
+            if (!jsonObject.isNull("card")) {
+                JSONObject cardObject = jsonObject.getJSONObject("card");
+                cardURL = cardObject.getString("url");
+                cardTitle = cardObject.getString("title");
+                cardDescription = cardObject.getString("description");
+                cardImage = cardObject.getString("image");
+            }
+
+            if (getActivity() != null && isAdded()) {
+
+                //配列を作成
+                ArrayList<String> Item = new ArrayList<>();
+                //メモとか通知とかに
+                Item.add("CustomMenu");
+                //内容
+                Item.add(toot_text);
+                //ユーザー名
+                Item.add(user_name + " @" + user);
+                //時間、クライアント名等
+                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                //Toot ID 文字列版
+                Item.add(toot_id_string);
+                //アバターURL
+                Item.add(user_avater_url);
+                //アカウントID
+                Item.add(String.valueOf(account_id));
+                //ユーザーネーム
+                Item.add(user);
+                //メディア
+                Item.add(media_url_1);
+                Item.add(media_url_2);
+                Item.add(media_url_3);
+                Item.add(media_url_4);
+                //カード
+                Item.add(cardTitle);
+                Item.add(cardURL);
+                Item.add(cardDescription);
+                Item.add(cardImage);
+                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                Item.add(isBoost);
+                Item.add(isFav);
+                Item.add(boostCount);
+                Item.add(favCount);
+                //Reblog ブースト用
+                Item.add(boost_content);
+                Item.add(boost_user_name + " @" + boost_user);
+                Item.add(boost_avater_url);
+                Item.add(String.valueOf(boost_account_id));
+                //警告テキスト
+                //TODO 警告文実装する
+                Item.add("");
+                //カスタムメニュー用
+                Item.add(dialog);
+                Item.add(image_load);
+                Item.add(quick_profile);
+                Item.add(custom_emoji);
+                Item.add(gif);
+
+                ListItem listItem = new ListItem(Item);
+
+                String finalToot_text = toot_text;
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        adapter.insert(listItem, 0);
+                        // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
+                        int pos = listView.getFirstVisiblePosition();
+                        int top = 0;
+                        if (listView.getChildCount() > 0) {
+                            top = listView.getChildAt(0).getTop();
+                        }
+                        listView.setAdapter(adapter);
+                        // 要素追加前の状態になるようセットする
+                        adapter.notifyDataSetChanged();
+                        //一番上なら追いかける
+                        if (pos == 0) {
+                            listView.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listView.smoothScrollToPosition(0);
+                                }
+                            });
+                        } else {
+                            listView.setSelectionFromTop(pos + 1, top);
+                        }
+
+                        //カウンター
+                        if (Boolean.valueOf(toot_counter)) {
+                            if (count_text != null) {
+                                //含んでいるか
+                                if (finalToot_text.contains(count_text)) {
+                                    String count_template = " : ";
+                                    akeome_count++;
+                                    countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * ストリーミングAPI版通知Parse
@@ -1472,7 +2176,7 @@ public class CustomMenuTimeLine extends Fragment {
         }
 
         //カスタム絵文字
-        if (pref_setting.getBoolean("pref_custom_emoji", false)|| Boolean.valueOf(custom_emoji)) {
+        if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
 
             try {
                 //本文
@@ -1611,6 +2315,10 @@ public class CustomMenuTimeLine extends Fragment {
         if (shutdownable != null) {
             shutdownable.shutdown();
         }
+        if (webSocketClient != null) {
+            //終了
+            webSocketClient.close();
+        }
     }
 
     /**
@@ -1641,36 +2349,45 @@ public class CustomMenuTimeLine extends Fragment {
         layoutParams.weight = 1;
         countTextView.setLayoutParams(layoutParams);
         countEditText.setLayoutParams(layoutParams);
-        countButton.setText(getString(R.string.toot_count_start));
+        countButton.setBackground(getContext().getDrawable(R.drawable.button_style_white));
+        countButton.setText(">");
         countEditText.setHint(getString(R.string.toot_count_hint));
-
+        //背景
+        String background = "ffffff";
+        if (Boolean.valueOf(dark_mode)) {
+            background = "000000";
+        }
 
         countLinearLayout.addView(countEditText);
         countLinearLayout.addView(countButton);
         countLinearLayout.addView(countTextView);
 
         //テキストを決定
-        countButton.setOnClickListener(new View.OnClickListener() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
-            public void onClick(View v) {
-                count_text = countEditText.getText().toString();
-                akeome_count = 0;
-                String count_template = "　" + getString(R.string.toot_count_text) + " : ";
-                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
-                //Toast.makeText(getContext(),count_text,Toast.LENGTH_SHORT).show();
+            public void run() {
+                countButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        count_text = countEditText.getText().toString();
+                        akeome_count = 0;
+                        countTextView.setText(count_text + " : " + String.valueOf(akeome_count));
+                    }
+                });
+                //長押しでコピー
+                countTextView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        assert clipboardManager != null;
+                        clipboardManager.setPrimaryClip(ClipData.newPlainText("", String.valueOf(akeome_count)));
+                        Toast.makeText(getContext(), R.string.copy, Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                });
             }
         });
 
-        //長押しでコピー
-        countEditText.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                assert clipboardManager != null;
-                clipboardManager.setPrimaryClip(ClipData.newPlainText("", String.valueOf(akeome_count)));
-                Toast.makeText(getContext(), R.string.copy, Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
+
     }
 }

@@ -458,7 +458,7 @@ public class Home_Fragment extends Fragment {
                             media_url_4 = mediaURL[3];
 
 
-                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                            if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                 //カスタム絵文字
                                 List<Emoji> emoji_List = status.getEmojis();
                                 emoji_List.forEach(emoji -> {
@@ -723,7 +723,7 @@ public class Home_Fragment extends Fragment {
                             }
                             //System.out.println("これかあ！ ： " + media_url_1 + " / " + media_url_2  + " / " + media_url_3 + " / " + media_url_4);
 
-                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                            if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                 //絵文字
                                 JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
                                 for (int e = 0; e < emoji.length(); e++) {
@@ -1005,7 +1005,7 @@ public class Home_Fragment extends Fragment {
                             }
                             //System.out.println("これかあ！ ： " + media_url_1 + " / " + media_url_2  + " / " + media_url_3 + " / " + media_url_4);
 
-                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                            if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                 //絵文字
                                 JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
                                 for (int e = 0; e < emoji.length(); e++) {
@@ -1302,7 +1302,7 @@ public class Home_Fragment extends Fragment {
                                     }
 
 
-                                    if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                    if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                         //絵文字
                                         JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
                                         for (int e = 0; e < emoji.length(); e++) {
@@ -1670,7 +1670,7 @@ public class Home_Fragment extends Fragment {
                                             }
 
 
-                                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                            if (pref_setting.getBoolean("pref_custom_emoji", true)) {
 
                                                 //絵文字
                                                 JSONArray emoji = toot_jsonObject.getJSONArray("emojis");

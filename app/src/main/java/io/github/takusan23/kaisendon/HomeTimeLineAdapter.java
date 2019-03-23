@@ -62,6 +62,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
@@ -149,6 +150,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     private boolean image_show = false;         //強制画像表示
     private boolean quick_profile = false;      //クイックプロフィール有効
     private boolean custom_emoji = false;       //トゥートカウンターを有効
+    private boolean gif_notPlay = false;                    //GIFアニメ有効
 
     //settingのプリファレンスをとる
     SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
@@ -278,6 +280,10 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             if (Boolean.valueOf(listItem.get(28))) {
                 emojis_show = true;
             }
+            //GIFアニメ trueで有効
+            if (Boolean.valueOf(listItem.get(29))) {
+                gif_notPlay = true;
+            }
         }
 
 
@@ -286,7 +292,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
         //カスタム絵文字有効/無効
-        if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+        if (pref_setting.getBoolean("pref_custom_emoji", true)) {
             if (pref_setting.getBoolean("pref_avater_wifi", true)) {
                 //WIFIのみ表示有効時
                 if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
@@ -444,7 +450,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 //アバター画像非表示モードでもレイアウトは残しておくように
                 notification_layout = true;
                 //アニメーションアイコン
-                setSVGAnimationIcon(R.drawable.notification_to_boost, R.drawable.ic_repeat_black_24dp, holder);
+                holder.notification_icon.setImageResource(R.drawable.ic_repeat_black_24dp);
             }
             //お気に入り
             if (type.contains("Notification_favourite")) {
@@ -455,13 +461,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 //アニメーションアイコン
                 //friends.nicoモードかな？
                 if (!friends_nico_check_box) {
-                    setSVGAnimationIcon(R.drawable.notification_to_star, R.drawable.ic_star_black_24dp, holder);
+                    holder.notification_icon.setImageResource(R.drawable.ic_star_black_24dp);
                 } else {
                     holder.notification_icon.setImageResource(R.drawable.nicoru);
-                    if (holder.notification_icon.getParent() != null) {
-                        ((ViewGroup) holder.notification_icon.getParent()).removeView(holder.notification_icon);
-                    }
-                    holder.avaterImageview_linearLayout.addView(holder.notification_icon, 0);
                 }
             }
             //ふぉろー
@@ -471,15 +473,20 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 //アバター画像非表示モードでもレイアウトは残しておくように
                 notification_layout = true;
                 //アニメーションアイコン
-                setSVGAnimationIcon(R.drawable.notification_to_person, R.drawable.ic_person_add_black_24dp, holder);
+                holder.notification_icon.setImageResource(R.drawable.ic_person_add_black_24dp);
             }
             //めんしょん
             if (type.contains("Notification_mention")) {
                 //アバター画像非表示モードでもレイアウトは残しておくように
                 notification_layout = true;
                 //アニメーションアイコン
-                setSVGAnimationIcon(R.drawable.notification_to_mention, R.drawable.ic_announcement_black_24dp, holder);
+                holder.notification_icon.setImageResource(R.drawable.ic_announcement_black_24dp);
             }
+
+            if (holder.notification_icon.getParent() != null) {
+                ((ViewGroup) holder.notification_icon.getParent()).removeView(holder.notification_icon);
+            }
+            holder.avaterImageview_linearLayout.addView(holder.notification_icon, 0);
         }
 
 
@@ -850,8 +857,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 holder.imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (setting_avater_gif) {
-                            //GIFアニメ再生させない
+                        if (setting_avater_gif || !gif_notPlay) {
+                            //GIFアニメ再生させない / カスタムメニューで無効化
                             ImageViewSetting(holder);
                             //表示
                             addMediaPicasso(media_url_1, holder.media_imageview_1, holder.linearLayoutMedia);
@@ -876,7 +883,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             if (setting_avater_wifi || image_show) {
                 if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
 
-                    if (setting_avater_gif) {
+                    if (setting_avater_gif || !gif_notPlay) {
+                        //GIFアニメ再生させない / カスタムメニューで無効化
                         ImageViewSetting(holder);
                         //表示
                         addMediaPicasso(media_url_1, holder.media_imageview_1, holder.linearLayoutMedia);
@@ -911,8 +919,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 holder.imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (setting_avater_gif) {
-                            //GIFアニメ再生させない
+                        if (setting_avater_gif || !gif_notPlay) {
+                            //GIFアニメ再生させない / カスタムメニューで無効化
                             ImageViewSetting(holder);
                             //表示
                             addMediaPicasso(media_url_1, holder.media_imageview_1, holder.linearLayoutMedia);
@@ -934,7 +942,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             }
         }
 
-
         //サムネイル画像を設定
         ImageView thumbnail = (ImageView) holder.avater_imageview;
         //通信量節約
@@ -945,18 +952,13 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         }
         //Wi-Fi か　強制画像表示
         if (setting_avater_wifi || image_show) {
-            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true) {
-
-                if (setting_avater_gif) {
-                    //GIFアニメ再生させない
-                    Picasso.get()
-                            .load(avater_url)
-                            .into(thumbnail);
+            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                if (setting_avater_gif || !gif_notPlay) {
+                    //GIFアニメ再生させない / カスタムメニューで無効化
+                    Picasso.get().load(avater_url).into(thumbnail);
                 } else {
                     //GIFアニメを再生
-                    Glide.with(view)
-                            .load(avater_url)
-                            .into(thumbnail);
+                    Glide.with(thumbnail).load(avater_url).into(thumbnail);
                 }
             }
             //Wi-Fi no Connection
@@ -1403,7 +1405,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         if (title != null) {
 
-            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+            if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                 //カスタム絵文字有効時
                 if (setting_avater_wifi) {
                     //WIFIのみ表示有効時
@@ -1448,7 +1450,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         }
 
         //強制的に表示
-        if (emojis_show){
+        if (emojis_show) {
             try {
                 user_html = (Spannable) Html.fromHtml(userString, Html.FROM_HTML_MODE_LEGACY, user_imageGetter, null);
                 toot_html = (Spannable) Html.fromHtml(titleString, Html.FROM_HTML_MODE_LEGACY, title_imageGetter, null);

@@ -235,7 +235,7 @@ public class Favourites_List_Fragment extends Fragment {
 
 
                         //カスタム絵文字
-                        if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                        if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                             List<Emoji> emoji_List = status.getEmojis();
                             emoji_List.forEach(emoji -> {
                                 String emoji_name = emoji.getShortcode();
@@ -364,7 +364,7 @@ public class Favourites_List_Fragment extends Fragment {
                                 String user_avater_url = status.getAccount().getAvatar();
 
                                 //カスタム絵文字
-                                if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                     List<Emoji> emoji_List = status.getEmojis();
                                     emoji_List.forEach(emoji -> {
                                         String emoji_name = emoji.getShortcode();
@@ -648,7 +648,7 @@ public class Favourites_List_Fragment extends Fragment {
 
 
                                             //絵文字
-                                            if (pref_setting.getBoolean("pref_custom_emoji", false)) {
+                                            if (pref_setting.getBoolean("pref_custom_emoji", true)) {
                                                 JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
                                                 for (int e = 0; e < emoji.length(); e++) {
                                                     JSONObject jsonObject = emoji.getJSONObject(e);

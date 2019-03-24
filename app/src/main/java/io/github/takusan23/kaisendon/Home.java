@@ -1635,9 +1635,6 @@ public class Home extends AppCompatActivity
 
     @Override
     protected void onStop() {
-        if (networkChangeBroadcast != null) {
-            unregisterReceiver(networkChangeBroadcast);
-        }
         super.onStop();
     }
 
@@ -1650,6 +1647,12 @@ public class Home extends AppCompatActivity
         editor.apply();
         if (pref_setting.getBoolean("pref_speech", false)) {
             textToSpeech.shutdown();
+        }
+        //レジーバー解除
+        if (pref_setting.getBoolean("pref_networkchange", false)) {
+            if (networkChangeBroadcast != null) {
+                unregisterReceiver(networkChangeBroadcast);
+            }
         }
     }
 

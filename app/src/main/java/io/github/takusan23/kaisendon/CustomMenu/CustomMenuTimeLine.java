@@ -253,7 +253,7 @@ public class CustomMenuTimeLine extends Fragment {
             //引っ張って更新有効
             swipeRefreshLayout.setEnabled(true);
             //通知以外
-            if (!url.contains("/api/v1/notifications")) {
+            if (url.contains("/api/v1/notifications")) {
                 //通知用レイアウト呼ぶ
                 notificationLayout();
                 //普通にAPI叩く
@@ -2319,16 +2319,17 @@ public class CustomMenuTimeLine extends Fragment {
             //終了
             webSocketClient.close();
         }
+        //OLEDとかかかわらず戻す
+        getActivity().setTheme(R.style.AppTheme);
+        ((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#2196f3"));
     }
 
     /**
      * replaceしたときに最後に呼ばれるところ
      */
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        //OLEDとかかかわらず戻す
-        getActivity().setTheme(R.style.AppTheme);
+    public void onResume() {
+        super.onResume();
     }
 
     /**

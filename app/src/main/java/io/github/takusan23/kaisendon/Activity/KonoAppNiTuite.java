@@ -73,9 +73,10 @@ public class KonoAppNiTuite extends AppCompatActivity {
 
         TextView document_textview = findViewById(R.id.wiki);
         Button document_button = findViewById(R.id.wiki_button);
+        Button wear_document_Button = findViewById(R.id.wear_document_button);
 
 
-        KonoAppTextView_2.setText(getString(R.string.version) + " " + "1.3" + "\r\n" + "ねぎとろ丼");
+        KonoAppTextView_2.setText(getString(R.string.version) + " " + "2.0" + "\r\n" + "まぐろ丼");
         githubButton.setText(getString(R.string.sourceCode) + ": " + "GitHub");
 
         document_button.setText(getString(R.string.document) + "\n" + "GitHub Wiki");
@@ -175,6 +176,25 @@ public class KonoAppNiTuite extends AppCompatActivity {
                     startActivity(intent);
                 }
 
+            }
+        });
+
+        wear_document_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String githubUrl = "https://github.com/takusan23/KaisendonWear/wiki";
+                if (chrome_custom_tabs) {
+                    Bitmap back_icon = BitmapFactory.decodeResource(KonoAppNiTuite.this.getResources(), R.drawable.ic_action_arrow_back);
+                    String custom = CustomTabsHelper.getPackageNameToUse(KonoAppNiTuite.this);
+                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                    CustomTabsIntent customTabsIntent = builder.build();
+                    customTabsIntent.intent.setPackage(custom);
+                    customTabsIntent.launchUrl(KonoAppNiTuite.this, Uri.parse(githubUrl));
+                } else {
+                    Uri uri = Uri.parse(githubUrl);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
             }
         });
 

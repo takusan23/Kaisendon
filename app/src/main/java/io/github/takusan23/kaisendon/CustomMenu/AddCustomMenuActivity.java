@@ -115,6 +115,10 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         background_screen_fit_Switch = findViewById(R.id.custom_menu_background_screen_fit_switch);
         background_transparency = findViewById(R.id.custom_menu_background_transoarency_edittext_edittext);
 
+        //クイックプロフィール、カスタム絵文字を既定で有効
+        quickprofile_Switch.setChecked(true);
+        custom_emoji_Switch.setChecked(true);
+
         //SQLite
         if (helper == null) {
             helper = new CustomMenuSQLiteHelper(getApplicationContext());

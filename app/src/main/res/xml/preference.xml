@@ -39,7 +39,7 @@
             android:title="@string/setting_avater_wifi_get" />
 
         <CheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="pref_avater_gif"
             android:summary="@string/setting_avater_gif_info"
             android:title="@string/setting_avater_gif" />

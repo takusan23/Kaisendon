@@ -384,5 +384,6 @@
     <string name="custom_menu_tootcounter">トゥートカウンターを有効にする</string>
     <string name="custom_menu_custom_emoji">カスタム絵文字を有効にする</string>
     <string name="custom_menu_gif_load">GIFアニメーションを再生する（CPU負荷とバッテリーを大量に消費する可能性があります）</string>
+    <string name="wear_document">かいせんどんWear ドキュメント</string>
 
 </resources>

@@ -21,5 +21,4 @@
         android:drawableStart="@drawable/ic_create_black_24dp_black"
         android:text="@string/toot_shortcut_setting" />
 
-
 </LinearLayout>

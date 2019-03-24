@@ -996,7 +996,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 //読み込み
                 boolean multipain_ui_mode = pref_setting.getBoolean("app_multipain_ui", false);
 
-                if (pref_setting.getBoolean("pref_quick_profile", false)) {
+                if (pref_setting.getBoolean("pref_quick_profile", false) || quick_profile) {
                     //クイックプロフィーる
                     quickProfileSnackber(v, String.valueOf(finalAccount_id));
                 } else {

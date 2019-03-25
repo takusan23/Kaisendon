@@ -2346,8 +2346,6 @@ public class Home extends AppCompatActivity
                         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                         transaction.replace(R.id.container_container, customMenuTimeLine);
                         transaction.commit();
-
-
                         return false;
                     }
                 });

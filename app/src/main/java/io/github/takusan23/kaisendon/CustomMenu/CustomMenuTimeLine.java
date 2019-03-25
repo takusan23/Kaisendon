@@ -7,15 +7,20 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
@@ -40,7 +45,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.sys1yagi.mastodon4j.MastodonClient;
-import com.sys1yagi.mastodon4j.api.Handler;
 import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
 import com.sys1yagi.mastodon4j.api.entity.Card;
@@ -70,6 +74,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import io.github.takusan23.kaisendon.Fragment.Public_TimeLine_Fragment;
 import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
 import io.github.takusan23.kaisendon.ListItem;
@@ -82,6 +87,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static io.github.takusan23.kaisendon.Preference_ApplicationContext.getContext;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -89,6 +96,8 @@ import okhttp3.Response;
 public class CustomMenuTimeLine extends Fragment {
 
     private SharedPreferences pref_setting;
+
+    private LinearLayout parent_linearlayout;
 
     private String url;
     private String instance;
@@ -136,6 +145,10 @@ public class CustomMenuTimeLine extends Fragment {
     private String count_text;
     private TextView countTextView;
 
+    private CustomMenuSQLiteHelper helper = null;
+    private SQLiteDatabase db = null;
+
+
     //WebSocket
     private WebSocketClient webSocketClient;
 
@@ -159,6 +172,7 @@ public class CustomMenuTimeLine extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         pref_setting = PreferenceManager.getDefaultSharedPreferences(getContext());
 
+        parent_linearlayout = view.findViewById(R.id.custom_menu_parent_linearlayout);
         linearLayout = view.findViewById(R.id.custom_menu_fragment_linearlayout);
         listView = view.findViewById(R.id.custom_menu_listview);
         swipeRefreshLayout = view.findViewById(R.id.custom_menu_swipe_refresh);
@@ -2388,7 +2402,5 @@ public class CustomMenuTimeLine extends Fragment {
                 });
             }
         });
-
-
     }
 }

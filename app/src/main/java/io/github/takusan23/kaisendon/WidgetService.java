@@ -23,6 +23,7 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -40,7 +41,7 @@ public class WidgetService extends RemoteViewsService {
 
     private JSONArray jsonArray = new JSONArray();
 
-    private static final String TAG = "WidgetTest";
+    private SharedPreferences pref_setting;
 
 
     @Override
@@ -50,7 +51,6 @@ public class WidgetService extends RemoteViewsService {
 
     private class WidgetFactory implements RemoteViewsFactory {
 
-        SharedPreferences pref_setting;
 
         public void onCreate() {
             //Log.v(TAG, "[onCreate]");
@@ -64,7 +64,6 @@ public class WidgetService extends RemoteViewsService {
         }
 
         public void onDestroy() {
-            Log.v(TAG, "[onDestroy]");
         }
 
         public RemoteViews getViewAt(int position) {
@@ -111,11 +110,13 @@ public class WidgetService extends RemoteViewsService {
                     String avater_url = jsonArray.getJSONObject(position).getJSONObject("account").getString("avatar");
                     toot_url = jsonArray.getJSONObject(position).getJSONObject("status").getString("url");
 
-                    remoteViews.setTextViewText(R.id.widget_listview_item_linearLayout, Html.fromHtml(type + "\r\n" + display_name + " / @" + account + "\r\n" + content, Html.FROM_HTML_MODE_COMPACT));
+                    remoteViews.setTextViewText(R.id.widget_listview_layout_textview, Html.fromHtml(type + "\r\n" + display_name + " / @" + account + "\r\n" + content, Html.FROM_HTML_MODE_COMPACT));
+
 
                     //Glideは神！！！！！！！！！！！！！！！！！！！！！！！！！！！
                     if (avater_show) {
                         try {
+                            //アバター
                             Bitmap bitmap = Glide.with(getApplicationContext()).asBitmap().load(avater_url).submit(100, 100).get();
                             remoteViews.setImageViewBitmap(R.id.widget_listview_layout_imageview, bitmap);
                         } catch (ExecutionException | InterruptedException e) {
@@ -145,11 +146,11 @@ public class WidgetService extends RemoteViewsService {
 
 
                 //ListViewの項目をクリックできるようにする
-                Intent btnClickIntent = new Intent(getApplicationContext(),NewAppWidget.class);
-                btnClickIntent.putExtra("URL",toot_url);
+                Intent btnClickIntent = new Intent(getApplicationContext(), NewAppWidget.class);
+                btnClickIntent.putExtra("URL", toot_url);
                 btnClickIntent.putExtra("ListViewClick", true);
 
-                remoteViews.setOnClickFillInIntent(R.id.widget_listview_layout_textview,btnClickIntent);
+                remoteViews.setOnClickFillInIntent(R.id.widget_listview_layout_textview, btnClickIntent);
 
 
             } catch (JSONException e) {
@@ -254,10 +255,6 @@ public class WidgetService extends RemoteViewsService {
                     }
                 }
             });
-
         }
-
     }
-
-
 }

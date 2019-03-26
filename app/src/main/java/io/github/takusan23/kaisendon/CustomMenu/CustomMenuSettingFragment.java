@@ -1,21 +1,18 @@
 package io.github.takusan23.kaisendon.CustomMenu;
 
 
-import android.annotation.SuppressLint;
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.view.menu.MenuPopupHelper;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -25,16 +22,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
-import io.github.takusan23.kaisendon.BottomDialodFragment;
 import io.github.takusan23.kaisendon.R;
 
 
@@ -83,7 +72,24 @@ public class CustomMenuSettingFragment extends Fragment {
         });
 
         //バックアップ、リストアメニュー
-        BackupRestoreMenu();
+        backup_restore_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //パーミッションチェック
+                //ストレージ読み込み、書き込み権限チェック
+                int read = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+                int write = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                if (read == PackageManager.PERMISSION_GRANTED && write == PackageManager.PERMISSION_GRANTED) {
+                    //許可済み
+                    BackupRestoreMenu();
+                } else {
+                    //許可を求める
+                    //配列なんだねこれ
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 4545);
+                }
+
+            }
+        });
 
 
         loadSQLite();
@@ -100,7 +106,6 @@ public class CustomMenuSettingFragment extends Fragment {
                 startActivity(intent);
             }
         });
-
 
     }
 
@@ -131,53 +136,9 @@ public class CustomMenuSettingFragment extends Fragment {
     /**
      * バックアップ、リストアメニュー
      */
-    @SuppressLint("RestrictedApi")
     private void BackupRestoreMenu() {
-        //ポップアップメニュー作成
-        MenuBuilder menuBuilder = new MenuBuilder(getContext());
-        MenuInflater inflater = new MenuInflater(getContext());
-        inflater.inflate(R.menu.custom_backup_restore_menu, menuBuilder);
-        MenuPopupHelper optionsMenu = new MenuPopupHelper(getContext(), menuBuilder, backup_restore_Button);
-        optionsMenu.setForceShowIcon(true);
-        //クリックイベント
-        backup_restore_Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //表示
-                optionsMenu.show();
-                //押したときの反応
-                menuBuilder.setCallback(new MenuBuilder.Callback() {
-                    @Override
-                    public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
-                        //分ける
-                        switch (menuItem.getItemId()) {
-                            case R.id.backup_menu:
-                                showSnackber("バックアップを作成しますか？\n背景画像はバックアップできません", "作成", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        startBackupDB();
-                                    }
-                                });
-                                break;
-                            case R.id.restore_menu:
-                                showSnackber("バックアップから復元しますか？\n現在のカスタムメニューは上書きされます", "復元", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        startRestore();
-                                    }
-                                });
-                                break;
-                        }
-                        return false;
-                    }
-
-                    @Override
-                    public void onMenuModeChange(MenuBuilder menuBuilder) {
-
-                    }
-                });
-            }
-        });
+        BackupRestoreBottomDialog dialogFragment = new BackupRestoreBottomDialog();
+        dialogFragment.show(getActivity().getSupportFragmentManager(), "backup_restore_menu");
     }
 
     /**
@@ -192,149 +153,6 @@ public class CustomMenuSettingFragment extends Fragment {
         snackbar.setAction(action, clickListener);
         snackbar.show();
         return snackbar;
-    }
-
-    /*バックアップ、リストアはちゃんとUI作って書き直す予定（）*/
-
-    /**
-     * DataBaseバックアップ？
-     *
-     * https://stackoverflow.com/questions/18635412/restoring-sqlite-db-file
-     */
-    private void startBackupDB() {
-        try {
-            Toast.makeText(getContext(), "バックアップ実行", Toast.LENGTH_SHORT).show();
-            File sd = new File(Environment.getExternalStorageDirectory().getPath() + "/kaisendon");
-            // kaisendonディレクトリを作成する
-            sd.mkdir();
-            //ユーザーが扱えない領域？
-            File data = Environment.getDataDirectory();
-
-            if (sd.canWrite()) {
-                String databasepath = "//data/io.github.takusan23.kaisendon/databases/CustomMenu.db";
-                String backupfilename = "CustomMenu.db";
-                File currentDB = new File(data, databasepath);
-                File backupDB = new File(sd, backupfilename);
-
-                if (currentDB.exists()) {
-                    FileChannel src = new FileInputStream(currentDB).getChannel();
-                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
-                    dst.transferFrom(src, 0, src.size());
-                    src.close();
-                    dst.close();
-                    Toast.makeText(getContext(), "バックアップを作成しました\n" + sd.getPath() + "/" + backupfilename, Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            if (sd.canWrite()) {
-                String databasepath = "//data/io.github.takusan23.kaisendon/databases/CustomMenu.db-shm";
-                String backupfilename = "CustomMenu.db-shm";
-                File currentDB = new File(data, databasepath);
-                File backupDB = new File(sd, backupfilename);
-
-                if (currentDB.exists()) {
-                    FileChannel src = new FileInputStream(currentDB).getChannel();
-                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
-                    dst.transferFrom(src, 0, src.size());
-                    src.close();
-                    dst.close();
-                    Toast.makeText(getContext(), "バックアップを作成しました\n" + sd.getPath() + "/" + backupfilename, Toast.LENGTH_SHORT).show();
-                }
-            }
-            if (sd.canWrite()) {
-                String databasepath = "//data/io.github.takusan23.kaisendon/databases/CustomMenu.db-wal";
-                String backupfilename = "CustomMenu.db-wal";
-                File currentDB = new File(data, databasepath);
-                File backupDB = new File(sd, backupfilename);
-
-                if (currentDB.exists()) {
-                    FileChannel src = new FileInputStream(currentDB).getChannel();
-                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
-                    dst.transferFrom(src, 0, src.size());
-                    src.close();
-                    dst.close();
-                    Toast.makeText(getContext(), "バックアップを作成しました\n" + sd.getPath() + "/" + backupfilename, Toast.LENGTH_SHORT).show();
-                }
-            }
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), "try-catch", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * リストア
-     */
-    private void startRestore() {
-        try {
-            Toast.makeText(getContext(), "リストア実行", Toast.LENGTH_SHORT).show();
-            File sd = new File(Environment.getExternalStorageDirectory().getPath() + "/kaisendon");
-            //ユーザーが扱えない領域？
-            File data = Environment.getDataDirectory();
-
-
-            if (sd.canWrite()) {
-                String databasepath = "//data/io.github.takusan23.kaisendon/databases/CustomMenu.db";
-                String backupfilename = "CustomMenu.db";
-                File currentDB = new File(data, databasepath);
-                File backupDB = new File(sd, backupfilename);
-
-                if (currentDB.exists()) {
-                    FileChannel src = new FileInputStream(backupDB).getChannel();
-                    FileChannel dst = new FileOutputStream(currentDB).getChannel();
-                    dst.transferFrom(src, 0, src.size());
-                    src.close();
-                    dst.close();
-                    Toast.makeText(getContext(), "リストアが完了しました\n" + sd.getPath() + "/" + backupfilename, Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(getContext(), sd.getPath() + "/" + "CustomMenu.db" + "\n" + "にデーターベースがあることを確認してください。", Toast.LENGTH_LONG).show();
-            }
-
-
-            if (sd.canWrite()) {
-                String databasepath = "//data/io.github.takusan23.kaisendon/databases/CustomMenu.db-shm";
-                String backupfilename = "CustomMenu.db-shm";
-                File currentDB = new File(data, databasepath);
-                File backupDB = new File(sd, backupfilename);
-
-                if (currentDB.exists()) {
-                    FileChannel src = new FileInputStream(backupDB).getChannel();
-                    FileChannel dst = new FileOutputStream(currentDB).getChannel();
-                    dst.transferFrom(src, 0, src.size());
-                    src.close();
-                    dst.close();
-                    Toast.makeText(getContext(), "リストアが完了しました\n" + sd.getPath() + "/" + backupfilename, Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(getContext(), sd.getPath() + "/" + "CustomMenu.db" + "\n" + "にデーターベースがあることを確認してください。", Toast.LENGTH_LONG).show();
-            }
-
-            if (sd.canWrite()) {
-                String databasepath = "//data/io.github.takusan23.kaisendon/databases/CustomMenu.db-wal";
-                String backupfilename = "CustomMenu.db-wal";
-                File currentDB = new File(data, databasepath);
-                File backupDB = new File(sd, backupfilename);
-
-                if (currentDB.exists()) {
-                    FileChannel src = new FileInputStream(backupDB).getChannel();
-                    FileChannel dst = new FileOutputStream(currentDB).getChannel();
-                    dst.transferFrom(src, 0, src.size());
-                    src.close();
-                    dst.close();
-                    Toast.makeText(getContext(), "リストアが完了しました\n" + sd.getPath() + "/" + backupfilename, Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(getContext(), sd.getPath() + "/" + "CustomMenu.db" + "\n" + "にデーターベースがあることを確認してください。", Toast.LENGTH_LONG).show();
-            }
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), "try-catch", Toast.LENGTH_SHORT).show();
-        }
     }
 
 }

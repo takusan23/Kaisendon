@@ -492,5 +492,10 @@
     <string name="custom_menu_backup_restore">Custom menu backup and restore</string>
     <string name="backup">backup</string>
     <string name="restore">restore</string>
+    <string name="backup_successful">I made a backup</string>
+    <string name="restore_successful">Restore completed</string>
+    <string name="backup_restore_menu">Backup, restore menu</string>
+    <string name="backup_restore_message">You can inherit the contents of the custom menu. However, you can not take over the background image.</string>
+    <string name="backup_restore_path">Backup files are generated in the following location: Keep it in the same place when restoring.</string>
 
 </resources>

@@ -393,5 +393,11 @@
     <string name="backup_restore_menu">バックアップ、リストアメニュー</string>
     <string name="backup_restore_message">カスタムメニューの内容を引き継ぐことができます。ただし、背景画像を引き継ぐことはできません。</string>
     <string name="backup_restore_path">バックアップファイルは次の場所に生成されます。復元するときも同じ場所に保存してください。</string>
+    <string name="custom_menu_font">フォントを変更</string>
+    <string name="custom_setting_font_reset">フォント設定をリセット</string>
+    <string name="custom_menu_font_sample">うそはうそであると見抜ける人でないと(掲示板を使うのは)難しい</string>
+    <string name="custom_menu_one_hand">片手モード（大画面でも操作しやすくするため）</string>
+    <string name="custom_menu_tl_up">タイムラインを広げる</string>
+    <string name="custom_menu_tl_down">タイムラインを縮める</string>
 
 </resources>

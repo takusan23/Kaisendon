@@ -4,15 +4,20 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -31,6 +36,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -39,6 +45,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -73,12 +82,18 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     private Switch tootcounter_Switch;
     private Switch custom_emoji_Switch;
     private Switch gif_Switch;
+    private Switch one_hand_Switch;
     private EditText subtitle_EditText;
     private Switch background_screen_fit_Switch;
     private EditText background_transparency;
+    private Button font_Button;
+    private Button font_reset_Button;
+    private TextView font_TextView;
     private FloatingActionButton fab;
 
     private SharedPreferences pref_setting;
+
+    private Typeface typeface;
 
     private String load_url;
     private String instance;
@@ -86,6 +101,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
 
     //画像のURL
     private String image_url = "";
+    //ふぉんとのパス
+    private String font_path = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +131,10 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         background_image_ImageView = findViewById(R.id.custom_background_image_imageview);
         background_screen_fit_Switch = findViewById(R.id.custom_menu_background_screen_fit_switch);
         background_transparency = findViewById(R.id.custom_menu_background_transoarency_edittext_edittext);
+        font_Button = findViewById(R.id.custom_menu_font);
+        font_TextView = findViewById(R.id.font_textView);
+        font_reset_Button = findViewById(R.id.custom_menu_font_reset);
+        one_hand_Switch = findViewById(R.id.custom_menu_one_hand);
 
         //クイックプロフィール、カスタム絵文字を既定で有効
         quickprofile_Switch.setChecked(true);
@@ -191,6 +212,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
 
         //背景画像
         background_setting();
+        //フォント
+        font_setting();
     }
 
     /**
@@ -214,6 +237,23 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                         .load(get_Path)
                         .into(background_image_ImageView);
             }
+        }
+        if (requestCode == 4545 && resultCode == Activity.RESULT_OK) {
+            Uri uri = resultData.getData();
+            //String変換（非正規ルート？）
+            //「/document/raw:」を消す
+            //「/document/primary:」を消す
+            String path = uri.getPath();
+            if (path.contains("/document/raw:")) {
+                font_path = path.replace("/document/raw:", "");
+            }
+            if (path.contains("/document/primary:")) {
+                font_path = path.replace("/document/primary:", "storage/emulated/0/");
+            }
+            //content://からfile://へ変換する
+            typeface = Typeface.createFromFile(new File(font_path));
+            font_TextView.setTypeface(typeface);
+            font_Button.setText(font_path);
         }
     }
 
@@ -251,7 +291,6 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 }
             }
         });
-
         //リセットボタン
         background_image_reset_Button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -263,7 +302,37 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 background_image_set_Button.setText(R.string.custom_setting_background_image);
             }
         });
+    }
 
+    /**
+     * フォント設定
+     */
+    private void font_setting() {
+        font_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //パーミッション？
+                if (ContextCompat.checkSelfPermission(AddCustomMenuActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    //権限をリクエストする
+                    ActivityCompat.requestPermissions(AddCustomMenuActivity.this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            1000);
+                } else {
+                    //画像選択
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("*/*");
+                    startActivityForResult(intent, 4545);
+                }
+            }
+        });
+        font_reset_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                font_path = "";
+                font_Button.setText("");
+                font_TextView.setTypeface(new TextView(AddCustomMenuActivity.this).getTypeface());
+            }
+        });
     }
 
 
@@ -289,10 +358,12 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             jsonObject.put("image_url", image_url);
             jsonObject.put("background_transparency", background_transparency.getText().toString());
             jsonObject.put("background_screen_fit", String.valueOf(background_screen_fit_Switch.isChecked()));
-            jsonObject.put("quick_profile",String.valueOf(quickprofile_Switch.isChecked()));
-            jsonObject.put("toot_counter",String.valueOf(tootcounter_Switch.isChecked()));
-            jsonObject.put("custom_emoji",String.valueOf(custom_emoji_Switch.isChecked()));
-            jsonObject.put("gif",String.valueOf(gif_Switch.isChecked()));
+            jsonObject.put("quick_profile", String.valueOf(quickprofile_Switch.isChecked()));
+            jsonObject.put("toot_counter", String.valueOf(tootcounter_Switch.isChecked()));
+            jsonObject.put("custom_emoji", String.valueOf(custom_emoji_Switch.isChecked()));
+            jsonObject.put("gif", String.valueOf(gif_Switch.isChecked()));
+            jsonObject.put("font", String.valueOf(font_path));
+            jsonObject.put("one_hand",String.valueOf(one_hand_Switch.isChecked()));
             jsonObject.put("setting", "");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -324,10 +395,12 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             jsonObject.put("image_url", image_url);
             jsonObject.put("background_transparency", background_transparency.getText().toString());
             jsonObject.put("background_screen_fit", String.valueOf(background_screen_fit_Switch.isChecked()));
-            jsonObject.put("quick_profile",String.valueOf(quickprofile_Switch.isChecked()));
-            jsonObject.put("toot_counter",String.valueOf(tootcounter_Switch.isChecked()));
-            jsonObject.put("custom_emoji",String.valueOf(custom_emoji_Switch.isChecked()));
-            jsonObject.put("gif",String.valueOf(gif_Switch.isChecked()));
+            jsonObject.put("quick_profile", String.valueOf(quickprofile_Switch.isChecked()));
+            jsonObject.put("toot_counter", String.valueOf(tootcounter_Switch.isChecked()));
+            jsonObject.put("custom_emoji", String.valueOf(custom_emoji_Switch.isChecked()));
+            jsonObject.put("gif", String.valueOf(gif_Switch.isChecked()));
+            jsonObject.put("font", String.valueOf(font_path));
+            jsonObject.put("one_hand",String.valueOf(one_hand_Switch.isChecked()));
             jsonObject.put("setting", "");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -377,6 +450,14 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 tootcounter_Switch.setChecked(Boolean.valueOf(jsonObject.getString("toot_counter")));
                 custom_emoji_Switch.setChecked(Boolean.valueOf(jsonObject.getString("custom_emoji")));
                 gif_Switch.setChecked(Boolean.valueOf(jsonObject.getString("gif")));
+                one_hand_Switch.setChecked(Boolean.valueOf(jsonObject.getString("one_hand")));
+                font_Button.setText(jsonObject.getString("font"));
+                font_path = jsonObject.getString("font");
+                File file = new File(font_path);
+                if (file.exists()) {
+                    typeface = Typeface.createFromFile(new File(font_path));
+                    font_TextView.setTypeface(typeface);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -578,8 +659,12 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 .getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
         cursor.moveToFirst();
         String imagePath = cursor.getString(column_index);
-
         return cursor.getString(column_index);
+    }
+
+    private String getPath_Q(Uri uri) {
+        String path = "";
+        return path;
     }
 
 }

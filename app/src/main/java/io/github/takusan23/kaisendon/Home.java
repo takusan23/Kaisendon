@@ -2312,6 +2312,8 @@ public class Home extends AppCompatActivity
                 String toot_counter = jsonObject.getString("toot_counter");
                 String custom_emoji = jsonObject.getString("custom_emoji");
                 String gif = jsonObject.getString("gif");
+                String font = jsonObject.getString("font");
+                String one_hand = jsonObject.getString("one_hand");
                 String setting = jsonObject.getString("setting");
 
                 //メニュー追加
@@ -2338,6 +2340,8 @@ public class Home extends AppCompatActivity
                         bundle.putString("toot_counter", toot_counter);
                         bundle.putString("custom_emoji", custom_emoji);
                         bundle.putString("gif", gif);
+                        bundle.putString("font", font);
+                        bundle.putString("one_hand", one_hand);
                         bundle.putString("setting", setting);
                         CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                         customMenuTimeLine.setArguments(bundle);

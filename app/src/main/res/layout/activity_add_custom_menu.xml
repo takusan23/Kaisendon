@@ -208,6 +208,61 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_font_download_black_24dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="@string/custom_menu_font" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/font_textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="@string/custom_menu_font_sample" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/custom_menu_font"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/button_style_white" />
+
+                    <Button
+                        android:id="@+id/custom_menu_font_reset"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/button_style_white"
+                        android:text="@string/custom_setting_font_reset" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="10dp" />
@@ -344,6 +399,23 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:src="@drawable/ic_expand_more_black_24dp" />
+
+                <Switch
+                    android:id="@+id/custom_menu_one_hand"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/custom_menu_one_hand" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
                     android:src="@drawable/ic_photo_filter_black_24dp" />
 
                 <Switch
@@ -352,6 +424,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/custom_menu_gif_load" />
             </LinearLayout>
+
 
         </LinearLayout>
     </ScrollView>

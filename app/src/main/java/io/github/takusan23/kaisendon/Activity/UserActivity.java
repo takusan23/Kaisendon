@@ -280,14 +280,15 @@ public class UserActivity extends AppCompatActivity {
                         emojis_shortcode.add(emojiObject.getString("shortcode"));
                         emojis_url.add(emojiObject.getString("url"));
                     }
-                    //profile_emojis
-                    JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
-                    for (int i = 0; i < profile_emojis.length(); i++) {
-                        JSONObject emojiObject = profile_emojis.getJSONObject(i);
-                        emojis_shortcode.add(emojiObject.getString("shortcode"));
-                        emojis_url.add(emojiObject.getString("url"));
+                    if (!jsonObject.isNull("profile_emojis")) {
+                        //profile_emojis
+                        JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
+                        for (int i = 0; i < profile_emojis.length(); i++) {
+                            JSONObject emojiObject = profile_emojis.getJSONObject(i);
+                            emojis_shortcode.add(emojiObject.getString("shortcode"));
+                            emojis_url.add(emojiObject.getString("url"));
+                        }
                     }
-
 
                     //Wi-Fi接続状況確認
                     ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

@@ -17,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.Animatable2;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -70,6 +71,7 @@ import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.entity.auth.AccessToken;
 
 import io.github.takusan23.kaisendon.Activity.UserActivity;
+import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.kaisendon.CustomTabURL.LinkTransformationMethod;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
@@ -77,6 +79,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -151,6 +154,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     private boolean quick_profile = false;      //クイックプロフィール有効
     private boolean custom_emoji = false;       //トゥートカウンターを有効
     private boolean gif_notPlay = false;                    //GIFアニメ有効
+    private String font_path = "";                  //フォントのパス
 
     //settingのプリファレンスをとる
     SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
@@ -284,6 +288,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             if (Boolean.valueOf(listItem.get(29))) {
                 gif_notPlay = true;
             }
+            //フォントパス
+            font_path = listItem.get(30);
         }
 
 
@@ -950,6 +956,19 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         if (setting_avater_hidden) {
             //thumbnail.setImageBitmap(item.getThumbnail());
         }
+/*
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                thumbnail.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                    }
+                });
+            }
+        }).start();
+*/
         //Wi-Fi か　強制画像表示
         if (setting_avater_wifi || image_show) {
             if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
@@ -1349,6 +1368,11 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         holder.bookmark_button.setTextSize(Integer.parseInt(button_textsize));
         web_button.setTextSize(Integer.parseInt(button_textsize));
 
+        //フォント指定
+        title.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+        user.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+        client.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+        holder.cardTextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
 
         //フォントの色設定
         boolean font_setting_swich = pref_setting.getBoolean("pref_fontcolor_setting", false);
@@ -1363,8 +1387,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             //くらいあんと
             String client_font_color = pref_setting.getString("pref_fontcolor_client", "#000000");
             client.setTextColor(Color.parseColor(client_font_color));
-
-        } else {
 
         }
 

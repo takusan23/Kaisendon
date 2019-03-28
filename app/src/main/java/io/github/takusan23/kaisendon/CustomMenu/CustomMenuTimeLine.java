@@ -11,7 +11,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,6 +29,8 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
+import android.text.Html;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -63,6 +68,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -79,6 +85,7 @@ import io.github.takusan23.kaisendon.Fragment.Public_TimeLine_Fragment;
 import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
 import io.github.takusan23.kaisendon.ListItem;
+import io.github.takusan23.kaisendon.PicassoImageGetter;
 import io.github.takusan23.kaisendon.R;
 import io.github.takusan23.kaisendon.SnackberProgress;
 import okhttp3.Call;
@@ -115,6 +122,8 @@ public class CustomMenuTimeLine extends Fragment {
     private String toot_counter;
     private String custom_emoji;
     private String gif;
+    private String font;
+    private String one_hand;
 
     private Boolean background_screen_fit;
 
@@ -152,6 +161,19 @@ public class CustomMenuTimeLine extends Fragment {
 
     //WebSocket
     private WebSocketClient webSocketClient;
+
+    //フォント
+    public static Typeface font_Typeface;
+
+    //名前
+    private String display_name;
+    private String username;
+    private String follow;
+    private String follower;
+    private String statuses;
+    private String note;
+    private JSONObject account_JsonObject;
+    private boolean emojis_show = false;
 
 
     @Override
@@ -194,6 +216,20 @@ public class CustomMenuTimeLine extends Fragment {
         toot_counter = getArguments().getString("toot_counter");
         custom_emoji = getArguments().getString("custom_emoji");
         gif = getArguments().getString("gif");
+        font = getArguments().getString("font");
+        one_hand = getArguments().getString("one_hand");
+
+        //トゥートカウンター
+        countTextView = new TextView(getContext());
+
+        //フォント設定。一回設定したら使い回すようにする
+        //staticってこれで使い方あってんの
+        File file = new File(font);
+        if (file.exists()) {
+            font_Typeface = Typeface.createFromFile(font);
+        } else {
+            font_Typeface = new TextView(getContext()).getTypeface();
+        }
 
         //透明度設定は背景画像利用時のみ利用できるようにする
         if (image_url.length() == 0) {
@@ -229,15 +265,11 @@ public class CustomMenuTimeLine extends Fragment {
             }
         }
 
+        //名前表示
         //サブタイトル更新
-        //サブタイトルが空とかの処理
-        if (subtitle.length() >= 1) {
-            //サブタイトルはEditTextの値
-            ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
-        } else {
-            //名前表示
-            loadAccountName();
-        }
+        //片手モード有効時の処理
+        loadAccountName();
+
 
         //トゥートカウンター
         if (Boolean.valueOf(toot_counter)) {
@@ -616,6 +648,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 Item.add(quick_profile);
                                 Item.add(custom_emoji);
                                 Item.add(gif);
+                                Item.add(font);
 
                                 ListItem listItem = new ListItem(Item);
 
@@ -694,14 +727,28 @@ public class CustomMenuTimeLine extends Fragment {
 
                         String name = jsonObject.getString("display_name");
                         String id = jsonObject.getString("acct");
-                        //サブタイトル更新
+                        username = jsonObject.getString("username");
+                        display_name = jsonObject.getString("display_name");
+                        follow = jsonObject.getString("following_count");
+                        follower = jsonObject.getString("followers_count");
+                        note = jsonObject.getString("note");
+                        account_JsonObject = jsonObject;
+
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(name + "( @" + id + " / " + instance + " )");
+                                //サブタイトル更新
+                                if (subtitle.length() >= 1) {
+                                    ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
+                                } else {
+                                    ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(name + "( @" + id + " / " + instance + " )");
+                                }
+                                //片手モード
+                                if (Boolean.valueOf(one_hand)) {
+                                    one_hand_mode();
+                                }
                             }
                         });
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -1577,6 +1624,7 @@ public class CustomMenuTimeLine extends Fragment {
                 Item.add(quick_profile);
                 Item.add(custom_emoji);
                 Item.add(gif);
+                Item.add(font);
 
                 ListItem listItem = new ListItem(Item);
 
@@ -2070,6 +2118,7 @@ public class CustomMenuTimeLine extends Fragment {
                 Item.add(quick_profile);
                 Item.add(custom_emoji);
                 Item.add(gif);
+                Item.add(font);
 
                 ListItem listItem = new ListItem(Item);
 
@@ -2356,7 +2405,6 @@ public class CustomMenuTimeLine extends Fragment {
         LinearLayout countLinearLayout = new LinearLayout(getContext());
         countLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
         countLinearLayout.setLayoutParams(LayoutlayoutParams);
-        countTextView = new TextView(getContext());
         linearLayout.addView(countLinearLayout, 0);
         //いろいろ
         EditText countEditText = new EditText(getContext());
@@ -2403,5 +2451,54 @@ public class CustomMenuTimeLine extends Fragment {
                 });
             }
         });
+    }
+
+    /**
+     * 片手モード
+     */
+    private void one_hand_mode() {
+        LinearLayout one_hand_LinearLayout = new LinearLayout(getContext());
+        LinearLayout.LayoutParams one_hand_layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        one_hand_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+        one_hand_layoutParams.weight = 1;
+        one_hand_LinearLayout.setLayoutParams(one_hand_layoutParams);
+        one_hand_LinearLayout.setGravity(Gravity.CENTER);
+        //使いみち誰か（）
+        //TL領域を広げるとかする
+        TextView textView = new TextView(getContext());
+        textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        textView.setTextSize(18);
+        textView.setText(getString(R.string.custom_menu_tl_up));
+        //領域広げる
+        one_hand_LinearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (textView.getText().toString().contains(getString(R.string.custom_menu_tl_up))){
+                    textView.setText(getString(R.string.custom_menu_tl_down));
+                    one_hand_layoutParams.weight = 2;
+                }else{
+                    textView.setText(getString(R.string.custom_menu_tl_up));
+                    one_hand_layoutParams.weight = 1;
+                }
+            }
+        });
+        //タイトルも
+        TextView title_TextView = new TextView(getContext());
+        title_TextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        title_TextView.setText(getArguments().getString("name"));
+        title_TextView.setTextSize(24);
+        //追加
+        one_hand_LinearLayout.addView(title_TextView);
+        one_hand_LinearLayout.addView(textView);
+        //半分
+        parent_linearlayout.addView(one_hand_LinearLayout, 0);
+    }
+
+
+    /**
+     * フォント設定
+     */
+    public static Typeface getFont_Typeface() {
+        return font_Typeface;
     }
 }

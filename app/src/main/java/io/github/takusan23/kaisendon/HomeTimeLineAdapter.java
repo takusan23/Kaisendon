@@ -1373,7 +1373,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         user.setTypeface(CustomMenuTimeLine.getFont_Typeface());
         client.setTypeface(CustomMenuTimeLine.getFont_Typeface());
         holder.cardTextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
-
+        boost_button.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+        web_button.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+        holder.bookmark_button.setTypeface(CustomMenuTimeLine.getFont_Typeface());
         //フォントの色設定
         boolean font_setting_swich = pref_setting.getBoolean("pref_fontcolor_setting", false);
         if (font_setting_swich) {

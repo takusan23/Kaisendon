@@ -34,6 +34,11 @@ import okhttp3.Response;
 
 public class KonoAppNiTuite extends AppCompatActivity {
 
+    private String release_name_2 = "まぐろ丼";
+    private String release_ver_2 = "2.0";
+    private String release_name_3 = "べーた丼";
+    private String release_ver_3 = "3.0(仮)";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,7 +81,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
         Button wear_document_Button = findViewById(R.id.wear_document_button);
 
 
-        KonoAppTextView_2.setText(getString(R.string.version) + " " + "2.0" + "\r\n" + "まぐろ丼");
+        KonoAppTextView_2.setText(getString(R.string.version) + " " + release_ver_3 + "\r\n" + release_name_3);
         githubButton.setText(getString(R.string.sourceCode) + ": " + "GitHub");
 
         document_button.setText(getString(R.string.document) + "\n" + "GitHub Wiki");

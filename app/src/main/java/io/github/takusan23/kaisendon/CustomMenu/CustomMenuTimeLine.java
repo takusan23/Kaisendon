@@ -126,6 +126,7 @@ public class CustomMenuTimeLine extends Fragment {
     private String one_hand;
 
     private Boolean background_screen_fit;
+    private boolean dark_theme = false;
 
     private String max_id;
 
@@ -240,6 +241,7 @@ public class CustomMenuTimeLine extends Fragment {
         if (Boolean.valueOf(getArguments().getString("dark_mode"))) {
             linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "000000"));
             ((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#000000"));
+            dark_theme = true;
         } else {
             //黒にしなくていい
             linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "ffffff"));
@@ -2473,10 +2475,10 @@ public class CustomMenuTimeLine extends Fragment {
         one_hand_LinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (textView.getText().toString().contains(getString(R.string.custom_menu_tl_up))){
+                if (textView.getText().toString().contains(getString(R.string.custom_menu_tl_up))) {
                     textView.setText(getString(R.string.custom_menu_tl_down));
                     one_hand_layoutParams.weight = 2;
-                }else{
+                } else {
                     textView.setText(getString(R.string.custom_menu_tl_up));
                     one_hand_layoutParams.weight = 1;
                 }
@@ -2490,6 +2492,12 @@ public class CustomMenuTimeLine extends Fragment {
         //追加
         one_hand_LinearLayout.addView(title_TextView);
         one_hand_LinearLayout.addView(textView);
+        //ダークモード対応
+        if (dark_theme) {
+            title_TextView.setTextColor(Color.parseColor("#ffffff"));
+            textView.setTextColor(Color.parseColor("#ffffff"));
+            one_hand_LinearLayout.setBackgroundColor(Color.parseColor("#000000"));
+        }
         //半分
         parent_linearlayout.addView(one_hand_LinearLayout, 0);
     }

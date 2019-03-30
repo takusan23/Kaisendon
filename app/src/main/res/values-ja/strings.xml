@@ -399,5 +399,7 @@
     <string name="custom_menu_one_hand">片手モード（大画面でも操作しやすくするため）</string>
     <string name="custom_menu_tl_up">タイムラインを広げる</string>
     <string name="custom_menu_tl_down">タイムラインを縮める</string>
+    <string name="misskey_login">Misskeyを使う（一部利用不可）</string>
+    <string name="global">グローバル</string>
 
 </resources>

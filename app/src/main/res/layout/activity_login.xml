@@ -23,6 +23,16 @@
             android:gravity="center"
             android:text="@string/login_nemu"
             android:textSize="24sp" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="25dip" />
+
+        <Switch
+            android:id="@+id/misskey_login_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/misskey_login" />
     </LinearLayout>
 
     <LinearLayout

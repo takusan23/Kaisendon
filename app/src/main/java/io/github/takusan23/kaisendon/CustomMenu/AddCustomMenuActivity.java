@@ -32,6 +32,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -55,8 +56,10 @@ import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.R;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static io.github.takusan23.kaisendon.Preference_ApplicationContext.getContext;
@@ -66,6 +69,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     private MenuPopupHelper account_optionsMenu;
     private CustomMenuSQLiteHelper helper;
     private SQLiteDatabase db;
+
+    private Switch misskey_Switch;
 
     private LinearLayout linearLayout;
     private EditText name_EditText;
@@ -135,6 +140,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         font_TextView = findViewById(R.id.font_textView);
         font_reset_Button = findViewById(R.id.custom_menu_font_reset);
         one_hand_Switch = findViewById(R.id.custom_menu_one_hand);
+        misskey_Switch = findViewById(R.id.misskey_switch);
 
         //クイックプロフィール、カスタム絵文字を既定で有効
         quickprofile_Switch.setChecked(true);
@@ -178,6 +184,21 @@ public class AddCustomMenuActivity extends AppCompatActivity {
 
         //メニュー
         setLoadMenu();
+
+        //Misskeyモード?
+        misskey_Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    //チェックした
+                    setLoadMisskeyMenu();
+                } else {
+                    //チェックしてない
+                    setLoadMenu();
+                }
+            }
+        });
+
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -363,7 +384,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             jsonObject.put("custom_emoji", String.valueOf(custom_emoji_Switch.isChecked()));
             jsonObject.put("gif", String.valueOf(gif_Switch.isChecked()));
             jsonObject.put("font", String.valueOf(font_path));
-            jsonObject.put("one_hand",String.valueOf(one_hand_Switch.isChecked()));
+            jsonObject.put("one_hand", String.valueOf(one_hand_Switch.isChecked()));
             jsonObject.put("setting", "");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -400,7 +421,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             jsonObject.put("custom_emoji", String.valueOf(custom_emoji_Switch.isChecked()));
             jsonObject.put("gif", String.valueOf(gif_Switch.isChecked()));
             jsonObject.put("font", String.valueOf(font_path));
-            jsonObject.put("one_hand",String.valueOf(one_hand_Switch.isChecked()));
+            jsonObject.put("one_hand", String.valueOf(one_hand_Switch.isChecked()));
             jsonObject.put("setting", "");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -612,6 +633,162 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                         }
                     });
 
+                } else {
+                    Toast.makeText(getContext(), R.string.loading, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    /**
+     * Misskey用メニュー
+     */
+    @SuppressLint("RestrictedApi")
+    private void setLoadMisskeyMenu() {
+        //ポップアップメニュー作成
+        MenuBuilder menuBuilder = new MenuBuilder(AddCustomMenuActivity.this);
+        MenuInflater inflater = new MenuInflater(AddCustomMenuActivity.this);
+        inflater.inflate(R.menu.custom_menu_misskey_load_menu, menuBuilder);
+        MenuPopupHelper optionsMenu = new MenuPopupHelper(AddCustomMenuActivity.this, menuBuilder, load_Button);
+        optionsMenu.setForceShowIcon(true);
+        load_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //表示
+                optionsMenu.show();
+                //押したときの反応
+                menuBuilder.setCallback(new MenuBuilder.Callback() {
+                    @Override
+                    public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
+                        switch (menuItem.getItemId()) {
+                            case R.id.misskey_custom_menu_load_home:
+                                load_url = "/api/notes/timeline";
+                                load_Button.setText(R.string.home);
+                                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_home_black_24dp, 0, 0, 0);
+                                break;
+                            case R.id.misskey_custom_menu_load_notification:
+                                load_url = "/api/i/notifications";
+                                load_Button.setText(R.string.notifications);
+                                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_notifications_black_24dp, 0, 0, 0);
+                                break;
+                            case R.id.misskey_custom_menu_load_local:
+                                load_url = "/api/notes/local-timeline";
+                                load_Button.setText(R.string.public_time_line);
+                                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_train_black_24dp, 0, 0, 0);
+                                break;
+                            case R.id.misskey_custom_menu_load_federated:
+                                load_url = "/api/notes/global-timeline";
+                                load_Button.setText(R.string.federated_timeline);
+                                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_flight_black_24dp, 0, 0, 0);
+                                break;
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public void onMenuModeChange(MenuBuilder menuBuilder) {
+
+                    }
+                });
+
+            }
+        });
+
+
+        account_menuBuilder = new MenuBuilder(this);
+        account_optionsMenu = new MenuPopupHelper(this, account_menuBuilder, account_Button);
+        optionsMenu.setForceShowIcon(true);
+        ArrayList<String> multi_account_instance = new ArrayList<>();
+        ArrayList<String> multi_account_access_token = new ArrayList<>();
+        ArrayList<String> multi_account_username = new ArrayList<>();
+        //とりあえずPreferenceに書き込まれた値を
+        String instance_instance_string = pref_setting.getString("misskey_instance_list", "");
+        String account_instance_string = pref_setting.getString("misskey_access_list", "");
+        String username_instance_string = pref_setting.getString("misskey_username_list", "");
+        if (!instance_instance_string.equals("")) {
+            try {
+                JSONArray instance_array = new JSONArray(instance_instance_string);
+                JSONArray access_array = new JSONArray(account_instance_string);
+                JSONArray username_array = new JSONArray(username_instance_string);
+                for (int i = 0; i < instance_array.length(); i++) {
+                    multi_account_access_token.add(access_array.getString(i));
+                    multi_account_instance.add(instance_array.getString(i));
+                    multi_account_username.add(username_array.getString(i));
+                }
+            } catch (Exception e) {
+
+            }
+        }
+
+        if (multi_account_instance.size() >= 1) {
+            for (int count = 0; count < multi_account_instance.size(); count++) {
+                String multi_instance = multi_account_instance.get(count);
+                String multi_access_token = multi_account_access_token.get(count);
+                String multi_username = multi_account_username.get(count);
+                int finalCount = count;
+                //GetAccount
+                String url = "https://" + multi_instance + "/api/users/show";
+                //JSON
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("username", multi_username);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+                //作成
+                Request request = new Request.Builder()
+                        .url(url)
+                        .post(requestBody)
+                        .build();
+
+                //GETリクエスト
+                OkHttpClient client_1 = new OkHttpClient();
+                client_1.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String response_string = response.body().string();
+                        try {
+                            JSONObject jsonObject = new JSONObject(response_string);
+                            String display_name = jsonObject.getString("name");
+                            String user_id = jsonObject.getString("username");
+                            account_menuBuilder.add(0, finalCount, 0, display_name + "(" + user_id + " / " + multi_instance + ")");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        }
+
+        //押したときの処理
+        account_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //追加中に押したら落ちるから回避
+                if (account_menuBuilder.size() == multi_account_instance.size()) {
+                    account_optionsMenu.show();
+                    account_menuBuilder.setCallback(new MenuBuilder.Callback() {
+                        @Override
+                        public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
+
+                            //ItemIdにマルチアカウントのカウントを入れている
+                            int position = menuItem.getItemId();
+                            instance = multi_account_instance.get(position);
+                            access_token = multi_account_access_token.get(position);
+                            account_Button.setText(instance);
+                            return false;
+                        }
+
+                        @Override
+                        public void onMenuModeChange(MenuBuilder menuBuilder) {
+                        }
+                    });
                 } else {
                     Toast.makeText(getContext(), R.string.loading, Toast.LENGTH_SHORT).show();
                 }

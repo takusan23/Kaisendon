@@ -503,5 +503,7 @@
     <string name="custom_menu_one_hand">One-hand mode (to make it easy to operate even on a large screen)</string>
     <string name="custom_menu_tl_up">Expand the timeline</string>
     <string name="custom_menu_tl_down">Shrink the timeline</string>
+    <string name="misskey_login">Use Misskey (some not available)</string>
+    <string name="global">Global</string>
 
 </resources>

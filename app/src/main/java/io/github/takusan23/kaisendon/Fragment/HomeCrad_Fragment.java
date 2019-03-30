@@ -513,7 +513,7 @@ public class HomeCrad_Fragment extends Fragment {
                                 //入れる
                                 instance_title_textiew.setText(getString(R.string.instance_name) + " : " + title + " (" + version + ")");
                                 instance_title_textiew.setCompoundDrawables(title_icon, null, null, null);
-                                instance_description_textview.setText(getString(R.string.instance_description) + " : " + description);
+                                instance_description_textview.setText(getString(R.string.instance_description) + " : " + Html.fromHtml(description,Html.FROM_HTML_MODE_COMPACT));
                                 instance_description_textview.setCompoundDrawables(description_icon, null, null, null);
                                 instance_total_user_textview.setText(getString(R.string.instance_user_count) + " : " + user_total);
                                 instance_total_user_textview.setCompoundDrawables(user_icon, null, null, null);
@@ -889,7 +889,6 @@ public class HomeCrad_Fragment extends Fragment {
                         String toot_text = status.getContent();
                         String user = status.getAccount().getUserName();
                         String user_name = status.getAccount().getDisplayName();
-                        String user_use_client = status.getApplication().getName();
                         long toot_id = status.getId();
                         String toot_id_string = String.valueOf(toot_id);
                         String toot_time = null;

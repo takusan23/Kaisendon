@@ -760,16 +760,6 @@ public class Public_TimeLine_Fragment extends Fragment {
                                     toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
                                 }
 
-                                //アバター絵文字
-                                JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
-                                for (int a = 0; a < avater_emoji.length(); a++) {
-                                    JSONObject jsonObject = avater_emoji.getJSONObject(a);
-                                    String emoji_name = jsonObject.getString("shortcode");
-                                    String emoji_url = jsonObject.getString("url");
-                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
-                                }
-
                                 //ユーザーネームの方の絵文字
                                 JSONArray account_emoji = toot_account.getJSONArray("emojis");
                                 for (int e = 0; e < account_emoji.length(); e++) {
@@ -780,14 +770,26 @@ public class Public_TimeLine_Fragment extends Fragment {
                                     user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                 }
 
-                                //ユーザーネームの方のアバター絵文字
-                                JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
-                                for (int a = 0; a < account_avater_emoji.length(); a++) {
-                                    JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
-                                    String emoji_name = jsonObject.getString("shortcode");
-                                    String emoji_url = jsonObject.getString("url");
-                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                if (!toot_jsonObject.isNull("profile_emojis")){
+                                    //アバター絵文字
+                                    JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
+                                    for (int a = 0; a < avater_emoji.length(); a++) {
+                                        JSONObject jsonObject = avater_emoji.getJSONObject(a);
+                                        String emoji_name = jsonObject.getString("shortcode");
+                                        String emoji_url = jsonObject.getString("url");
+                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                        toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                                    }
+
+                                    //ユーザーネームの方のアバター絵文字
+                                    JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
+                                    for (int a = 0; a < account_avater_emoji.length(); a++) {
+                                        JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
+                                        String emoji_name = jsonObject.getString("shortcode");
+                                        String emoji_url = jsonObject.getString("url");
+                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                        user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                    }
                                 }
                             }
 

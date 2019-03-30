@@ -507,16 +507,18 @@ public class Home extends AppCompatActivity
                                     display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                 }
                             }
-                            JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
-                            for (int i = 0; i < profile_emojis.length(); i++) {
-                                JSONObject emojiObject = profile_emojis.getJSONObject(i);
-                                String emoji_name = emojiObject.getString("shortcode");
-                                String emoji_url = emojiObject.getString("url");
-                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                //display_name
-                                if (display_name.contains(emoji_name)) {
-                                    //あったよ
-                                    display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                            if (!jsonObject.isNull("profile_emojis")){
+                                JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
+                                for (int i = 0; i < profile_emojis.length(); i++) {
+                                    JSONObject emojiObject = profile_emojis.getJSONObject(i);
+                                    String emoji_name = emojiObject.getString("shortcode");
+                                    String emoji_url = emojiObject.getString("url");
+                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                    //display_name
+                                    if (display_name.contains(emoji_name)) {
+                                        //あったよ
+                                        display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                    }
                                 }
                             }
                         }
@@ -2111,16 +2113,18 @@ public class Home extends AppCompatActivity
                                 snackber_DisplayName = snackber_DisplayName.replace(":" + emoji_name + ":", custom_emoji_src);
                             }
                         }
-                        JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
-                        for (int i = 0; i < profile_emojis.length(); i++) {
-                            JSONObject emojiObject = profile_emojis.getJSONObject(i);
-                            String emoji_name = emojiObject.getString("shortcode");
-                            String emoji_url = emojiObject.getString("url");
-                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                            //display_name
-                            if (snackber_DisplayName.contains(emoji_name)) {
-                                //あったよ
-                                snackber_DisplayName = snackber_DisplayName.replace(":" + emoji_name + ":", custom_emoji_src);
+                        if (!jsonObject.isNull("profile_emojis")){
+                            JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
+                            for (int i = 0; i < profile_emojis.length(); i++) {
+                                JSONObject emojiObject = profile_emojis.getJSONObject(i);
+                                String emoji_name = emojiObject.getString("shortcode");
+                                String emoji_url = emojiObject.getString("url");
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                //display_name
+                                if (snackber_DisplayName.contains(emoji_name)) {
+                                    //あったよ
+                                    snackber_DisplayName = snackber_DisplayName.replace(":" + emoji_name + ":", custom_emoji_src);
+                                }
                             }
                         }
                     }

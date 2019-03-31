@@ -248,19 +248,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
 
         //設定を取得
-        //アクセストークンを変更してる場合のコード
-        boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
-        if (accessToken_boomelan) {
-
-            AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
-            Instance = pref_setting.getString("pref_mastodon_instance", "");
-
-        } else {
-
-            AccessToken = pref_setting.getString("main_token", "");
-            Instance = pref_setting.getString("main_instance", "");
-
-        }
+        AccessToken = pref_setting.getString("main_token", "");
+        Instance = pref_setting.getString("main_instance", "");
 
 
         TextView nicoru = holder.nicoru_button;
@@ -763,79 +752,81 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
 
         String finalInstance = Instance;
-        long account = Long.valueOf(listItem.get(6));
         String user_id = listItem.get(7);
         web_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!CustomMenuTimeLine.isMisskeyMode()) {
+                    long account = Long.valueOf(listItem.get(6));
+                    // Display the menu
+                    optionsMenu.show();
 
-                // Display the menu
-                optionsMenu.show();
-
-                //押したときの反応
-                menuBuilder.setCallback(new MenuBuilder.Callback() {
-                    @Override
-                    public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-                        //アカウント
-                        if (item.toString().contains(getContext().getString(R.string.account))) {
-                            //読み込み
-                            //Quick Profile
-                            if (pref_setting.getBoolean("pref_quick_profile", false) || quick_profile) {
-                                //クイックプロフィーる
-                                quickProfileSnackber(v, String.valueOf(account));
-                            } else {
-                                //画面分割用
-                                boolean multipain_ui_mode = pref_setting.getBoolean("app_multipain_ui", false);
-                                if (multipain_ui_mode) {
-                                    FragmentTransaction ft = ((FragmentActivity) parent.getContext()).getSupportFragmentManager().beginTransaction();
-                                    Fragment fragment = new User_Fragment();
-                                    long account_id = account;
-                                    Bundle bundle = new Bundle();
-                                    bundle.putLong("Account_ID", account_id);
-                                    fragment.setArguments(bundle);
-                                    ft.replace(R.id.fragment3, fragment).commit();
-
+                    //押したときの反応
+                    menuBuilder.setCallback(new MenuBuilder.Callback() {
+                        @Override
+                        public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+                            //アカウント
+                            if (item.toString().contains(getContext().getString(R.string.account))) {
+                                //読み込み
+                                //Quick Profile
+                                if (pref_setting.getBoolean("pref_quick_profile", false) || quick_profile) {
+                                    //クイックプロフィーる
+                                    quickProfileSnackber(v, listItem.get(6));
                                 } else {
-                                    long account_id = account;
-                                    Intent intent = new Intent(getContext(), UserActivity.class);
-                                    //IDを渡す
-                                    intent.putExtra("Account_ID", account_id);
+                                    //画面分割用
+                                    boolean multipain_ui_mode = pref_setting.getBoolean("app_multipain_ui", false);
+                                    if (multipain_ui_mode) {
+                                        FragmentTransaction ft = ((FragmentActivity) parent.getContext()).getSupportFragmentManager().beginTransaction();
+                                        Fragment fragment = new User_Fragment();
+                                        long account_id = account;
+                                        Bundle bundle = new Bundle();
+                                        bundle.putLong("Account_ID", account_id);
+                                        fragment.setArguments(bundle);
+                                        ft.replace(R.id.fragment3, fragment).commit();
+
+                                    } else {
+                                        long account_id = account;
+                                        Intent intent = new Intent(getContext(), UserActivity.class);
+                                        //IDを渡す
+                                        intent.putExtra("Account_ID", account_id);
+                                        getContext().startActivity(intent);
+                                    }
+                                }
+                            }
+                            //ブラウザ
+                            if (item.toString().contains(getContext().getString(R.string.browser))) {
+                                //有効
+                                if (chrome_custom_tabs) {
+                                    String custom = CustomTabsHelper.getPackageNameToUse(getContext());
+                                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                                    CustomTabsIntent customTabsIntent = builder.build();
+                                    customTabsIntent.intent.setPackage(custom);
+                                    customTabsIntent.launchUrl((Activity) getContext(), Uri.parse("https://" + finalInstance + "/" + "@" + user_id + "/" + id_string));
+                                    //無効
+                                } else {
+                                    Uri uri = Uri.parse("https://" + finalInstance + "/" + "@" + user_id + "/" + id_string);
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                                     getContext().startActivity(intent);
                                 }
                             }
-                        }
-                        //ブラウザ
-                        if (item.toString().contains(getContext().getString(R.string.browser))) {
-                            //有効
-                            if (chrome_custom_tabs) {
-                                String custom = CustomTabsHelper.getPackageNameToUse(getContext());
-                                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
-                                CustomTabsIntent customTabsIntent = builder.build();
-                                customTabsIntent.intent.setPackage(custom);
-                                customTabsIntent.launchUrl((Activity) getContext(), Uri.parse("https://" + finalInstance + "/" + "@" + user_id + "/" + id_string));
-                                //無効
-                            } else {
-                                Uri uri = Uri.parse("https://" + finalInstance + "/" + "@" + user_id + "/" + id_string);
-                                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                                getContext().startActivity(intent);
+                            //コピー
+                            if (item.toString().contains(getContext().getString(R.string.copy))) {
+                                ClipboardManager clipboardManager =
+                                        (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                clipboardManager.setPrimaryClip(ClipData.newPlainText("", holder.tile_textview.getText().toString()));
+
+                                Toast.makeText(getContext(), getContext().getString(R.string.copy) + " : " + holder.tile_textview.getText().toString(), Toast.LENGTH_SHORT).show();
                             }
-                        }
-                        //コピー
-                        if (item.toString().contains(getContext().getString(R.string.copy))) {
-                            ClipboardManager clipboardManager =
-                                    (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                            clipboardManager.setPrimaryClip(ClipData.newPlainText("", holder.tile_textview.getText().toString()));
 
-                            Toast.makeText(getContext(), getContext().getString(R.string.copy) + " : " + holder.tile_textview.getText().toString(), Toast.LENGTH_SHORT).show();
+                            return false;
                         }
 
-                        return false;
-                    }
-
-                    @Override
-                    public void onMenuModeChange(MenuBuilder menu) {
-                    }
-                });
+                        @Override
+                        public void onMenuModeChange(MenuBuilder menu) {
+                        }
+                    });
+                } else {
+                }
             }
         });
 
@@ -996,10 +987,12 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         //ブーストの要素がnullだったらそのまま
         long account_id = 0;
-        if (reblogToot && listItem.get(20) != null) {
-            account_id = Long.valueOf(listItem.get(23));
-        } else {
-            account_id = Long.valueOf(listItem.get(6));
+        if (!CustomMenuTimeLine.isMisskeyMode()) {
+            if (reblogToot && listItem.get(20) != null) {
+                account_id = Long.valueOf(listItem.get(23));
+            } else {
+                account_id = Long.valueOf(listItem.get(6));
+            }
         }
 
 
@@ -2243,21 +2236,23 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                 profile_note = profile_note.replace(":" + emoji_name + ":", custom_emoji_src);
                             }
                         }
-                        JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
-                        for (int i = 0; i < profile_emojis.length(); i++) {
-                            JSONObject emojiObject = profile_emojis.getJSONObject(i);
-                            String emoji_name = emojiObject.getString("shortcode");
-                            String emoji_url = emojiObject.getString("url");
-                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                            //display_name
-                            if (display_name.contains(emoji_name)) {
-                                //あったよ
-                                display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                            }
-                            //note
-                            if (profile_note.contains(emoji_name)) {
-                                //あったよ
-                                profile_note = profile_note.replace(":" + emoji_name + ":", custom_emoji_src);
+                        if (!jsonObject.isNull("profile_emojis")) {
+                            JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
+                            for (int i = 0; i < profile_emojis.length(); i++) {
+                                JSONObject emojiObject = profile_emojis.getJSONObject(i);
+                                String emoji_name = emojiObject.getString("shortcode");
+                                String emoji_url = emojiObject.getString("url");
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                //display_name
+                                if (display_name.contains(emoji_name)) {
+                                    //あったよ
+                                    display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                }
+                                //note
+                                if (profile_note.contains(emoji_name)) {
+                                    //あったよ
+                                    profile_note = profile_note.replace(":" + emoji_name + ":", custom_emoji_src);
+                                }
                             }
                         }
                     }

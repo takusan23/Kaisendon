@@ -505,5 +505,6 @@
     <string name="custom_menu_tl_down">Shrink the timeline</string>
     <string name="misskey_login">Use Misskey (some not available)</string>
     <string name="global">Global</string>
+    <string name="note_create_message">Would you like to post?</string>
 
 </resources>

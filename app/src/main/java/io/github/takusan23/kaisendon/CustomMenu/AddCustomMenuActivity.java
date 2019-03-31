@@ -108,6 +108,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     private String image_url = "";
     //ふぉんとのパス
     private String font_path = "";
+    //misskey
+    private String misskey_username = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -365,6 +367,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         //JSON化
         JSONObject jsonObject = new JSONObject();
         try {
+            jsonObject.put("misskey", String.valueOf(misskey_Switch.isChecked()));
             jsonObject.put("name", name_EditText.getText().toString());
             jsonObject.put("memo", "");
             jsonObject.put("content", load_url);
@@ -385,6 +388,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             jsonObject.put("gif", String.valueOf(gif_Switch.isChecked()));
             jsonObject.put("font", String.valueOf(font_path));
             jsonObject.put("one_hand", String.valueOf(one_hand_Switch.isChecked()));
+            jsonObject.put("misskey_username", misskey_username);
             jsonObject.put("setting", "");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -402,6 +406,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         //JSON化
         JSONObject jsonObject = new JSONObject();
         try {
+            jsonObject.put("misskey", String.valueOf(misskey_Switch.isChecked()));
             jsonObject.put("name", name_EditText.getText().toString());
             jsonObject.put("memo", "");
             jsonObject.put("content", load_url);
@@ -422,6 +427,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             jsonObject.put("gif", String.valueOf(gif_Switch.isChecked()));
             jsonObject.put("font", String.valueOf(font_path));
             jsonObject.put("one_hand", String.valueOf(one_hand_Switch.isChecked()));
+            jsonObject.put("misskey_username", misskey_username);
             jsonObject.put("setting", "");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -452,6 +458,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         for (int i = 0; i < cursor.getCount(); i++) {
             try {
                 JSONObject jsonObject = new JSONObject(cursor.getString(0));
+                misskey_Switch.setChecked(Boolean.valueOf(jsonObject.getString("misskey")));
                 name_EditText.setText(jsonObject.getString("name"));
                 urlToContent(jsonObject.getString("content"));
                 instance = jsonObject.getString("instance");
@@ -475,6 +482,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 font_Button.setText(jsonObject.getString("font"));
                 font_path = jsonObject.getString("font");
                 File file = new File(font_path);
+                misskey_username = jsonObject.getString("misskey_username");
                 if (file.exists()) {
                     typeface = Typeface.createFromFile(new File(font_path));
                     font_TextView.setTypeface(typeface);
@@ -782,6 +790,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                             instance = multi_account_instance.get(position);
                             access_token = multi_account_access_token.get(position);
                             account_Button.setText(instance);
+                            misskey_username = multi_account_username.get(position);
                             return false;
                         }
 
@@ -826,6 +835,27 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 load_Button.setText(R.string.direct_message);
                 load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_assignment_ind_black_24dp, 0, 0, 0);
                 break;
+            case "/api/notes/timeline":
+                load_url = "/api/notes/timeline";
+                load_Button.setText(R.string.home);
+                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_home_black_24dp, 0, 0, 0);
+                break;
+            case "/api/i/notifications":
+                load_url = "/api/i/notifications";
+                load_Button.setText(R.string.notifications);
+                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_notifications_black_24dp, 0, 0, 0);
+                break;
+            case "/api/notes/local-timeline":
+                load_url = "/api/notes/local-timeline";
+                load_Button.setText(R.string.public_time_line);
+                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_train_black_24dp, 0, 0, 0);
+                break;
+            case "/api/notes/global-timeline":
+                load_url = "/api/notes/global-timeline";
+                load_Button.setText(R.string.global);
+                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_flight_black_24dp, 0, 0, 0);
+                break;
+
         }
     }
 

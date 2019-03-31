@@ -401,5 +401,6 @@
     <string name="custom_menu_tl_down">タイムラインを縮める</string>
     <string name="misskey_login">Misskeyを使う（一部利用不可）</string>
     <string name="global">グローバル</string>
+    <string name="note_create_message">投稿しますか？</string>
 
 </resources>

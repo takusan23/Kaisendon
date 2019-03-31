@@ -769,7 +769,13 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
                     //エラー
-                    Toast.makeText(LoginActivity.this, R.string.error + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                    //失敗
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(LoginActivity.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
                     String response_string = response.body().string();
                     try {
@@ -857,7 +863,13 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
                     //エラー
-                    Toast.makeText(LoginActivity.this, R.string.error + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                    //失敗
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(LoginActivity.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
                     //成功
                     String response_string = response.body().string();
@@ -1127,7 +1139,7 @@ public class LoginActivity extends AppCompatActivity {
             //Permissionは一覧無いけどこれが全てだと思います
             String object = "{\n" +
                     "\"name\": \"" + client_name_EditText.getText().toString() + "\",\n" +
-                    "\"description\": \"Android Misskey Client\",\n" +
+                    "\"description\": \"Android Mastodon/Misskey Client\",\n" +
                     "\"callbackUrl\": \"https://takusan23.github.io/Kaisendon-Callback-Website/\",\n" +
                     "\"permission\":[\"account-read\",\n" +
                     "\"account-write\",\n" +

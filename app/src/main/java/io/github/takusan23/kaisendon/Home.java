@@ -167,6 +167,8 @@ public class Home extends AppCompatActivity
     NavigationView navigationView;
 
     Snackbar toot_snackbar;
+    Snackbar newNote_Snackbar;
+
     SharedPreferences pref_setting;
     FloatingActionButton fab;
     LinearLayout media_LinearLayout;
@@ -377,16 +379,22 @@ public class Home extends AppCompatActivity
         String finalAccessToken1 = AccessToken;
 
         //TootSnackBerのコードがクソ長いのでメゾット化
+        //Misskey
+        setNewNote_Snackber();
         tootSnackBer();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if (!toot_snackbar.isShown()) {
+                if (!toot_snackbar.isShown() || !newNote_Snackbar.isShown()) {
                     //アイコン変更
                     fab.setImageDrawable(getDrawable(R.drawable.ic_arrow_downward_black_24dp));
-                    toot_snackbar.show();
+                    if (CustomMenuTimeLine.isMisskeyMode()) {
+                        newNote_Snackbar.show();
+                    } else {
+                        toot_snackbar.show();
+                    }
                     //ふぉーかす
                     toot_EditText.requestFocus();
                     //キーボード表示
@@ -399,7 +407,11 @@ public class Home extends AppCompatActivity
                 } else {
                     //アイコン変更
                     fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-                    toot_snackbar.dismiss();
+                    if (CustomMenuTimeLine.isMisskeyMode()) {
+                        newNote_Snackbar.dismiss();
+                    } else {
+                        toot_snackbar.dismiss();
+                    }
                     //クローズでソフトキーボード非表示
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     if (imm != null) {
@@ -412,6 +424,7 @@ public class Home extends AppCompatActivity
             }
         });
         //長押し
+/*
         fab.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -421,6 +434,7 @@ public class Home extends AppCompatActivity
                 return false;
             }
         });
+*/
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -507,7 +521,7 @@ public class Home extends AppCompatActivity
                                     display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                 }
                             }
-                            if (!jsonObject.isNull("profile_emojis")){
+                            if (!jsonObject.isNull("profile_emojis")) {
                                 JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
                                 for (int i = 0; i < profile_emojis.length(); i++) {
                                     JSONObject emojiObject = profile_emojis.getJSONObject(i);
@@ -1381,7 +1395,6 @@ public class Home extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
         SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
 
         if (id == R.id.home_timeline) {
@@ -1706,19 +1719,6 @@ public class Home extends AppCompatActivity
         ((TextInputLayout) getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setBoxStrokeColor(Color.parseColor("#ffffff"));
         toot_EditText.setTextColor(Color.parseColor("#ffffff"));
         toot_EditText.setHintTextColor(Color.parseColor("#ffffff"));
-        //サイズ
-        //toot_EditText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        /*
-        //ふぉーかす
-        toot_EditText.requestFocus();
-        //キーボード表示
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (null != imm) {
-            imm.showSoftInput(view, 0);
-        }
-*/
-
         //ボタン追加用LinearLayout
         LinearLayout toot_Button_LinearLayout = new LinearLayout(Home.this);
         toot_Button_LinearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -2032,6 +2032,7 @@ public class Home extends AppCompatActivity
 
         //LinearLayoutに追加
         //メイン
+
         snackber_LinearLayout.addView(account_LinearLayout);
         snackber_LinearLayout.addView(toot_textBox_LinearLayout);
         snackber_LinearLayout.addView(toot_Button_LinearLayout);
@@ -2043,6 +2044,7 @@ public class Home extends AppCompatActivity
         toot_Button_LinearLayout.addView(device_Button);
         //Toot LinearLayout
         toot_LinearLayout.addView(post_button);
+
         //SnackBerに追加
         snackBer_viewGrop.addView(snackber_LinearLayout);
     }
@@ -2113,7 +2115,7 @@ public class Home extends AppCompatActivity
                                 snackber_DisplayName = snackber_DisplayName.replace(":" + emoji_name + ":", custom_emoji_src);
                             }
                         }
-                        if (!jsonObject.isNull("profile_emojis")){
+                        if (!jsonObject.isNull("profile_emojis")) {
                             JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
                             for (int i = 0; i < profile_emojis.length(); i++) {
                                 JSONObject emojiObject = profile_emojis.getJSONObject(i);
@@ -2281,6 +2283,141 @@ public class Home extends AppCompatActivity
         });
     }
 
+    /**
+     * Misskey投稿
+     * 最小限
+     */
+    private void setNewNote_Snackber() {
+        String instance = pref_setting.getString("misskey_main_instance", "");
+        String token = pref_setting.getString("misskey_main_token", "");
+        String username = pref_setting.getString("misskey_main_username", "");
+
+        if (instance.length() != 0) {
+            View view = findViewById(R.id.container_public);
+            newNote_Snackbar = Snackbar.make(view, "", Snackbar.LENGTH_INDEFINITE);
+            ViewGroup snackBer_viewGrop = (ViewGroup) newNote_Snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+            //LinearLayout動的に生成
+            LinearLayout snackber_LinearLayout = new LinearLayout(Home.this);
+            snackber_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+            LinearLayout.LayoutParams warp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            snackber_LinearLayout.setLayoutParams(warp);
+            //テキストボックス
+            //Materialふうに
+            LinearLayout toot_textBox_LinearLayout = new LinearLayout(Home.this);
+            //レイアウト読み込み
+            getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout);
+            EditText toot_EditText = getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_editText);
+            //ふぉーかす
+            toot_EditText.requestFocus();
+
+            //ヒント
+            ((TextInputLayout) getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setHint(getString(R.string.imananisiteru));
+            //色
+            ((TextInputLayout) getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+            ((TextInputLayout) getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setBoxStrokeColor(Color.parseColor("#ffffff"));
+            //投稿用LinearLayout
+            LinearLayout toot_LinearLayout = new LinearLayout(Home.this);
+            toot_LinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            LinearLayout.LayoutParams toot_button_LayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            toot_button_LayoutParams.gravity = Gravity.RIGHT;
+            toot_LinearLayout.setLayoutParams(toot_button_LayoutParams);
+            //投稿用Button
+            Button post_button = new Button(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+            post_button.setText(getString(R.string.toot_text));
+            post_button.setTextColor(Color.parseColor("#ffffff"));
+            Drawable toot_icon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_create_black_24dp, null);
+            post_button.setCompoundDrawablesWithIntrinsicBounds(toot_icon, null, null, null);
+            post_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //クローズでソフトキーボード非表示
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        if (Home.this.getCurrentFocus() != null) {
+                            imm.hideSoftInputFromWindow(Home.this.getCurrentFocus().getWindowToken(), 0);
+                        }
+                    }
+                    //FABのアイコン戻す
+                    fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
+                    //Tootする
+                    //確認SnackBer
+                    Snackbar.make(v, R.string.note_create_message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String url = "https://" + instance + "/api/notes/create";
+                            String text = toot_EditText.getText().toString();
+                            System.out.println("あ:" + text);
+                            JSONObject jsonObject = new JSONObject();
+                            try {
+                                jsonObject.put("i", token);
+                                jsonObject.put("text", text);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+                            //作成
+                            Request request = new Request.Builder()
+                                    .url(url)
+                                    .post(requestBody)
+                                    .build();
+                            //GETリクエスト
+                            OkHttpClient client = new OkHttpClient();
+                            client.newCall(request).enqueue(new Callback() {
+                                @Override
+                                public void onFailure(Call call, IOException e) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(Home.this, getString(R.string.error), Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onResponse(Call call, Response response) throws IOException {
+                                    if (!response.isSuccessful()) {
+                                        //失敗
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(Home.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    } else {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                //EditTextを空にする
+                                                toot_EditText.setText("");
+                                                tootTextCount = 0;
+                                                //TootSnackber閉じる
+                                                newNote_Snackbar.dismiss();
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    }).show();
+                }
+            });
+
+            //追加
+            toot_EditText.setTextColor(Color.parseColor("#ffffff"));
+            toot_EditText.setHintTextColor(Color.parseColor("#ffffff"));
+            snackber_LinearLayout.addView(toot_textBox_LinearLayout);
+            snackber_LinearLayout.addView(toot_LinearLayout);
+            toot_LinearLayout.addView(post_button);
+
+            //SnackBerに追加
+            snackBer_viewGrop.addView(snackber_LinearLayout);
+        }
+    }
 
     /**
      * カスタムメニュー読み込み
@@ -2297,6 +2434,7 @@ public class Home extends AppCompatActivity
                 null
         );
 
+        String misskey = "";
         String name = "";
         String content = "";
         String instance = "";
@@ -2316,6 +2454,7 @@ public class Home extends AppCompatActivity
         String gif = "";
         String font = "";
         String one_hand = "";
+        String misskey_username = "";
         String setting = "";
 
         cursor.moveToFirst();
@@ -2341,6 +2480,8 @@ public class Home extends AppCompatActivity
                 gif = jsonObject.getString("gif");
                 font = jsonObject.getString("font");
                 one_hand = jsonObject.getString("one_hand");
+                misskey = jsonObject.getString("misskey");
+                misskey_username = jsonObject.getString("misskey_username");
                 setting = jsonObject.getString("setting");
 
                 //メニュー追加
@@ -2364,12 +2505,15 @@ public class Home extends AppCompatActivity
                 String finalFont = font;
                 String finalOne_hand = one_hand;
                 String finalSetting = setting;
+                String finalMisskey = misskey;
+                String finalMisskey_username = misskey_username;
                 navigationView.getMenu().add(name).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         //Fragment切り替え
                         //受け渡す
                         Bundle bundle = new Bundle();
+                        bundle.putString("misskey", finalMisskey);
                         bundle.putString("name", finalName);
                         bundle.putString("content", finalContent);
                         bundle.putString("instance", finalInstance);
@@ -2389,6 +2533,7 @@ public class Home extends AppCompatActivity
                         bundle.putString("gif", finalGif);
                         bundle.putString("font", finalFont);
                         bundle.putString("one_hand", finalOne_hand);
+                        bundle.putString("misskey_username", finalMisskey_username);
                         bundle.putString("setting", finalSetting);
                         CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                         customMenuTimeLine.setArguments(bundle);
@@ -2425,12 +2570,15 @@ public class Home extends AppCompatActivity
                 String finalFont = font;
                 String finalOne_hand = one_hand;
                 String finalSetting = setting;
+                String finalMisskey = misskey;
+                String finalMisskey_username = misskey_username;
                 navigationView.getMenu().add(name).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         //Fragment切り替え
                         //受け渡す
                         Bundle bundle = new Bundle();
+                        bundle.putString("name", finalMisskey);
                         bundle.putString("name", finalName);
                         bundle.putString("content", finalContent);
                         bundle.putString("instance", finalInstance);
@@ -2450,6 +2598,7 @@ public class Home extends AppCompatActivity
                         bundle.putString("gif", finalGif);
                         bundle.putString("font", finalFont);
                         bundle.putString("one_hand", finalOne_hand);
+                        bundle.putString("misskey_username", finalMisskey_username);
                         bundle.putString("setting", finalSetting);
                         CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                         customMenuTimeLine.setArguments(bundle);
@@ -2486,6 +2635,18 @@ public class Home extends AppCompatActivity
                 break;
             case "/api/v1/timelines/direct":
                 drawable = getDrawable(R.drawable.ic_assignment_ind_black_24dp);
+                break;
+            case "/api/notes/timeline":
+                drawable = getDrawable(R.drawable.ic_home_black_24dp);
+                break;
+            case "/api/i/notifications":
+                drawable = getDrawable(R.drawable.ic_notifications_black_24dp);
+                break;
+            case "/api/notes/local-timeline":
+                drawable = getDrawable(R.drawable.ic_train_black_24dp);
+                break;
+            case "/api/notes/global-timeline":
+                drawable = getDrawable(R.drawable.ic_flight_black_24dp);
                 break;
         }
         return drawable;

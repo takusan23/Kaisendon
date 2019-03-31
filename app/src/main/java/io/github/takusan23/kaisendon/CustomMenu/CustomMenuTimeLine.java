@@ -50,6 +50,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
@@ -81,6 +82,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import io.github.takusan23.kaisendon.Activity.LoginActivity;
 import io.github.takusan23.kaisendon.Fragment.Public_TimeLine_Fragment;
 import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
@@ -91,8 +93,10 @@ import io.github.takusan23.kaisendon.SnackberProgress;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static io.github.takusan23.kaisendon.Preference_ApplicationContext.getContext;
@@ -107,9 +111,10 @@ public class CustomMenuTimeLine extends Fragment {
 
     private LinearLayout parent_linearlayout;
 
+    private String misskey;
     private String url;
-    private String instance;
-    private String access_token;
+    private static String instance;
+    private static String access_token;
     private String dialog;
     private String image_load;
     private String dark_mode;
@@ -176,6 +181,11 @@ public class CustomMenuTimeLine extends Fragment {
     private JSONObject account_JsonObject;
     private boolean emojis_show = false;
 
+    //misskey
+    private static boolean misskey_mode = false;
+    private static String misskey_username = "";
+    private String untilId = null;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -203,6 +213,8 @@ public class CustomMenuTimeLine extends Fragment {
         imageView = view.findViewById(R.id.custom_tl_background_imageview);
 
         //データ受け取り
+        misskey = getArguments().getString("misskey");
+        misskey_mode = Boolean.valueOf(misskey);
         url = getArguments().getString("content");
         instance = getArguments().getString("instance");
         access_token = getArguments().getString("access_token");
@@ -218,7 +230,23 @@ public class CustomMenuTimeLine extends Fragment {
         custom_emoji = getArguments().getString("custom_emoji");
         gif = getArguments().getString("gif");
         font = getArguments().getString("font");
+        misskey_username = getArguments().getString("misskey_username");
         one_hand = getArguments().getString("one_hand");
+
+        //インスタンス、アクセストークン変更
+        //Misskeyは設定しないように
+        if (!misskey_mode) {
+            SharedPreferences.Editor editor = pref_setting.edit();
+            editor.putString("main_instance", instance);
+            editor.putString("main_token", access_token);
+            editor.apply();
+        }else{
+            SharedPreferences.Editor editor = pref_setting.edit();
+            editor.putString("misskey_main_instance", instance);
+            editor.putString("misskey_main_token", access_token);
+            editor.putString("misskey_main_username", misskey_username);
+            editor.apply();
+        }
 
         //トゥートカウンター
         countTextView = new TextView(getContext());
@@ -267,87 +295,10 @@ public class CustomMenuTimeLine extends Fragment {
             }
         }
 
-        //名前表示
-        //サブタイトル更新
-        //片手モード有効時の処理
-        loadAccountName();
-
-
-        //トゥートカウンター
-        if (Boolean.valueOf(toot_counter)) {
-            setTootCounterLayout();
+        //片手モード
+        if (Boolean.valueOf(one_hand)) {
+            one_hand_mode();
         }
-
-        //ストリーミングAPI。本来は無効のときチェックを付けてるけど保存時に反転してるのでおっけ
-        //無効・有効
-        SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-        if (Boolean.valueOf(streaming)) {
-            //有効
-            //引っ張って更新無効
-            swipeRefreshLayout.setEnabled(false);
-            //通知以外
-            if (!url.contains("/api/v1/notifications")) {
-                loadTimeline("");
-                //ストリーミング
-                useStreamingAPI(false);
-            } else {
-                notificationLayout();
-                //普通にAPI叩く
-                loadNotification("");
-                //ストリーミング
-                useStreamingAPI(true);
-            }
-        } else {
-            //無効
-            //引っ張って更新有効
-            swipeRefreshLayout.setEnabled(true);
-            //通知以外
-            if (url.contains("/api/v1/notifications")) {
-                //通知用レイアウト呼ぶ
-                notificationLayout();
-                //普通にAPI叩く
-                loadNotification("");
-            } else {
-                //通常読み込み
-                loadTimeline("");
-            }
-        }
-
-
-
-/*
-        //タイムラインを読み込む
-        //通知以外のURL
-        if (!url.contains("/api/v1/notifications")) {
-            SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-            loadTimeline("");
-        } else {
-            //通知
-            SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-            loadNotification("");
-            //通知レイアウト
-            notificationLayout();
-        }
-*/
-
-        //引っ張って更新
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                adapter.clear();
-                //トゥートカウンター
-                countTextView.setText("");
-                akeome_count = 0;
-                SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-                //通知以外
-                if (!url.contains("/api/v1/notifications")) {
-                    //普通にAPI叩く
-                    loadTimeline("");
-                } else {
-                    loadNotification("");
-                }
-            }
-        });
 
         //ToolBerをクリックしたら一番上に移動するようにする
         if (pref_setting.getBoolean("pref_listview_top", true)) {
@@ -361,33 +312,157 @@ public class CustomMenuTimeLine extends Fragment {
         }
 
 
-        //最後までスクロール
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
+        //トゥートカウンター
+        if (Boolean.valueOf(toot_counter)) {
+            setTootCounterLayout();
+        }
 
+        //Misskey
+        if (misskey_mode) {
+            loadMisskeyAccountName();
+            //くるくる
+            SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+            //通知以外
+            if (!url.contains("notifications")) {
+                //普通にAPI叩く
+                loadMisskeyTimeline(null, false);
+            } else {
+                loadMisskeyTimeline(null, true);
             }
 
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount && !scroll) {
-                    position = listView.getFirstVisiblePosition();
-                    y = listView.getChildAt(0).getTop();
-                    if (adapter.getCount() >= 20) {
-                        SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-                        scroll = true;
-                        //通知以外
-                        if (!url.contains("/api/v1/notifications")) {
-                            //普通にAPI叩く
-                            loadTimeline(max_id);
-                        } else {
-                            loadNotification(max_id);
+            //引っ張って更新
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    adapter.clear();
+                    //トゥートカウンター
+                    countTextView.setText("");
+                    akeome_count = 0;
+                    SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+                    //通知以外
+                    if (!url.contains("notifications")) {
+                        //普通にAPI叩く
+                        loadMisskeyTimeline(null, false);
+                    } else {
+                        loadMisskeyTimeline(null, true);
+                    }
+                }
+            });
+
+            //最後までスクロール
+            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+                }
+
+                @Override
+                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                    if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount && !scroll) {
+                        position = listView.getFirstVisiblePosition();
+                        y = listView.getChildAt(0).getTop();
+                        if (adapter.getCount() >= 20) {
+                            SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+                            scroll = true;
+                            //通知以外
+                            if (!url.contains("notifications")) {
+                                //普通にAPI叩く
+                                loadMisskeyTimeline(CustomMenuTimeLine.this.untilId, false);
+                            } else {
+                                loadMisskeyTimeline(null, true);
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
 
+
+        } else {
+            //名前表示
+            //サブタイトル更新
+            //片手モード有効時の処理
+            loadAccountName();
+
+            //ストリーミングAPI。本来は無効のときチェックを付けてるけど保存時に反転してるのでおっけ
+            //無効・有効
+            SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+            if (Boolean.valueOf(streaming)) {
+                //有効
+                //引っ張って更新無効
+                swipeRefreshLayout.setEnabled(false);
+                //通知以外
+                if (!url.contains("/api/v1/notifications")) {
+                    loadTimeline("");
+                    //ストリーミング
+                    useStreamingAPI(false);
+                } else {
+                    notificationLayout();
+                    //普通にAPI叩く
+                    loadNotification("");
+                    //ストリーミング
+                    useStreamingAPI(true);
+                }
+            } else {
+                //無効
+                //引っ張って更新有効
+                swipeRefreshLayout.setEnabled(true);
+                //通知以外
+                if (url.contains("/api/v1/notifications")) {
+                    //通知用レイアウト呼ぶ
+                    notificationLayout();
+                    //普通にAPI叩く
+                    loadNotification("");
+                } else {
+                    //通常読み込み
+                    loadTimeline("");
+                }
+            }
+            //引っ張って更新
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    adapter.clear();
+                    //トゥートカウンター
+                    countTextView.setText("");
+                    akeome_count = 0;
+                    SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+                    //通知以外
+                    if (!url.contains("/api/v1/notifications")) {
+                        //普通にAPI叩く
+                        loadTimeline("");
+                    } else {
+                        loadNotification("");
+                    }
+                }
+            });
+
+            //最後までスクロール
+            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+                }
+
+                @Override
+                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                    if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount && !scroll) {
+                        position = listView.getFirstVisiblePosition();
+                        y = listView.getChildAt(0).getTop();
+                        if (adapter.getCount() >= 20) {
+                            SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+                            scroll = true;
+                            //通知以外
+                            if (!url.contains("/api/v1/notifications")) {
+                                //普通にAPI叩く
+                                loadTimeline(max_id);
+                            } else {
+                                loadNotification(max_id);
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -695,6 +770,72 @@ public class CustomMenuTimeLine extends Fragment {
         });
     }
 
+    /**
+     * Misskey ユーザー情報取得
+     */
+    private void loadMisskeyAccountName() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("username", misskey_username);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+        //作成
+        Request request = new Request.Builder()
+                .url("https://" + instance + "/api/users/show")
+                .post(requestBody)
+                .build();
+        //GETリクエスト
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                //失敗時
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                if (!response.isSuccessful()) {
+                    //失敗時
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response_string);
+                        String name = jsonObject.getString("name");
+                        String username = jsonObject.getString("username");
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //サブタイトル更新
+                                if (subtitle.length() >= 1) {
+                                    ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
+                                } else {
+                                    ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(name + "( @" + username + " / " + instance + " )");
+                                }
+                            }
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+    }
+
     //DisplayName + ID　が出るようにする
     private void loadAccountName() {
         //パラメータを設定
@@ -716,7 +857,7 @@ public class CustomMenuTimeLine extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getContext(), R.string.error, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -745,10 +886,6 @@ public class CustomMenuTimeLine extends Fragment {
                                 } else {
                                     ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(name + "( @" + id + " / " + instance + " )");
                                 }
-                                //片手モード
-                                if (Boolean.valueOf(one_hand)) {
-                                    one_hand_mode();
-                                }
                             }
                         });
                     } catch (JSONException e) {
@@ -759,7 +896,7 @@ public class CustomMenuTimeLine extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getContext(), R.string.error + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -886,337 +1023,6 @@ public class CustomMenuTimeLine extends Fragment {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-
-
-/*
-        client = new MastodonClient.Builder(instance, new OkHttpClient.Builder(), new Gson())
-                .accessToken(access_token)
-                .useStreamingApi()
-                .build();
-        //AsyncTask
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... aVoid) {
-                Handler handler = new Handler() {
-
-                    @Override
-                    public void onStatus(@NotNull com.sys1yagi.mastodon4j.api.entity.Status status) {
-                        //通知以外
-                        if (!notification_mode) {
-                            final String[] toot_text = {status.getContent()};
-                            String user = status.getAccount().getAcct();
-                            final String[] user_name = {status.getAccount().getDisplayName()};
-                            String user_use_client = null;
-                            long toot_id = status.getId();
-                            String toot_id_string = String.valueOf(toot_id);
-                            //toot_time = status.getCreatedAt();
-                            long account_id = status.getAccount().getId();
-                            //ブースト　ふぁぼ
-                            //Reblogかな？
-                            String isBoost = "no";
-                            String isFav = "no";
-                            String boostCount = "0";
-                            String favCount = "0";
-                            //ブーストあったよ
-                            String boost_content = null;
-                            String boost_user_name = null;
-                            String boost_user = null;
-                            String boost_avater_url = null;
-                            long boost_account_id = 0;
-                            String toot_time = null;
-
-                            try {
-                                boost_content = status.getReblog().getContent();
-                                boost_user_name = status.getReblog().getAccount().getDisplayName();
-                                boost_user = status.getReblog().getAccount().getAcct();
-                                boost_avater_url = status.getReblog().getAccount().getAvatar();
-                                boost_account_id = status.getReblog().getId();
-                                //BTしたTootのばあいがあるね
-                                if (status.getReblog().isReblogged()) {
-                                    isBoost = "reblogged";
-                                }
-                                if (status.getReblog().isFavourited()) {
-                                    isFav = "favourited";
-                                }
-                                //かうんと
-                                boostCount = String.valueOf(status.getReblog().getReblogsCount());
-                                favCount = String.valueOf(status.getReblog().getFavouritesCount());
-                            } catch (NullPointerException e) {
-                                e.printStackTrace();
-                                //BTなかった
-                                if (status.isReblogged()) {
-                                    isBoost = "reblogged";
-                                }
-                                if (status.isFavourited()) {
-                                    isFav = "favourited";
-                                }
-                                //かうんと
-                                boostCount = String.valueOf(status.getReblogsCount());
-                                favCount = String.valueOf(status.getFavouritesCount());
-                            }
-
-                            //ユーザーのアバター取得
-                            String user_avater_url = status.getAccount().getAvatar();
-
-                            //一番最初のIDを控える
-                            if (max_id == null) {
-                                max_id = toot_id_string;
-                            }
-
-                            //クライアント名
-                            try {
-                                user_use_client = status.getApplication().getName();
-                            } catch (NullPointerException e) {
-                                user_use_client = null;
-                            }
-
-
-                            boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
-                            if (japan_timeSetting) {
-                                //時差計算？
-                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-                                //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
-                                //日本用フォーマット
-                                SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
-                                try {
-                                    Date date = simpleDateFormat.parse(status.getCreatedAt());
-                                    Calendar calendar = Calendar.getInstance();
-                                    calendar.setTime(date);
-                                    //9時間足して日本時間へ
-                                    calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
-                                    //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                                    toot_time = japanDateFormat.format(calendar.getTime());
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                toot_time = status.getCreatedAt();
-                            }
-
-                            String[] mediaURL = {null, null, null, null};
-                            //めでぃあ
-                            //配列に入れる形で
-                            final int[] i = {0};
-                            List<Attachment> list = status.getMediaAttachments();
-                            list.forEach(media -> {
-                                mediaURL[i[0]] = media.getUrl();
-                                i[0]++;
-                            });
-
-                            //System.out.println("配列 : " + Arrays.asList(mediaURL));
-
-                            //配列から文字列に
-                            String media_url_1 = mediaURL[0];
-                            String media_url_2 = mediaURL[1];
-                            String media_url_3 = mediaURL[2];
-                            String media_url_4 = mediaURL[3];
-
-
-                            if (pref_setting.getBoolean("pref_custom_emoji", false) || Boolean.valueOf(custom_emoji)) {
-                                //カスタム絵文字
-                                List<Emoji> emoji_List = status.getEmojis();
-                                emoji_List.forEach(emoji -> {
-                                    String emoji_name = emoji.getShortcode();
-                                    String emoji_url = emoji.getUrl();
-                                    //System.out.println("絵文字:" + emoji_name);
-                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    toot_text[0] = toot_text[0].replace(":" + emoji_name + ":", custom_emoji_src);
-                                });
-
-                                //DisplayNameカスタム絵文字
-                                List<Emoji> account_emoji_List = status.getAccount().getEmojis();
-                                account_emoji_List.forEach(emoji -> {
-                                    String emoji_name = emoji.getShortcode();
-                                    String emoji_url = emoji.getUrl();
-                                    //System.out.println("絵文字:" + emoji_name);
-                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    user_name[0] = user_name[0].replace(":" + emoji_name + ":", custom_emoji_src);
-                                });
-                            }
-
-                            Bitmap bmp = null;
-                            //BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);  // 今回はサンプルなのでデフォルトのAndroid Iconを利用
-                            ImageButton nicoru_button = null;
-
-
-                            //Card
-                            ArrayList<String> card = new ArrayList<>();
-                            String cardTitle = null;
-                            String cardURL = null;
-                            String cardDescription = null;
-                            String cardImage = null;
-
-                            try {
-                                Card statuses = new Statuses(client).getCard(toot_id).execute();
-                                if (!statuses.getUrl().isEmpty()) {
-                                    cardTitle = statuses.getTitle();
-                                    cardURL = statuses.getUrl();
-                                    cardDescription = statuses.getDescription();
-                                    cardImage = statuses.getImage();
-
-                                    card.add(statuses.getTitle());
-                                    card.add(statuses.getUrl());
-                                    card.add(statuses.getDescription());
-                                    card.add(statuses.getImage());
-                                }
-                            } catch (Mastodon4jRequestException e) {
-                                e.printStackTrace();
-                            }
-
-                            if (getActivity() != null && isAdded()) {
-
-                                //配列を作成
-                                ArrayList<String> Item = new ArrayList<>();
-                                //メモとか通知とかに
-                                Item.add("CustomMenu");
-                                //内容
-                                Item.add(toot_text[0]);
-                                //ユーザー名
-                                Item.add(user_name[0] + " @" + user);
-                                //時間、クライアント名等
-                                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                                //Toot ID 文字列版
-                                Item.add(toot_id_string);
-                                //アバターURL
-                                Item.add(user_avater_url);
-                                //アカウントID
-                                Item.add(String.valueOf(account_id));
-                                //ユーザーネーム
-                                Item.add(user);
-                                //メディア
-                                Item.add(media_url_1);
-                                Item.add(media_url_2);
-                                Item.add(media_url_3);
-                                Item.add(media_url_4);
-                                //カード
-                                Item.add(cardTitle);
-                                Item.add(cardURL);
-                                Item.add(cardDescription);
-                                Item.add(cardImage);
-                                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                                Item.add(isBoost);
-                                Item.add(isFav);
-                                Item.add(boostCount);
-                                Item.add(favCount);
-                                //Reblog ブースト用
-                                Item.add(boost_content);
-                                Item.add(boost_user_name + " @" + boost_user);
-                                Item.add(boost_avater_url);
-                                Item.add(String.valueOf(boost_account_id));
-                                //警告テキスト
-                                //TODO 警告文実装する
-                                Item.add("");
-                                //カスタムメニュー用
-                                Item.add(dialog);
-                                Item.add(image_load);
-                                Item.add(quick_profile);
-                                Item.add(custom_emoji);
-
-
-                                ListItem listItem = new ListItem(Item);
-
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-
-                                        adapter.insert(listItem, 0);
-                                        // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
-                                        int pos = listView.getFirstVisiblePosition();
-                                        int top = 0;
-                                        if (listView.getChildCount() > 0) {
-                                            top = listView.getChildAt(0).getTop();
-                                        }
-                                        listView.setAdapter(adapter);
-                                        // 要素追加前の状態になるようセットする
-                                        adapter.notifyDataSetChanged();
-                                        //一番上なら追いかける
-                                        if (pos == 0) {
-                                            listView.post(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    listView.smoothScrollToPosition(0);
-                                                }
-                                            });
-                                        } else {
-                                            listView.setSelectionFromTop(pos + 1, top);
-                                        }
-                                        //ストリーミングAPI前のStatus取得
-                                        //loadTimeline(max_id);
-
-                                        //カウンター
-                                        if (Boolean.valueOf(toot_counter)) {
-                                            //含んでいるか
-                                            if (toot_text[0].contains(count_text)) {
-                                                String count_template = "　を含んだトゥート数 : ";
-                                                akeome_count++;
-                                                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
-                                            }
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onNotification(@NotNull Notification notification) {
-                        //通知のみ
-                        if (notification_mode) {
-                            if (fav_filter) {
-                                if (notification.getType().contains("favourite")) {
-                                    streamingNotificationParse(notification);
-                                }
-                            }
-                            if (bt_filter) {
-                                if (notification.getType().contains("reblog")) {
-                                    streamingNotificationParse(notification);
-                                }
-                            }
-                            if (mention_filter) {
-                                if (notification.getType().contains("mention")) {
-                                    streamingNotificationParse(notification);
-                                }
-                            }
-                            if (follow_filter) {
-                                if (notification.getType().contains("follow")) {
-                                    streamingNotificationParse(notification);
-                                }
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onDelete(long l) {
-
-                    }
-                };
-
-                Streaming streaming = new Streaming(client);
-                try {
-                    switch (getArguments().getString("content")) {
-                        case "/api/v1/timelines/home":
-                            shutdownable = streaming.user(handler);
-                            break;
-                        case "/api/v1/notifications":
-                            shutdownable = streaming.user(handler);
-                            break;
-                        case "/api/v1/timelines/public?local=true":
-                            shutdownable = streaming.localPublic(handler);
-                            break;
-                        case "/api/v1/timelines/public":
-                            shutdownable = streaming.federatedPublic(handler);
-                            break;
-                        case "/api/v1/timelines/direct":
-                            break;
-                    }
-                } catch (Mastodon4jRequestException e) {
-                    e.printStackTrace();
-                }
-
-                return null;
-            }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-*/
     }
 
     /**
@@ -2170,6 +1976,336 @@ public class CustomMenuTimeLine extends Fragment {
         }
     }
 
+    /**
+     * MisskeyAPI
+     * note/timeline
+     *
+     * @param id           追加読み込み時に利用。<br>追加読込しない場合は<b>null</b>を入れてね
+     * @param notification 通知の場合は<b>true</b>
+     */
+    private void loadMisskeyTimeline(String id, boolean notification) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("i", access_token);
+            jsonObject.put("limit", 100);
+            if (id != null) {
+                jsonObject.put("untilId", id);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+        //GETリクエスト
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                try {
+                    JSONArray jsonArray = new JSONArray(response_string);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        if (!notification) {
+                            setMisskeyTLParse(jsonObject);
+                        } else {
+                            setMisskeyNotification(jsonObject);
+                        }
+                    }
+                    if (untilId != null) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                swipeRefreshLayout.setRefreshing(false);
+                            }
+                        });
+                    }
+                    //最後のIDを保存
+                    JSONObject last = jsonArray.getJSONObject(99);
+                    CustomMenuTimeLine.this.untilId = last.getString("id");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /**
+     * Misskey JSON TL Parse
+     *
+     * @param jsonObject JSONオブジェクト
+     */
+    private void setMisskeyTLParse(JSONObject jsonObject) {
+        try {
+            JSONObject account_JsonObject = jsonObject.getJSONObject("user");
+            String toot_text = "";
+            toot_text = jsonObject.getString("text");
+            String name = account_JsonObject.getString("name");
+            String username = account_JsonObject.getString("username");
+            String note_id = jsonObject.getString("id");
+            String avatar = account_JsonObject.getString("avatarUrl");
+            String user_Id = account_JsonObject.getString("id");
+            String renote_count = jsonObject.getString("renoteCount");
+            String createdAt = jsonObject.getString("createdAt");
+            String host = "";
+            String client = null;
+            //media
+            String media_1 = null;
+            String media_2 = null;
+            String media_3 = null;
+            String media_4 = null;
+            //card
+            String cardTitle = null;
+            String cardURL = null;
+            String cardDescription = null;
+            String cardImage = null;
+            //renote
+            String renote_content = null;
+            String renote_user_name = null;
+            String renote_user = null;
+            String renote_avater_url = null;
+            String renote_account_id = null;
+            //クライアント名
+            if (!jsonObject.isNull("app")) {
+                client = jsonObject.getJSONObject("app").getString("name");
+            }
+            //host (acct的な)
+            if (!account_JsonObject.isNull("host")) {
+                host = account_JsonObject.getString("host");
+                host = "@" + host;
+            }
+            //添付メディア
+            if (!jsonObject.isNull("media")) {
+                JSONArray media = jsonObject.getJSONArray("media");
+                if (!media.isNull(0)) {
+                    media_1 = media.getJSONObject(0).getString("url");
+                }
+                if (!media.isNull(1)) {
+                    media_2 = media.getJSONObject(1).getString("url");
+                }
+                if (!media.isNull(2)) {
+                    media_3 = media.getJSONObject(2).getString("url");
+                }
+                if (!media.isNull(3)) {
+                    media_4 = media.getJSONObject(3).getString("url");
+                }
+            }
+            //renote (Mastodonで言うboost)
+            if (!jsonObject.isNull("renote")) {
+                JSONObject renote_JsonObject = jsonObject.getJSONObject("renote");
+                JSONObject user_JsonObject = renote_JsonObject.getJSONObject("user");
+                renote_content = renote_JsonObject.getString("text");
+                renote_user_name = user_JsonObject.getString("name");
+                renote_user = user_JsonObject.getString("username");
+                renote_avater_url = user_JsonObject.getString("avatarUrl");
+                renote_account_id = user_JsonObject.getString("id");
+            }
+            //絵文字
+            if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
+                JSONArray emoji = jsonObject.getJSONArray("emojis");
+                for (int e = 0; e < emoji.length(); e++) {
+                    JSONObject emoji_jsonObject = emoji.getJSONObject(e);
+                    String emoji_name = emoji_jsonObject.getString("name");
+                    String emoji_url = emoji_jsonObject.getString("url");
+                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                    toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                }
+
+                //ユーザーネームの方の絵文字
+                if (!account_JsonObject.isNull("emojis")) {
+                    JSONArray account_emoji = account_JsonObject.getJSONArray("emojis");
+                    for (int e = 0; e < account_emoji.length(); e++) {
+                        JSONObject emoji_jsonObject = account_emoji.getJSONObject(e);
+                        String emoji_name = emoji_jsonObject.getString("name");
+                        String emoji_url = emoji_jsonObject.getString("url");
+                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                        name = name.replace(":" + emoji_name + ":", custom_emoji_src);
+                    }
+                }
+            }
+            if (getActivity() != null && isAdded()) {
+                //配列を作成
+                ArrayList<String> Item = new ArrayList<>();
+                //メモとか通知とかに
+                Item.add("CustomMenu");
+                //内容
+                Item.add(toot_text);
+                //ユーザー名
+                Item.add(name + " @" + username + " " + host);
+                //時間、クライアント名等
+                Item.add("クライアント : " + client + " / " + "ID : " + note_id + " / " + getString(R.string.time) + " : " + createdAt);
+                //Toot ID 文字列版
+                Item.add(note_id);
+                //アバターURL
+                Item.add(avatar);
+                //アカウントID
+                Item.add(user_Id);
+                //ユーザーネーム
+                Item.add(host);
+                //メディア
+                Item.add(media_1);
+                Item.add(media_2);
+                Item.add(media_3);
+                Item.add(media_4);
+                //カード
+                Item.add(cardTitle);
+                Item.add(cardURL);
+                Item.add(cardDescription);
+                Item.add(cardImage);
+                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
+                Item.add("");
+                Item.add("");
+                Item.add("");
+                Item.add("");
+                //Reblog ブースト用
+                Item.add(renote_content);
+                Item.add(renote_user_name + " @" + renote_user);
+                Item.add(renote_avater_url);
+                Item.add(renote_account_id);
+                //警告テキスト
+                Item.add("");
+                //カスタムメニュー用
+                Item.add(dialog);
+                Item.add(image_load);
+                Item.add(quick_profile);
+                Item.add(custom_emoji);
+                Item.add(gif);
+                Item.add(font);
+                ListItem listItem = new ListItem(Item);
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.add(listItem);
+                        adapter.notifyDataSetChanged();
+                        listView.setAdapter(adapter);
+                        //くるくる終了
+                        SnackberProgress.closeProgressSnackber();
+                        listView.setSelectionFromTop(position, y);
+                        scroll = false;
+                    }
+                });
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Misskey通知
+     **/
+    private void setMisskeyNotification(JSONObject jsonObject) {
+        try {
+            JSONObject note_JsonObject = jsonObject.getJSONObject("note");
+            JSONObject user_JsonObject = jsonObject.getJSONObject("user");
+            String layout_type = "";
+            String text = note_JsonObject.getString("text");
+            String id = jsonObject.getString("id");
+            String type = jsonObject.getString("type");
+            String name = user_JsonObject.getString("name");
+            String username = user_JsonObject.getString("username");
+            String note_id = note_JsonObject.getString("id");
+            String createdAt = jsonObject.getString("createdAt");
+            String avatar = user_JsonObject.getString("avatarUrl");
+            String account_id = user_JsonObject.getString("id");
+            String host = "";
+            //画像各位
+            String media_1 = null;
+            String media_2 = null;
+            String media_3 = null;
+            String media_4 = null;
+            //card
+            String cardTitle = null;
+            String cardURL = null;
+            String cardDescription = null;
+            String cardImage = null;
+            //acct
+            if (!user_JsonObject.isNull("host")) {
+                host = user_JsonObject.getString("host");
+                host = "@" + host;
+            }
+            //添付メディア
+            if (!jsonObject.isNull("media")) {
+                JSONArray media = jsonObject.getJSONArray("media");
+                if (!media.isNull(0)) {
+                    media_1 = media.getJSONObject(0).getString("url");
+                }
+                if (!media.isNull(1)) {
+                    media_2 = media.getJSONObject(1).getString("url");
+                }
+                if (!media.isNull(2)) {
+                    media_3 = media.getJSONObject(2).getString("url");
+                }
+                if (!media.isNull(3)) {
+                    media_4 = media.getJSONObject(3).getString("url");
+                }
+            }
+
+            if (getActivity() != null && isAdded()) {
+
+                //配列を作成
+                ArrayList<String> Item = new ArrayList<>();
+                //メモとか通知とかに
+                Item.add(layout_type);
+                //内容
+                Item.add(text);
+                //ユーザー名
+                Item.add(name + " @" + username + host + " / " + type);
+                //時間、クライアント名等
+                Item.add("ID : " + note_id + " / " + getString(R.string.time) + " : " + createdAt);
+                //Toot ID 文字列版
+                Item.add(note_id);
+                //アバターURL
+                Item.add(avatar);
+                //アカウントID
+                Item.add(account_id);
+                //ユーザーネーム
+                Item.add(username + host);
+                //メディア
+                Item.add(media_1);
+                Item.add(media_2);
+                Item.add(media_3);
+                Item.add(media_4);
+                //カード
+                Item.add(cardTitle);
+                Item.add(cardURL);
+                Item.add(cardDescription);
+                Item.add(cardImage);
+                ListItem listItem = new ListItem(Item);
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.add(listItem);
+                        adapter.notifyDataSetChanged();
+                        listView.setAdapter(adapter);
+                        //くるくる終了
+                        SnackberProgress.closeProgressSnackber();
+                        listView.setSelectionFromTop(position, y);
+                        scroll = false;
+                    }
+                });
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * ストリーミングAPI版通知Parse
@@ -2508,5 +2644,27 @@ public class CustomMenuTimeLine extends Fragment {
      */
     public static Typeface getFont_Typeface() {
         return font_Typeface;
+    }
+
+    /**
+     * Misskeyモードかどうか
+     */
+    public static boolean isMisskeyMode() {
+        return misskey_mode;
+    }
+
+    /**
+     * Instance
+     */
+    public static String getInstance() {
+        return instance;
+    }
+
+    public static String getAccess_token() {
+        return access_token;
+    }
+
+    public static String getUsername() {
+        return misskey_username;
     }
 }

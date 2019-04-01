@@ -402,5 +402,10 @@
     <string name="misskey_login">Misskeyを使う（一部利用不可）</string>
     <string name="global">グローバル</string>
     <string name="note_create_message">投稿しますか？</string>
+    <string name="misskey_public">公開</string>
+    <string name="misskey_home">ホームのみ公開</string>
+    <string name="misskey_followers">フォロワーにのみ公開</string>
+    <string name="misskey_specified">ダイレクト（指定したユーザーにのみ公開）</string>
+    <string name="misskey_private">公開（ローカルのみ）</string>
 
 </resources>

@@ -184,6 +184,7 @@ public class CustomMenuTimeLine extends Fragment {
     //misskey
     private static boolean misskey_mode = false;
     private static String misskey_username = "";
+    private static String account_id = "";
     private String untilId = null;
 
 
@@ -240,7 +241,7 @@ public class CustomMenuTimeLine extends Fragment {
             editor.putString("main_instance", instance);
             editor.putString("main_token", access_token);
             editor.apply();
-        }else{
+        } else {
             SharedPreferences.Editor editor = pref_setting.edit();
             editor.putString("misskey_main_instance", instance);
             editor.putString("misskey_main_token", access_token);
@@ -816,6 +817,7 @@ public class CustomMenuTimeLine extends Fragment {
                         JSONObject jsonObject = new JSONObject(response_string);
                         String name = jsonObject.getString("name");
                         String username = jsonObject.getString("username");
+                        account_id = jsonObject.getString("id");
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -2005,6 +2007,7 @@ public class CustomMenuTimeLine extends Fragment {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -2016,6 +2019,7 @@ public class CustomMenuTimeLine extends Fragment {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String response_string = response.body().string();
+                //System.out.println(response_string);
                 try {
                     JSONArray jsonArray = new JSONArray(response_string);
                     for (int i = 0; i < jsonArray.length(); i++) {
@@ -2654,6 +2658,13 @@ public class CustomMenuTimeLine extends Fragment {
     }
 
     /**
+     * CustomMenu利用中かどうかを返す
+     */
+    public static boolean isUseCustomMenu() {
+        return true;
+    }
+
+    /**
      * Instance
      */
     public static String getInstance() {
@@ -2666,5 +2677,9 @@ public class CustomMenuTimeLine extends Fragment {
 
     public static String getUsername() {
         return misskey_username;
+    }
+
+    public static String getAccount_id() {
+        return account_id;
     }
 }

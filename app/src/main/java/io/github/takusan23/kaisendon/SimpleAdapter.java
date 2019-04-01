@@ -61,10 +61,10 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
     private SQLiteDatabase sqLiteDatabase;
 
     //メディア
-    String media_url_1 = null;
-    String media_url_2 = null;
-    String media_url_3 = null;
-    String media_url_4 = null;
+    private String media_url_1 = null;
+    private String media_url_2 = null;
+    private String media_url_3 = null;
+    private String media_url_4 = null;
 
 
     SharedPreferences pref = Preference_ApplicationContext.getContext().getSharedPreferences("preferences", Context.MODE_PRIVATE);
@@ -414,10 +414,10 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
 
             //TootShortcut用
             if (avater_url.contains("toot_shortcut")) {
-                String icon_text = avater_url.replace("toot_shortcut ","");
-                    Glide.with(view)
-                            .load(stringToDrawable(icon_text))
-                            .into(thumbnail);
+                String icon_text = avater_url.replace("toot_shortcut ", "");
+                Glide.with(view)
+                        .load(stringToDrawable(icon_text))
+                        .into(thumbnail);
 
             }
 
@@ -425,7 +425,7 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
         }
 
 
-        long account_id = Long.valueOf(listItem.get(6));
+        String account_id = listItem.get(6);
 
 
         //ユーザー情報
@@ -441,26 +441,15 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
                     //読み込み
                     boolean multipain_ui_mode = pref_setting.getBoolean("app_multipain_ui", false);
 
-                    if (multipain_ui_mode) {
 
-                        Bundle bundle = new Bundle();
-                        bundle.putLong("Account_ID", account_id);
-                        fragment.setArguments(bundle);
+                    Intent intent = new Intent(getContext(), UserActivity.class);
+                    //IDを渡す
+                    intent.putExtra("Account_ID", account_id);
+                    getContext().startActivity(intent);
 
-                        ft.replace(R.id.fragment3, fragment).commit();
-
-                    } else {
-
-                        Intent intent = new Intent(getContext(), UserActivity.class);
-                        //IDを渡す
-                        intent.putExtra("Account_ID", account_id);
-                        getContext().startActivity(intent);
-                    }
                 }
             });
         }
-
-
 
 
         //カスタムストリーミングで背景色を変える機能

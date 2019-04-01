@@ -506,5 +506,10 @@
     <string name="misskey_login">Use Misskey (some not available)</string>
     <string name="global">Global</string>
     <string name="note_create_message">Would you like to post?</string>
+    <string name="misskey_public">Public</string>
+    <string name="misskey_home">Home</string>
+    <string name="misskey_followers">Followers</string>
+    <string name="misskey_specified">Direct</string>
+    <string name="misskey_private">Public(Local Only)</string>
 
 </resources>

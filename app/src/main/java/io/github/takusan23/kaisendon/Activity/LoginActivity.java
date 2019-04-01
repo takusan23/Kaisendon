@@ -73,6 +73,8 @@ public class LoginActivity extends AppCompatActivity {
     private Switch misskey_login_Switch;
     private String misskey_code;
     private SharedPreferences.Editor editor;
+    //強制保存モード
+    private boolean error_mode = false;
 
 
     @Override
@@ -122,7 +124,6 @@ public class LoginActivity extends AppCompatActivity {
                 //Step1:client_id,client_secretを取得せよ
                 //Misskeyと分ける
                 if (misskey_login_Switch.isChecked()) {
-                    String instance = instance_name_EditText.getText().toString();
                     getMisskeyApp();
                 } else {
                     getClientIDSecret();
@@ -149,6 +150,15 @@ public class LoginActivity extends AppCompatActivity {
                             public void onClick(View v) {
                                 //アクセストークン検証あんd保存
                                 checkMisskeyAccount(client_name_EditText.getText().toString(), ((EditText) getLayoutInflater().inflate(R.layout.textinput_edittext, access_token_LinearLayout).findViewById(R.id.name_editText)).getText().toString());
+                            }
+                        });
+                        //強制保存モード(非推奨)
+                        //一回失敗しないと利用できないように
+                        login_Button.setOnLongClickListener(new View.OnLongClickListener() {
+                            @Override
+                            public boolean onLongClick(View v) {
+                                saveMisskeyAccount(instance_name_EditText.getText().toString(), ((EditText) getLayoutInflater().inflate(R.layout.textinput_edittext, access_token_LinearLayout).findViewById(R.id.name_editText)).getText().toString(), client_name_EditText.getText().toString());
+                                return false;
                             }
                         });
                     } else {
@@ -1059,12 +1069,38 @@ public class LoginActivity extends AppCompatActivity {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-
+                e.printStackTrace();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                error_mode = true;
+                                login_Button.append("\n" + "長押しで強制保存モードになります（非推奨）");
+                                Toast.makeText(LoginActivity.this, getString(R.string.error), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String response_string = response.body().string();
+                if (!response.isSuccessful()){
+                    //失敗
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            error_mode = true;
+                            login_Button.append("\n" + "長押しで強制保存モードになります（非推奨）");
+                            Toast.makeText(LoginActivity.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }else {
+
+                }
                 try {
                     JSONObject jsonObject = new JSONObject(response_string);
                     String name = jsonObject.getString("name");
@@ -1076,7 +1112,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     /**

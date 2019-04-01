@@ -149,7 +149,7 @@ public class Home extends AppCompatActivity
     String user_avater = null;
     String user_header = null;
 
-    long account_id;
+    String account_id;
     private ProgressDialog dialog;
     AlertDialog alertDialog;
 
@@ -173,6 +173,7 @@ public class Home extends AppCompatActivity
     FloatingActionButton fab;
     LinearLayout media_LinearLayout;
     Button post_button;
+    ImageButton toot_area_Button;
     EditText toot_EditText;
     //公開範囲
     String toot_area = "public";
@@ -180,12 +181,14 @@ public class Home extends AppCompatActivity
     String snackber_DisplayName;
     String snackber_Name = "";
     String Instance;
+    String AccessToken;
     String snackber_Avatar;
     ImageView snackberAccountAvaterImageView;
     TextView snackberAccount_TextView;
     MenuBuilder account_menuBuilder;
     MenuPopupHelper account_optionsMenu;
     LinearLayout account_LinearLayout;
+    LinearLayout misskey_account_LinearLayout;
     //マルチアカウント読み込み用
     ArrayList<String> multi_account_instance;
     ArrayList<String> multi_account_access_token;
@@ -297,7 +300,7 @@ public class Home extends AppCompatActivity
 
 
         //アクセストークン
-        String AccessToken = null;
+        AccessToken = null;
         //インスタンス
         Instance = null;
 
@@ -380,21 +383,27 @@ public class Home extends AppCompatActivity
 
         //TootSnackBerのコードがクソ長いのでメゾット化
         //Misskey
-        setNewNote_Snackber();
+        //setNewNote_Snackber();
         tootSnackBer();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                if (!toot_snackbar.isShown() || !newNote_Snackbar.isShown()) {
+                //ユーザー情報を取得
+                if (CustomMenuTimeLine.isMisskeyMode()) {
+                    getMisskeyAccount();
+                    setMisskeyVisibilityMenu(toot_area_Button);
+                } else {
+                    getAccount();
+                    setMastodonVisibilityMenu(toot_area_Button);
+                }
+                toot_snackbar.dismiss();
+                fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
+                if (!toot_snackbar.isShown()) {
                     //アイコン変更
-                    fab.setImageDrawable(getDrawable(R.drawable.ic_arrow_downward_black_24dp));
-                    if (CustomMenuTimeLine.isMisskeyMode()) {
-                        newNote_Snackbar.show();
-                    } else {
-                        toot_snackbar.show();
-                    }
+                    //fab.setImageDrawable(getDrawable(R.drawable.ic_arrow_downward_black_24dp));
+                    toot_snackbar.show();
+
                     //ふぉーかす
                     toot_EditText.requestFocus();
                     //キーボード表示
@@ -402,17 +411,9 @@ public class Home extends AppCompatActivity
                     if (imm != null) {
                         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                     }
-
-
                 } else {
-                    //アイコン変更
-                    fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-                    if (CustomMenuTimeLine.isMisskeyMode()) {
-                        newNote_Snackbar.dismiss();
-                    } else {
-                        toot_snackbar.dismiss();
-                    }
                     //クローズでソフトキーボード非表示
+                    fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     if (imm != null) {
                         if (Home.this.getCurrentFocus() != null) {
@@ -504,7 +505,7 @@ public class Home extends AppCompatActivity
                         user_id = jsonObject.getString("username");
                         user_avater = jsonObject.getString("avatar");
                         user_header = jsonObject.getString("header");
-                        account_id = jsonObject.getInt("id");
+                        account_id = jsonObject.getString("id");
 
                         //カスタム絵文字適用
                         if (emojis_show) {
@@ -586,7 +587,7 @@ public class Home extends AppCompatActivity
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getContext(), R.string.error + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -1373,6 +1374,12 @@ public class Home extends AppCompatActivity
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home, menu);
+        return true;
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -1381,7 +1388,29 @@ public class Home extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+
         //noinspection SimplifiableIfStatement
+        switch (id) {
+            case R.id.home_menu_login:
+                Intent login = new Intent(this, LoginActivity.class);
+                startActivity(login);
+                break;
+            case R.id.home_menu_account:
+                Intent intent = new Intent(this, UserActivity.class);
+                if (CustomMenuTimeLine.isMisskeyMode()) {
+                    intent.putExtra("Account_ID", CustomMenuTimeLine.getAccount_id());
+                } else {
+                    intent.putExtra("Account_ID", account_id);
+                }
+                intent.putExtra("my", true);
+                startActivity(intent);
+                break;
+            case R.id.home_menu_settings:
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.container_container, new SettingFragment());
+                transaction.commit();
+                break;
+        }
         if (id == R.id.action_settings) {
             return true;
         }
@@ -1760,61 +1789,16 @@ public class Home extends AppCompatActivity
         });
 
         //公開範囲選択用Button
-        ImageButton toot_area_Button = new ImageButton(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        toot_area_Button = new ImageButton(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
         toot_area_Button.setImageDrawable(getDrawable(R.drawable.ic_public_black_24dp));
         toot_area_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
         //toot_area_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_public_black_24dp, 0, 0, 0);
-
-        //ポップアップメニュー作成
-        MenuBuilder menuBuilder = new MenuBuilder(Home.this);
-        MenuInflater inflater = new MenuInflater(Home.this);
-        inflater.inflate(R.menu.toot_area_menu, menuBuilder);
-        MenuPopupHelper optionsMenu = new MenuPopupHelper(Home.this, menuBuilder, toot_area_Button);
-        optionsMenu.setForceShowIcon(true);
-
-        //ポップアップメニューを展開する
-        toot_area_Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //表示
-                optionsMenu.show();
-                //押したときの反応
-                menuBuilder.setCallback(new MenuBuilder.Callback() {
-                    @Override
-                    public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
-                        //公開（全て）
-                        if (menuItem.getTitle().toString().contains(getString(R.string.visibility_public))) {
-                            toot_area = "public";
-                            toot_area_Button.setImageDrawable(getDrawable(R.drawable.ic_public_black_24dp));
-                        }
-                        //未収載（TL公開なし・誰でも見れる）
-                        if (menuItem.getTitle().toString().contains(getString(R.string.visibility_unlisted))) {
-                            toot_area = "unlisted";
-                            toot_area_Button.setImageDrawable(getDrawable(R.drawable.ic_done_all_black_24dp));
-                        }
-                        //非公開（フォロワー限定）
-                        if (menuItem.getTitle().toString().contains(getString(R.string.visibility_private))) {
-                            toot_area = "private";
-                            toot_area_Button.setImageDrawable(getDrawable(R.drawable.ic_lock_open_black_24dp));
-                        }
-                        //ダイレクト（指定したアカウントと自分）
-                        if (menuItem.getTitle().toString().contains(getString(R.string.visibility_direct))) {
-                            toot_area = "direct";
-                            toot_area_Button.setImageDrawable(getDrawable(R.drawable.ic_assignment_ind_black_24dp));
-                        }
-
-                        return false;
-                    }
-
-                    @Override
-                    public void onMenuModeChange(MenuBuilder menuBuilder) {
-
-                    }
-                });
-
-            }
-        });
-
+        //メニューセット
+        if (CustomMenuTimeLine.isMisskeyMode()) {
+            setMisskeyVisibilityMenu(toot_area_Button);
+        } else {
+            setMastodonVisibilityMenu(toot_area_Button);
+        }
 
         //投稿用LinearLayout
         LinearLayout toot_LinearLayout = new LinearLayout(Home.this);
@@ -1825,7 +1809,7 @@ public class Home extends AppCompatActivity
 
         //投稿用Button
         post_button = new Button(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
-        post_button.setText(String.valueOf(tootTextCount) + "/" + "500 " + getString(R.string.toot));
+        post_button.setText(String.valueOf(tootTextCount) + "/" + "500 " + getString(R.string.toot_text));
         post_button.setTextColor(Color.parseColor("#ffffff"));
         Drawable toot_icon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_create_black_24dp, null);
         post_button.setCompoundDrawablesWithIntrinsicBounds(toot_icon, null, null, null);
@@ -1849,45 +1833,17 @@ public class Home extends AppCompatActivity
                     fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
                     //Tootする
                     //確認SnackBer
-                    Snackbar.make(v, R.string.toot_dialog, Snackbar.LENGTH_SHORT).setAction(R.string.toot, new View.OnClickListener() {
+                    Snackbar.make(v, R.string.note_create_message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             //FABのアイコン戻す
                             fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-
-                            String url = "https://" + finalInstance + "/api/v1/statuses/?access_token=" + finalAccessToken;
-                            //ぱらめーたー
-                            RequestBody requestBody = new FormBody.Builder()
-                                    .add("status", toot_EditText.getText().toString())
-                                    .add("visibility", toot_area)
-                                    .build();
-                            Request request = new Request.Builder()
-                                    .url(url)
-                                    .post(requestBody)
-                                    .build();
-
-                            //POST
-                            OkHttpClient client = new OkHttpClient();
-                            client.newCall(request).enqueue(new Callback() {
-                                @Override
-                                public void onFailure(Call call, IOException e) {
-
-                                }
-
-                                @Override
-                                public void onResponse(Call call, Response response) throws IOException {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            //EditTextを空にする
-                                            toot_EditText.setText("");
-                                            tootTextCount = 0;
-                                            //TootSnackber閉じる
-                                            toot_snackbar.dismiss();
-                                        }
-                                    });
-                                }
-                            });
+                            //Mastodon / Misskey
+                            if (CustomMenuTimeLine.isMisskeyMode()) {
+                                misskeyNoteCreatePOST();
+                            } else {
+                                mastodonStatusesPOST();
+                            }
                         }
                     }).show();
                 }
@@ -1986,7 +1942,7 @@ public class Home extends AppCompatActivity
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/じゃんけん", "じゃんけん");
                 //カウント
                 tootTextCount = toot_EditText.getText().toString().length();
-                post_button.setText(String.valueOf(tootTextCount) + "/" + "500 " + getString(R.string.toot));
+                post_button.setText(String.valueOf(tootTextCount) + "/" + "500 " + getString(R.string.toot_text));
             }
 
             @Override
@@ -2010,15 +1966,21 @@ public class Home extends AppCompatActivity
         snackberAccount_TextView.setTextColor(Color.parseColor("#ffffff"));
         snackberAccount_TextView.setLayoutParams(center_layoutParams);
         //アカウント情報を取得するところにテキスト設定とか書いたで
-        getAccount();
+        if (CustomMenuTimeLine.isMisskeyMode()) {
+            getMisskeyAccount();
+        } else {
+            getAccount();
+        }
         //アカウント切り替えポップアップ
         //ポップアップメニューを展開する
         account_menuBuilder = new MenuBuilder(this);
         account_optionsMenu = new MenuPopupHelper(this, account_menuBuilder, account_LinearLayout);
-        optionsMenu.setForceShowIcon(true);
         //マルチアカウント読み込み
         //押したときの処理とかもこっち
-        readMultiAccount();
+        //カスタムメニュー時は無効（）
+        if (!CustomMenuTimeLine.isUseCustomMenu()) {
+            readMultiAccount();
+        }
 
         //LinearLayoutに入れる
         account_LinearLayout.addView(snackberAccountAvaterImageView);
@@ -2283,140 +2245,363 @@ public class Home extends AppCompatActivity
         });
     }
 
-    /**
-     * Misskey投稿
-     * 最小限
-     */
-    private void setNewNote_Snackber() {
+
+    //自分の情報を手に入れる Misskey版
+    private void getMisskeyAccount() {
         String instance = pref_setting.getString("misskey_main_instance", "");
         String token = pref_setting.getString("misskey_main_token", "");
         String username = pref_setting.getString("misskey_main_username", "");
+        //Wi-Fi接続状況確認
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        if (instance.length() != 0) {
-            View view = findViewById(R.id.container_public);
-            newNote_Snackbar = Snackbar.make(view, "", Snackbar.LENGTH_INDEFINITE);
-            ViewGroup snackBer_viewGrop = (ViewGroup) newNote_Snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
-            //LinearLayout動的に生成
-            LinearLayout snackber_LinearLayout = new LinearLayout(Home.this);
-            snackber_LinearLayout.setOrientation(LinearLayout.VERTICAL);
-            LinearLayout.LayoutParams warp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            snackber_LinearLayout.setLayoutParams(warp);
-            //テキストボックス
-            //Materialふうに
-            LinearLayout toot_textBox_LinearLayout = new LinearLayout(Home.this);
-            //レイアウト読み込み
-            getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout);
-            EditText toot_EditText = getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_editText);
-            //ふぉーかす
-            toot_EditText.requestFocus();
+        NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
 
-            //ヒント
-            ((TextInputLayout) getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setHint(getString(R.string.imananisiteru));
-            //色
-            ((TextInputLayout) getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
-            ((TextInputLayout) getLayoutInflater().inflate(R.layout.textinput_edittext, toot_textBox_LinearLayout).findViewById(R.id.name_TextInputLayout)).setBoxStrokeColor(Color.parseColor("#ffffff"));
-            //投稿用LinearLayout
-            LinearLayout toot_LinearLayout = new LinearLayout(Home.this);
-            toot_LinearLayout.setOrientation(LinearLayout.HORIZONTAL);
-            LinearLayout.LayoutParams toot_button_LayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            toot_button_LayoutParams.gravity = Gravity.RIGHT;
-            toot_LinearLayout.setLayoutParams(toot_button_LayoutParams);
-            //投稿用Button
-            Button post_button = new Button(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
-            post_button.setText(getString(R.string.toot_text));
-            post_button.setTextColor(Color.parseColor("#ffffff"));
-            Drawable toot_icon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_create_black_24dp, null);
-            post_button.setCompoundDrawablesWithIntrinsicBounds(toot_icon, null, null, null);
-            post_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //クローズでソフトキーボード非表示
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    if (imm != null) {
-                        if (Home.this.getCurrentFocus() != null) {
-                            imm.hideSoftInputFromWindow(Home.this.getCurrentFocus().getWindowToken(), 0);
+        //通信量節約
+        boolean setting_avater_hidden = pref_setting.getBoolean("pref_drawer_avater", false);
+        //Wi-Fi接続時は有効？
+        boolean setting_avater_wifi = pref_setting.getBoolean("pref_avater_wifi", true);
+        //GIFを再生するか？
+        boolean setting_avater_gif = pref_setting.getBoolean("pref_avater_gif", false);
+        String url = "https://" + instance + "/api/users/show";
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("username", username);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        //GETリクエスト
+        OkHttpClient client_1 = new OkHttpClient();
+        String finalInstance = Instance;
+        client_1.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                try {
+                    JSONObject jsonObject = new JSONObject(response_string);
+                    String display_name = jsonObject.getString("name");
+                    snackber_DisplayName = display_name;
+                    //カスタム絵文字適用
+                    if (emojis_show) {
+                        //他のところでは一旦配列に入れてるけど今回はここでしか使ってないから省くね
+                        JSONArray emojis = jsonObject.getJSONArray("emojis");
+                        for (int i = 0; i < emojis.length(); i++) {
+                            JSONObject emojiObject = emojis.getJSONObject(i);
+                            String emoji_name = emojiObject.getString("name");
+                            String emoji_url = emojiObject.getString("url");
+                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                            //display_name
+                            if (snackber_DisplayName.contains(emoji_name)) {
+                                //あったよ
+                                snackber_DisplayName = snackber_DisplayName.replace(":" + emoji_name + ":", custom_emoji_src);
+                            }
+                        }
+                        if (!jsonObject.isNull("profile_emojis")) {
+                            JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
+                            for (int i = 0; i < profile_emojis.length(); i++) {
+                                JSONObject emojiObject = profile_emojis.getJSONObject(i);
+                                String emoji_name = emojiObject.getString("name");
+                                String emoji_url = emojiObject.getString("url");
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                //display_name
+                                if (snackber_DisplayName.contains(emoji_name)) {
+                                    //あったよ
+                                    snackber_DisplayName = snackber_DisplayName.replace(":" + emoji_name + ":", custom_emoji_src);
+                                }
+                            }
                         }
                     }
-                    //FABのアイコン戻す
-                    fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-                    //Tootする
-                    //確認SnackBer
-                    Snackbar.make(v, R.string.note_create_message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
+                    snackber_Name = "@" + username + "@" + instance + "";
+                    snackber_Avatar = jsonObject.getString("avatarUrl");
+                    //UIスレッド
+                    runOnUiThread(new Runnable() {
                         @Override
-                        public void onClick(View v) {
-                            String url = "https://" + instance + "/api/notes/create";
-                            String text = toot_EditText.getText().toString();
-                            System.out.println("あ:" + text);
-                            JSONObject jsonObject = new JSONObject();
-                            try {
-                                jsonObject.put("i", token);
-                                jsonObject.put("text", text);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                        public void run() {
+                            //画像を入れる
+                            //表示設定
+                            if (setting_avater_hidden) {
+                                snackberAccountAvaterImageView.setImageResource(R.drawable.ic_person_black_24dp);
+                                snackberAccountAvaterImageView.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
                             }
-                            RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
-                            //作成
-                            Request request = new Request.Builder()
-                                    .url(url)
-                                    .post(requestBody)
-                                    .build();
-                            //GETリクエスト
-                            OkHttpClient client = new OkHttpClient();
-                            client.newCall(request).enqueue(new Callback() {
-                                @Override
-                                public void onFailure(Call call, IOException e) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    Toast.makeText(Home.this, getString(R.string.error), Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                public void onResponse(Call call, Response response) throws IOException {
-                                    if (!response.isSuccessful()) {
-                                        //失敗
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(Home.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
+                            //Wi-Fi
+                            if (setting_avater_wifi) {
+                                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                                    if (setting_avater_gif) {
+                                        //GIFアニメ再生させない
+                                        Picasso.get()
+                                                .load(snackber_Avatar)
+                                                .resize(100, 100)
+                                                .placeholder(R.drawable.ic_refresh_black_24dp)
+                                                .into(snackberAccountAvaterImageView);
                                     } else {
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                //EditTextを空にする
-                                                toot_EditText.setText("");
-                                                tootTextCount = 0;
-                                                //TootSnackber閉じる
-                                                newNote_Snackbar.dismiss();
-                                            }
-                                        });
+                                        //GIFアニメを再生
+                                        Glide.with(getApplicationContext())
+                                                .load(snackber_Avatar)
+                                                .apply(new RequestOptions().override(100, 100).placeholder(R.drawable.ic_refresh_black_24dp))
+                                                .into(snackberAccountAvaterImageView);
                                     }
                                 }
-                            });
+                            } else {
+                                snackberAccountAvaterImageView.setImageResource(R.drawable.ic_person_black_24dp);
+                                snackberAccountAvaterImageView.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
+                            }
+                            //テキストビューに入れる
+                            PicassoImageGetter imageGetter = new PicassoImageGetter(snackberAccount_TextView);
+                            snackberAccount_TextView.setText(Html.fromHtml(snackber_DisplayName, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
+                            snackberAccount_TextView.append("\n" + snackber_Name);
                         }
-                    }).show();
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            });
 
-            //追加
-            toot_EditText.setTextColor(Color.parseColor("#ffffff"));
-            toot_EditText.setHintTextColor(Color.parseColor("#ffffff"));
-            snackber_LinearLayout.addView(toot_textBox_LinearLayout);
-            snackber_LinearLayout.addView(toot_LinearLayout);
-            toot_LinearLayout.addView(post_button);
+            }
+        });
+    }
 
-            //SnackBerに追加
-            snackBer_viewGrop.addView(snackber_LinearLayout);
+    /**
+     * Misskey notes/create POST
+     */
+    private void misskeyNoteCreatePOST() {
+        String instance = pref_setting.getString("misskey_main_instance", "");
+        String token = pref_setting.getString("misskey_main_token", "");
+        String username = pref_setting.getString("misskey_main_username", "");
+        String url = "https://" + instance + "/api/notes/create";
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("i", token);
+            jsonObject.put("visibility", toot_area);
+            jsonObject.put("text", toot_EditText.getText().toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        //GETリクエスト
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    //失敗
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(Home.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            //EditTextを空にする
+                            toot_EditText.setText("");
+                            tootTextCount = 0;
+                            //TootSnackber閉じる
+                            toot_snackbar.dismiss();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * Mastodon statuses POST
+     */
+    private void mastodonStatusesPOST() {
+        String url = "https://" + Instance + "/api/v1/statuses/?access_token=" + AccessToken;
+        //ぱらめーたー
+        RequestBody requestBody = new FormBody.Builder()
+                .add("status", toot_EditText.getText().toString())
+                .add("visibility", toot_area)
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        //POST
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    //失敗
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(Home.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            //EditTextを空にする
+                            toot_EditText.setText("");
+                            tootTextCount = 0;
+                            //TootSnackber閉じる
+                            toot_snackbar.dismiss();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * Mastodon 公開範囲
+     */
+    @SuppressLint("RestrictedApi")
+    private void setMastodonVisibilityMenu(ImageButton button) {
+        //ポップアップメニュー作成
+        MenuBuilder menuBuilder = new MenuBuilder(Home.this);
+        MenuInflater inflater = new MenuInflater(Home.this);
+        inflater.inflate(R.menu.toot_area_menu, menuBuilder);
+        MenuPopupHelper optionsMenu = new MenuPopupHelper(Home.this, menuBuilder, button);
+        optionsMenu.setForceShowIcon(true);
+        //ポップアップメニューを展開する
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //表示
+                optionsMenu.show();
+                //押したときの反応
+                menuBuilder.setCallback(new MenuBuilder.Callback() {
+                    @Override
+                    public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
+                        //公開（全て）
+                        if (menuItem.getTitle().toString().contains(getString(R.string.visibility_public))) {
+                            toot_area = "public";
+                            button.setImageDrawable(getDrawable(R.drawable.ic_public_black_24dp));
+                        }
+                        //未収載（TL公開なし・誰でも見れる）
+                        if (menuItem.getTitle().toString().contains(getString(R.string.visibility_unlisted))) {
+                            toot_area = "unlisted";
+                            button.setImageDrawable(getDrawable(R.drawable.ic_done_all_black_24dp));
+                        }
+                        //非公開（フォロワー限定）
+                        if (menuItem.getTitle().toString().contains(getString(R.string.visibility_private))) {
+                            toot_area = "private";
+                            button.setImageDrawable(getDrawable(R.drawable.ic_lock_open_black_24dp));
+                        }
+                        //ダイレクト（指定したアカウントと自分）
+                        if (menuItem.getTitle().toString().contains(getString(R.string.visibility_direct))) {
+                            toot_area = "direct";
+                            button.setImageDrawable(getDrawable(R.drawable.ic_assignment_ind_black_24dp));
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public void onMenuModeChange(MenuBuilder menuBuilder) {
+
+                    }
+                });
+
+            }
+        });
+    }
+
+    /**
+     * Misskey 公開範囲
+     */
+    @SuppressLint("RestrictedApi")
+    private void setMisskeyVisibilityMenu(ImageButton button) {
+        //ポップアップメニュー作成
+        MenuBuilder menuBuilder = new MenuBuilder(Home.this);
+        MenuInflater inflater = new MenuInflater(Home.this);
+        inflater.inflate(R.menu.misskey_visibility_menu, menuBuilder);
+        MenuPopupHelper optionsMenu = new MenuPopupHelper(Home.this, menuBuilder, button);
+        optionsMenu.setForceShowIcon(true);
+        //ポップアップメニューを展開する
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //表示
+                optionsMenu.show();
+                //押したときの反応
+                menuBuilder.setCallback(new MenuBuilder.Callback() {
+                    @Override
+                    public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
+                        //公開（全て）
+                        if (menuItem.getTitle().toString().contains(getString(R.string.misskey_public))) {
+                            toot_area = "public";
+                            button.setImageDrawable(getDrawable(R.drawable.ic_public_black_24dp));
+                        }
+                        //ホーム
+                        if (menuItem.getTitle().toString().contains(getString(R.string.misskey_home))) {
+                            toot_area = "home";
+                            button.setImageDrawable(getDrawable(R.drawable.ic_home_black_24dp));
+                        }
+                        //フォロワー限定
+                        if (menuItem.getTitle().toString().contains(getString(R.string.misskey_followers))) {
+                            toot_area = "followers";
+                            button.setImageDrawable(getDrawable(R.drawable.ic_person_add_black_24dp));
+                        }
+                        //ダイレクト（指定したアカウントと自分）
+                        if (menuItem.getTitle().toString().contains(getString(R.string.misskey_specified))) {
+                            toot_area = "specified";
+                            button.setImageDrawable(getDrawable(R.drawable.ic_assignment_ind_black_24dp));
+                        }
+                        //公開（ローカルのみ）
+                        if (menuItem.getTitle().toString().contains(getString(R.string.misskey_private))) {
+                            toot_area = "private";
+                            button.setImageDrawable(getDrawable(R.drawable.ic_public_black_24dp));
+                        }
+
+                        return false;
+                    }
+
+                    @Override
+                    public void onMenuModeChange(MenuBuilder menuBuilder) {
+
+                    }
+                });
+
+            }
+        });
     }
 
     /**

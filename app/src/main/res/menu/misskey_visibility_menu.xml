@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/misskey_visibility_public"
+        android:icon="@drawable/ic_public_black_24dp"
+        android:title="@string/misskey_public"></item>
+    <item
+        android:id="@+id/misskey_visibility_home"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="@string/misskey_home"></item>
+    <item
+        android:id="@+id/misskey_visibility_followers"
+        android:icon="@drawable/ic_person_add_black_24dp"
+        android:title="@string/misskey_followers"></item>
+    <item
+        android:id="@+id/misskey_visibility_specified"
+        android:icon="@drawable/ic_assignment_ind_black_24dp"
+        android:title="@string/misskey_specified"></item>
+    <item
+        android:id="@+id/misskey_visibility_private"
+        android:icon="@drawable/ic_public_black_24dp"
+        android:title="@string/misskey_private"></item>
+
+</menu>

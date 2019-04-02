@@ -407,5 +407,12 @@
     <string name="misskey_followers">フォロワーにのみ公開</string>
     <string name="misskey_specified">ダイレクト（指定したユーザーにのみ公開）</string>
     <string name="misskey_private">公開（ローカルのみ）</string>
+    <string name="renote_message">この投稿をRenoteしますか？</string>
+    <string name="renote">Renote</string>
+    <string name="renote_delete_message">この投稿のRenoteを解除しますか？</string>
+    <string name="delete_renote">Renoteを解除</string>
+    <string name="renote_ok">Renoteしました</string>
+    <string name="renote_delete_ok">Renoteを解除しました</string>
+    <string name="add_reaction">リアクションを選択</string>
 
 </resources>

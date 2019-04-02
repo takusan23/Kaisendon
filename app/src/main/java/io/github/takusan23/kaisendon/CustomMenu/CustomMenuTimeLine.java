@@ -2020,29 +2020,39 @@ public class CustomMenuTimeLine extends Fragment {
             public void onResponse(Call call, Response response) throws IOException {
                 String response_string = response.body().string();
                 //System.out.println(response_string);
-                try {
-                    JSONArray jsonArray = new JSONArray(response_string);
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        if (!notification) {
-                            setMisskeyTLParse(jsonObject);
-                        } else {
-                            setMisskeyNotification(jsonObject);
+                if (!response.isSuccessful()) {
+                    //失敗時
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                         }
-                    }
-                    if (untilId != null) {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                swipeRefreshLayout.setRefreshing(false);
+                    });
+                } else {
+                    try {
+                        JSONArray jsonArray = new JSONArray(response_string);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                            if (!notification) {
+                                setMisskeyTLParse(jsonObject);
+                            } else {
+                                setMisskeyNotification(jsonObject);
                             }
-                        });
+                        }
+                        if (untilId != null) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    swipeRefreshLayout.setRefreshing(false);
+                                }
+                            });
+                        }
+                        //最後のIDを保存
+                        JSONObject last = jsonArray.getJSONObject(99);
+                        CustomMenuTimeLine.this.untilId = last.getString("id");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                    //最後のIDを保存
-                    JSONObject last = jsonArray.getJSONObject(99);
-                    CustomMenuTimeLine.this.untilId = last.getString("id");
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
             }
         });
@@ -2108,6 +2118,15 @@ public class CustomMenuTimeLine extends Fragment {
                     media_4 = media.getJSONObject(3).getString("url");
                 }
             }
+
+            //ブースト　ふぁぼ
+            //本家Misskeyに自分がRenoteしたかどうかを取得する値が無いらしい（めいめいMisskeyにはあるっぽい）
+            String isBoost = "no";
+            String isFav = "no";
+            String boostCount = "0";
+            String favCount = "0";
+            boostCount = jsonObject.getString("renoteCount");
+
             //renote (Mastodonで言うboost)
             if (!jsonObject.isNull("renote")) {
                 JSONObject renote_JsonObject = jsonObject.getJSONObject("renote");
@@ -2171,10 +2190,10 @@ public class CustomMenuTimeLine extends Fragment {
                 Item.add(cardDescription);
                 Item.add(cardImage);
                 //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                Item.add("");
-                Item.add("");
-                Item.add("");
-                Item.add("");
+                Item.add(isBoost);
+                Item.add(isFav);
+                Item.add(boostCount);
+                Item.add(favCount);
                 //Reblog ブースト用
                 Item.add(renote_content);
                 Item.add(renote_user_name + " @" + renote_user);

@@ -81,6 +81,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 import io.github.takusan23.kaisendon.Activity.LoginActivity;
 import io.github.takusan23.kaisendon.Fragment.Public_TimeLine_Fragment;
@@ -1993,6 +1994,12 @@ public class CustomMenuTimeLine extends Fragment {
             if (id != null) {
                 jsonObject.put("untilId", id);
             }
+            //TLで自分の投稿を見れるように
+            if (url.contains("timeline")) {
+                jsonObject.put("includeLocalRenotes", true);
+                jsonObject.put("includeMyRenotes", true);
+                jsonObject.put("includeRenotedMyNotes", true);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -2122,9 +2129,9 @@ public class CustomMenuTimeLine extends Fragment {
             //ブースト　ふぁぼ
             //本家Misskeyに自分がRenoteしたかどうかを取得する値が無いらしい（めいめいMisskeyにはあるっぽい）
             String isBoost = "no";
-            String isFav = "no";
+            String isFav = "";
             String boostCount = "0";
-            String favCount = "0";
+            final String[] favCount = {""};
             boostCount = jsonObject.getString("renoteCount");
 
             //renote (Mastodonで言うboost)
@@ -2137,6 +2144,27 @@ public class CustomMenuTimeLine extends Fragment {
                 renote_avater_url = user_JsonObject.getString("avatarUrl");
                 renote_account_id = user_JsonObject.getString("id");
             }
+            //自分のアクション内容
+            if (!jsonObject.isNull("myReaction")) {
+                isFav = jsonObject.getString("myReaction");
+            }
+            //MastodonでFavのところはMisskeyリアクション一覧の配列を渡す
+            JSONObject reaction_Object = jsonObject.getJSONObject("reactionCounts");
+            //名前を取り出す？
+            reaction_Object.keys().forEachRemaining(new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    try {
+                        //カウントを表示
+                        String index = reaction_Object.getString(s);
+                        favCount[0] = favCount[0] + " " + HomeTimeLineAdapter.toReactionEmoji(s) + ":" + index + "  ";
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+
             //絵文字
             if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
                 JSONArray emoji = jsonObject.getJSONArray("emojis");
@@ -2193,7 +2221,7 @@ public class CustomMenuTimeLine extends Fragment {
                 Item.add(isBoost);
                 Item.add(isFav);
                 Item.add(boostCount);
-                Item.add(favCount);
+                Item.add(favCount[0]);
                 //Reblog ブースト用
                 Item.add(renote_content);
                 Item.add(renote_user_name + " @" + renote_user);

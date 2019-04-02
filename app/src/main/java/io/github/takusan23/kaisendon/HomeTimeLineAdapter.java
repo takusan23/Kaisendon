@@ -56,9 +56,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -91,6 +93,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
 import io.github.takusan23.kaisendon.Fragment.User_Fragment;
 import okhttp3.Call;
@@ -137,6 +140,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     String media_url_3 = null;
     String media_url_4 = null;
 
+    //TootID/NoteID
+    private String id_string;
+
     //ViewHolder
     private ViewHolder holder;
 
@@ -161,6 +167,10 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
 
     String AccessToken = null;
+
+    //一度だけ実行するように
+    private boolean one = false;
+    private String reaction_text = "";
 
     /**
      * コンストラクタ
@@ -233,6 +243,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             holder.nicoru_button = view.findViewById(R.id.nicoru);
             holder.boost_button = view.findViewById(R.id.boost);
             holder.web_button = view.findViewById(R.id.web);
+            holder.misskey_Reaction = view.findViewById(R.id.misskey_reaction_textView);
 
             view.setTag(holder);
 
@@ -326,7 +337,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         //ニコる
         String finalNicoru_text = nicoru_text;
-        String id_string = listItem.get(4);
+        id_string = listItem.get(4);
         String media_url = listItem.get(8);
 
         // ふぁぼった、ぶーすとした
@@ -516,7 +527,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 //Misskeyと分ける
                 if (CustomMenuTimeLine.isMisskeyMode()) {
                     showMisskeyReaction();
-                    Toast.makeText(getContext(),"Misskeyは未実装",Toast.LENGTH_SHORT).show();
                 } else {
                     //もってくる
                     String apiURL = "favourite";
@@ -1654,22 +1664,35 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             String isFav = item.getListItem().get(17);
             String boostCount = item.getListItem().get(18);
             String favCount = item.getListItem().get(19);
+
+            //ブースト、Renoteカウンター
+            boost_button.setText(boostCount);
             //りぶろぐした・りぶろぐおしたとき
             if (isBoost.contains("reblogged") || boostClick[0]) {
                 Drawable boostIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
                 boostIcon.setTint(Color.parseColor("#008000"));
                 boost_button.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
             }
+
             //ふぁぼした、ふぁぼおした
-            if (isFav.contains("favourited") || favClick[0]) {
-                Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
-                favIcon.setTint(Color.parseColor("#ffd700"));
-                nicoru.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+            //Mastodon限定
+            if (!CustomMenuTimeLine.isMisskeyMode()) {
+                if (isFav.contains("favourited") || favClick[0]) {
+                    Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                    favIcon.setTint(Color.parseColor("#ffd700"));
+                    nicoru.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                }
             }
 
-            boost_button.setText(boostCount);
-            //Misskeyはこれいらない（Favじゃなくてリアクションなので）
-            if (!CustomMenuTimeLine.isMisskeyMode()) {
+            //Misskeyはリアクション、Mastodonはカウントを入れる
+            if (CustomMenuTimeLine.isMisskeyMode()) {
+                nicoru.setText(isFav);
+                //addView
+                holder.misskey_Reaction.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                holder.misskey_Reaction.setText(favCount);
+                holder.misskey_Reaction.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_button", "10")));
+                holder.misskey_Reaction.setBackground(getContext().getDrawable(R.drawable.button_corners));
+            } else {
                 nicoru.setText(favCount);
             }
 
@@ -1996,6 +2019,8 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         TextView boost_button;
         TextView bookmark_button;
         TextView web_button;
+        //Misskeyのリアクション
+        TextView misskey_Reaction;
 
         TextView cardTextView;
         ImageView cardImageView;
@@ -2602,14 +2627,25 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             @Override
             public void onFailure(Call call, IOException e) {
                 //失敗時
-                Toast.makeText(getContext(), getContext().getString(R.string.error), Toast.LENGTH_SHORT).show();
+                holder.nicoru_button.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), getContext().getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String response_string = response.body().string();
                 if (!response.isSuccessful()) {
-                    Toast.makeText(getContext(), getContext().getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                    //失敗時
+                    holder.nicoru_button.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), getContext().getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
                     try {
                         JSONObject jsonObject = new JSONObject(response_string);
@@ -2760,32 +2796,227 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
     /**
      * Misskey リアクション
-     * */
-    private void showMisskeyReaction(){
-        Snackbar snackbar = Snackbar.make(holder.tile_textview, "", Snackbar.LENGTH_SHORT);
-        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
-        LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        progressBer_layoutParams.gravity = Gravity.CENTER;
+     */
+    private void showMisskeyReaction() {
+        holder.nicoru_button.post(new Runnable() {
+            @Override
+            public void run() {
+                Snackbar snackbar = Snackbar.make(holder.nicoru_button, "", Snackbar.LENGTH_LONG);
+                ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                //TextViewを非表示にする
+                TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+                snackBer_textView.setVisibility(View.INVISIBLE);
 
-        //Linearlayout
-        LinearLayout main_LinearLayout = new LinearLayout(getContext());
-        main_LinearLayout.setOrientation(LinearLayout.VERTICAL);
-        main_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                //Linearlayout
+                LinearLayout main_LinearLayout = new LinearLayout(getContext());
+                main_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+                main_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                //Text
+                TextView title_TextView = new TextView(getContext());
+                title_TextView.setTextColor(Color.parseColor("#ffffff"));
+                title_TextView.setTextSize(18);
+                title_TextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                title_TextView.setText(getContext().getText(R.string.add_reaction));
 
+                //ボタン追加
+                String[] reactionEmojis = new String[]{"👍", "❤", "😆", "🤔", "😮", "🎉", "💢", "😥", "😇", "🍣"};
+                String[] reactionNames = new String[]{"like", "love", "laugh", "hmm", "surprise", "congrats", "angry", "confused", "rip", "pudding",};
+                //2行にする
+                LinearLayout reaction_LinearLayout_up = new LinearLayout(getContext());
+                LinearLayout reaction_LinearLayout_down = new LinearLayout(getContext());
+                reaction_LinearLayout_up.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                reaction_LinearLayout_down.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                reaction_LinearLayout_up.setOrientation(LinearLayout.HORIZONTAL);
+                reaction_LinearLayout_down.setOrientation(LinearLayout.HORIZONTAL);
+                //for
+                for (int i = 0; i < reactionEmojis.length; i++) {
+                    Button button = new Button(getContext());
+                    button.setBackground(getContext().getDrawable(R.drawable.button_style));
+                    button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    button.setText(reactionEmojis[i]);
+                    //クリックイベント
+                    int finalI = i;
+                    button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //確認、ダイアログを出さない設定とう確認してから
+                            if (pref_setting.getBoolean("pref_nicoru_dialog", true) && !dialog_not_show) {
+                                Snackbar.make(v, getContext().getText(R.string.reaction_message), Snackbar.LENGTH_SHORT).setAction(getContext().getText(R.string.reaction_post), new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        postMisskeyReaction("create", reactionNames[finalI]);
+                                    }
+                                }).show();
+                            } else {
+                                postMisskeyReaction("create", reactionNames[finalI]);
+                            }
+                        }
+                    });
+                    //0-4までは上の段
+                    if (i < 5) {
+                        reaction_LinearLayout_up.addView(button);
+                    } else {
+                        reaction_LinearLayout_down.addView(button);
+                    }
+                }
+                //絵文字を入力する
+                //レイアウト読み込み
+                LinearLayout emoji_LinearLayout = new LinearLayout(getContext());
+                emoji_LinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                emoji_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        //Text
-        TextView title_TextView = new TextView(getContext());
-        title_TextView.setTextColor(Color.parseColor("#ffffff"));
-        title_TextView.setTextSize(18);
-        title_TextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        title_TextView.setText(getContext().getText(R.string.add_reaction));
+                EditText editText = new EditText(getContext());
+                editText.setHint(getContext().getString(R.string.reaction_pick));
+                editText.setHintTextColor(Color.parseColor("#ffffff"));
+                //大きくする
+                ViewGroup.LayoutParams edittext_Params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                editText.setLayoutParams(edittext_Params);
+                Button post_Button = new Button(getContext());
+                post_Button.setBackground(getContext().getDrawable(R.drawable.button_style));
+                post_Button.setText(getContext().getText(R.string.reaction_post));
+                //ボタンのサイズ
+                ViewGroup.LayoutParams button_Params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                ((LinearLayout.LayoutParams) edittext_Params).weight = 1;
+                post_Button.setLayoutParams(button_Params);
+                post_Button.setTextColor(Color.parseColor("#ffffff"));
+                //クリックイベント
+                post_Button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (pref_setting.getBoolean("pref_nicoru_dialog", true) && !dialog_not_show) {
+                            Snackbar.make(v, getContext().getText(R.string.reaction_message), Snackbar.LENGTH_SHORT).setAction(getContext().getText(R.string.reaction_post), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    postMisskeyReaction("create", editText.getText().toString());
+                                }
+                            }).show();
+                        } else {
+                            postMisskeyReaction("create", editText.getText().toString());
+                        }
+                    }
+                });
+                //追加
+                emoji_LinearLayout.addView(editText);
+                emoji_LinearLayout.addView(post_Button);
 
-        //追加
-        main_LinearLayout.addView(title_TextView);
+                //追加
+                main_LinearLayout.addView(title_TextView);
+                main_LinearLayout.addView(reaction_LinearLayout_up);
+                main_LinearLayout.addView(reaction_LinearLayout_down);
+                main_LinearLayout.addView(emoji_LinearLayout);
 
-        snackBer_viewGrop.addView(main_LinearLayout);
-        //表示
-        snackbar.show();
+                snackBer_viewGrop.addView(main_LinearLayout, 0);
+                //表示
+                snackbar.show();
+            }
+        });
+    }
+
+    /**
+     * Misskey Reactionする！
+     *
+     * @param create_delete createかdelete
+     * @param reactionName  リアクション（リアクション一覧どこにあるの？）
+     */
+    private void postMisskeyReaction(String create_delete, String reactionName) {
+        String instance = pref_setting.getString("misskey_main_instance", "");
+        String token = pref_setting.getString("misskey_main_token", "");
+        String username = pref_setting.getString("misskey_main_username", "");
+        String url = "https://" + instance + "/api/notes/reactions/" + create_delete;
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("noteId", id_string);
+            jsonObject.put("reaction", reactionName);
+            jsonObject.put("i", token);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        //GETリクエスト
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                //失敗時
+                holder.nicoru_button.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), getContext().getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                System.out.println(response_string);
+                if (!response.isSuccessful()) {
+                    //失敗時
+                    holder.nicoru_button.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), getContext().getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    //成功時
+                    holder.nicoru_button.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), getContext().getString(R.string.reaction_ok) + ":" + reactionName, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * Misskey　リアクション絵文字変換
+     */
+    public static String toReactionEmoji(String emoji) {
+        switch (emoji) {
+            case "like":
+                emoji = "👍";
+                break;
+            case "love":
+                emoji = "❤";
+                break;
+            case "laugh":
+                emoji = "😆";
+                break;
+            case "hmm":
+                emoji = "🤔";
+                break;
+            case "surprise":
+                emoji = "😮";
+                break;
+            case "congrats":
+                emoji = "🎉";
+                break;
+            case "angry":
+                emoji = "💢";
+                break;
+            case "confused":
+                emoji = "😥";
+                break;
+            case "rip":
+                emoji = "😇";
+                break;
+            case "pudding":
+                emoji = "🍣";
+                break;
+            case "star":
+                emoji = "⭐";
+                break;
+        }
+        return emoji;
     }
 
 

@@ -138,7 +138,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     String media_url_4 = null;
 
     //ViewHolder
-    ViewHolder holder;
+    private ViewHolder holder;
 
     //絵文字表示するか
     private boolean emojis_show;
@@ -513,74 +513,78 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         nicoru.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //もってくる
-                String apiURL = "favourite";
-                //Snackber Text
-                String snackberTitle = finalFavorite_title;
-                String snackberButton = finalFavorite_message;
-                //配列の範囲内にするため
-                if (finalBoostFavCount) {
-                    String isFav = item.getListItem().get(17);
-                    //すでにFav済みの場合は外すAPIを叩く
-                    if (isFav.contains("favourited") || favClick[0]) {
-                        apiURL = "unfavourite";
-                        snackberTitle = getContext().getString(R.string.delete_fav);
-                        snackberButton = getContext().getString(R.string.delete_text);
-                    }
-                }
-                String finalApiURL = apiURL;
-
-                boolean favorite = pref_setting.getBoolean("pref_nicoru_dialog", true);
-                boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", true);
-                //ダイアログ表示する？
-                if (favorite && !dialog_not_show) {
-                    if (replace_snackber) {
-
-                        Snackbar favourite_snackbar;
-                        favourite_snackbar = Snackbar.make(finalView1, snackberTitle, Snackbar.LENGTH_SHORT);
-                        favourite_snackbar.setAction(snackberButton, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                TootAction(id_string, finalApiURL, nicoru);
-                                favClick[0] = true;
-                                if (finalBoostFavCount) {
-                                    item.getListItem().set(17, "favourited");
-                                }
-                            }
-                        });
-                        favourite_snackbar.show();
-                    } else {
-                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-                        alertDialog.setTitle(R.string.confirmation);
-                        alertDialog.setMessage(snackberTitle);
-                        alertDialog.setPositiveButton(snackberButton, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                TootAction(id_string, finalApiURL, nicoru);
-                                favClick[0] = true;
-                                if (finalBoostFavCount) {
-                                    item.getListItem().set(17, "favourited");
-                                }
-                            }
-                        });
-                        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        });
-                        alertDialog.create().show();
-                    }
-
-                    //テキストボックが未選択
+                //Misskeyと分ける
+                if (CustomMenuTimeLine.isMisskeyMode()) {
+                    showMisskeyReaction();
+                    Toast.makeText(getContext(),"Misskeyは未実装",Toast.LENGTH_SHORT).show();
                 } else {
-                    TootAction(id_string, finalApiURL, nicoru);
-                    favClick[0] = true;
+                    //もってくる
+                    String apiURL = "favourite";
+                    //Snackber Text
+                    String snackberTitle = finalFavorite_title;
+                    String snackberButton = finalFavorite_message;
+                    //配列の範囲内にするため
                     if (finalBoostFavCount) {
-                        item.getListItem().set(17, "favourited");
+                        String isFav = item.getListItem().get(17);
+                        //すでにFav済みの場合は外すAPIを叩く
+                        if (isFav.contains("favourited") || favClick[0]) {
+                            apiURL = "unfavourite";
+                            snackberTitle = getContext().getString(R.string.delete_fav);
+                            snackberButton = getContext().getString(R.string.delete_text);
+                        }
+                    }
+                    String finalApiURL = apiURL;
+
+                    boolean favorite = pref_setting.getBoolean("pref_nicoru_dialog", true);
+                    boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", true);
+                    //ダイアログ表示する？
+                    if (favorite && !dialog_not_show) {
+                        if (replace_snackber) {
+
+                            Snackbar favourite_snackbar;
+                            favourite_snackbar = Snackbar.make(finalView1, snackberTitle, Snackbar.LENGTH_SHORT);
+                            favourite_snackbar.setAction(snackberButton, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    TootAction(id_string, finalApiURL, nicoru);
+                                    favClick[0] = true;
+                                    if (finalBoostFavCount) {
+                                        item.getListItem().set(17, "favourited");
+                                    }
+                                }
+                            });
+                            favourite_snackbar.show();
+                        } else {
+                            AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
+                            alertDialog.setTitle(R.string.confirmation);
+                            alertDialog.setMessage(snackberTitle);
+                            alertDialog.setPositiveButton(snackberButton, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    TootAction(id_string, finalApiURL, nicoru);
+                                    favClick[0] = true;
+                                    if (finalBoostFavCount) {
+                                        item.getListItem().set(17, "favourited");
+                                    }
+                                }
+                            });
+                            alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            });
+                            alertDialog.create().show();
+                        }
+                        //テキストボックが未選択
+                    } else {
+                        TootAction(id_string, finalApiURL, nicoru);
+                        favClick[0] = true;
+                        if (finalBoostFavCount) {
+                            item.getListItem().set(17, "favourited");
+                        }
                     }
                 }
-
             }
         });
 
@@ -597,14 +601,28 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 String snackberTitle = getContext().getString(R.string.dialog_boost_info);
                 String snackberButton = getContext().getString(R.string.dialog_boost);
 
-                if (finalBoostFavCount) {
-                    String isBoost = item.getListItem().get(16);
-                    if (isBoost.contains("reblogged") || boostClick[0]) {
-                        apiURL = "unreblog";
-                        snackberTitle = getContext().getString(R.string.delete_bt);
-                        snackberButton = getContext().getString(R.string.delete_text);
+                //MisskeyはRenoteなのでメッセージを変える
+                if (CustomMenuTimeLine.isMisskeyMode()) {
+                    //Renoteしますかメッセージ
+                    if (finalBoostFavCount) {
+                        snackberTitle = getContext().getString(R.string.renote_message);
+                        snackberButton = getContext().getString(R.string.renote);
+                    } else {
+                        snackberTitle = getContext().getString(R.string.renote_delete_message);
+                        snackberButton = getContext().getString(R.string.delete_renote);
+                    }
+                } else {
+                    //Boost外しますかメッセージ
+                    if (finalBoostFavCount) {
+                        String isBoost = item.getListItem().get(16);
+                        if (isBoost.contains("reblogged") || boostClick[0]) {
+                            apiURL = "unreblog";
+                            snackberTitle = getContext().getString(R.string.delete_bt);
+                            snackberButton = getContext().getString(R.string.delete_text);
+                        }
                     }
                 }
+
                 String finalApiURL = apiURL;
                 //設定でダイアログをだすかどうか
                 boolean boost_dialog = pref_setting.getBoolean("pref_boost_dialog", true);
@@ -617,7 +635,12 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                         snackbar.setAction(snackberButton, new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                TootAction(id_string, finalApiURL, boost);
+                                //Misskey
+                                if (CustomMenuTimeLine.isMisskeyMode()) {
+                                    postMisskeyRenote("/api/notes/create", id_string, "home");
+                                } else {
+                                    TootAction(id_string, finalApiURL, boost);
+                                }
                                 boostClick[0] = true;
                                 if (finalBoostFavCount) {
                                     item.getListItem().set(16, "reblogged");
@@ -1546,22 +1569,29 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 Drawable web_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_more_vert_black_24dp, null);
                 Drawable bookmark_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_bookmark_border_black_24dp, null);
                 Drawable favourite_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp, null);
+                //Misskey
+                Drawable reaction_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_add_black_24dp, null);
 
                 //染色
                 boost_icon_white.setTint(Color.parseColor("#ffffff"));
                 web_icon_white.setTint(Color.parseColor("#ffffff"));
                 bookmark_icon_white.setTint(Color.parseColor("#ffffff"));
                 favourite_icon_white.setTint(Color.parseColor("#ffffff"));
+                reaction_icon_white.setTint(Color.parseColor("#ffffff"));
 
                 //入れる
                 boost_button.setCompoundDrawablesWithIntrinsicBounds(boost_icon_white, null, null, null);
                 web_button.setCompoundDrawablesWithIntrinsicBounds(web_icon_white, null, null, null);
                 holder.bookmark_button.setCompoundDrawablesWithIntrinsicBounds(bookmark_icon_white, null, null, null);
-
+                holder.nicoru_button.setCompoundDrawablesWithIntrinsicBounds(favourite_icon_white, null, null, null);
+                if (CustomMenuTimeLine.isMisskeyMode()) {
+                    holder.nicoru_button.setCompoundDrawablesWithIntrinsicBounds(reaction_icon_white, null, null, null);
+                }
 
                 //ニコるをお気に入りに変更 設定次第
                 //メッセージも変更できるようにする
                 if (friends_nico_check_box) {
+                    //Misskey
                     holder.nicoru_button.setCompoundDrawablesWithIntrinsicBounds(favourite_icon_white, null, null, null);
                 }
             } else {
@@ -1570,17 +1600,24 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 Drawable web_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_more_vert_black_24dp, null);
                 Drawable bookmark_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_bookmark_border_black_24dp, null);
                 Drawable favourite_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp, null);
+                //Misskey
+                Drawable reaction_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_add_black_24dp, null);
 
                 //染色
                 boost_icon_white.setTint(Color.parseColor("#000000"));
                 web_icon_white.setTint(Color.parseColor("#000000"));
                 bookmark_icon_white.setTint(Color.parseColor("#000000"));
                 favourite_icon_white.setTint(Color.parseColor("#000000"));
+                reaction_icon_white.setTint(Color.parseColor("#000000"));
 
                 //入れる
                 boost_button.setCompoundDrawablesWithIntrinsicBounds(boost_icon_white, null, null, null);
                 web_button.setCompoundDrawablesWithIntrinsicBounds(web_icon_white, null, null, null);
                 holder.bookmark_button.setCompoundDrawablesWithIntrinsicBounds(bookmark_icon_white, null, null, null);
+                holder.nicoru_button.setCompoundDrawablesWithIntrinsicBounds(favourite_icon_white, null, null, null);
+                if (CustomMenuTimeLine.isMisskeyMode()) {
+                    holder.nicoru_button.setCompoundDrawablesWithIntrinsicBounds(reaction_icon_white, null, null, null);
+                }
             }
         } catch (ClassCastException e) {
             //アイコンを取得
@@ -1588,17 +1625,24 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             Drawable web_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_more_vert_black_24dp, null);
             Drawable bookmark_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_bookmark_border_black_24dp, null);
             Drawable favourite_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp, null);
+            //Misskey
+            Drawable reaction_icon_white = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_add_black_24dp, null);
 
             //染色
             boost_icon_white.setTint(Color.parseColor("#000000"));
             web_icon_white.setTint(Color.parseColor("#000000"));
             bookmark_icon_white.setTint(Color.parseColor("#000000"));
             favourite_icon_white.setTint(Color.parseColor("#000000"));
+            reaction_icon_white.setTint(Color.parseColor("#000000"));
 
             //入れる
             boost_button.setCompoundDrawablesWithIntrinsicBounds(boost_icon_white, null, null, null);
             web_button.setCompoundDrawablesWithIntrinsicBounds(web_icon_white, null, null, null);
             holder.bookmark_button.setCompoundDrawablesWithIntrinsicBounds(bookmark_icon_white, null, null, null);
+            holder.nicoru_button.setCompoundDrawablesWithIntrinsicBounds(favourite_icon_white, null, null, null);
+            if (CustomMenuTimeLine.isMisskeyMode()) {
+                holder.nicoru_button.setCompoundDrawablesWithIntrinsicBounds(reaction_icon_white, null, null, null);
+            }
         }
 
         //自分、ブーストいいですか？
@@ -1624,7 +1668,10 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             }
 
             boost_button.setText(boostCount);
-            nicoru.setText(favCount);
+            //Misskeyはこれいらない（Favじゃなくてリアクションなので）
+            if (!CustomMenuTimeLine.isMisskeyMode()) {
+                nicoru.setText(favCount);
+            }
 
         }
 
@@ -2199,6 +2246,80 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         }.execute();
     }
 
+    /**
+     * Misskey Renote / delete
+     *
+     * @param api_url  "/api/notes/create" か "/api/notes/delete"
+     * @param renoteId noteIdを入れて
+     */
+    private void postMisskeyRenote(String api_url, String renoteId, String visibility) {
+        String instance = pref_setting.getString("misskey_main_instance", "");
+        String token = pref_setting.getString("misskey_main_token", "");
+        String username = pref_setting.getString("misskey_main_username", "");
+        String url = "https://" + instance + api_url;
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("i", token);
+            jsonObject.put("visibility", visibility);
+            jsonObject.put("renoteId", renoteId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+        //GETリクエスト
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                holder.boost_button.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        e.printStackTrace();
+                        Toast.makeText(getContext(), getContext().getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                if (!response.isSuccessful()) {
+                    //失敗時
+                    holder.boost_button.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), getContext().getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    Drawable boostIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                    holder.boost_button.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            switch (api_url) {
+                                case "/api/notes/create":
+                                    Toast.makeText(getContext(), getContext().getString(R.string.renote_ok) + " : " + renoteId, Toast.LENGTH_SHORT).show();
+                                    boostIcon.setTint(Color.parseColor("#008000"));
+                                    holder.boost_button.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+                                    break;
+                                case "/api/notes/delete":
+                                    Toast.makeText(getContext(), getContext().getString(R.string.renote_delete_ok) + " : " + renoteId, Toast.LENGTH_SHORT).show();
+                                    boostIcon.setTint(Color.parseColor("#000000"));
+                                    holder.boost_button.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+                                    break;
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
     private void quickProfileSnackber(View v, String accountID) {
         //読み込み中お知らせ
         Snackbar snackbar = Snackbar.make(v, getContext().getString(R.string.loading_user_info) + "\r\n /api/v1/accounts/" + accountID, Snackbar.LENGTH_INDEFINITE);
@@ -2632,12 +2753,39 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
-
                 }
             }
         });
+    }
 
+    /**
+     * Misskey リアクション
+     * */
+    private void showMisskeyReaction(){
+        Snackbar snackbar = Snackbar.make(holder.tile_textview, "", Snackbar.LENGTH_SHORT);
+        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+        LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        progressBer_layoutParams.gravity = Gravity.CENTER;
+
+        //Linearlayout
+        LinearLayout main_LinearLayout = new LinearLayout(getContext());
+        main_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+        main_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+
+        //Text
+        TextView title_TextView = new TextView(getContext());
+        title_TextView.setTextColor(Color.parseColor("#ffffff"));
+        title_TextView.setTextSize(18);
+        title_TextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        title_TextView.setText(getContext().getText(R.string.add_reaction));
+
+        //追加
+        main_LinearLayout.addView(title_TextView);
+
+        snackBer_viewGrop.addView(main_LinearLayout);
+        //表示
+        snackbar.show();
     }
 
 

@@ -511,5 +511,12 @@
     <string name="misskey_followers">Followers</string>
     <string name="misskey_specified">Direct</string>
     <string name="misskey_private">Public(Local Only)</string>
+    <string name="renote_message">Do you want to Renote this post?</string>
+    <string name="renote">Renote</string>
+    <string name="renote_delete_message">Are you sure you want to cancel this post\'s Renote?</string>
+    <string name="delete_renote">Delete Renote</string>
+    <string name="renote_ok">Renote</string>
+    <string name="renote_delete_ok">Canceled Renote</string>
+    <string name="add_reaction">Select Reaction</string>
 
 </resources>

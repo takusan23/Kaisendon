@@ -414,5 +414,9 @@
     <string name="renote_ok">Renoteしました</string>
     <string name="renote_delete_ok">Renoteを解除しました</string>
     <string name="add_reaction">リアクションを選択</string>
+    <string name="reaction_ok">リアクションしました</string>
+    <string name="reaction_message">リアクションしますか？</string>
+    <string name="reaction_post">リアクション</string>
+    <string name="reaction_pick">リアクションを入力</string>
 
 </resources>

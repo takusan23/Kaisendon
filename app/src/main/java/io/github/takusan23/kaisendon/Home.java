@@ -1219,98 +1219,104 @@ public class Home extends AppCompatActivity
                                 String file_extn_post = filePath_post.substring(filePath_post.lastIndexOf(".") + 1);
                                 File file_post = new File(filePath_post);
 
-                                //画像Upload
-                                OkHttpClient okHttpClient = new OkHttpClient();
-                                //えんどぽいんと
-                                String url_link = "https://" + finalInstance + "/api/v1/media/";
-                                //ぱらめーたー
-                                RequestBody requestBody = new MultipartBody.Builder()
-                                        .setType(MultipartBody.FORM)
-                                        .addFormDataPart("file", file_post.getName(), RequestBody.create(MediaType.parse("image/" + file_extn_post), file_post))
-                                        .addFormDataPart("access_token", finalAccessToken)
-                                        .build();
-                                //じゅんび
-                                Request request = new Request.Builder()
-                                        .url(url_link)
-                                        .post(requestBody)
-                                        .build();
-                                //POST実行
-                                okHttpClient.newCall(request).enqueue(new Callback() {
-                                    @Override
-                                    public void onFailure(Call call, IOException e) {
+                                if (CustomMenuTimeLine.isMisskeyMode()) {
+                                    uploadDrivePhoto(file_extn_post, file_post);
+                                } else {
+                                    //画像Upload
+                                    OkHttpClient okHttpClient = new OkHttpClient();
+                                    //えんどぽいんと
+                                    String url_link = "https://" + finalInstance + "/api/v1/media/";
+                                    //ぱらめーたー
+                                    RequestBody requestBody = new MultipartBody.Builder()
+                                            .setType(MultipartBody.FORM)
+                                            .addFormDataPart("file", file_post.getName(), RequestBody.create(MediaType.parse("image/" + file_extn_post), file_post))
+                                            .addFormDataPart("access_token", finalAccessToken)
+                                            .build();
+                                    //じゅんび
+                                    Request request = new Request.Builder()
+                                            .url(url_link)
+                                            .post(requestBody)
+                                            .build();
+                                    //POST実行
+                                    okHttpClient.newCall(request).enqueue(new Callback() {
+                                        @Override
+                                        public void onFailure(Call call, IOException e) {
 
-                                    }
-
-                                    @Override
-                                    public void onResponse(Call call, Response response) throws IOException {
-                                        String response_string = response.body().string();
-                                        //System.out.println("画像POST : " + response_string);
-
-                                        try {
-                                            JSONObject jsonObject = new JSONObject(response_string);
-                                            String media_id_long = jsonObject.getString("id");
-                                            //配列に格納
-                                            post_media_id.add(media_id_long);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
                                         }
-                                    }
-                                });
-                            }
-                            //画像がPOSTできたらトゥート実行
-                            //FABのアイコン戻す
-                            fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-                            //Tootする
-                            //確認SnackBer
-                            Snackbar.make(v, R.string.toot_dialog, Snackbar.LENGTH_SHORT).setAction(R.string.toot, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    //なんかアップロードしてないときある？
-                                    if (media_list.size() == post_media_id.size()) {
-                                        //FABのアイコン戻す
-                                        fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
 
-                                        String url = "https://" + finalInstance + "/api/v1/statuses/?access_token=" + finalAccessToken;
-                                        //ぱらめーたー
-                                        MultipartBody.Builder form = new MultipartBody.Builder();
-                                        form.addFormDataPart("status", toot_EditText.getText().toString());
-                                        form.addFormDataPart("visibility", toot_area);
-                                        //画像
-                                        for (int i = 0; i < post_media_id.size(); i++) {
-                                            form.addFormDataPart("media_ids[]", post_media_id.get(i));
+                                        @Override
+                                        public void onResponse(Call call, Response response) throws IOException {
+                                            String response_string = response.body().string();
+                                            //System.out.println("画像POST : " + response_string);
+
+                                            try {
+                                                JSONObject jsonObject = new JSONObject(response_string);
+                                                String media_id_long = jsonObject.getString("id");
+                                                //配列に格納
+                                                post_media_id.add(media_id_long);
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
                                         }
-                                        form.build();
-                                        //ぱらめーたー
-                                        RequestBody requestBody = form.build();
-                                        Request request = new Request.Builder()
-                                                .url(url)
-                                                .post(requestBody)
-                                                .build();
-                                        //POST
-                                        OkHttpClient client = new OkHttpClient();
-                                        client.newCall(request).enqueue(new Callback() {
-                                            @Override
-                                            public void onFailure(Call call, IOException e) {
-
-                                            }
-
-                                            @Override
-                                            public void onResponse(Call call, Response response) throws IOException {
-                                                //System.out.println("レスポンス : " + response.body().string());
-                                                toot_snackbar.dismiss();
-                                                //EditTextを空にする
-                                                toot_EditText.setText("");
-                                                tootTextCount = 0;
-                                                //配列を空にする
-                                                media_list.clear();
-                                                post_media_id.clear();
-                                                media_LinearLayout.removeAllViews();
-                                            }
-                                        });
-                                    }
+                                    });
                                 }
-                            }).show();
+                            }
+                            //Misskeyは画像アップロードのところに書いた
+                            if (!CustomMenuTimeLine.isMisskeyMode()) {
+                                //画像がPOSTできたらトゥート実行
+                                //FABのアイコン戻す
+                                fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
+                                //Tootする
+                                //確認SnackBer
+                                Snackbar.make(v, R.string.toot_dialog, Snackbar.LENGTH_SHORT).setAction(R.string.toot, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        //なんかアップロードしてないときある？
+                                        if (media_list.size() == post_media_id.size()) {
+                                            //FABのアイコン戻す
+                                            fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
 
+                                            String url = "https://" + finalInstance + "/api/v1/statuses/?access_token=" + finalAccessToken;
+                                            //ぱらめーたー
+                                            MultipartBody.Builder form = new MultipartBody.Builder();
+                                            form.addFormDataPart("status", toot_EditText.getText().toString());
+                                            form.addFormDataPart("visibility", toot_area);
+                                            //画像
+                                            for (int i = 0; i < post_media_id.size(); i++) {
+                                                form.addFormDataPart("media_ids[]", post_media_id.get(i));
+                                            }
+                                            form.build();
+                                            //ぱらめーたー
+                                            RequestBody requestBody = form.build();
+                                            Request request = new Request.Builder()
+                                                    .url(url)
+                                                    .post(requestBody)
+                                                    .build();
+                                            //POST
+                                            OkHttpClient client = new OkHttpClient();
+                                            client.newCall(request).enqueue(new Callback() {
+                                                @Override
+                                                public void onFailure(Call call, IOException e) {
+
+                                                }
+
+                                                @Override
+                                                public void onResponse(Call call, Response response) throws IOException {
+                                                    //System.out.println("レスポンス : " + response.body().string());
+                                                    toot_snackbar.dismiss();
+                                                    //EditTextを空にする
+                                                    toot_EditText.setText("");
+                                                    tootTextCount = 0;
+                                                    //配列を空にする
+                                                    media_list.clear();
+                                                    post_media_id.clear();
+                                                    media_LinearLayout.removeAllViews();
+                                                }
+                                            });
+                                        }
+                                    }
+                                }).show();
+                            }
                         }
                     });
                 }
@@ -2385,9 +2391,19 @@ public class Home extends AppCompatActivity
             jsonObject.put("i", token);
             jsonObject.put("visibility", toot_area);
             jsonObject.put("text", toot_EditText.getText().toString());
+            jsonObject.put("viaMobile", true);//スマホからなので一応
+            //添付メディア
+            if (post_media_id.size() >= 1) {
+                JSONArray jsonArray = new JSONArray();
+                for (int i = 0; i < post_media_id.size(); i++) {
+                    jsonArray.put(post_media_id.get(i));
+                }
+                jsonObject.put("fileIds", jsonArray);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        System.out.println(jsonObject.toString());
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
         //作成
         Request request = new Request.Builder()
@@ -2411,6 +2427,8 @@ public class Home extends AppCompatActivity
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                System.out.println(response_string);
                 if (!response.isSuccessful()) {
                     //失敗
                     runOnUiThread(new Runnable() {
@@ -2485,6 +2503,78 @@ public class Home extends AppCompatActivity
                             toot_snackbar.dismiss();
                         }
                     });
+                }
+            }
+        });
+    }
+
+    /**
+     * Misskey 画像POST
+     */
+    private void uploadDrivePhoto(String file_extn_post, File file_post) {
+        String instance = pref_setting.getString("misskey_main_instance", "");
+        String token = pref_setting.getString("misskey_main_token", "");
+        String username = pref_setting.getString("misskey_main_username", "");
+        String url = "https://" + instance + "/api/drive/files/create";
+        //ぱらめーたー
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", file_post.getName(), RequestBody.create(MediaType.parse("image/" + file_extn_post), file_post))
+                .addFormDataPart("i", token)
+                .addFormDataPart("force", "true")
+                .build();
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        //GETリクエスト
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                System.out.println(response_string);
+                if (!response.isSuccessful()) {
+                    //失敗
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(Home.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response_string);
+                        String media_id_long = jsonObject.getString("id");
+                        //配列に格納
+                        post_media_id.add(media_id_long);
+                        //確認SnackBer
+                        //数確認
+                        if (media_list.size() == post_media_id.size()) {
+                            View view = findViewById(R.id.container_public);
+                            Snackbar.make(view, R.string.note_create_message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    misskeyNoteCreatePOST();
+                                }
+                            }).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });

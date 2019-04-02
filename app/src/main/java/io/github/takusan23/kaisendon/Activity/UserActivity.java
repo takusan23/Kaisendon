@@ -319,8 +319,13 @@ public class UserActivity extends AppCompatActivity {
                     }
 
                     //レイアウト構成
-                    setLayout();
-                    snackbar.dismiss();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setLayout();
+                            snackbar.dismiss();
+                        }
+                    });
 
 
                 } catch (JSONException e) {
@@ -501,7 +506,8 @@ public class UserActivity extends AppCompatActivity {
 
 
     /**
-     * レイアウト
+     * レイアウト<br>
+     * 必ず、<font color="red">UIスレッド</font>で呼べよ
      */
     private void setLayout() {
         user_activity_LinearLayout = findViewById(R.id.user_activity_linearLayout);

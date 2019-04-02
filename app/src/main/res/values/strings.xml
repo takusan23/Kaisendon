@@ -518,5 +518,9 @@
     <string name="renote_ok">Renote</string>
     <string name="renote_delete_ok">Canceled Renote</string>
     <string name="add_reaction">Select Reaction</string>
+    <string name="reaction_ok">I have a reaction</string>
+    <string name="reaction_message">Do you want to make a reaction?</string>
+    <string name="reaction_post">reaction</string>
+    <string name="reaction_pick">Enter Reaction</string>
 
 </resources>

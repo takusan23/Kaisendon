@@ -522,5 +522,8 @@
     <string name="reaction_message">Do you want to make a reaction?</string>
     <string name="reaction_post">reaction</string>
     <string name="reaction_pick">Enter Reaction</string>
+    <string name="reaction_delete_message">Cancel the reaction</string>
+    <string name="reaction_delete">cancel</string>
+    <string name="reaction_delete_ok">I canceled the reaction</string>
 
 </resources>

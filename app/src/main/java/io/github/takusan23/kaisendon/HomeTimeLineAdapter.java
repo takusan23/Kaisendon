@@ -2801,7 +2801,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         holder.nicoru_button.post(new Runnable() {
             @Override
             public void run() {
-                Snackbar snackbar = Snackbar.make(holder.nicoru_button, "", Snackbar.LENGTH_LONG);
+                Snackbar snackbar = Snackbar.make(holder.nicoru_button, "", Snackbar.LENGTH_INDEFINITE);
                 ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
                 //TextViewを非表示にする
                 TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
@@ -2824,15 +2824,17 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 //2行にする
                 LinearLayout reaction_LinearLayout_up = new LinearLayout(getContext());
                 LinearLayout reaction_LinearLayout_down = new LinearLayout(getContext());
-                reaction_LinearLayout_up.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                reaction_LinearLayout_down.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                reaction_LinearLayout_up.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                reaction_LinearLayout_down.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 reaction_LinearLayout_up.setOrientation(LinearLayout.HORIZONTAL);
                 reaction_LinearLayout_down.setOrientation(LinearLayout.HORIZONTAL);
+                ViewGroup.LayoutParams button_LayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                ((LinearLayout.LayoutParams) button_LayoutParams).weight = 1;
                 //for
                 for (int i = 0; i < reactionEmojis.length; i++) {
                     Button button = new Button(getContext());
                     button.setBackground(getContext().getDrawable(R.drawable.button_style));
-                    button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    button.setLayoutParams(button_LayoutParams);
                     button.setText(reactionEmojis[i]);
                     //クリックイベント
                     int finalI = i;
@@ -2969,7 +2971,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                     holder.nicoru_button.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getContext(), getContext().getString(R.string.reaction_ok) + ":" + reactionName, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), getContext().getString(R.string.reaction_ok) + ":" + toReactionEmoji(reactionName), Toast.LENGTH_SHORT).show();
                         }
                     });
                 }

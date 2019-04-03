@@ -1199,9 +1199,7 @@ public class Home extends AppCompatActivity
                         Instance = pref_setting.getString("main_instance", "");
 
                     }
-                    //とぅーとする
-                    String finalAccessToken = AccessToken;
-                    String finalInstance = Instance;
+                    //画像アップロード
                     post_button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -1222,100 +1220,8 @@ public class Home extends AppCompatActivity
                                 if (CustomMenuTimeLine.isMisskeyMode()) {
                                     uploadDrivePhoto(file_extn_post, file_post);
                                 } else {
-                                    //画像Upload
-                                    OkHttpClient okHttpClient = new OkHttpClient();
-                                    //えんどぽいんと
-                                    String url_link = "https://" + finalInstance + "/api/v1/media/";
-                                    //ぱらめーたー
-                                    RequestBody requestBody = new MultipartBody.Builder()
-                                            .setType(MultipartBody.FORM)
-                                            .addFormDataPart("file", file_post.getName(), RequestBody.create(MediaType.parse("image/" + file_extn_post), file_post))
-                                            .addFormDataPart("access_token", finalAccessToken)
-                                            .build();
-                                    //じゅんび
-                                    Request request = new Request.Builder()
-                                            .url(url_link)
-                                            .post(requestBody)
-                                            .build();
-                                    //POST実行
-                                    okHttpClient.newCall(request).enqueue(new Callback() {
-                                        @Override
-                                        public void onFailure(Call call, IOException e) {
-
-                                        }
-
-                                        @Override
-                                        public void onResponse(Call call, Response response) throws IOException {
-                                            String response_string = response.body().string();
-                                            //System.out.println("画像POST : " + response_string);
-
-                                            try {
-                                                JSONObject jsonObject = new JSONObject(response_string);
-                                                String media_id_long = jsonObject.getString("id");
-                                                //配列に格納
-                                                post_media_id.add(media_id_long);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    });
+                                    uploadMastodonPhoto(file_extn_post, file_post);
                                 }
-                            }
-                            //Misskeyは画像アップロードのところに書いた
-                            if (!CustomMenuTimeLine.isMisskeyMode()) {
-                                //画像がPOSTできたらトゥート実行
-                                //FABのアイコン戻す
-                                fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-                                //Tootする
-                                //確認SnackBer
-                                Snackbar.make(v, R.string.toot_dialog, Snackbar.LENGTH_SHORT).setAction(R.string.toot, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        //なんかアップロードしてないときある？
-                                        if (media_list.size() == post_media_id.size()) {
-                                            //FABのアイコン戻す
-                                            fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-
-                                            String url = "https://" + finalInstance + "/api/v1/statuses/?access_token=" + finalAccessToken;
-                                            //ぱらめーたー
-                                            MultipartBody.Builder form = new MultipartBody.Builder();
-                                            form.addFormDataPart("status", toot_EditText.getText().toString());
-                                            form.addFormDataPart("visibility", toot_area);
-                                            //画像
-                                            for (int i = 0; i < post_media_id.size(); i++) {
-                                                form.addFormDataPart("media_ids[]", post_media_id.get(i));
-                                            }
-                                            form.build();
-                                            //ぱらめーたー
-                                            RequestBody requestBody = form.build();
-                                            Request request = new Request.Builder()
-                                                    .url(url)
-                                                    .post(requestBody)
-                                                    .build();
-                                            //POST
-                                            OkHttpClient client = new OkHttpClient();
-                                            client.newCall(request).enqueue(new Callback() {
-                                                @Override
-                                                public void onFailure(Call call, IOException e) {
-
-                                                }
-
-                                                @Override
-                                                public void onResponse(Call call, Response response) throws IOException {
-                                                    //System.out.println("レスポンス : " + response.body().string());
-                                                    toot_snackbar.dismiss();
-                                                    //EditTextを空にする
-                                                    toot_EditText.setText("");
-                                                    tootTextCount = 0;
-                                                    //配列を空にする
-                                                    media_list.clear();
-                                                    post_media_id.clear();
-                                                    media_LinearLayout.removeAllViews();
-                                                }
-                                            });
-                                        }
-                                    }
-                                }).show();
                             }
                         }
                     });
@@ -2446,6 +2352,10 @@ public class Home extends AppCompatActivity
                             tootTextCount = 0;
                             //TootSnackber閉じる
                             toot_snackbar.dismiss();
+                            //配列を空にする
+                            media_list.clear();
+                            post_media_id.clear();
+                            media_LinearLayout.removeAllViews();
                         }
                     });
                 }
@@ -2459,13 +2369,19 @@ public class Home extends AppCompatActivity
     private void mastodonStatusesPOST() {
         String url = "https://" + Instance + "/api/v1/statuses/?access_token=" + AccessToken;
         //ぱらめーたー
-        RequestBody requestBody = new FormBody.Builder()
-                .add("status", toot_EditText.getText().toString())
-                .add("visibility", toot_area)
-                .build();
+        MultipartBody.Builder requestBody = new MultipartBody.Builder();
+        requestBody.setType(MultipartBody.FORM);
+        requestBody.addFormDataPart("status", toot_EditText.getText().toString());
+        requestBody.addFormDataPart("visibility", toot_area);
+        //画像
+        for (int i = 0; i < post_media_id.size(); i++) {
+            requestBody.addFormDataPart("media_ids[]", post_media_id.get(i));
+        }
+        requestBody.build();
+
         Request request = new Request.Builder()
                 .url(url)
-                .post(requestBody)
+                .post(requestBody.build())
                 .build();
 
         //POST
@@ -2501,6 +2417,10 @@ public class Home extends AppCompatActivity
                             tootTextCount = 0;
                             //TootSnackber閉じる
                             toot_snackbar.dismiss();
+                            //配列を空にする
+                            media_list.clear();
+                            post_media_id.clear();
+                            media_LinearLayout.removeAllViews();
                         }
                     });
                 }
@@ -2516,6 +2436,8 @@ public class Home extends AppCompatActivity
         String token = pref_setting.getString("misskey_main_token", "");
         String username = pref_setting.getString("misskey_main_username", "");
         String url = "https://" + instance + "/api/drive/files/create";
+        //くるくる
+        SnackberProgress.showProgressSnackber(toot_EditText,Home.this,getString(R.string.loading) + "\n" + url);
         //ぱらめーたー
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -2579,6 +2501,63 @@ public class Home extends AppCompatActivity
             }
         });
     }
+
+    /**
+     * Mastodon 画像POST
+     */
+    private void uploadMastodonPhoto(String file_extn_post, File file_post) {
+        //画像Upload
+        OkHttpClient okHttpClient = new OkHttpClient();
+        //えんどぽいんと
+        String url = "https://" + Instance + "/api/v1/media/";
+        //ぱらめーたー
+        MultipartBody.Builder requestBody = new MultipartBody.Builder();
+        requestBody.setType(MultipartBody.FORM);
+        requestBody.addFormDataPart("file", file_post.getName(), RequestBody.create(MediaType.parse("image/" + file_extn_post), file_post));
+        requestBody.addFormDataPart("access_token", AccessToken);
+        //くるくる
+        SnackberProgress.showProgressSnackber(toot_EditText,Home.this,getString(R.string.loading) + "\n" + url);
+
+        //じゅんび
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody.build())
+                .build();
+        //POST実行
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                //System.out.println("画像POST : " + response_string);
+
+                try {
+                    JSONObject jsonObject = new JSONObject(response_string);
+                    String media_id_long = jsonObject.getString("id");
+                    //配列に格納
+                    post_media_id.add(media_id_long);
+                    //確認SnackBer
+                    //数確認
+                    if (media_list.size() == post_media_id.size()) {
+                        View view = findViewById(R.id.container_public);
+                        Snackbar.make(view, R.string.note_create_message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mastodonStatusesPOST();
+                            }
+                        }).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
 
     /**
      * Mastodon 公開範囲

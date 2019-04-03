@@ -30,6 +30,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
@@ -140,8 +141,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     String media_url_3 = null;
     String media_url_4 = null;
 
-    //TootID/NoteID
-    private String id_string;
 
     //ViewHolder
     private ViewHolder holder;
@@ -337,7 +336,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         //ニコる
         String finalNicoru_text = nicoru_text;
-        id_string = listItem.get(4);
+        String id_string = item.getListItem().get(4);
         String media_url = listItem.get(8);
 
         // ふぁぼった、ぶーすとした
@@ -526,7 +525,19 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             public void onClick(View v) {
                 //Misskeyと分ける
                 if (CustomMenuTimeLine.isMisskeyMode()) {
-                    showMisskeyReaction();
+                    //リアクション登録、外す
+                    if (nicoru.getText().toString().length() == 0) {
+                        showMisskeyReaction(id_string, nicoru, item);
+                    } else {
+                        //外す
+                        Snackbar.make(v, getContext().getString(R.string.reaction_delete_message), Snackbar.LENGTH_SHORT).setAction(getContext().getText(R.string.reaction_delete), new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                postMisskeyReaction("delete", "", id_string);
+                                nicoru.setText("");
+                            }
+                        }).show();
+                    }
                 } else {
                     //もってくる
                     String apiURL = "favourite";
@@ -697,72 +708,74 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         });
 
         //Fav/BT機能
-        nicoru.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                //面倒なので事前に調べたりはしない
-                //設定でダイアログをだすかどうか
-                boolean fav_bt = pref_setting.getBoolean("pref_fav_and_bt_dialog", true);
-                boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", true);
-                if (fav_bt && !dialog_not_show) {
-                    if (replace_snackber) {
-                        Snackbar snackbar;
-                        snackbar = Snackbar.make(finalView1, R.string.favAndBT, Snackbar.LENGTH_SHORT);
-                        snackbar.setAction("Fav+BT", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                TootAction(id_string, "favourite", boost);
-                                TootAction(id_string, "reblog", boost);
-                                boostClick[0] = true;
-                                if (finalBoostFavCount) {
-                                    item.getListItem().set(16, "reblogged");
-                                    item.getListItem().set(17, "favourited");
+        //Misskeyでは使わない
+        if (CustomMenuTimeLine.isMisskeyMode()) {
+            nicoru.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    //面倒なので事前に調べたりはしない
+                    //設定でダイアログをだすかどうか
+                    boolean fav_bt = pref_setting.getBoolean("pref_fav_and_bt_dialog", true);
+                    boolean replace_snackber = pref_setting.getBoolean("pref_one_hand_mode", true);
+                    if (fav_bt && !dialog_not_show) {
+                        if (replace_snackber) {
+                            Snackbar snackbar;
+                            snackbar = Snackbar.make(finalView1, R.string.favAndBT, Snackbar.LENGTH_SHORT);
+                            snackbar.setAction("Fav+BT", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    TootAction(id_string, "favourite", boost);
+                                    TootAction(id_string, "reblog", boost);
+                                    boostClick[0] = true;
+                                    if (finalBoostFavCount) {
+                                        item.getListItem().set(16, "reblogged");
+                                        item.getListItem().set(17, "favourited");
+                                    }
                                 }
-                            }
-                        });
-                        snackbar.show();
+                            });
+                            snackbar.show();
+                        } else {
+                            //ダイアログ
+                            AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
+                            alertDialog.setTitle(R.string.confirmation);
+                            alertDialog.setMessage(R.string.favAndBT);
+                            alertDialog.setPositiveButton("Fav+BT", new DialogInterface.OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    TootAction(id_string, "favourite", boost);
+                                    TootAction(id_string, "reblog", boost);
+                                    boostClick[0] = true;
+                                    if (finalBoostFavCount) {
+                                        item.getListItem().set(16, "reblogged");
+                                        item.getListItem().set(17, "favourited");
+                                    }
+                                }
+
+                            });
+                            alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            });
+                            alertDialog.create().show();
+                        }
+                        //チェックボックスが未チェックだったとき
                     } else {
-                        //ダイアログ
-                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-                        alertDialog.setTitle(R.string.confirmation);
-                        alertDialog.setMessage(R.string.favAndBT);
-                        alertDialog.setPositiveButton("Fav+BT", new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                TootAction(id_string, "favourite", boost);
-                                TootAction(id_string, "reblog", boost);
-                                boostClick[0] = true;
-                                if (finalBoostFavCount) {
-                                    item.getListItem().set(16, "reblogged");
-                                    item.getListItem().set(17, "favourited");
-                                }
-                            }
-
-                        });
-                        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        });
-                        alertDialog.create().show();
+                        TootAction(id_string, "favourite", boost);
+                        TootAction(id_string, "reblog", boost);
+                        boostClick[0] = true;
+                        if (finalBoostFavCount) {
+                            item.getListItem().set(16, "reblogged");
+                            item.getListItem().set(17, "favourited");
+                        }
                     }
-                    //チェックボックスが未チェックだったとき
-                } else {
-                    TootAction(id_string, "favourite", boost);
-                    TootAction(id_string, "reblog", boost);
-                    boostClick[0] = true;
-                    if (finalBoostFavCount) {
-                        item.getListItem().set(16, "reblogged");
-                        item.getListItem().set(17, "favourited");
-                    }
+                    //OnClickListenerが呼ばれないようにする
+                    return true;
                 }
-                //OnClickListenerが呼ばれないようにする
-                return true;
-            }
-        });
-
+            });
+        }
 
         //ブーストボタンにアイコンつける
         TextView boost_button = holder.boost_button;
@@ -1686,7 +1699,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
             //Misskeyはリアクション、Mastodonはカウントを入れる
             if (CustomMenuTimeLine.isMisskeyMode()) {
-                nicoru.setText(isFav);
+                nicoru.setText(toReactionEmoji(isFav));
                 //addView
                 holder.misskey_Reaction.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 holder.misskey_Reaction.setText(favCount);
@@ -2797,8 +2810,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     /**
      * Misskey リアクション
      */
-    private void showMisskeyReaction() {
-        holder.nicoru_button.post(new Runnable() {
+    private void showMisskeyReaction(String id_string, TextView textView, ListItem item) {
+        //UI Thread
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 Snackbar snackbar = Snackbar.make(holder.nicoru_button, "", Snackbar.LENGTH_INDEFINITE);
@@ -2846,11 +2860,15 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                 Snackbar.make(v, getContext().getText(R.string.reaction_message), Snackbar.LENGTH_SHORT).setAction(getContext().getText(R.string.reaction_post), new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        postMisskeyReaction("create", reactionNames[finalI]);
+                                        postMisskeyReaction("create", reactionNames[finalI], id_string);
+                                        item.getListItem().set(17, reactionEmojis[finalI]);
+                                        textView.setText(toReactionEmoji(reactionEmojis[finalI]));
                                     }
                                 }).show();
                             } else {
-                                postMisskeyReaction("create", reactionNames[finalI]);
+                                postMisskeyReaction("create", reactionNames[finalI], id_string);
+                                item.getListItem().set(17, reactionEmojis[finalI]);
+                                textView.setText(toReactionEmoji(reactionEmojis[finalI]));
                             }
                         }
                     });
@@ -2889,11 +2907,15 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                             Snackbar.make(v, getContext().getText(R.string.reaction_message), Snackbar.LENGTH_SHORT).setAction(getContext().getText(R.string.reaction_post), new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    postMisskeyReaction("create", editText.getText().toString());
+                                    postMisskeyReaction("create", editText.getText().toString(), id_string);
+                                    item.getListItem().set(17, editText.getText().toString());
+                                    textView.setText(editText.getText().toString());
                                 }
                             }).show();
                         } else {
-                            postMisskeyReaction("create", editText.getText().toString());
+                            postMisskeyReaction("create", editText.getText().toString(), id_string);
+                            item.getListItem().set(17, editText.getText().toString());
+                            textView.setText(editText.getText().toString());
                         }
                     }
                 });
@@ -2920,7 +2942,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
      * @param create_delete createかdelete
      * @param reactionName  リアクション（リアクション一覧どこにあるの？）
      */
-    private void postMisskeyReaction(String create_delete, String reactionName) {
+    private void postMisskeyReaction(String create_delete, String reactionName, String id_string) {
         String instance = pref_setting.getString("misskey_main_instance", "");
         String token = pref_setting.getString("misskey_main_token", "");
         String username = pref_setting.getString("misskey_main_username", "");
@@ -2957,7 +2979,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String response_string = response.body().string();
-                System.out.println(response_string);
                 if (!response.isSuccessful()) {
                     //失敗時
                     holder.nicoru_button.post(new Runnable() {
@@ -2971,7 +2992,13 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                     holder.nicoru_button.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getContext(), getContext().getString(R.string.reaction_ok) + ":" + toReactionEmoji(reactionName), Toast.LENGTH_SHORT).show();
+                            //メッセージ
+                            if (url.contains("create")) {
+                                Toast.makeText(getContext(), getContext().getString(R.string.reaction_ok) + ":" + toReactionEmoji(reactionName) + "\n" + id_string, Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getContext(), getContext().getString(R.string.reaction_delete_ok) + "\n" + id_string, Toast.LENGTH_SHORT).show();
+                            }
+                            holder.nicoru_button.setText(toReactionEmoji(reactionName));
                         }
                     });
                 }

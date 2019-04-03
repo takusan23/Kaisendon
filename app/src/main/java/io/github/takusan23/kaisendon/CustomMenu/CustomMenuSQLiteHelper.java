@@ -14,11 +14,13 @@ public class CustomMenuSQLiteHelper extends SQLiteOpenHelper {
     private static final String TABLE_NAME = "custom_menudb";
     private static final String SETTING = "setting";
     private static final String NAME = "name";
+    private static final String _ID = "_id";
 
 
     // , を付け忘れるとエラー
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + TABLE_NAME + " (" +
+                    _ID + " INTEGER PRIMARY KEY," +
                     NAME + " TEXT ," +
                     SETTING + " TEXT" +
                     ")";

@@ -50,6 +50,7 @@
             android:summary="@string/setting_chrome_custom_tabs_info"
             android:title="@string/setting_chrome_custom_tabs" />
 
+<!--
         <ListPreference
             android:defaultValue="HomeCard"
             android:entries="@array/start_fragment_list"
@@ -57,6 +58,7 @@
             android:key="pref_startFragment"
             android:summary="@string/setting_start_fragment_info"
             android:title="@string/setting_start_fragment" />
+-->
 
         <CheckBoxPreference
             android:defaultValue="false"

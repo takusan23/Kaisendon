@@ -421,5 +421,9 @@
     <string name="reaction_delete_message">リアクションを取り消す</string>
     <string name="reaction_delete">取り消す</string>
     <string name="reaction_delete_ok">リアクションを取り消しました</string>
+    <string name="menu_old_drawer">旧バージョンのメニューを利用する</string>
+    <string name="hello_message">左上のハンバーガーメニューを押してメニューを開き、メニューを作成します。</string>
+    <string name="custom_menu_reload">カスタムメニューを再読み込み</string>
+    <string name="custom_menu_sort">長押しでカスタムメニューを並び替えることができます。</string>
 
 </resources>

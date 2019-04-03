@@ -525,5 +525,9 @@
     <string name="reaction_delete_message">Cancel the reaction</string>
     <string name="reaction_delete">cancel</string>
     <string name="reaction_delete_ok">I canceled the reaction</string>
+    <string name="menu_old_drawer">Use the old version menu</string>
+    <string name="hello_message">Press the upper left hamburger menu to open the menu and create the menu.</string>
+    <string name="custom_menu_reload">Reload custom menu</string>
+    <string name="custom_menu_sort">You can rearrange custom menu by long press.</string>
 
 </resources>

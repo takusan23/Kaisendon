@@ -19,6 +19,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -47,6 +48,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
@@ -111,6 +113,7 @@ import io.github.takusan23.kaisendon.Fragment.DirectMessage_Fragment;
 import io.github.takusan23.kaisendon.Fragment.Favourites_List_Fragment;
 import io.github.takusan23.kaisendon.Fragment.Federated_TimeLine_Fragment;
 import io.github.takusan23.kaisendon.Fragment.Follow_Suggestions_Fragment;
+import io.github.takusan23.kaisendon.Fragment.HelloFragment;
 import io.github.takusan23.kaisendon.Fragment.HomeCrad_Fragment;
 import io.github.takusan23.kaisendon.Fragment.Home_Fragment;
 import io.github.takusan23.kaisendon.Fragment.InstanceInfo_Fragment;
@@ -197,6 +200,9 @@ public class Home extends AppCompatActivity
     //カスタム絵文字表示に使う配列
     private boolean emojis_show = false;
 
+    //最後に開いたカスタムメニューを保管（）
+    private String lastMenuName = "";
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -251,8 +257,32 @@ public class Home extends AppCompatActivity
             startActivity(login);
         }
 
+        //SQLite
+        if (helper == null) {
+            helper = new CustomMenuSQLiteHelper(getContext());
+        }
+        if (db == null) {
+            db = helper.getWritableDatabase();
+        }
 
         //起動時の
+        FragmentChange(new HelloFragment());
+        //最後に開いたメニューを開くようにする
+        String lastName = pref_setting.getString("custom_menu_last", null);
+        //メニュー入れ替え
+        navigationView.getMenu().clear();
+        navigationView.inflateMenu(R.menu.custom_menu);
+        loadCustomMenu(null);
+        if (lastName != null) {
+            try {
+                loadCustomMenu(lastName);
+
+            } catch (CursorIndexOutOfBoundsException e) {
+                e.printStackTrace();
+            }
+        }
+
+/*
         String start_fragment = pref_setting.getString("pref_startFragment", "HomeCard");
         if (savedInstanceState == null) {
             if (start_fragment.equals("HomeCard")) {
@@ -271,7 +301,6 @@ public class Home extends AppCompatActivity
                 FragmentChange(new Federated_TimeLine_Fragment());
             }
             if (start_fragment.equals("Start")) {
-                FragmentChange(new Start_Fragment());
             }
             if (start_fragment.equals("Streaming")) {
                 FragmentChange(new CustomStreamingFragment());
@@ -282,6 +311,7 @@ public class Home extends AppCompatActivity
                 FragmentChange(new HomeCrad_Fragment());
             }
         }
+*/
 
 
         //カスタム絵文字有効/無効
@@ -317,21 +347,12 @@ public class Home extends AppCompatActivity
 
         }
 
-        //SQLite
-        if (helper == null) {
-            helper = new CustomMenuSQLiteHelper(getContext());
-        }
-        if (db == null) {
-            db = helper.getWritableDatabase();
-        }
-
-
         //カスタムメニューの場合は追加処理
         if (pref_setting.getBoolean("custom_menu", false)) {
             //メニュー入れ替え
             navigationView.getMenu().clear();
             navigationView.inflateMenu(R.menu.custom_menu);
-            loadCustomMenu();
+            loadCustomMenu(null);
         }
 
 
@@ -425,17 +446,16 @@ public class Home extends AppCompatActivity
             }
         });
         //長押し
-/*
+
         fab.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 //従来のTootActivityへー
-                Intent toot = new Intent(Home.this, TootActivity.class);
+                Intent toot = new Intent(Home.this, TestDragListView.class);
                 startActivity(toot);
                 return false;
             }
         });
-*/
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -1300,8 +1320,8 @@ public class Home extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-
         //noinspection SimplifiableIfStatement
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         switch (id) {
             case R.id.home_menu_login:
                 Intent login = new Intent(this, LoginActivity.class);
@@ -1317,11 +1337,25 @@ public class Home extends AppCompatActivity
                 intent.putExtra("my", true);
                 startActivity(intent);
                 break;
-            case R.id.home_menu_settings:
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            case R.id.home_menu_setting:
                 transaction.replace(R.id.container_container, new SettingFragment());
                 transaction.commit();
                 break;
+            case R.id.home_menu_license:
+                transaction.replace(R.id.container_container, new License_Fragment());
+                transaction.commit();
+                break;
+            case R.id.home_menu_thisapp:
+                Intent thisApp = new Intent(this, KonoAppNiTuite.class);
+                startActivity(thisApp);
+                break;
+            case R.id.home_menu_reload_menu:
+                //再読み込み
+                navigationView.getMenu().clear();
+                loadCustomMenu(null);
+                break;
+            case R.id.home_menu_old_drawer:
+                navigationView.inflateMenu(R.menu.activity_home_drawer);
         }
         if (id == R.id.action_settings) {
             return true;
@@ -1517,7 +1551,7 @@ public class Home extends AppCompatActivity
                 //メニュー切り替え
                 navigationView.inflateMenu(R.menu.custom_menu);
                 //適用処理
-                loadCustomMenu();
+                loadCustomMenu(null);
             }
             editor.apply();
         } else if (id == R.id.custom_menu_setting_menu) {
@@ -2437,7 +2471,7 @@ public class Home extends AppCompatActivity
         String username = pref_setting.getString("misskey_main_username", "");
         String url = "https://" + instance + "/api/drive/files/create";
         //くるくる
-        SnackberProgress.showProgressSnackber(toot_EditText,Home.this,getString(R.string.loading) + "\n" + url);
+        SnackberProgress.showProgressSnackber(toot_EditText, Home.this, getString(R.string.loading) + "\n" + url);
         //ぱらめーたー
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -2516,7 +2550,7 @@ public class Home extends AppCompatActivity
         requestBody.addFormDataPart("file", file_post.getName(), RequestBody.create(MediaType.parse("image/" + file_extn_post), file_post));
         requestBody.addFormDataPart("access_token", AccessToken);
         //くるくる
-        SnackberProgress.showProgressSnackber(toot_EditText,Home.this,getString(R.string.loading) + "\n" + url);
+        SnackberProgress.showProgressSnackber(toot_EditText, Home.this, getString(R.string.loading) + "\n" + url);
 
         //じゅんび
         Request request = new Request.Builder()
@@ -2674,19 +2708,44 @@ public class Home extends AppCompatActivity
     }
 
     /**
-     * カスタムメニュー読み込み
+     * 最後に開いたカスタムメニュー保存
      */
-    private void loadCustomMenu() {
+    private void saveLastOpenCustomMenu(String name) {
+        SharedPreferences.Editor editor = pref_setting.edit();
+        editor.putString("custom_menu_last", name);
+        editor.apply();
+    }
+
+    /**
+     * カスタムメニュー読み込み
+     *
+     * @param search 最後に開いた（ｒｙを使うときに使う。<b>使わないときはnullを入れてね</b>
+     */
+    private void loadCustomMenu(String search) {
         //SQLite読み込み
-        Cursor cursor = db.query(
-                "custom_menudb",
-                new String[]{"name", "setting"},
-                null,
-                null,
-                null,
-                null,
-                null
-        );
+        Cursor cursor;
+        //検索するかどうか
+        if (search != null) {
+            cursor = db.query(
+                    "custom_menudb",
+                    new String[]{"name", "setting"},
+                    "name=?",
+                    new String[]{search},
+                    null,
+                    null,
+                    null
+            );
+        } else {
+            cursor = db.query(
+                    "custom_menudb",
+                    new String[]{"name", "setting"},
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+        }
 
         String misskey = "";
         String name = "";
@@ -2712,7 +2771,9 @@ public class Home extends AppCompatActivity
         String setting = "";
 
         cursor.moveToFirst();
-        for (int i = 0; i < cursor.getCount(); i++) {
+
+        //最後に開く機能使うか？
+        if (search != null) {
             try {
                 JSONObject jsonObject = new JSONObject(cursor.getString(1));
                 name = jsonObject.getString("name");
@@ -2737,140 +2798,202 @@ public class Home extends AppCompatActivity
                 misskey = jsonObject.getString("misskey");
                 misskey_username = jsonObject.getString("misskey_username");
                 setting = jsonObject.getString("setting");
-
-                //メニュー追加
-                String finalName = name;
-                String finalContent = content;
-                String finalInstance = instance;
-                String finalAccess_token = access_token;
-                String finalImage_load = image_load;
-                String finalDialog = dialog;
-                String finalDark_mode = dark_mode;
-                String finalPosition = position;
-                String finalStreaming = streaming;
-                String finalSubtitle = subtitle;
-                String finalImage_url = image_url;
-                String finalBackground_transparency = background_transparency;
-                String finalBackground_screen_fit = background_screen_fit;
-                String finalQuick_profile = quick_profile;
-                String finalToot_counter = toot_counter;
-                String finalCustom_emoji = custom_emoji;
-                String finalGif = gif;
-                String finalFont = font;
-                String finalOne_hand = one_hand;
-                String finalSetting = setting;
-                String finalMisskey = misskey;
-                String finalMisskey_username = misskey_username;
-                navigationView.getMenu().add(name).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        //Fragment切り替え
-                        //受け渡す
-                        Bundle bundle = new Bundle();
-                        bundle.putString("misskey", finalMisskey);
-                        bundle.putString("name", finalName);
-                        bundle.putString("content", finalContent);
-                        bundle.putString("instance", finalInstance);
-                        bundle.putString("access_token", finalAccess_token);
-                        bundle.putString("image_load", finalImage_load);
-                        bundle.putString("dialog", finalDialog);
-                        bundle.putString("dark_mode", finalDark_mode);
-                        bundle.putString("position", finalPosition);
-                        bundle.putString("streaming", finalStreaming);
-                        bundle.putString("subtitle", finalSubtitle);
-                        bundle.putString("image_url", finalImage_url);
-                        bundle.putString("background_transparency", finalBackground_transparency);
-                        bundle.putString("background_screen_fit", finalBackground_screen_fit);
-                        bundle.putString("quick_profile", finalQuick_profile);
-                        bundle.putString("toot_counter", finalToot_counter);
-                        bundle.putString("custom_emoji", finalCustom_emoji);
-                        bundle.putString("gif", finalGif);
-                        bundle.putString("font", finalFont);
-                        bundle.putString("one_hand", finalOne_hand);
-                        bundle.putString("misskey_username", finalMisskey_username);
-                        bundle.putString("setting", finalSetting);
-                        CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
-                        customMenuTimeLine.setArguments(bundle);
-
-
-                        //置き換え
-                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                        transaction.replace(R.id.container_container, customMenuTimeLine);
-                        transaction.commit();
-                        return false;
-                    }
-                });
+                Bundle bundle = new Bundle();
+                bundle.putString("misskey", misskey);
+                bundle.putString("name", name);
+                bundle.putString("content", content);
+                bundle.putString("instance", instance);
+                bundle.putString("access_token", access_token);
+                bundle.putString("image_load", image_load);
+                bundle.putString("dialog", dialog);
+                bundle.putString("dark_mode", dark_mode);
+                bundle.putString("position", position);
+                bundle.putString("streaming", streaming);
+                bundle.putString("subtitle", subtitle);
+                bundle.putString("image_url", image_url);
+                bundle.putString("background_transparency", background_transparency);
+                bundle.putString("background_screen_fit", background_screen_fit);
+                bundle.putString("quick_profile", quick_profile);
+                bundle.putString("toot_counter", toot_counter);
+                bundle.putString("custom_emoji", custom_emoji);
+                bundle.putString("gif", gif);
+                bundle.putString("font", font);
+                bundle.putString("one_hand", one_hand);
+                bundle.putString("misskey_username", misskey_username);
+                bundle.putString("setting", setting);
+                CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
+                customMenuTimeLine.setArguments(bundle);
+                //名前控える
+                saveLastOpenCustomMenu(name);
+                //置き換え
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.container_container, customMenuTimeLine);
+                transaction.commit();
             } catch (JSONException e) {
                 e.printStackTrace();
-                //なくてもとりあえず追加する
-                //メニュー追加
-                String finalName = name;
-                String finalContent = content;
-                String finalInstance = instance;
-                String finalAccess_token = access_token;
-                String finalImage_load = image_load;
-                String finalDialog = dialog;
-                String finalDark_mode = dark_mode;
-                String finalPosition = position;
-                String finalStreaming = streaming;
-                String finalSubtitle = subtitle;
-                String finalImage_url = image_url;
-                String finalBackground_transparency = background_transparency;
-                String finalBackground_screen_fit = background_screen_fit;
-                String finalQuick_profile = quick_profile;
-                String finalToot_counter = toot_counter;
-                String finalCustom_emoji = custom_emoji;
-                String finalGif = gif;
-                String finalFont = font;
-                String finalOne_hand = one_hand;
-                String finalSetting = setting;
-                String finalMisskey = misskey;
-                String finalMisskey_username = misskey_username;
-                navigationView.getMenu().add(name).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        //Fragment切り替え
-                        //受け渡す
-                        Bundle bundle = new Bundle();
-                        bundle.putString("name", finalMisskey);
-                        bundle.putString("name", finalName);
-                        bundle.putString("content", finalContent);
-                        bundle.putString("instance", finalInstance);
-                        bundle.putString("access_token", finalAccess_token);
-                        bundle.putString("image_load", finalImage_load);
-                        bundle.putString("dialog", finalDialog);
-                        bundle.putString("dark_mode", finalDark_mode);
-                        bundle.putString("position", finalPosition);
-                        bundle.putString("streaming", finalStreaming);
-                        bundle.putString("subtitle", finalSubtitle);
-                        bundle.putString("image_url", finalImage_url);
-                        bundle.putString("background_transparency", finalBackground_transparency);
-                        bundle.putString("background_screen_fit", finalBackground_screen_fit);
-                        bundle.putString("quick_profile", finalQuick_profile);
-                        bundle.putString("toot_counter", finalToot_counter);
-                        bundle.putString("custom_emoji", finalCustom_emoji);
-                        bundle.putString("gif", finalGif);
-                        bundle.putString("font", finalFont);
-                        bundle.putString("one_hand", finalOne_hand);
-                        bundle.putString("misskey_username", finalMisskey_username);
-                        bundle.putString("setting", finalSetting);
-                        CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
-                        customMenuTimeLine.setArguments(bundle);
-
-
-                        //置き換え
-                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                        transaction.replace(R.id.container_container, customMenuTimeLine);
-                        transaction.commit();
-                        return false;
-                    }
-                });
             }
+        } else {
+            for (int i = 0; i < cursor.getCount(); i++) {
+                try {
+                    JSONObject jsonObject = new JSONObject(cursor.getString(1));
+                    name = jsonObject.getString("name");
+                    content = jsonObject.getString("content");
+                    instance = jsonObject.getString("instance");
+                    access_token = jsonObject.getString("access_token");
+                    image_load = jsonObject.getString("image_load");
+                    dialog = jsonObject.getString("dialog");
+                    dark_mode = jsonObject.getString("dark_mode");
+                    position = jsonObject.getString("position");
+                    streaming = jsonObject.getString("streaming");
+                    subtitle = jsonObject.getString("subtitle");
+                    image_url = jsonObject.getString("image_url");
+                    background_transparency = jsonObject.getString("background_transparency");
+                    background_screen_fit = jsonObject.getString("background_screen_fit");
+                    quick_profile = jsonObject.getString("quick_profile");
+                    toot_counter = jsonObject.getString("toot_counter");
+                    custom_emoji = jsonObject.getString("custom_emoji");
+                    gif = jsonObject.getString("gif");
+                    font = jsonObject.getString("font");
+                    one_hand = jsonObject.getString("one_hand");
+                    misskey = jsonObject.getString("misskey");
+                    misskey_username = jsonObject.getString("misskey_username");
+                    setting = jsonObject.getString("setting");
 
-            cursor.moveToNext();
+                    //メニュー追加
+                    String finalName = name;
+                    String finalContent = content;
+                    String finalInstance = instance;
+                    String finalAccess_token = access_token;
+                    String finalImage_load = image_load;
+                    String finalDialog = dialog;
+                    String finalDark_mode = dark_mode;
+                    String finalPosition = position;
+                    String finalStreaming = streaming;
+                    String finalSubtitle = subtitle;
+                    String finalImage_url = image_url;
+                    String finalBackground_transparency = background_transparency;
+                    String finalBackground_screen_fit = background_screen_fit;
+                    String finalQuick_profile = quick_profile;
+                    String finalToot_counter = toot_counter;
+                    String finalCustom_emoji = custom_emoji;
+                    String finalGif = gif;
+                    String finalFont = font;
+                    String finalOne_hand = one_hand;
+                    String finalSetting = setting;
+                    String finalMisskey = misskey;
+                    String finalMisskey_username = misskey_username;
+                    navigationView.getMenu().add(name).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            //Fragment切り替え
+                            //受け渡す
+                            Bundle bundle = new Bundle();
+                            bundle.putString("misskey", finalMisskey);
+                            bundle.putString("name", finalName);
+                            bundle.putString("content", finalContent);
+                            bundle.putString("instance", finalInstance);
+                            bundle.putString("access_token", finalAccess_token);
+                            bundle.putString("image_load", finalImage_load);
+                            bundle.putString("dialog", finalDialog);
+                            bundle.putString("dark_mode", finalDark_mode);
+                            bundle.putString("position", finalPosition);
+                            bundle.putString("streaming", finalStreaming);
+                            bundle.putString("subtitle", finalSubtitle);
+                            bundle.putString("image_url", finalImage_url);
+                            bundle.putString("background_transparency", finalBackground_transparency);
+                            bundle.putString("background_screen_fit", finalBackground_screen_fit);
+                            bundle.putString("quick_profile", finalQuick_profile);
+                            bundle.putString("toot_counter", finalToot_counter);
+                            bundle.putString("custom_emoji", finalCustom_emoji);
+                            bundle.putString("gif", finalGif);
+                            bundle.putString("font", finalFont);
+                            bundle.putString("one_hand", finalOne_hand);
+                            bundle.putString("misskey_username", finalMisskey_username);
+                            bundle.putString("setting", finalSetting);
+                            CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
+                            customMenuTimeLine.setArguments(bundle);
+                            //名前控える
+                            saveLastOpenCustomMenu(finalName);
+                            //置き換え
+                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                            transaction.replace(R.id.container_container, customMenuTimeLine);
+                            transaction.commit();
+                            return false;
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    //なくてもとりあえず追加する
+                    //メニュー追加
+                    String finalName = name;
+                    String finalContent = content;
+                    String finalInstance = instance;
+                    String finalAccess_token = access_token;
+                    String finalImage_load = image_load;
+                    String finalDialog = dialog;
+                    String finalDark_mode = dark_mode;
+                    String finalPosition = position;
+                    String finalStreaming = streaming;
+                    String finalSubtitle = subtitle;
+                    String finalImage_url = image_url;
+                    String finalBackground_transparency = background_transparency;
+                    String finalBackground_screen_fit = background_screen_fit;
+                    String finalQuick_profile = quick_profile;
+                    String finalToot_counter = toot_counter;
+                    String finalCustom_emoji = custom_emoji;
+                    String finalGif = gif;
+                    String finalFont = font;
+                    String finalOne_hand = one_hand;
+                    String finalSetting = setting;
+                    String finalMisskey = misskey;
+                    String finalMisskey_username = misskey_username;
+                    navigationView.getMenu().add(name).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            //Fragment切り替え
+                            //受け渡す
+                            Bundle bundle = new Bundle();
+                            bundle.putString("name", finalMisskey);
+                            bundle.putString("name", finalName);
+                            bundle.putString("content", finalContent);
+                            bundle.putString("instance", finalInstance);
+                            bundle.putString("access_token", finalAccess_token);
+                            bundle.putString("image_load", finalImage_load);
+                            bundle.putString("dialog", finalDialog);
+                            bundle.putString("dark_mode", finalDark_mode);
+                            bundle.putString("position", finalPosition);
+                            bundle.putString("streaming", finalStreaming);
+                            bundle.putString("subtitle", finalSubtitle);
+                            bundle.putString("image_url", finalImage_url);
+                            bundle.putString("background_transparency", finalBackground_transparency);
+                            bundle.putString("background_screen_fit", finalBackground_screen_fit);
+                            bundle.putString("quick_profile", finalQuick_profile);
+                            bundle.putString("toot_counter", finalToot_counter);
+                            bundle.putString("custom_emoji", finalCustom_emoji);
+                            bundle.putString("gif", finalGif);
+                            bundle.putString("font", finalFont);
+                            bundle.putString("one_hand", finalOne_hand);
+                            bundle.putString("misskey_username", finalMisskey_username);
+                            bundle.putString("setting", finalSetting);
+                            CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
+                            customMenuTimeLine.setArguments(bundle);
+                            //名前控える
+                            saveLastOpenCustomMenu(finalName);
+                            //置き換え
+                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                            transaction.replace(R.id.container_container, customMenuTimeLine);
+                            transaction.commit();
+                            return false;
+                        }
+                    });
+                }
+                cursor.moveToNext();
+
+            }
         }
         cursor.close();
     }
+
 
     private Drawable urlToContent(String url) {
         Drawable drawable = getDrawable(R.drawable.ic_home_black_24dp);

@@ -2,11 +2,14 @@ package io.github.takusan23.kaisendon.CustomMenu;
 
 
 import android.Manifest;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -18,13 +21,19 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lunger.draglistview.DragListAdapter;
+import com.lunger.draglistview.DragListView;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import io.github.takusan23.kaisendon.R;
+import io.github.takusan23.kaisendon.TestDragListView;
 
 
 /**
@@ -35,8 +44,17 @@ public class CustomMenuSettingFragment extends Fragment {
     private SQLiteDatabase db;
 
     private Button add_Button;
-    private ListView listView;
+    private DragListView dragListView;
     private Button backup_restore_Button;
+    private ArrayList<String> arrayList;
+    private ArrayList<String> nameStringArrayList;
+
+    //一時保存 移転先
+    private String old_name = "";
+    private String old_value = "";
+    //移転前
+    private String new_name = "";
+    private String new_value = "";
 
 
     @Override
@@ -49,7 +67,7 @@ public class CustomMenuSettingFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         add_Button = view.findViewById(R.id.add_custom_menu_button);
-        listView = view.findViewById(R.id.custom_menu_listview);
+        dragListView = view.findViewById(R.id.custom_menu_listview);
         backup_restore_Button = view.findViewById(R.id.custom_menu_backup_restore);
 
         ((AppCompatActivity) getContext()).setTitle(R.string.custom_menu_setting);
@@ -94,26 +112,106 @@ public class CustomMenuSettingFragment extends Fragment {
 
         loadSQLite();
 
+        dragListView.setMyDragListener(new DragListView.MyDragListener() {
+            @Override
+            public void onDragFinish(int srcPositon, int finalPosition) {
+                //置き換え先のデータ取得
+                //_idが1から始まるので１足す
+                //動かしたアイテムが入る場所に元あったアイテムを一時避難
+                getOldData(String.valueOf((finalPosition) + 1));
+                //一時避難で逃した場所に移動させたいアイテムを入れる
+                setNewData(String.valueOf((srcPositon) + 1), String.valueOf((finalPosition) + 1));
+                //一時避難してたアイテムを移動させたアイテムが元あった場所にしまう
+                setNewTmpData(String.valueOf((srcPositon) + 1));
+
+                //Toast.makeText(getContext(), "移動前 : " + String.valueOf((srcPositon) + 1) + "\n" + "移転後 : " + String.valueOf((finalPosition) + 1), Toast.LENGTH_LONG).show();
+            }
+        });
+
+
         //ListViewくりっく
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+/*
+        dragListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //編集画面に飛ばす
                 ListView list = (ListView) parent;
                 Intent intent = new Intent(getContext(), AddCustomMenuActivity.class);
                 intent.putExtra("delete_button", true);
-                intent.putExtra("name", (String) list.getItemAtPosition(position));
+                intent.putExtra("name", nameStringArrayList.get(position));
                 startActivity(intent);
             }
         });
+*/
 
+    }
+
+    /**
+     * 置き換え先データ取得
+     */
+    private void getOldData(String index) {
+        Cursor cursor = db.query(
+                "custom_menudb",
+                new String[]{"name", "setting"},
+                "_id=?",
+                new String[]{index},
+                null,
+                null,
+                null
+        );
+        if (cursor != null && cursor.moveToFirst()) {
+            old_name = cursor.getString(0);
+            old_value = cursor.getString(1);
+            cursor.close();
+        }
+    }
+
+    /**
+     * 置き換え実行
+     */
+    private void setNewData(String old_index, String new_index) {
+        //移転前取得
+        Cursor cursor = db.query(
+                "custom_menudb",
+                new String[]{"name", "setting"},
+                "_id=?",
+                new String[]{old_index},
+                null,
+                null,
+                null
+        );
+        if (cursor != null && cursor.moveToFirst()) {
+            String new_name = cursor.getString(0);
+            String new_value = cursor.getString(1);
+            //入れる
+            ContentValues values = new ContentValues();
+            values.put("name", new_name);
+            values.put("setting", new_value);
+            db.update("custom_menudb", values, "_id=?", new String[]{new_index});
+            cursor.close();
+        }
+
+    }
+
+    /**
+     * 一時避難してたデータを入れる
+     */
+    private void setNewTmpData(String new_index) {
+        //移転したアイテムと入れ替え
+        //入れる
+        ContentValues values = new ContentValues();
+        values.put("name", old_name);
+        values.put("setting", old_value);
+        db.update("custom_menudb", values, "_id=?", new String[]{new_index});
     }
 
     /**
      * SQLite読み込み
      */
     private void loadSQLite() {
-        ArrayList<String> list = new ArrayList<>();
+        //ArrayList<String> list = new ArrayList<>();
+        arrayList = new ArrayList<>();
+        nameStringArrayList = new ArrayList<>();
         Cursor cursor = db.query(
                 "custom_menudb",
                 new String[]{"name", "setting"},
@@ -125,12 +223,18 @@ public class CustomMenuSettingFragment extends Fragment {
         );
         cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); i++) {
-            list.add(cursor.getString(0));
+            arrayList.add(cursor.getString(0));
+            nameStringArrayList.add(cursor.getString(0));
             cursor.moveToNext();
         }
         cursor.close();
-        ArrayAdapter adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, list);
-        listView.setAdapter(adapter);
+        dragListView.setDragListAdapter(new MyAdapter(getContext(), arrayList));
+        //设置点击item哪个部位可触发拖拽（可不设置，默认是item任意位置长按可拖拽）
+        //dragListView.setDragger(R.id.iv_move);
+        //设置item悬浮背景色
+        //dragListView.setItemFloatColor(getString(R.string.float_color));
+        //设置item悬浮透明度
+        dragListView.setItemFloatAlpha(0.65f);
     }
 
     /**
@@ -154,5 +258,54 @@ public class CustomMenuSettingFragment extends Fragment {
         snackbar.show();
         return snackbar;
     }
+
+    class MyAdapter extends DragListAdapter {
+
+        public MyAdapter(Context context, ArrayList<String> arrayTitles) {
+            super(context, arrayTitles);
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            View view;
+            /***
+             * 在这里尽可能每次都进行实例化新的，这样在拖拽ListView的时候不会出现错乱.
+             * 具体原因不明，不过这样经过测试，目前没有发现错乱。虽说效率不高，但是做拖拽LisView足够了。
+             */
+            view = LayoutInflater.from(getContext()).inflate(
+                    R.layout.drag_list_item, null);
+
+            TextView textView = (TextView) view.findViewById(R.id.tv_name);
+            LinearLayout linearLayout = view.findViewById(R.id.mainLinearLayout);
+            textView.setText(arrayList.get(position));
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //編集画面
+                    Intent intent = new Intent(getContext(), AddCustomMenuActivity.class);
+                    intent.putExtra("delete_button", true);
+                    intent.putExtra("name", arrayList.get(position));
+                    startActivity(intent);
+                }
+            });
+            return view;
+        }
+
+        @Override
+        public int getCount() {
+            return arrayList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return arrayList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+    }
+
 
 }

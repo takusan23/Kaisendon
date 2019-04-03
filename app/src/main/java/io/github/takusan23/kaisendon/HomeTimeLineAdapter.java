@@ -707,7 +707,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             }
         });
 
-        //Fav/BT機能
+        //Fav+BT機能
         //Misskeyでは使わない
         if (CustomMenuTimeLine.isMisskeyMode()) {
             nicoru.setOnLongClickListener(new View.OnLongClickListener() {

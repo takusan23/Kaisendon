@@ -5,11 +5,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 
 import io.github.takusan23.kaisendon.R;
 
@@ -136,7 +132,7 @@ public class License_Fragment extends Fragment {
                 "See the License for the specific language governing permissions and\n" +
                 "limitations under the License.";
 
-        String draglistview = "Copyright 2016 Lunger Personal\n" +
+        String draglistview = "Copyright 2014 Magnus Woxblom\n" +
                 "\n" +
                 "Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
                 "you may not use this file except in compliance with the License.\n" +
@@ -167,7 +163,7 @@ public class License_Fragment extends Fragment {
         textView.append("\n\n----------\n\n");
         textView.append("jacek-marchwicki/JavaWebsocketClient\nhttps://github.com/jacek-marchwicki/JavaWebsocketClient\n\n" + java_websocket);
         textView.append("\n\n----------\n\n");
-        textView.append("lungerWang/draglistview\nhttps://github.com/lungerWang/draglistview\n\n" + draglistview);
+        textView.append("woxblom/DragListView\nhttps://github.com/woxblom/DragListView\n\n" + draglistview);
 
     }
 }

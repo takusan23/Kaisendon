@@ -529,5 +529,7 @@
     <string name="hello_message">Press the upper left hamburger menu to open the menu and create the menu.</string>
     <string name="custom_menu_reload">Reload custom menu</string>
     <string name="custom_menu_sort">You can rearrange custom menu by long press.</string>
+    <string name="misskey_drive">Misskey Drive</string>
+    <string name="close">Close</string>
 
 </resources>

@@ -1,10 +1,8 @@
 package io.github.takusan23.kaisendon.CustomMenu;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.view.LayoutInflater;
@@ -20,8 +18,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.util.Optional;
 
+import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.R;
 
 public class BackupRestoreBottomDialog extends BottomSheetDialogFragment {
@@ -59,6 +57,8 @@ public class BackupRestoreBottomDialog extends BottomSheetDialogFragment {
                 startRestore();
                 //終了
                 dismiss();
+                //再読み込み
+                getContext().startActivity(new Intent(getContext(), Home.class));
             }
         });
     }

@@ -11,7 +11,6 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.customtabs.CustomTabsIntent;
@@ -31,14 +30,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
-
-import io.github.takusan23.kaisendon.Activity.UserActivity;
-import io.github.takusan23.kaisendon.CustomTabURL.LinkTransformationMethod;
-import io.github.takusan23.kaisendon.Fragment.User_Fragment;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 
@@ -46,6 +42,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import io.github.takusan23.kaisendon.Activity.UserActivity;
+import io.github.takusan23.kaisendon.CustomTabURL.LinkTransformationMethod;
+import io.github.takusan23.kaisendon.Fragment.User_Fragment;
 
 public class SimpleAdapter extends ArrayAdapter<ListItem> {
 
@@ -438,14 +438,28 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
 
                 @Override
                 public void onClick(View v) {
-                    //読み込み
-                    boolean multipain_ui_mode = pref_setting.getBoolean("app_multipain_ui", false);
-
-
-                    Intent intent = new Intent(getContext(), UserActivity.class);
-                    //IDを渡す
-                    intent.putExtra("Account_ID", account_id);
-                    getContext().startActivity(intent);
+                    if (item.getListItem().get(0).equals("misskey_drive")) {
+                        //Misskey Drive
+                        //Toast.makeText(getContext(), "ID : " + id_string, Toast.LENGTH_LONG).show();
+                        //メディアIDの配列に入れる
+                        //追加済み説
+                        if (Home.post_media_id.indexOf(id_string) == -1) {
+                            Home.post_media_id.add(id_string);
+                            Home.misskey_media_url.add(listItem.get(5));
+                            Toast.makeText(getContext(), "追加しました : " + id_string, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Home.post_media_id.remove(id_string);
+                            Home.misskey_media_url.remove(listItem.get(5));
+                            Toast.makeText(getContext(), "削除しました : " + id_string, Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        //読み込み
+                        boolean multipain_ui_mode = pref_setting.getBoolean("app_multipain_ui", false);
+                        Intent intent = new Intent(getContext(), UserActivity.class);
+                        //IDを渡す
+                        intent.putExtra("Account_ID", account_id);
+                        getContext().startActivity(intent);
+                    }
 
                 }
             });

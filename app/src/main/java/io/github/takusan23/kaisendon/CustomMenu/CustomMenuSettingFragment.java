@@ -3,37 +3,30 @@ package io.github.takusan23.kaisendon.CustomMenu;
 
 import android.Manifest;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.lunger.draglistview.DragListAdapter;
-import com.lunger.draglistview.DragListView;
+import com.woxthebox.draglistview.DragListView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import io.github.takusan23.kaisendon.R;
-import io.github.takusan23.kaisendon.TestDragListView;
 
 
 /**
@@ -44,10 +37,10 @@ public class CustomMenuSettingFragment extends Fragment {
     private SQLiteDatabase db;
 
     private Button add_Button;
-    private DragListView dragListView;
     private Button backup_restore_Button;
     private ArrayList<String> arrayList;
     private ArrayList<String> nameStringArrayList;
+    private DragListView dragListView;
 
     //一時保存 移転先
     private String old_name = "";
@@ -67,8 +60,8 @@ public class CustomMenuSettingFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         add_Button = view.findViewById(R.id.add_custom_menu_button);
-        dragListView = view.findViewById(R.id.custom_menu_listview);
         backup_restore_Button = view.findViewById(R.id.custom_menu_backup_restore);
+        dragListView = view.findViewById(R.id.custom_menu_listview);
 
         ((AppCompatActivity) getContext()).setTitle(R.string.custom_menu_setting);
 
@@ -111,7 +104,10 @@ public class CustomMenuSettingFragment extends Fragment {
 
 
         loadSQLite();
+        //ListViewドラッグとか
+        setDragListView();
 
+/*
         dragListView.setMyDragListener(new DragListView.MyDragListener() {
             @Override
             public void onDragFinish(int srcPositon, int finalPosition) {
@@ -127,6 +123,7 @@ public class CustomMenuSettingFragment extends Fragment {
                 //Toast.makeText(getContext(), "移動前 : " + String.valueOf((srcPositon) + 1) + "\n" + "移転後 : " + String.valueOf((finalPosition) + 1), Toast.LENGTH_LONG).show();
             }
         });
+*/
 
 
         //ListViewくりっく
@@ -209,7 +206,7 @@ public class CustomMenuSettingFragment extends Fragment {
      * SQLite読み込み
      */
     private void loadSQLite() {
-        //ArrayList<String> list = new ArrayList<>();
+        ArrayList<Pair<Long, String>> testArrayList = new ArrayList<>();
         arrayList = new ArrayList<>();
         nameStringArrayList = new ArrayList<>();
         Cursor cursor = db.query(
@@ -225,16 +222,46 @@ public class CustomMenuSettingFragment extends Fragment {
         for (int i = 0; i < cursor.getCount(); i++) {
             arrayList.add(cursor.getString(0));
             nameStringArrayList.add(cursor.getString(0));
+            testArrayList.add(new Pair<>((long) i, cursor.getString(0)));
             cursor.moveToNext();
         }
+        dragListView.setLayoutManager(new LinearLayoutManager(getContext()));
+        ItemAdapter listAdapter = new ItemAdapter(testArrayList, R.layout.list_item, R.id.image, false);
+        dragListView.setAdapter(listAdapter, true);
+        dragListView.setCanDragHorizontally(false);
         cursor.close();
-        dragListView.setDragListAdapter(new MyAdapter(getContext(), arrayList));
-        //设置点击item哪个部位可触发拖拽（可不设置，默认是item任意位置长按可拖拽）
-        //dragListView.setDragger(R.id.iv_move);
-        //设置item悬浮背景色
-        //dragListView.setItemFloatColor(getString(R.string.float_color));
-        //设置item悬浮透明度
-        dragListView.setItemFloatAlpha(0.65f);
+    }
+
+    /**
+     * DragListViewとか
+     */
+    private void setDragListView() {
+        dragListView.setDragListListener(new DragListView.DragListListener() {
+            @Override
+            public void onItemDragStarted(int position) {
+                //Toast.makeText(getContext(), "Start - position: " + position, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onItemDragging(int itemPosition, float x, float y) {
+
+            }
+
+            @Override
+            public void onItemDragEnded(int fromPosition, int toPosition) {
+                //Toast.makeText(getContext(), "End - position: " + toPosition + "\n" + "Start - position: " + fromPosition, Toast.LENGTH_SHORT).show();
+
+                //置き換え先のデータ取得
+                //_idが1から始まるので１足す
+                //動かしたアイテムが入る場所にあるアイテムを一時避難
+                getOldData(String.valueOf((toPosition) + 1));
+                //一時避難で逃した場所に移動させたいアイテムを入れる
+                setNewData(String.valueOf((fromPosition) + 1), String.valueOf((toPosition) + 1));
+                //一時避難してたアイテムを移動させたアイテムが元あった場所にしまう
+                setNewTmpData(String.valueOf((fromPosition) + 1));
+
+            }
+        });
     }
 
     /**
@@ -258,54 +285,5 @@ public class CustomMenuSettingFragment extends Fragment {
         snackbar.show();
         return snackbar;
     }
-
-    class MyAdapter extends DragListAdapter {
-
-        public MyAdapter(Context context, ArrayList<String> arrayTitles) {
-            super(context, arrayTitles);
-        }
-
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            View view;
-            /***
-             * 在这里尽可能每次都进行实例化新的，这样在拖拽ListView的时候不会出现错乱.
-             * 具体原因不明，不过这样经过测试，目前没有发现错乱。虽说效率不高，但是做拖拽LisView足够了。
-             */
-            view = LayoutInflater.from(getContext()).inflate(
-                    R.layout.drag_list_item, null);
-
-            TextView textView = (TextView) view.findViewById(R.id.tv_name);
-            LinearLayout linearLayout = view.findViewById(R.id.mainLinearLayout);
-            textView.setText(arrayList.get(position));
-            textView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //編集画面
-                    Intent intent = new Intent(getContext(), AddCustomMenuActivity.class);
-                    intent.putExtra("delete_button", true);
-                    intent.putExtra("name", arrayList.get(position));
-                    startActivity(intent);
-                }
-            });
-            return view;
-        }
-
-        @Override
-        public int getCount() {
-            return arrayList.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return arrayList.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-    }
-
 
 }

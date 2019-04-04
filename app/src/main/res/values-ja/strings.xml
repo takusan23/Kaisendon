@@ -425,5 +425,7 @@
     <string name="hello_message">左上のハンバーガーメニューを押してメニューを開き、メニューを作成します。</string>
     <string name="custom_menu_reload">カスタムメニューを再読み込み</string>
     <string name="custom_menu_sort">長押しでカスタムメニューを並び替えることができます。</string>
+    <string name="misskey_drive">Misskeyドライブ</string>
+    <string name="close">閉じる</string>
 
 </resources>

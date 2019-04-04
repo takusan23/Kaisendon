@@ -9,7 +9,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.TaskStackBuilder;
-import android.app.UiModeManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -48,7 +47,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
@@ -84,10 +82,8 @@ import com.squareup.picasso.Picasso;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.Handler;
 import com.sys1yagi.mastodon4j.api.Shutdownable;
-import com.sys1yagi.mastodon4j.api.entity.Account;
 import com.sys1yagi.mastodon4j.api.entity.Notification;
 import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
-import com.sys1yagi.mastodon4j.api.method.Accounts;
 import com.sys1yagi.mastodon4j.api.method.Streaming;
 
 import org.jetbrains.annotations.NotNull;
@@ -102,11 +98,11 @@ import java.util.Locale;
 
 import io.github.takusan23.kaisendon.Activity.KonoAppNiTuite;
 import io.github.takusan23.kaisendon.Activity.LoginActivity;
-import io.github.takusan23.kaisendon.Activity.TootActivity;
 import io.github.takusan23.kaisendon.Activity.UserActivity;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSettingFragment;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
+import io.github.takusan23.kaisendon.CustomMenu.MisskeyDriveBottomDialog;
 import io.github.takusan23.kaisendon.Fragment.Bookmark_Frament;
 import io.github.takusan23.kaisendon.Fragment.CustomStreamingFragment;
 import io.github.takusan23.kaisendon.Fragment.DirectMessage_Fragment;
@@ -123,11 +119,9 @@ import io.github.takusan23.kaisendon.Fragment.MultiPain_UI_Fragment;
 import io.github.takusan23.kaisendon.Fragment.Notification_Fragment;
 import io.github.takusan23.kaisendon.Fragment.Public_TimeLine_Fragment;
 import io.github.takusan23.kaisendon.Fragment.SettingFragment;
-import io.github.takusan23.kaisendon.Fragment.Start_Fragment;
 import io.github.takusan23.kaisendon.Fragment.WearFragment;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -192,9 +186,14 @@ public class Home extends AppCompatActivity
     MenuPopupHelper account_optionsMenu;
     LinearLayout account_LinearLayout;
     LinearLayout misskey_account_LinearLayout;
+    ImageButton misskey_drive_Button;
+    LinearLayout toot_Button_LinearLayout;
     //マルチアカウント読み込み用
     ArrayList<String> multi_account_instance;
     ArrayList<String> multi_account_access_token;
+    //添付メディア
+    public static ArrayList<String> post_media_id;
+    public static ArrayList<String> misskey_media_url;
     //文字数カウント
     int tootTextCount = 0;
     //カスタム絵文字表示に使う配列
@@ -251,7 +250,7 @@ public class Home extends AppCompatActivity
 
         //ログイン情報があるか
         //アクセストークンがない場合はログイン画面へ飛ばす
-        if (pref_setting.getString("main_token", "").equals("")) {
+        if (pref_setting.getString("main_token", "").equals("") && pref_setting.getString("misskey_instance_list", "").equals("")) {
             Intent login = new Intent(this, LoginActivity.class);
             //login.putExtra("first_applunch", true);
             startActivity(login);
@@ -414,9 +413,12 @@ public class Home extends AppCompatActivity
                 if (CustomMenuTimeLine.isMisskeyMode()) {
                     getMisskeyAccount();
                     setMisskeyVisibilityMenu(toot_area_Button);
+                    toot_Button_LinearLayout.removeView(misskey_drive_Button);
+                    toot_Button_LinearLayout.addView(misskey_drive_Button);
                 } else {
                     getAccount();
                     setMastodonVisibilityMenu(toot_area_Button);
+                    toot_Button_LinearLayout.removeView(misskey_drive_Button);
                 }
                 toot_snackbar.dismiss();
                 fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
@@ -447,6 +449,7 @@ public class Home extends AppCompatActivity
         });
         //長押し
 
+/*
         fab.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -456,6 +459,7 @@ public class Home extends AppCompatActivity
                 return false;
             }
         });
+*/
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -482,6 +486,7 @@ public class Home extends AppCompatActivity
 //        user_id_textView.setText(user_id);
 //        user_account_textView.setText(display_name);
 
+/*
         if (!pref_setting.getBoolean("custom_menu", false)) {
             Menu drawer_menu = navigationView.getMenu();
             MenuItem favourite_menu = drawer_menu.findItem(R.id.favourite_list);
@@ -493,8 +498,10 @@ public class Home extends AppCompatActivity
                 favourite_menu.setTitle("ニコったリスト");
             }
         }
+*/
 
-
+        //つかわん
+/*
         String url = "https://" + Instance + "/api/v1/accounts/verify_credentials/?access_token=" + AccessToken;
         //作成
         Request request = new Request.Builder()
@@ -509,7 +516,7 @@ public class Home extends AppCompatActivity
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getContext(), R.string.error, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getContext(), R.string.error, Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -613,6 +620,7 @@ public class Home extends AppCompatActivity
                 }
             }
         });
+*/
 
 
         boolean friends_nico_check_box = pref_setting.getBoolean("pref_friends_nico_mode", false);
@@ -1154,11 +1162,9 @@ public class Home extends AppCompatActivity
         }
     }
 
-
     //画像POST
     int count = 0;
     ArrayList<String> media_list = new ArrayList<>();
-    ArrayList<String> post_media_id = new ArrayList<>();
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -1294,6 +1300,48 @@ public class Home extends AppCompatActivity
         }
     }
 
+    /**
+     * Misskey Driveの画像を表示させる
+     */
+    private void setMisskeyDrivePhoto() {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(200, 200);
+        media_LinearLayout.removeAllViews();
+        //配列に入れた要素をもとにImageViewを生成する
+        for (int i = 0; i < misskey_media_url.size(); i++) {
+            ImageView imageView = new ImageView(Home.this);
+            //Glide
+            Glide.with(Home.this).load(misskey_media_url.get(i)).into(imageView);
+            imageView.setLayoutParams(layoutParams);
+            imageView.setTag(i);
+            media_LinearLayout.addView(imageView);
+            //押したとき
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(Home.this, "位置 : " + String.valueOf((Integer) imageView.getTag()), Toast.LENGTH_SHORT).show();
+                    //要素の削除
+                    //なんだこのくそｇｍコードは
+                    //removeにgetTagそのまま書くとなんかだめなんだけど何これ意味不
+                    if ((Integer) imageView.getTag() == 0) {
+                        misskey_media_url.remove(0);
+                        post_media_id.remove(0);
+                    } else if ((Integer) imageView.getTag() == 1) {
+                        misskey_media_url.remove(1);
+                        post_media_id.remove(1);
+                    } else if ((Integer) imageView.getTag() == 2) {
+                        misskey_media_url.remove(2);
+                        post_media_id.remove(2);
+                    } else if ((Integer) imageView.getTag() == 3) {
+                        misskey_media_url.remove(3);
+                        post_media_id.remove(3);
+                    }
+                    //再生成
+                    setMisskeyDrivePhoto();
+                }
+            });
+        }
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -1349,9 +1397,14 @@ public class Home extends AppCompatActivity
                 Intent thisApp = new Intent(this, KonoAppNiTuite.class);
                 startActivity(thisApp);
                 break;
+            case R.id.home_menu_wear:
+                transaction.replace(R.id.container_container, new WearFragment());
+                transaction.commit();
+                break;
             case R.id.home_menu_reload_menu:
                 //再読み込み
                 navigationView.getMenu().clear();
+                navigationView.inflateMenu(R.menu.custom_menu);
                 loadCustomMenu(null);
                 break;
             case R.id.home_menu_old_drawer:
@@ -1650,12 +1703,16 @@ public class Home extends AppCompatActivity
 
     @SuppressLint("RestrictedApi")
     private void tootSnackBer() {
+        //画像ID配列
+        post_media_id = new ArrayList<>();
+        misskey_media_url = new ArrayList<>();
 
         //アクセストークン
         String AccessToken = null;
 
         //インスタンス
         String Instance = null;
+
 
         boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
         if (accessToken_boomelan) {
@@ -1695,9 +1752,9 @@ public class Home extends AppCompatActivity
         toot_EditText.setTextColor(Color.parseColor("#ffffff"));
         toot_EditText.setHintTextColor(Color.parseColor("#ffffff"));
         //ボタン追加用LinearLayout
-        LinearLayout toot_Button_LinearLayout = new LinearLayout(Home.this);
+        toot_Button_LinearLayout = new LinearLayout(Home.this);
         toot_Button_LinearLayout.setOrientation(LinearLayout.HORIZONTAL);
-        toot_Button_LinearLayout.setLayoutParams(warp);
+        toot_Button_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         //Button
         //画像追加
@@ -1865,6 +1922,19 @@ public class Home extends AppCompatActivity
             }
         });
 
+        //Misskey Driveボタン
+        misskey_drive_Button = new ImageButton(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        //misskey_drive_Button.setBackground(getDrawable(R.drawable.button_clear));
+        misskey_drive_Button.setImageDrawable(getDrawable(R.drawable.ic_cloud_queue_white_24dp));
+        misskey_drive_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Misskey Drive API を叩く
+                MisskeyDriveBottomDialog dialogFragment = new MisskeyDriveBottomDialog();
+                dialogFragment.show(getSupportFragmentManager(), "misskey_drive_dialog");
+                setMisskeyDrivePhoto();
+            }
+        });
 
         //コマンド実行ボタン
         Button command_Button = new Button(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
@@ -1950,6 +2020,7 @@ public class Home extends AppCompatActivity
         toot_Button_LinearLayout.addView(add_image_Button);
         toot_Button_LinearLayout.addView(toot_area_Button);
         toot_Button_LinearLayout.addView(device_Button);
+
         //Toot LinearLayout
         toot_LinearLayout.addView(post_button);
 
@@ -2085,6 +2156,7 @@ public class Home extends AppCompatActivity
             }
         });
     }
+
 
     @SuppressLint("RestrictedApi")
     private void readMultiAccount() {

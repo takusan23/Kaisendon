@@ -1,46 +1,28 @@
 package io.github.takusan23.kaisendon.CustomMenu;
 
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkCapabilities;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.view.menu.MenuPopupHelper;
-import android.text.Html;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -49,22 +31,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
 import com.sys1yagi.mastodon4j.api.entity.Card;
 import com.sys1yagi.mastodon4j.api.entity.Emoji;
 import com.sys1yagi.mastodon4j.api.entity.Notification;
-import com.sys1yagi.mastodon4j.api.entity.Status;
 import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Statuses;
-import com.sys1yagi.mastodon4j.api.method.Streaming;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -83,12 +60,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-import io.github.takusan23.kaisendon.Activity.LoginActivity;
-import io.github.takusan23.kaisendon.Fragment.Public_TimeLine_Fragment;
 import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
 import io.github.takusan23.kaisendon.ListItem;
-import io.github.takusan23.kaisendon.PicassoImageGetter;
 import io.github.takusan23.kaisendon.R;
 import io.github.takusan23.kaisendon.SnackberProgress;
 import okhttp3.Call;
@@ -99,8 +73,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import static io.github.takusan23.kaisendon.Preference_ApplicationContext.getContext;
 
 
 /**
@@ -329,6 +301,8 @@ public class CustomMenuTimeLine extends Fragment {
                 //普通にAPI叩く
                 loadMisskeyTimeline(null, false);
             } else {
+                //通知レイアウト読み込み
+                notificationLayout();
                 loadMisskeyTimeline(null, true);
             }
 
@@ -377,8 +351,6 @@ public class CustomMenuTimeLine extends Fragment {
                     }
                 }
             });
-
-
         } else {
             //名前表示
             //サブタイトル更新
@@ -819,17 +791,19 @@ public class CustomMenuTimeLine extends Fragment {
                         String name = jsonObject.getString("name");
                         String username = jsonObject.getString("username");
                         account_id = jsonObject.getString("id");
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //サブタイトル更新
-                                if (subtitle.length() >= 1) {
-                                    ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
-                                } else {
-                                    ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(name + "( @" + username + " / " + instance + " )");
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //サブタイトル更新
+                                    if (subtitle.length() >= 1) {
+                                        ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
+                                    } else {
+                                        ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(name + "( @" + username + " / " + instance + " )");
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -1162,7 +1136,11 @@ public class CustomMenuTimeLine extends Fragment {
                     //通知更新
                     adapter.clear();
                     SnackberProgress.showProgressSnackber(sw, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-                    loadNotification("");
+                    if (misskey_mode) {
+                        loadMisskeyTimeline(null, true);
+                    } else {
+                        loadNotification("");
+                    }
                 }
             });
         }
@@ -2000,9 +1978,27 @@ public class CustomMenuTimeLine extends Fragment {
                 jsonObject.put("includeMyRenotes", true);
                 jsonObject.put("includeRenotedMyNotes", true);
             }
+            if (notification) {
+                //通知フィルター機能
+                JSONArray filter = new JSONArray();
+                if (fav_filter) {
+                    filter.put("reaction");
+                }
+                if (bt_filter) {
+                    filter.put("renote");
+                }
+                if (mention_filter) {
+                    filter.put("mention");
+                }
+                if (follow_filter) {
+                    filter.put("follow");
+                }
+                jsonObject.put("includeTypes", filter);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        //System.out.println(jsonObject.toString());
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
         //作成
         Request request = new Request.Builder()
@@ -2046,14 +2042,12 @@ public class CustomMenuTimeLine extends Fragment {
                                 setMisskeyNotification(jsonObject);
                             }
                         }
-                        if (untilId != null) {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    swipeRefreshLayout.setRefreshing(false);
-                                }
-                            });
-                        }
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                swipeRefreshLayout.setRefreshing(false);
+                            }
+                        });
                         //最後のIDを保存
                         JSONObject last = jsonArray.getJSONObject(99);
                         CustomMenuTimeLine.this.untilId = last.getString("id");
@@ -2261,15 +2255,14 @@ public class CustomMenuTimeLine extends Fragment {
      **/
     private void setMisskeyNotification(JSONObject jsonObject) {
         try {
-            JSONObject note_JsonObject = jsonObject.getJSONObject("note");
             JSONObject user_JsonObject = jsonObject.getJSONObject("user");
             String layout_type = "";
-            String text = note_JsonObject.getString("text");
+            String text = "";
+            String note_id = "";
             String id = jsonObject.getString("id");
             String type = jsonObject.getString("type");
             String name = user_JsonObject.getString("name");
             String username = user_JsonObject.getString("username");
-            String note_id = note_JsonObject.getString("id");
             String createdAt = jsonObject.getString("createdAt");
             String avatar = user_JsonObject.getString("avatarUrl");
             String account_id = user_JsonObject.getString("id");
@@ -2279,6 +2272,36 @@ public class CustomMenuTimeLine extends Fragment {
             String media_2 = null;
             String media_3 = null;
             String media_4 = null;
+
+            //noteがあるか確認
+            if (!jsonObject.isNull("note")) {
+                JSONObject note_JsonObject = jsonObject.getJSONObject("note");
+                text = note_JsonObject.getString("text");
+                note_id = note_JsonObject.getString("id");
+                //添付メディア
+                if (!note_JsonObject.isNull("media")) {
+                    JSONArray media = note_JsonObject.getJSONArray("media");
+                    if (!media.isNull(0)) {
+                        media_1 = media.getJSONObject(0).getString("url");
+                    }
+                    if (!media.isNull(1)) {
+                        media_2 = media.getJSONObject(1).getString("url");
+                    }
+                    if (!media.isNull(2)) {
+                        media_3 = media.getJSONObject(2).getString("url");
+                    }
+                    if (!media.isNull(3)) {
+                        media_4 = media.getJSONObject(3).getString("url");
+                    }
+                }
+            }
+            //リアクション取る
+            String reaction = "";
+            if (!jsonObject.isNull("reaction")) {
+                reaction = jsonObject.getString("reaction");
+                //絵文字変換
+                type = HomeTimeLineAdapter.toReactionEmoji(reaction);
+            }
             //card
             String cardTitle = null;
             String cardURL = null;

@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:text="@string/custom_menu_sort" />
 
-    <com.lunger.draglistview.DragListView
+    <com.woxthebox.draglistview.DragListView
         android:id="@+id/custom_menu_listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

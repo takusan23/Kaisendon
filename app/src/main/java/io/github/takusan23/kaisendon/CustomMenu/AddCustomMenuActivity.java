@@ -4,9 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,16 +13,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
+import android.os.Build;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.view.MenuInflater;
@@ -47,8 +44,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -860,13 +855,30 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     }
 
     public String getPath(Uri uri) {
-        String[] projection = {MediaStore.MediaColumns.DATA};
-        Cursor cursor = getContext().getContentResolver().query(uri, projection, null, null, null);
+        String[] projection = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
         int column_index = cursor
-                .getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         cursor.moveToFirst();
         String imagePath = cursor.getString(column_index);
-        return cursor.getString(column_index);
+        cursor.close();
+        //Android Q から追加された Scoped Storage に一時的に対応
+        //なにそれ→アプリごとにストレージサンドボックスが作られて、今まであったWRITE_EXTERNAL_STORAGEなしで扱える他
+        //他のアプリからはアクセスできないようになってる。
+        //<I>いやでも今までのfile://スキーマ変換が使えないのはクソクソクソでは</I>
+        //今までのやつをAndroid Qで動かすと
+        //Q /mnt/content/media ～
+        //Pie /storage/emulated/0 ～
+        //もう一回かけてようやくfile://スキーマのリンク取れた
+        //Android Q
+        if (Build.VERSION.CODENAME.equals("Q")) {
+            // /mnt/content/が邪魔なので取って、そこにcontent://スキーマをつける
+            String content_text = imagePath.replace("/mnt/content/", "content://");
+            //もう一回目ゾッと呼ぶので制御用にtrue
+            imagePath = Home.getPathAndroidQ(getContext(), Uri.parse(content_text));
+        }
+        System.out.println(imagePath);
+        return imagePath;
     }
 
     private String getPath_Q(Uri uri) {

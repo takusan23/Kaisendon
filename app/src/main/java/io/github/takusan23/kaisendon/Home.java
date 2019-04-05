@@ -10,6 +10,7 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -501,58 +502,47 @@ public class Home extends AppCompatActivity
 */
 
         //つかわん
-/*
-        String url = "https://" + Instance + "/api/v1/accounts/verify_credentials/?access_token=" + AccessToken;
-        //作成
-        Request request = new Request.Builder()
-                .url(url)
-                .get()
-                .build();
-        //GETリクエスト
-        OkHttpClient client = new OkHttpClient();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Toast.makeText(getContext(), R.string.error, Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
+        if (CustomMenuTimeLine.isMisskeyMode()){
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    //成功時
-                    String response_string = response.body().string();
-                    try {
-                        JSONObject jsonObject = new JSONObject(response_string);
-                        display_name = jsonObject.getString("display_name");
-                        user_id = jsonObject.getString("username");
-                        user_avater = jsonObject.getString("avatar");
-                        user_header = jsonObject.getString("header");
-                        account_id = jsonObject.getString("id");
+        }else {
+            String url = "https://" + Instance + "/api/v1/accounts/verify_credentials/?access_token=" + AccessToken;
+            //作成
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .build();
+            //GETリクエスト
+            OkHttpClient client = new OkHttpClient();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            //Toast.makeText(getContext(), R.string.error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
 
-                        //カスタム絵文字適用
-                        if (emojis_show) {
-                            //他のところでは一旦配列に入れてるけど今回はここでしか使ってないから省くね
-                            JSONArray emojis = jsonObject.getJSONArray("emojis");
-                            for (int i = 0; i < emojis.length(); i++) {
-                                JSONObject emojiObject = emojis.getJSONObject(i);
-                                String emoji_name = emojiObject.getString("shortcode");
-                                String emoji_url = emojiObject.getString("url");
-                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                //display_name
-                                if (display_name.contains(emoji_name)) {
-                                    //あったよ
-                                    display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                                }
-                            }
-                            if (!jsonObject.isNull("profile_emojis")) {
-                                JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
-                                for (int i = 0; i < profile_emojis.length(); i++) {
-                                    JSONObject emojiObject = profile_emojis.getJSONObject(i);
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        //成功時
+                        String response_string = response.body().string();
+                        try {
+                            JSONObject jsonObject = new JSONObject(response_string);
+                            display_name = jsonObject.getString("display_name");
+                            user_id = jsonObject.getString("username");
+                            user_avater = jsonObject.getString("avatar");
+                            user_header = jsonObject.getString("header");
+                            account_id = jsonObject.getString("id");
+
+                            //カスタム絵文字適用
+                            if (emojis_show) {
+                                //他のところでは一旦配列に入れてるけど今回はここでしか使ってないから省くね
+                                JSONArray emojis = jsonObject.getJSONArray("emojis");
+                                for (int i = 0; i < emojis.length(); i++) {
+                                    JSONObject emojiObject = emojis.getJSONObject(i);
                                     String emoji_name = emojiObject.getString("shortcode");
                                     String emoji_url = emojiObject.getString("url");
                                     String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
@@ -562,65 +552,79 @@ public class Home extends AppCompatActivity
                                         display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                     }
                                 }
+                                if (!jsonObject.isNull("profile_emojis")) {
+                                    JSONArray profile_emojis = jsonObject.getJSONArray("profile_emojis");
+                                    for (int i = 0; i < profile_emojis.length(); i++) {
+                                        JSONObject emojiObject = profile_emojis.getJSONObject(i);
+                                        String emoji_name = emojiObject.getString("shortcode");
+                                        String emoji_url = emojiObject.getString("url");
+                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                        //display_name
+                                        if (display_name.contains(emoji_name)) {
+                                            //あったよ
+                                            display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                                        }
+                                    }
+                                }
                             }
+
+                            //UI Thread
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //表示設定
+                                    if (setting_avater_hidden) {
+                                        avater_imageView.setImageResource(R.drawable.ic_person_black_24dp);
+                                        header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"));
+                                    }
+                                    //Wi-Fi
+                                    if (setting_avater_wifi) {
+                                        if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                                            if (setting_avater_gif) {
+                                                //GIFアニメ再生させない
+                                                Picasso.get().load(user_avater).resize(100, 100).into(avater_imageView);
+                                                Picasso.get().load(user_header).into(header_imageView);
+                                            } else {
+                                                //GIFアニメを再生
+                                                Glide.with(getApplicationContext()).load(user_avater).apply(new RequestOptions().override(100, 100)).into(avater_imageView);
+                                                Glide.with(getApplicationContext()).load(user_header).into(header_imageView);
+                                            }
+                                        }
+                                    } else {
+                                        avater_imageView.setImageResource(R.drawable.ic_person_black_24dp);
+                                        header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"));
+                                    }
+                                    PicassoImageGetter imageGetter = new PicassoImageGetter(user_account_textView);
+                                    user_account_textView.setText(Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
+                                    user_id_textView.setText("@" + user_id + "@" + finalInstance);
+                                    if (pref_setting.getBoolean("pref_subtitle_show", true)) {
+                                        //サブタイトルに名前を入れる
+                                        try {
+                                            getSupportActionBar().setSubtitle(jsonObject.getString("display_name") + " ( @" + user_id + " / " + finalInstance + " )");
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            });
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
 
-                        //UI Thread
+                    } else {
+                        //失敗時
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                //表示設定
-                                if (setting_avater_hidden) {
-                                    avater_imageView.setImageResource(R.drawable.ic_person_black_24dp);
-                                    header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"));
-                                }
-                                //Wi-Fi
-                                if (setting_avater_wifi) {
-                                    if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                                        if (setting_avater_gif) {
-                                            //GIFアニメ再生させない
-                                            Picasso.get().load(user_avater).resize(100, 100).into(avater_imageView);
-                                            Picasso.get().load(user_header).into(header_imageView);
-                                        } else {
-                                            //GIFアニメを再生
-                                            Glide.with(getApplicationContext()).load(user_avater).apply(new RequestOptions().override(100, 100)).into(avater_imageView);
-                                            Glide.with(getApplicationContext()).load(user_header).into(header_imageView);
-                                        }
-                                    }
-                                } else {
-                                    avater_imageView.setImageResource(R.drawable.ic_person_black_24dp);
-                                    header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"));
-                                }
-                                PicassoImageGetter imageGetter = new PicassoImageGetter(user_account_textView);
-                                user_account_textView.setText(Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
-                                user_id_textView.setText("@" + user_id + "@" + finalInstance);
-                                if (pref_setting.getBoolean("pref_subtitle_show", true)) {
-                                    //サブタイトルに名前を入れる
-                                    try {
-                                        getSupportActionBar().setSubtitle(jsonObject.getString("display_name") + " ( @" + user_id + " / " + finalInstance + " )");
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
+                                Toast.makeText(getContext(), getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                             }
                         });
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
-
-                } else {
-                    //失敗時
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getContext(), getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
-                        }
-                    });
                 }
-            }
-        });
-*/
+            });
+        }
+
 
 
         boolean friends_nico_check_box = pref_setting.getBoolean("pref_friends_nico_mode", false);
@@ -1175,6 +1179,7 @@ public class Home extends AppCompatActivity
         if (requestCode == 1)
             if (resultCode == Activity.RESULT_OK) {
                 Uri selectedImage = data.getData();
+                System.out.println("値 : " + String.valueOf(resultCode) + " / " + data.getData());
 
                 //ファイルパスとか
                 String filePath = getPath(selectedImage);
@@ -1255,15 +1260,46 @@ public class Home extends AppCompatActivity
             }
     }
 
+    /**
+     * context://→file://へ変換する
+     */
     public String getPath(Uri uri) {
-        String[] projection = {MediaStore.MediaColumns.DATA};
+        //uri.getLastPathSegment();
+        String[] projection = {MediaStore.Images.Media.DATA};
         Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
         int column_index = cursor
-                .getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         cursor.moveToFirst();
         String imagePath = cursor.getString(column_index);
+        cursor.close();
+        //Android Q から追加された Scoped Storage に一時的に対応
+        //なにそれ→アプリごとにストレージサンドボックスが作られて、今まであったWRITE_EXTERNAL_STORAGEなしで扱える他
+        //他のアプリからはアクセスできないようになってる。
+        //<I>いやでも今までのfile://スキーマ変換が使えないのはクソクソクソでは</I>
+        //今までのやつをAndroid Qで動かすと
+        //Q /mnt/content/media ～
+        //Pie /storage/emulated/0 ～
+        //もう一回かけてようやくfile://スキーマのリンク取れた
+        //Android Q
+        if (Build.VERSION.CODENAME.equals("Q")) {
+            // /mnt/content/が邪魔なので取って、そこにcontent://スキーマをつける
+            String content_text = imagePath.replace("/mnt/content/", "content://");
+            //もう一回目ゾッと呼ぶので制御用にtrue
+            imagePath = getPathAndroidQ(Home.this, Uri.parse(content_text));
+        }
+        System.out.println(imagePath);
+        return imagePath;
+    }
 
-        return cursor.getString(column_index);
+    public static String getPathAndroidQ(Context context, Uri contentUri) {
+        Cursor cursor = null;
+        String[] proj = {MediaStore.Images.Media.DATA};
+        cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        String path = cursor.getString(column_index);
+        cursor.close();
+        return path;
     }
 
     private void ImageViewClick() {
@@ -1399,6 +1435,10 @@ public class Home extends AppCompatActivity
                 break;
             case R.id.home_menu_wear:
                 transaction.replace(R.id.container_container, new WearFragment());
+                transaction.commit();
+                break;
+            case R.id.home_menu_bookmark:
+                transaction.replace(R.id.container_container, new Bookmark_Frament());
                 transaction.commit();
                 break;
             case R.id.home_menu_reload_menu:
@@ -2415,7 +2455,7 @@ public class Home extends AppCompatActivity
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        System.out.println(jsonObject.toString());
+        //System.out.println(jsonObject.toString());
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
         //作成
         Request request = new Request.Builder()
@@ -2574,7 +2614,7 @@ public class Home extends AppCompatActivity
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String response_string = response.body().string();
-                System.out.println(response_string);
+                //System.out.println(response_string);
                 if (!response.isSuccessful()) {
                     //失敗
                     runOnUiThread(new Runnable() {

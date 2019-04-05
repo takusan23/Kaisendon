@@ -14,6 +14,12 @@
         android:title="@string/account"
         app:showAsAction="never" />
     <item
+        android:id="@+id/home_menu_bookmark"
+        android:icon="@drawable/ic_book_black_24dp"
+        android:orderInCategory="100"
+        android:title="@string/bookmark"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/home_menu_reload_menu"
         android:icon="@drawable/ic_refresh_black_24dp"
         android:orderInCategory="100"

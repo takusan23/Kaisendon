@@ -531,5 +531,9 @@
     <string name="custom_menu_sort">You can rearrange custom menu by long press.</string>
     <string name="misskey_drive">Misskey Drive</string>
     <string name="close">Close</string>
+    <string name="birthday">Birthday</string>
+    <string name="Place">Place</string>
+    <string name="language">Language</string>
+    <string name="i_am_a_cat">This account is a cat  </string>
 
 </resources>

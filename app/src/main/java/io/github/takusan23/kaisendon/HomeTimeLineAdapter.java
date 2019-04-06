@@ -10,20 +10,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.graphics.drawable.Animatable2;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
-import android.graphics.drawable.PaintDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
@@ -41,7 +36,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.text.Html;
@@ -61,28 +55,21 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.entity.auth.AccessToken;
 
-import io.github.takusan23.kaisendon.Activity.UserActivity;
-import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
-import io.github.takusan23.kaisendon.CustomTabURL.LinkTransformationMethod;
-
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,8 +81,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 
+import io.github.takusan23.kaisendon.Activity.UserActivity;
+import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
+import io.github.takusan23.kaisendon.CustomTabURL.LinkTransformationMethod;
 import io.github.takusan23.kaisendon.Fragment.User_Fragment;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -709,7 +698,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
         //Fav+BT機能
         //Misskeyでは使わない
-        if (CustomMenuTimeLine.isMisskeyMode()) {
+        if (!CustomMenuTimeLine.isMisskeyMode()) {
             nicoru.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -2118,40 +2107,64 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
 
     public void addMediaGlide(String mediaURL, ImageView ImageView, LinearLayout linearLayout) {
+        //画像、動画チェック
         if (mediaURL != null) {
-            //画像を取ってくる
-            Glide.with(getContext())
-                    .load(mediaURL)
-                    //Overrideはサイズ、placeholderは読み込み中アイコン
-                    .apply(new RequestOptions()
-                            //.override(500, 500)
-                            .placeholder(R.drawable.ic_sync_black_24dp))
-                    .into(ImageView);
-            //呼び出し（こっわ
-            if (ImageView.getParent() != null) {
-                ((ViewGroup) ImageView.getParent()).removeView(ImageView);
+            if (mediaURL.contains(".mp4")) {
+                ImageView.setImageDrawable(getContext().getDrawable(R.drawable.ic_movie_black_24dp));
+                //呼び出し（こっわ
+                if (ImageView.getParent() != null) {
+                    ((ViewGroup) ImageView.getParent()).removeView(ImageView);
+                }
+                //表示
+                ImageViewClickCustomTab(ImageView, mediaURL);
+                linearLayout.addView(ImageView);
+            } else {
+                //画像を取ってくる
+                Glide.with(getContext())
+                        .load(mediaURL)
+                        //Overrideはサイズ、placeholderは読み込み中アイコン
+                        .apply(new RequestOptions()
+                                //.override(500, 500)
+                                .placeholder(R.drawable.ic_sync_black_24dp))
+                        .into(ImageView);
+                //呼び出し（こっわ
+                if (ImageView.getParent() != null) {
+                    ((ViewGroup) ImageView.getParent()).removeView(ImageView);
+                }
+                //表示
+                ImageViewClickCustomTab(ImageView, mediaURL);
+                linearLayout.addView(ImageView);
             }
-            //表示
-            ImageViewClickCustomTab(ImageView, mediaURL);
-            linearLayout.addView(ImageView);
         }
     }
 
     private void addMediaPicasso(String mediaURL, ImageView ImageView, LinearLayout linearLayout) {
+        //画像、動画チェック
         if (mediaURL != null) {
-            //画像を取ってくる
-            Picasso.get()
-                    .load(mediaURL)
-                    //.resize(500, 500)
-                    .placeholder(R.drawable.ic_sync_black_24dp)
-                    .into(ImageView);
-            //呼び出し（こっわ
-            if (ImageView.getParent() != null) {
-                ((ViewGroup) ImageView.getParent()).removeView(ImageView);
+            if (mediaURL.contains(".mp4")) {
+                ImageView.setImageDrawable(getContext().getDrawable(R.drawable.ic_movie_black_24dp));
+                //呼び出し（こっわ
+                if (ImageView.getParent() != null) {
+                    ((ViewGroup) ImageView.getParent()).removeView(ImageView);
+                }
+                //表示
+                ImageViewClickCustomTab(ImageView, mediaURL);
+                linearLayout.addView(ImageView);
+            } else {
+                //画像を取ってくる
+                Picasso.get()
+                        .load(mediaURL)
+                        //.resize(500, 500)
+                        .placeholder(R.drawable.ic_sync_black_24dp)
+                        .into(ImageView);
+                //呼び出し（こっわ
+                if (ImageView.getParent() != null) {
+                    ((ViewGroup) ImageView.getParent()).removeView(ImageView);
+                }
+                //表示
+                ImageViewClickCustomTab(ImageView, mediaURL);
+                linearLayout.addView(ImageView);
             }
-            //表示
-            ImageViewClickCustomTab(ImageView, mediaURL);
-            linearLayout.addView(ImageView);
         }
     }
 

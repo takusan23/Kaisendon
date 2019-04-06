@@ -68,6 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/setting_client_name"
+                android:importantForAutofill="no"
                 android:inputType="textEmailAddress"
                 android:singleLine="true"
                 android:text="Kaisendon" />
@@ -92,6 +93,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/instance_name"
+                android:importantForAutofill="no"
                 android:inputType="textEmailAddress"
                 android:singleLine="true" />
         </android.support.design.widget.TextInputLayout>

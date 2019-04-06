@@ -431,5 +431,6 @@
     <string name="Place">場所</string>
     <string name="language">言語</string>
     <string name="i_am_a_cat">このアカウントは猫です</string>
+    <string name="account_list">アカウントリスト</string>
 
 </resources>

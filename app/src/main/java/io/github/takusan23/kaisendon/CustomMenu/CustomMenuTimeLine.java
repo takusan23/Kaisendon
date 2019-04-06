@@ -9,12 +9,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +35,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.squareup.picasso.Picasso;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
@@ -63,6 +69,7 @@ import java.util.function.Consumer;
 import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
 import io.github.takusan23.kaisendon.ListItem;
+import io.github.takusan23.kaisendon.PicassoImageGetter;
 import io.github.takusan23.kaisendon.R;
 import io.github.takusan23.kaisendon.SnackberProgress;
 import okhttp3.Call;
@@ -113,6 +120,10 @@ public class CustomMenuTimeLine extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private HomeTimeLineAdapter adapter;
     private ImageView imageView;
+    private ImageView avater_imageView;
+    private ImageView header_imageView;
+    private TextView user_account_textView;
+    private TextView user_id_textView;
 
     private boolean scroll = false;
     private boolean streaming_mode;
@@ -206,7 +217,16 @@ public class CustomMenuTimeLine extends Fragment {
         font = getArguments().getString("font");
         misskey_username = getArguments().getString("misskey_username");
         one_hand = getArguments().getString("one_hand");
-
+        //Navication Drawer
+        if (getActivity() != null) {
+            NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
+            //どろわーのイメージとか文字とか
+            View navHeaderView = navigationView.getHeaderView(0);
+            avater_imageView = navHeaderView.findViewById(R.id.icon_image);
+            header_imageView = navHeaderView.findViewById(R.id.drawer_header);
+            user_account_textView = navHeaderView.findViewById(R.id.drawer_account);
+            user_id_textView = navHeaderView.findViewById(R.id.drawer_id);
+        }
         //インスタンス、アクセストークン変更
         //Misskeyは設定しないように
         if (!misskey_mode) {
@@ -791,15 +811,30 @@ public class CustomMenuTimeLine extends Fragment {
                         String name = jsonObject.getString("name");
                         String username = jsonObject.getString("username");
                         account_id = jsonObject.getString("id");
+                        String avatarUrl = jsonObject.getString("avatarUrl");
+                        String bannerUrl = jsonObject.getString("bannerUrl");
+                        if (pref_setting.getBoolean("pref_custom_emoji",true)|| Boolean.valueOf(custom_emoji)){
+                            JSONArray emoji = jsonObject.getJSONArray("emojis");
+                            for (int e = 0; e < emoji.length(); e++) {
+                                JSONObject emoji_jsonObject = emoji.getJSONObject(e);
+                                String emoji_name = emoji_jsonObject.getString("name");
+                                String emoji_url = emoji_jsonObject.getString("url");
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                name = name.replace(":" + emoji_name + ":", custom_emoji_src);
+                            }
+                        }
                         if (getActivity() != null) {
+                            String finalName = name;
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    //ドロワーに反映
+                                    setDrawerImageText(avatarUrl, bannerUrl, finalName, "@" + username + "@" + instance);
                                     //サブタイトル更新
                                     if (subtitle.length() >= 1) {
                                         ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
                                     } else {
-                                        ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(name + "( @" + username + " / " + instance + " )");
+                                        ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(finalName + "( @" + username + " / " + instance + " )");
                                     }
                                 }
                             });
@@ -852,19 +887,40 @@ public class CustomMenuTimeLine extends Fragment {
                         follow = jsonObject.getString("following_count");
                         follower = jsonObject.getString("followers_count");
                         note = jsonObject.getString("note");
+                        String avatar = jsonObject.getString("avatar");
+                        String header = jsonObject.getString("header");
                         account_JsonObject = jsonObject;
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //サブタイトル更新
-                                if (subtitle.length() >= 1) {
-                                    ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
-                                } else {
-                                    ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(name + "( @" + id + " / " + instance + " )");
+                        //カスタム絵文字
+                        if (Boolean.valueOf(custom_emoji) || pref_setting.getBoolean("pref_custom_emoji",true)){
+                            JSONArray emojis = jsonObject.getJSONArray("emojis");
+                            for (int i = 0; i < emojis.length(); i++) {
+                                JSONObject emojiObject = emojis.getJSONObject(i);
+                                String emoji_name = emojiObject.getString("shortcode");
+                                String emoji_url = emojiObject.getString("url");
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                //display_name
+                                if (display_name.contains(emoji_name)) {
+                                    //あったよ
+                                    display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                 }
                             }
-                        });
+                        }
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //ドロワー
+                                    setDrawerImageText(avatar, header, display_name, "@" + username + "@" + instance);
+                                    //サブタイトル更新
+                                    if (subtitle.length() >= 1) {
+                                        ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
+                                    } else {
+                                        ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(name + "( @" + id + " / " + instance + " )");
+                                    }
+                                }
+                            });
+                        }
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -2710,6 +2766,45 @@ public class CustomMenuTimeLine extends Fragment {
         }
         //半分
         parent_linearlayout.addView(one_hand_LinearLayout, 0);
+    }
+
+    /**
+     * ドロワーの画像、文字を変更する
+     */
+    private void setDrawerImageText(String avatarUrl, String headerUri, String display_name, String username) {
+        //Wi-Fi接続状況確認
+        ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+        //一応Nullチェック
+        if (header_imageView != null) {
+            //画像読み込むか
+            if (pref_setting.getBoolean("pref_drawer_avater", false)) {
+                //読み込まない
+                avater_imageView.setImageResource(R.drawable.ic_person_black_24dp);
+                header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"));
+            }
+            //Wi-Fi時は読み込む
+            if (pref_setting.getBoolean("pref_avater_wifi", true)) {
+                //既定でGIFは再生しない方向で
+                if (pref_setting.getBoolean("pref_avater_gif", true)) {
+                    //GIFアニメ再生させない
+                    Picasso.get().load(avatarUrl).resize(100, 100).into(avater_imageView);
+                    Picasso.get().load(headerUri).into(header_imageView);
+                } else {
+                    //GIFアニメを再生
+                    Glide.with(getContext()).load(avatarUrl).apply(new RequestOptions().override(100, 100)).into(avater_imageView);
+                    Glide.with(getContext()).load(headerUri).into(header_imageView);
+                }
+            } else {
+                avater_imageView.setImageResource(R.drawable.ic_person_black_24dp);
+                header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"));
+            }
+            //UserName
+            PicassoImageGetter imageGetter = new PicassoImageGetter(user_account_textView);
+            user_account_textView.setText(Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
+            user_id_textView.setText(username);
+
+        }
     }
 
 

@@ -433,7 +433,8 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
         Fragment fragment = new User_Fragment();
         View finalConvertView = convertView;
         //TootShortcutのときに呼ばれないようにする
-        if (!avater_url.contains("toot_shortcut")) {
+        //アカウント一覧のときに呼ばれないようにする
+        if (!avater_url.contains("toot_shortcut") || !listItem.get(0).contains("account_list")) {
             thumbnail.setOnClickListener(new View.OnClickListener() {
 
                 @Override

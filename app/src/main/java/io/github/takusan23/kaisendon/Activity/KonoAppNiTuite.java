@@ -5,16 +5,15 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -36,8 +35,8 @@ public class KonoAppNiTuite extends AppCompatActivity {
 
     private String release_name_2 = "まぐろ丼";
     private String release_ver_2 = "2.0";
-    private String release_name_3 = "べーた丼";
-    private String release_ver_3 = "3.0(仮)";
+    private String release_name_3 = "さーもん丼";
+    private String release_ver_3 = "3.0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,7 +115,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
                     String acct = jsonObject.getString("acct");
                     String avatar = jsonObject.getString("avatar");
                     String userURL = jsonObject.getString("url");
-                    long account_id = jsonObject.getLong("id");
+                    String account_id = jsonObject.getString("id");
 
 
                     runOnUiThread(new Runnable() {

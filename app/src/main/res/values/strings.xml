@@ -535,5 +535,6 @@
     <string name="Place">Place</string>
     <string name="language">Language</string>
     <string name="i_am_a_cat">This account is a cat  </string>
+    <string name="account_list">Account list</string>
 
 </resources>

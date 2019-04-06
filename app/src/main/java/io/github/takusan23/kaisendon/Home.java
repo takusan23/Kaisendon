@@ -32,8 +32,10 @@ import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.DeadObjectException;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.FloatingActionButton;
@@ -104,6 +106,7 @@ import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSettingFragment;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.kaisendon.CustomMenu.MisskeyDriveBottomDialog;
+import io.github.takusan23.kaisendon.Fragment.AccountListFragment;
 import io.github.takusan23.kaisendon.Fragment.Bookmark_Frament;
 import io.github.takusan23.kaisendon.Fragment.CustomStreamingFragment;
 import io.github.takusan23.kaisendon.Fragment.DirectMessage_Fragment;
@@ -477,8 +480,8 @@ public class Home extends AppCompatActivity
 
 
         //どろわーのイメージとか文字とか
-        View navHeaderView = navigationView.getHeaderView(0);
         //LinearLayout linearLayout = (LinearLayout) findViewById(R.id.nav_header_home_linearlayout);
+        View navHeaderView = navigationView.getHeaderView(0);
         ImageView avater_imageView = navHeaderView.findViewById(R.id.icon_image);
         ImageView header_imageView = navHeaderView.findViewById(R.id.drawer_header);
         //ImageView header_imageView = navHeaderView
@@ -1283,9 +1286,12 @@ public class Home extends AppCompatActivity
         //Android Q
         if (Build.VERSION.CODENAME.equals("Q")) {
             // /mnt/content/が邪魔なので取って、そこにcontent://スキーマをつける
+            // Google Photoからしか動かねーわまあPixel以外にもQが配信される頃には情報がわさわさ出てくることでしょう。
             String content_text = imagePath.replace("/mnt/content/", "content://");
-            //もう一回目ゾッと呼ぶので制御用にtrue
-            imagePath = getPathAndroidQ(Home.this, Uri.parse(content_text));
+            System.out.println(imagePath);
+            //try-catch
+            //実機で確認できず
+            //imagePath = getPathAndroidQ(Home.this, Uri.parse(content_text));
         }
         System.out.println(imagePath);
         return imagePath;
@@ -1295,7 +1301,10 @@ public class Home extends AppCompatActivity
         Cursor cursor = null;
         String[] proj = {MediaStore.Images.Media.DATA};
         cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        int column_index = 0;
+        if (cursor != null) {
+            column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        }
         cursor.moveToFirst();
         String path = cursor.getString(column_index);
         cursor.close();
@@ -1410,6 +1419,10 @@ public class Home extends AppCompatActivity
             case R.id.home_menu_login:
                 Intent login = new Intent(this, LoginActivity.class);
                 startActivity(login);
+                break;
+            case R.id.home_menu_account_list:
+                transaction.replace(R.id.container_container, new AccountListFragment());
+                transaction.commit();
                 break;
             case R.id.home_menu_account:
                 Intent intent = new Intent(this, UserActivity.class);

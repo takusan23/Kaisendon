@@ -35,7 +35,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
 
     private String release_name_2 = "まぐろ丼";
     private String release_ver_2 = "2.0";
-    private String release_name_3 = "さーもん丼";
+    private String release_name_3 = "さーもんどん";
     private String release_ver_3 = "3.0";
 
     @Override

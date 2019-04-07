@@ -809,6 +809,7 @@ public class CustomMenuTimeLine extends Fragment {
                     try {
                         JSONObject jsonObject = new JSONObject(response_string);
                         String name = jsonObject.getString("name");
+                        String title_name = jsonObject.getString("name");
                         String username = jsonObject.getString("username");
                         account_id = jsonObject.getString("id");
                         String avatarUrl = jsonObject.getString("avatarUrl");
@@ -834,7 +835,7 @@ public class CustomMenuTimeLine extends Fragment {
                                     if (subtitle.length() >= 1) {
                                         ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
                                     } else {
-                                        ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(finalName + "( @" + username + " / " + instance + " )");
+                                        ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(title_name + "( @" + username + " / " + instance + " )");
                                     }
                                 }
                             });

@@ -266,6 +266,7 @@ public class Home extends AppCompatActivity
         }
         if (db == null) {
             db = helper.getWritableDatabase();
+            db.disableWriteAheadLogging();
         }
 
         //起動時の

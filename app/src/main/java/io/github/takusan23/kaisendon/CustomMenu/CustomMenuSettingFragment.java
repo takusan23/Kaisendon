@@ -71,6 +71,8 @@ public class CustomMenuSettingFragment extends Fragment {
         }
         if (db == null) {
             db = helper.getWritableDatabase();
+            //WALを利用しない（一時ファイル？が作成されてしまってバックアップ関係でうまく動かないので）
+            db.disableWriteAheadLogging();
         }
 
 

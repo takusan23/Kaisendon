@@ -432,5 +432,6 @@
     <string name="language">言語</string>
     <string name="i_am_a_cat">このアカウントは猫です</string>
     <string name="account_list">アカウントリスト</string>
+    <string name="font_directory_not_found">フォントファイル（ttf）を以下のディレクトリにコピーしてください。</string>
 
 </resources>

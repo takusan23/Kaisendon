@@ -2106,7 +2106,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     }
 
 
-    public void addMediaGlide(String mediaURL, ImageView ImageView, LinearLayout linearLayout) {
+    private void addMediaGlide(String mediaURL, ImageView ImageView, LinearLayout linearLayout) {
         //画像、動画チェック
         if (mediaURL != null) {
             if (mediaURL.contains(".mp4")) {

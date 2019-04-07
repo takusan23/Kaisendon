@@ -15,6 +15,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
@@ -24,6 +25,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +35,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -149,6 +152,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         }
         if (db == null) {
             db = helper.getWritableDatabase();
+            db.disableWriteAheadLogging();
         }
 
         //削除ボタン
@@ -259,14 +263,18 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         if (requestCode == 4545 && resultCode == Activity.RESULT_OK) {
             Uri uri = resultData.getData();
             //String変換（非正規ルート？）
-            //「/document/raw:」を消す
-            //「/document/primary:」を消す
             String path = uri.getPath();
-            if (path.contains("/document/raw:")) {
-                font_path = path.replace("/document/raw:", "");
-            }
-            if (path.contains("/document/primary:")) {
-                font_path = path.replace("/document/primary:", "storage/emulated/0/");
+            //Android QのScoped Storageのおかげで使えなくなった。
+            if (!Build.VERSION.CODENAME.contains("Q")) {
+                //Android Pie以前
+                //「/document/raw:」を消す
+                //「/document/primary:」を消す
+                if (path.contains("/document/raw:")) {
+                    font_path = path.replace("/document/raw:", "");
+                }
+                if (path.contains("/document/primary:")) {
+                    font_path = path.replace("/document/primary:", "storage/emulated/0/");
+                }
             }
             //content://からfile://へ変換する
             typeface = Typeface.createFromFile(new File(font_path));
@@ -326,23 +334,85 @@ public class AddCustomMenuActivity extends AppCompatActivity {
      * フォント設定
      */
     private void font_setting() {
+        //Android Q
+        PopupMenu popupMenu = null;
+        boolean file_404 = false;
+        File[] files = null;
+        if (Build.VERSION.CODENAME.contains("Q")) {
+            //Android Q以降
+            //Scoped Storageのせいで基本このアプリのサンドボックスしかあくせすできないので
+            //ちなみにScoped Storageだと権限はいらない
+            //ぱす
+            String path = Environment.getExternalStorageDirectory().getPath() + "/fonts";
+            File font_folder = new File(path);
+            //存在チェック
+            if (font_folder.exists()) {
+                //存在するときはフォルダの中身を表示させる
+                files = font_folder.listFiles();
+                //PopupMenu
+                popupMenu = new PopupMenu(AddCustomMenuActivity.this, font_Button);
+                Menu menu = popupMenu.getMenu();
+                //ディレクトリの中0個
+                if (files.length == 0) {
+                    file_404 = true;
+                } else {
+                    for (int i = 0; i < files.length; i++) {
+                        //追加
+                        //ItemIDに配列の番号を入れる
+                        menu.add(0,i,0,files[i].getName());
+                    }
+                }
+            } else {
+                //存在しないときはディレクトリ作成
+                font_folder.mkdir();
+                file_404 = true;
+            }
+            //クリックイベント
+            File[] finalFiles = files;
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    font_Button.setText(finalFiles[item.getItemId()].getPath());
+                    font_path = finalFiles[item.getItemId()].getPath();
+                    typeface = Typeface.createFromFile(new File(font_path));
+                    font_TextView.setTypeface(typeface);
+                    return false;
+                }
+            });
+        }
+
+        //Android Pieまでの処理
+        PopupMenu finalPopupMenu = popupMenu;
+        boolean finalFile_40 = file_404;
         font_Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //パーミッション？
-                if (ContextCompat.checkSelfPermission(AddCustomMenuActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    //権限をリクエストする
-                    ActivityCompat.requestPermissions(AddCustomMenuActivity.this,
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                            1000);
+                if (!Build.VERSION.CODENAME.contains("Q")) {
+                    //パーミッション？
+                    if (ContextCompat.checkSelfPermission(AddCustomMenuActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        //権限をリクエストする
+                        ActivityCompat.requestPermissions(AddCustomMenuActivity.this,
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                1000);
+                    } else {
+                        //画像選択
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.setType("*/*");
+                        startActivityForResult(intent, 4545);
+                    }
                 } else {
-                    //画像選択
-                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                    intent.setType("*/*");
-                    startActivityForResult(intent, 4545);
+                    //Android Q
+                    //フォント用ディレクトリがない・ディレクトリの中身が無いときにToastを出す
+                    if (finalFile_40) {
+                        Toast.makeText(AddCustomMenuActivity.this, getString(R.string.font_directory_not_found) + "\n" + "/sdcard/Android/sandbox/io.github.takusan23/kaisendon/fonts", Toast.LENGTH_LONG).show();
+                    } else {
+                        finalPopupMenu.show();
+                    }
                 }
             }
         });
+
+
         font_reset_Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

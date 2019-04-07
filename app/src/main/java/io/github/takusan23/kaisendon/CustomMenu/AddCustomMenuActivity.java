@@ -369,16 +369,18 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             }
             //クリックイベント
             File[] finalFiles = files;
-            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    font_Button.setText(finalFiles[item.getItemId()].getPath());
-                    font_path = finalFiles[item.getItemId()].getPath();
-                    typeface = Typeface.createFromFile(new File(font_path));
-                    font_TextView.setTypeface(typeface);
-                    return false;
-                }
-            });
+            if (popupMenu != null) {
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        font_Button.setText(finalFiles[item.getItemId()].getPath());
+                        font_path = finalFiles[item.getItemId()].getPath();
+                        typeface = Typeface.createFromFile(new File(font_path));
+                        font_TextView.setTypeface(typeface);
+                        return false;
+                    }
+                });
+            }
         }
 
         //Android Pieまでの処理

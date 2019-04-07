@@ -1,6 +1,6 @@
 # Kaisendon
 
-Androidアプリが作りたかったのでなんとなくマストドンのクライアント作ってる
+## Androidで利用できるMastodon / Misskeyクライアントです。　　
 
 ダウンロード <br>
 Google Play

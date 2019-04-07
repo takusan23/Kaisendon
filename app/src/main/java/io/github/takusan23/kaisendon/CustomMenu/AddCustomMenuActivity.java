@@ -343,7 +343,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             //Scoped Storageのせいで基本このアプリのサンドボックスしかあくせすできないので
             //ちなみにScoped Storageだと権限はいらない
             //ぱす
-            String path = Environment.getExternalStorageDirectory().getPath() + "/fonts";
+            String path = Environment.getExternalStorageDirectory().getPath() + "/kaisendon_fonts";
             File font_folder = new File(path);
             //存在チェック
             if (font_folder.exists()) {
@@ -404,7 +404,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                     //Android Q
                     //フォント用ディレクトリがない・ディレクトリの中身が無いときにToastを出す
                     if (finalFile_40) {
-                        Toast.makeText(AddCustomMenuActivity.this, getString(R.string.font_directory_not_found) + "\n" + "/sdcard/Android/sandbox/io.github.takusan23/kaisendon/fonts", Toast.LENGTH_LONG).show();
+                        Toast.makeText(AddCustomMenuActivity.this, getString(R.string.font_directory_not_found) + "\n" + "/sdcard/Android/sandbox/io.github.takusan23/kaisendon/kaisendon_fonts", Toast.LENGTH_LONG).show();
                     } else {
                         finalPopupMenu.show();
                     }

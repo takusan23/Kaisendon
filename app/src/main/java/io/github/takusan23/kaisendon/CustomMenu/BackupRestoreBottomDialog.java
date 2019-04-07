@@ -42,8 +42,6 @@ public class BackupRestoreBottomDialog extends BottomSheetDialogFragment {
         restore_Button = view.findViewById(R.id.backup_restore_restore_Button);
         path_TextView = view.findViewById(R.id.backup_restore_path_textView);
 
-        //パスをTextViewに入れる
-        path_TextView.append("\n" + Environment.getExternalStorageDirectory().getPath() + "/kaisendon");
 
         backup_Button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,11 +62,13 @@ public class BackupRestoreBottomDialog extends BottomSheetDialogFragment {
             }
         });
         //ぱす（Android Qから変わった
-        if (!Build.VERSION.CODENAME.contains("Q")){
+        if (!Build.VERSION.CODENAME.contains("Q")) {
             path = Environment.getExternalStorageDirectory().getPath();
-        }else {
+        } else {
             path = "/sdcard/Android/sandbox/io.github.takusan23/kaisendon";
         }
+        //パスをTextViewに入れる
+        path_TextView.append("\n" +path + "/kaisendon_backup");
     }
 
     /*バックアップ、リストアはちゃんとUI作って書き直す予定（）*/

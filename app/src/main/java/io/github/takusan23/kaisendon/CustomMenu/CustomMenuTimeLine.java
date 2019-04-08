@@ -64,6 +64,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.function.Consumer;
 
 import io.github.takusan23.kaisendon.Home;
@@ -574,27 +575,8 @@ public class CustomMenuTimeLine extends Fragment {
                             favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
 
-                            boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
-                            if (japan_timeSetting) {
-                                //時差計算？
-                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-                                //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
-                                //日本用フォーマット
-                                SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
-                                try {
-                                    Date date = simpleDateFormat.parse(toot_jsonObject.getString("created_at"));
-                                    Calendar calendar = Calendar.getInstance();
-                                    calendar.setTime(date);
-                                    //9時間足して日本時間へ
-                                    calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
-                                    //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                                    toot_time = japanDateFormat.format(calendar.getTime());
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                toot_time = toot_jsonObject.getString("created_at");
-                            }
+                            //時間フォーマット
+                            toot_time = getCreatedAtFormat(toot_time);
 
                             JSONArray media_array = toot_jsonObject.getJSONArray("media_attachments");
                             if (!media_array.isNull(0)) {
@@ -1261,7 +1243,7 @@ public class CustomMenuTimeLine extends Fragment {
             String toot_id_string = toot_jsonObject.getString("id");
             String user_avater_url = toot_account.getString("avatar");
             int account_id = toot_account.getInt("id");
-            String toot_time = "";
+            String toot_time = toot_jsonObject.getString("created_at");
             //ブースト　ふぁぼ
             String isBoost = "no";
             String isFav = "no";
@@ -1325,28 +1307,8 @@ public class CustomMenuTimeLine extends Fragment {
             boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
             favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
 
-
-            boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
-            if (japan_timeSetting) {
-                //時差計算？
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-                //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
-                //日本用フォーマット
-                SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
-                try {
-                    Date date = simpleDateFormat.parse(toot_jsonObject.getString("created_at"));
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(date);
-                    //9時間足して日本時間へ
-                    calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
-                    //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                    toot_time = japanDateFormat.format(calendar.getTime());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                toot_time = toot_jsonObject.getString("created_at");
-            }
+            //時間
+            toot_time = getCreatedAtFormat(toot_time);
 
             JSONArray media_array = toot_jsonObject.getJSONArray("media_attachments");
             if (!media_array.isNull(0)) {
@@ -1660,28 +1622,8 @@ public class CustomMenuTimeLine extends Fragment {
                     break;
             }
 
-
-            boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
-            if (japan_timeSetting) {
-                //時差計算？
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-                //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
-                //日本用フォーマット
-                SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
-                try {
-                    Date date = simpleDateFormat.parse(toot_text_jsonObject.getString("created_at"));
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(date);
-                    //9時間足して日本時間へ
-                    calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
-                    //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                    toot_text_time = japanDateFormat.format(calendar.getTime());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                toot_text_time = toot_text_jsonObject.getString("created_at");
-            }
+            //時間フォーマット
+            toot_text_time = getCreatedAtFormat(toot_text_time);
 
             if (getActivity() != null && isAdded()) {
 
@@ -1780,6 +1722,8 @@ public class CustomMenuTimeLine extends Fragment {
             //last_status
             JSONArray laststatus_emojis = jsonArray.getJSONObject(0).getJSONArray("emojis");
             JSONArray laststatus_profile_emojis = jsonArray.getJSONObject(0).getJSONArray("profile_emojis");
+            //CreatedAt
+            String createdAt = toot_JsonObject.getString("created_at");
 
             String user = account_JsonObject.getString("acct");
             String user_name = account_JsonObject.getString("display_name");
@@ -1819,27 +1763,8 @@ public class CustomMenuTimeLine extends Fragment {
             //かうんと
             favCount = String.valueOf(toot_JsonObject.getInt("favourites_count"));
 
-            boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
-            if (japan_timeSetting) {
-                //時差計算？
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-                //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
-                //日本用フォーマット
-                SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
-                try {
-                    Date date = simpleDateFormat.parse(toot_JsonObject.getString("created_at"));
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(date);
-                    //9時間足して日本時間へ
-                    calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
-                    //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                    toot_time = japanDateFormat.format(calendar.getTime());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                toot_time = toot_JsonObject.getString("created_at");
-            }
+            //時間フォーマット
+            createdAt = getCreatedAtFormat(createdAt);
 
             if (!media_JsonArray.isNull(0)) {
                 media_url_1 = media_JsonArray.getJSONObject(0).getString("url");
@@ -2239,6 +2164,9 @@ public class CustomMenuTimeLine extends Fragment {
                     }
                 }
             }
+            //時間フォーマット
+            createdAt = getCreatedAtFormat(createdAt);
+
             if (getActivity() != null && isAdded()) {
                 //配列を作成
                 ArrayList<String> Item = new ArrayList<>();
@@ -2386,6 +2314,10 @@ public class CustomMenuTimeLine extends Fragment {
                 }
             }
 
+            //時間フォーマット
+            createdAt = getCreatedAtFormat(createdAt);
+
+
             if (getActivity() != null && isAdded()) {
 
                 //配列を作成
@@ -2486,27 +2418,8 @@ public class CustomMenuTimeLine extends Fragment {
             toot_text_id_string = String.valueOf(toot_text_id);
         }
 
-        boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
-        if (japan_timeSetting) {
-            //時差計算？
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-            //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
-            //日本用フォーマット
-            SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
-            try {
-                Date date = simpleDateFormat.parse(notification.getCreatedAt());
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(date);
-                //9時間足して日本時間へ
-                calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
-                //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                toot_text_time = japanDateFormat.format(calendar.getTime());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        } else {
-            toot_text_time = notification.getCreatedAt();
-        }
+        //時間フォーマット
+        toot_text_time = getCreatedAtFormat(toot_text_time);
 
         //カスタム絵文字
         if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
@@ -2806,6 +2719,34 @@ public class CustomMenuTimeLine extends Fragment {
             user_id_textView.setText(username);
 
         }
+    }
+
+    /**
+     * 時刻をフォーマットして返す
+     * */
+    private String getCreatedAtFormat(String createdAt){
+        //フォーマットを規定の設定にする？
+        //ここtrueにした
+        if (pref_setting.getBoolean("pref_custom_time_format", true)){
+            //時差計算？
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+            //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+            //日本用フォーマット
+            SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+            try {
+                Date date = simpleDateFormat.parse(createdAt);
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+                //9時間足して日本時間へ
+
+                calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                createdAt = japanDateFormat.format(calendar.getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return createdAt;
     }
 
 

@@ -63,7 +63,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.TimeZone;
 import java.util.function.Consumer;
 
@@ -2729,17 +2728,18 @@ public class CustomMenuTimeLine extends Fragment {
         //ここtrueにした
         if (pref_setting.getBoolean("pref_custom_time_format", true)){
             //時差計算？
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-            //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             //日本用フォーマット
-            SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
-            try {
+            SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"));
+            japanDateFormat.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
+        try {
                 Date date = simpleDateFormat.parse(createdAt);
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(date);
-                //9時間足して日本時間へ
-
-                calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                //タイムゾーンを設定
+                calendar.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
+                //calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
                 //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
                 createdAt = japanDateFormat.format(calendar.getTime());
             } catch (ParseException e) {

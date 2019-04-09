@@ -2166,6 +2166,9 @@ public class CustomMenuTimeLine extends Fragment {
             //時間フォーマット
             createdAt = getCreatedAtFormat(createdAt);
 
+            //本文の改行コードを\nから<br>へ置き換える（Mastodonと合わせる）
+            toot_text = toot_text.replace("\n","<br>");
+
             if (getActivity() != null && isAdded()) {
                 //配列を作成
                 ArrayList<String> Item = new ArrayList<>();

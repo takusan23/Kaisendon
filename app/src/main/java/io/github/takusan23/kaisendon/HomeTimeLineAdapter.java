@@ -244,7 +244,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         ArrayList<String> listItem = item.getListItem();
 
 
-        mTv = view.findViewById(R.id.tile_);
+        //mTv = view.findViewById(R.id.tile_);
 
 
         //設定を取得
@@ -832,7 +832,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                         bundle.putLong("Account_ID", account_id);
                                         fragment.setArguments(bundle);
                                         ft.replace(R.id.fragment3, fragment).commit();
-
                                     } else {
                                         long account_id = account;
                                         Intent intent = new Intent(getContext(), UserActivity.class);
@@ -1004,7 +1003,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 thumbnail.post(new Runnable() {
                     @Override
                     public void run() {
-
                     }
                 });
             }
@@ -1076,15 +1074,11 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
 /*
                     if (multipain_ui_mode) {
-
                         Bundle bundle = new Bundle();
                         bundle.putLong("Account_ID", finalAccount_id);
                         fragment.setArguments(bundle);
-
                         ft.replace(R.id.fragment3, fragment).commit();
-
                     } else {
-
                     }
 */
                 }
@@ -1383,7 +1377,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 Drawable empty = getContext().getResources().getDrawable(R.drawable.ic_refresh_black_24dp);
                 d[0].addLevel(0, 0, empty);
                 d[0].setBounds(0, 0, empty.getIntrinsicWidth(), empty.getIntrinsicHeight());
-
                 new LoadImage().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, source, d[0]);
                 return d[0];
             }
@@ -1995,8 +1988,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 }
             });
 
-        } else {
-
         }
 
         return view;
@@ -2233,49 +2224,77 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         });
     }
 
-    public void TootAction(String id, String endPoint, TextView textView) {
-        new AsyncTask<String, Void, String>() {
+    private void TootAction(String id, String endPoint, TextView textView) {
+        String url = "https:" + Instance + "/api/v1/statuses/" + id + "/" + endPoint + "/?access_token=" + AccessToken;
+        RequestBody requestBody = new FormBody.Builder()
+                .build();
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+        //GETリクエスト
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
             @Override
-            protected String doInBackground(String... params) {
-                MastodonClient client = new MastodonClient.Builder(Instance, new OkHttpClient.Builder(), new Gson()).accessToken(AccessToken).build();
-                RequestBody requestBody = new FormBody.Builder()
-                        .build();
-                client.post("statuses/" + id + "/" + endPoint, requestBody);
-                return id;
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                textView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), getContext().getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
-            protected void onPostExecute(String result) {
-                if (endPoint.contains("reblog")) {
-                    Toast.makeText(getContext(), getContext().getString(R.string.boost_ok) + " : " + result, Toast.LENGTH_SHORT).show();
-                    Drawable boostIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
-                    boostIcon.setTint(Color.parseColor("#008000"));
-                    textView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                if (!response.isSuccessful()) {
+                    //失敗
+                    textView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), getContext().getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    //UI Thread
+                    textView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (endPoint.contains("reblog")) {
+                                Toast.makeText(getContext(), getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
+                                Drawable boostIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                                boostIcon.setTint(Color.parseColor("#008000"));
+                                textView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+                            }
+                            if (endPoint.contains("favourite")) {
+                                Toast.makeText(getContext(), nicoru_text + id, Toast.LENGTH_SHORT).show();
+                                Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                                favIcon.setTint(Color.parseColor("#ffd700"));
+                                textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                            }
+                            if (endPoint.contains("unfavourite")) {
+                                Toast.makeText(getContext(), getContext().getString(R.string.delete_fav_toast) + id, Toast.LENGTH_SHORT).show();
+                                Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                                favIcon.setTint(Color.parseColor("#000000"));
+                                textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                            }
+                            if (endPoint.contains("unreblog")) {
+                                Toast.makeText(getContext(), getContext().getString(R.string.delete_bt_toast) + id, Toast.LENGTH_SHORT).show();
+                                Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                                favIcon.setTint(Color.parseColor("#000000"));
+                                textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                            }
+                        }
+                    });
                 }
-                if (endPoint.contains("favourite")) {
-                    Toast.makeText(getContext(), nicoru_text + result, Toast.LENGTH_SHORT).show();
-                    Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
-                    favIcon.setTint(Color.parseColor("#ffd700"));
-                    textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
-                }
-                if (endPoint.contains("unfavourite")) {
-                    Toast.makeText(getContext(), getContext().getString(R.string.delete_fav_toast) + result, Toast.LENGTH_SHORT).show();
-                    Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
-                    favIcon.setTint(Color.parseColor("#000000"));
-                    textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
-                }
-                if (endPoint.contains("unreblog")) {
-                    Toast.makeText(getContext(), getContext().getString(R.string.delete_bt_toast) + result, Toast.LENGTH_SHORT).show();
-                    Drawable favIcon = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
-                    favIcon.setTint(Color.parseColor("#000000"));
-                    textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
-                }
-
             }
-        }.execute();
+        });
     }
 
-    public void FriendsNicoEnquate(String id_string, String number, String ToastMessage) {
+    private void FriendsNicoEnquate(String id_string, String number, String ToastMessage) {
         new AsyncTask<String, Void, String>() {
 
             @Override

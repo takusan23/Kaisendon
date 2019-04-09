@@ -30,10 +30,11 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
 
-                <ListView
-                    android:id="@+id/custom_menu_listview"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/custom_menu_recycler_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:scrollbars="vertical"
                     android:scrollingCache="false" />
 
             </android.support.v4.widget.SwipeRefreshLayout>

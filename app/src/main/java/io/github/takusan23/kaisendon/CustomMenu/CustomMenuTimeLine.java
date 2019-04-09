@@ -14,22 +14,23 @@ import android.net.NetworkCapabilities;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -116,7 +117,7 @@ public class CustomMenuTimeLine extends Fragment {
     private String max_id;
 
     private LinearLayout linearLayout;
-    private ListView listView;
+    private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private HomeTimeLineAdapter adapter;
     private ImageView imageView;
@@ -171,6 +172,10 @@ public class CustomMenuTimeLine extends Fragment {
     private static String account_id = "";
     private String untilId = null;
 
+    //RecyclerView
+    private ArrayList<ArrayList> recyclerViewList;
+    private RecyclerView.LayoutManager recyclerViewLayoutManager;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -193,7 +198,7 @@ public class CustomMenuTimeLine extends Fragment {
 
         parent_linearlayout = view.findViewById(R.id.custom_menu_parent_linearlayout);
         linearLayout = view.findViewById(R.id.custom_menu_fragment_linearlayout);
-        listView = view.findViewById(R.id.custom_menu_listview);
+        recyclerView = view.findViewById(R.id.custom_menu_recycler_view);
         swipeRefreshLayout = view.findViewById(R.id.custom_menu_swipe_refresh);
         imageView = view.findViewById(R.id.custom_tl_background_imageview);
 
@@ -300,7 +305,7 @@ public class CustomMenuTimeLine extends Fragment {
                 @Override
                 public void onClick(View v) {
                     //これ一番上に移動するやつ
-                    listView.smoothScrollToPosition(0);
+                    recyclerView.smoothScrollToPosition(0);
                 }
             });
         }
@@ -310,6 +315,16 @@ public class CustomMenuTimeLine extends Fragment {
         if (Boolean.valueOf(toot_counter)) {
             setTootCounterLayout();
         }
+
+        recyclerViewList = new ArrayList<>();
+        //ここから下三行必須
+        recyclerView.setHasFixedSize(true);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+
+        recyclerViewLayoutManager = recyclerView.getLayoutManager();
 
         //Misskey
         if (misskey_mode) {
@@ -345,27 +360,35 @@ public class CustomMenuTimeLine extends Fragment {
                 }
             });
 
-            //最後までスクロール
-            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(AbsListView view, int scrollState) {
 
+            //最後までスクロール
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
                 }
 
                 @Override
-                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount && !scroll) {
-                        position = listView.getFirstVisiblePosition();
-                        y = listView.getChildAt(0).getTop();
-                        if (adapter.getCount() >= 20) {
-                            SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-                            scroll = true;
-                            //通知以外
-                            if (!url.contains("notifications")) {
-                                //普通にAPI叩く
-                                loadMisskeyTimeline(CustomMenuTimeLine.this.untilId, false);
-                            } else {
-                                loadMisskeyTimeline(null, true);
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    if (recyclerViewLayoutManager != null) {
+                        int firstVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
+                        int visibleItemCount = ((LinearLayoutManager) recyclerViewLayoutManager).getChildCount();
+                        int totalItemCount = ((LinearLayoutManager) recyclerViewLayoutManager).getItemCount();
+                        //最後までスクロールしたときの処理
+                        if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
+                            position = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
+                            y = recyclerView.getChildAt(0).getTop();
+                            if (recyclerViewList.size() >= 20) {
+                                SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+                                scroll = true;
+                                //通知以外
+                                if (!url.contains("notifications")) {
+                                    //普通にAPI叩く
+                                    loadMisskeyTimeline(CustomMenuTimeLine.this.untilId, false);
+                                } else {
+                                    loadMisskeyTimeline(null, true);
+                                }
                             }
                         }
                     }
@@ -431,18 +454,23 @@ public class CustomMenuTimeLine extends Fragment {
             });
 
             //最後までスクロール
-            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
-                public void onScrollStateChanged(AbsListView view, int scrollState) {
-
+                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
                 }
 
                 @Override
-                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount && !scroll) {
-                        position = listView.getFirstVisiblePosition();
-                        y = listView.getChildAt(0).getTop();
-                        if (adapter.getCount() >= 20) {
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    int firstVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+                    int visibleItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getChildCount();
+                    int totalItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getItemCount();
+                    //最後までスクロールしたときの処理
+                    if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
+                        position = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                        y = recyclerView.getChildAt(0).getTop();
+                        if (recyclerViewList.size() >= 20) {
                             SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
                             scroll = true;
                             //通知以外
@@ -456,6 +484,7 @@ public class CustomMenuTimeLine extends Fragment {
                     }
                 }
             });
+
         }
     }
 
@@ -702,18 +731,26 @@ public class CustomMenuTimeLine extends Fragment {
                                 Item.add(gif);
                                 Item.add(font);
 
-                                ListItem listItem = new ListItem(Item);
+                                //ListItem listItem = new ListItem(Item);
+                                recyclerViewList.add(Item);
 
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        if (recyclerViewLayoutManager != null) {
+                                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
+                                        }
+                                        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                                        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+                                        SnackberProgress.closeProgressSnackber();
+                                        scroll = false;
+
+/*
                                         adapter.add(listItem);
                                         adapter.notifyDataSetChanged();
                                         listView.setAdapter(adapter);
                                         //くるくる終了
-                                        SnackberProgress.closeProgressSnackber();
-                                        listView.setSelectionFromTop(position, y);
-                                        scroll = false;
+*/
                                     }
                                 });
                             }
@@ -795,7 +832,7 @@ public class CustomMenuTimeLine extends Fragment {
                         account_id = jsonObject.getString("id");
                         String avatarUrl = jsonObject.getString("avatarUrl");
                         String bannerUrl = jsonObject.getString("bannerUrl");
-                        if (pref_setting.getBoolean("pref_custom_emoji",true)|| Boolean.valueOf(custom_emoji)){
+                        if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
                             JSONArray emoji = jsonObject.getJSONArray("emojis");
                             for (int e = 0; e < emoji.length(); e++) {
                                 JSONObject emoji_jsonObject = emoji.getJSONObject(e);
@@ -873,7 +910,7 @@ public class CustomMenuTimeLine extends Fragment {
                         String header = jsonObject.getString("header");
                         account_JsonObject = jsonObject;
                         //カスタム絵文字
-                        if (Boolean.valueOf(custom_emoji) || pref_setting.getBoolean("pref_custom_emoji",true)){
+                        if (Boolean.valueOf(custom_emoji) || pref_setting.getBoolean("pref_custom_emoji", true)) {
                             JSONArray emojis = jsonObject.getJSONArray("emojis");
                             for (int i = 0; i < emojis.length(); i++) {
                                 JSONObject emojiObject = emojis.getJSONObject(i);
@@ -1433,12 +1470,39 @@ public class CustomMenuTimeLine extends Fragment {
                 Item.add(gif);
                 Item.add(font);
 
-                ListItem listItem = new ListItem(Item);
+                if (streaming) {
+                    recyclerViewList.add(0, Item);
+                } else {
+                    recyclerViewList.add(Item);
+                }
 
-                String finalToot_text = toot_text;
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
+                        if (((LinearLayoutManager) recyclerViewLayoutManager) != null) {
+                            // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
+                            int pos = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
+                            int top = 0;
+                            if (((LinearLayoutManager) recyclerViewLayoutManager).getChildCount() > 0) {
+                                top = ((LinearLayoutManager) recyclerViewLayoutManager).getChildAt(0).getTop();
+                            }
+                            CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                            recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+                            //一番上なら追いかける
+                            if (pos == 0) {
+                                recyclerView.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        recyclerView.smoothScrollToPosition(0);
+                                    }
+                                });
+                            } else {
+                                ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(pos + 1, top);
+                            }
+                        }
+
+/*
                         if (streaming) {
                             adapter.insert(listItem, 0);
                             // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
@@ -1481,6 +1545,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 }
                             }
                         }
+*/
                     }
                 });
             }
@@ -1655,11 +1720,35 @@ public class CustomMenuTimeLine extends Fragment {
                 Item.add(cardDescription);
                 Item.add(cardImage);
 
-                ListItem listItem = new ListItem(Item);
+                recyclerViewList.add(Item);
 
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        if (recyclerViewLayoutManager != null) {
+                            // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
+                            int pos = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
+                            int top = 0;
+                            if (((LinearLayoutManager) recyclerViewLayoutManager).getChildCount() > 0) {
+                                top = ((LinearLayoutManager) recyclerViewLayoutManager).getChildAt(0).getTop();
+                            }
+
+                            CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                            recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+
+                            //一番上なら追いかける
+                            if (pos == 0) {
+                                recyclerView.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        recyclerView.smoothScrollToPosition(0);
+                                    }
+                                });
+                            } else {
+                                ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(pos + 1, top);
+                            }
+                        }
+/*
                         if (streaming) {
                             adapter.insert(listItem, 0);
                             // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
@@ -1690,6 +1779,7 @@ public class CustomMenuTimeLine extends Fragment {
                             listView.setSelectionFromTop(position, y);
                             scroll = false;
                         }
+*/
 
                     }
                 });
@@ -1890,13 +1980,17 @@ public class CustomMenuTimeLine extends Fragment {
                 Item.add(gif);
                 Item.add(font);
 
-                ListItem listItem = new ListItem(Item);
+                recyclerViewList.add(0, Item);
 
-                String finalToot_text = toot_text;
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
+                        if (recyclerViewLayoutManager != null) {
+                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
+                        }
+                        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+/*
                         adapter.insert(listItem, 0);
                         // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
                         int pos = listView.getFirstVisiblePosition();
@@ -1930,6 +2024,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 }
                             }
                         }
+*/
                     }
                 });
             }
@@ -2167,7 +2262,7 @@ public class CustomMenuTimeLine extends Fragment {
             createdAt = getCreatedAtFormat(createdAt);
 
             //本文の改行コードを\nから<br>へ置き換える（Mastodonと合わせる）
-            toot_text = toot_text.replace("\n","<br>");
+            toot_text = toot_text.replace("\n", "<br>");
 
             if (getActivity() != null && isAdded()) {
                 //配列を作成
@@ -2217,11 +2312,19 @@ public class CustomMenuTimeLine extends Fragment {
                 Item.add(custom_emoji);
                 Item.add(gif);
                 Item.add(font);
-                ListItem listItem = new ListItem(Item);
+                recyclerViewList.add(Item);
 
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        if (recyclerViewLayoutManager != null) {
+                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
+                        }
+                        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+                        SnackberProgress.closeProgressSnackber();
+                        scroll = false;
+/*
                         adapter.add(listItem);
                         adapter.notifyDataSetChanged();
                         listView.setAdapter(adapter);
@@ -2229,6 +2332,7 @@ public class CustomMenuTimeLine extends Fragment {
                         SnackberProgress.closeProgressSnackber();
                         listView.setSelectionFromTop(position, y);
                         scroll = false;
+*/
                     }
                 });
             }
@@ -2350,11 +2454,19 @@ public class CustomMenuTimeLine extends Fragment {
                 Item.add(cardURL);
                 Item.add(cardDescription);
                 Item.add(cardImage);
-                ListItem listItem = new ListItem(Item);
+                recyclerViewList.add(Item);
 
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        if (recyclerViewLayoutManager != null) {
+                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
+                        }
+                        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+                        SnackberProgress.closeProgressSnackber();
+                        scroll = false;
+/*
                         adapter.add(listItem);
                         adapter.notifyDataSetChanged();
                         listView.setAdapter(adapter);
@@ -2362,6 +2474,7 @@ public class CustomMenuTimeLine extends Fragment {
                         SnackberProgress.closeProgressSnackber();
                         listView.setSelectionFromTop(position, y);
                         scroll = false;
+*/
                     }
                 });
             }
@@ -2535,13 +2648,17 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add(cardURL);
             Item.add(cardDescription);
             Item.add(cardImage);
-
-
-            ListItem listItem = new ListItem(Item);
+            recyclerViewList.add(0, Item);
 
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    if (recyclerViewLayoutManager != null) {
+                        ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
+                    }
+                    CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                    recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+/*
                     position = listView.getFirstVisiblePosition();
                     y = listView.getChildAt(0).getTop();
                     adapter.insert(listItem, 0);
@@ -2552,6 +2669,7 @@ public class CustomMenuTimeLine extends Fragment {
                     listView.setSelectionFromTop(position, y);
                     //ストリーミングAPI前のStatus取得
                     //loadNotification(max_id);
+*/
                 }
             });
         }
@@ -2725,18 +2843,18 @@ public class CustomMenuTimeLine extends Fragment {
 
     /**
      * 時刻をフォーマットして返す
-     * */
-    private String getCreatedAtFormat(String createdAt){
+     */
+    private String getCreatedAtFormat(String createdAt) {
         //フォーマットを規定の設定にする？
         //ここtrueにした
-        if (pref_setting.getBoolean("pref_custom_time_format", true)){
+        if (pref_setting.getBoolean("pref_custom_time_format", true)) {
             //時差計算？
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
             simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             //日本用フォーマット
             SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"));
             japanDateFormat.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
-        try {
+            try {
                 Date date = simpleDateFormat.parse(createdAt);
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(date);

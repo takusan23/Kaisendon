@@ -7,6 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 public class MastodonTLAPIJSONParse {
 
     private Context context;
@@ -40,6 +42,7 @@ public class MastodonTLAPIJSONParse {
     private String cardURL;
     private String cardImage;
     private String cardDescription;
+    private ArrayList<String> mediaList;
 
     //インスタンス
     public MastodonTLAPIJSONParse(Context context, String response_string, boolean customEmoji) {
@@ -138,6 +141,10 @@ public class MastodonTLAPIJSONParse {
         return cardDescription;
     }
 
+    public ArrayList<String> getMediaList() {
+        return mediaList;
+    }
+
     //FavとBTは変更できるように
     public void setIsFav(String isFav) {
         this.isFav = isFav;
@@ -153,12 +160,9 @@ public class MastodonTLAPIJSONParse {
             JSONObject toot_JsonObject = new JSONObject(response_string);
             //共通
             JSONObject account_JsonObject = toot_JsonObject.getJSONObject("account");
+            JSONArray media_array = toot_JsonObject.getJSONArray("media_attachments");
             toot_text = toot_JsonObject.getString("content");
             createdAt = toot_JsonObject.getString("created_at");
-            isFav = toot_JsonObject.getString("favourited");
-            isBT = toot_JsonObject.getString("reblogged");
-            FavCount = toot_JsonObject.getString("favourites_count");
-            BTCount = toot_JsonObject.getString("reblogs_count");
             url = toot_JsonObject.getString("url");
             visibility = toot_JsonObject.getString("visibility");
             toot_ID = toot_JsonObject.getString("id");
@@ -184,6 +188,14 @@ public class MastodonTLAPIJSONParse {
                 cardDescription = toot_JsonObject.getJSONObject("card").getString("description");
                 cardImage = toot_JsonObject.getJSONObject("card").getString("image");
             }
+            //Streamingで取れない要素
+            if (!toot_JsonObject.isNull("favourited")) {
+                isFav = toot_JsonObject.getString("favourited");
+                isBT = toot_JsonObject.getString("reblogged");
+                FavCount = toot_JsonObject.getString("favourites_count");
+                BTCount = toot_JsonObject.getString("reblogs_count");
+            }
+
             //絵文字
             if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || isCustomEmoji) {
                 JSONArray emoji = toot_JsonObject.getJSONArray("emojis");
@@ -229,7 +241,14 @@ public class MastodonTLAPIJSONParse {
                     }
                 }
             }
-
+            //画像
+            mediaList = new ArrayList<>();
+            for (int i = 0; i < media_array.length(); i++) {
+                //要素があるか確認
+                if (!media_array.isNull(0)) {
+                    mediaList.add(media_array.getJSONObject(i).getString("url"));
+                }
+            }
 
         } catch (JSONException e) {
             e.printStackTrace();

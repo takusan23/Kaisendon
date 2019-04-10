@@ -63,6 +63,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         public TextView toot_createAt_TextView;
         public TextView toot_visibility_TextView;
         public LinearLayout toot_media_LinearLayout;
+        public LinearLayout mainLinearLayout;
         //画像
         public ImageView media_ImageView_1;
         public ImageView media_ImageView_2;
@@ -70,9 +71,19 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         public ImageView media_ImageView_4;
         //card
         public LinearLayout toot_card_LinearLayout;
+        public TextView card_TextView;
+        public ImageView card_ImageView;
+        //ReBlog
+        public LinearLayout toot_reblog_LinearLayout;
+        public ImageView reblog_avatar_ImageView;
+        public TextView reblog_user_TextView;
+        public TextView reblog_toot_text_TextView;
+        //Notification
+        public TextView notification_type_TextView;
 
         public ViewHolder(@NonNull View itemView, Context context) {
             super(itemView);
+            mainLinearLayout = itemView.findViewById(R.id.custom_menu_adapter_mainLinearLayout);
             toot_text_TextView = itemView.findViewById(R.id.custom_menu_adapter_text);
             toot_user_TextView = itemView.findViewById(R.id.custom_menu_adapter_account);
             toot_avatar_ImageView = itemView.findViewById(R.id.custom_menu_adapter_main_avatar);
@@ -88,6 +99,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             media_ImageView_3 = new ImageView(context);
             media_ImageView_4 = new ImageView(context);
             toot_card_LinearLayout = itemView.findViewById(R.id.custom_menu_adapter_cardLinearLayout);
+            card_TextView = itemView.findViewById(R.id.custom_menu_adapter_card_textView);
+            card_ImageView = itemView.findViewById(R.id.custom_menu_adapter_card_imageView);
+            toot_reblog_LinearLayout = itemView.findViewById(R.id.custom_menu_adapter_reblogLinearLayout);
+            reblog_avatar_ImageView = itemView.findViewById(R.id.custom_menu_adapter_reblog_avatar);
+            reblog_user_TextView = itemView.findViewById(R.id.custom_menu_adapter_reblog_account);
+            reblog_toot_text_TextView = itemView.findViewById(R.id.custom_menu_adapter_reblog_text);
+            notification_type_TextView = new TextView(context);
         }
     }
 
@@ -138,7 +156,10 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         showMedia(viewHolder, api);
         //card
         setCard(viewHolder, api);
-
+        //ブースト
+        setReBlogToot(viewHolder, api);
+        //通知タイプ
+        showNotificationType(viewHolder, api);
     }
 
     @Override
@@ -163,6 +184,11 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         } else {
             mode = true;
         }
+        //強制表示モード
+        if (CustomMenuTimeLine.isImageShow()) {
+            mode = true;
+        }
+
         return mode;
     }
 
@@ -183,7 +209,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             }
         } else {
             //Layout Remove
-            ((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()).removeView(viewHolder.toot_avatar_ImageView);
+            if (((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()) != null){
+                ((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()).removeView(viewHolder.toot_avatar_ImageView);
+            }
         }
     }
 
@@ -281,21 +309,24 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     private void showMedia(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
         //消す
         viewHolder.toot_media_LinearLayout.removeAllViews();
-        if (api.getMediaList().size() == 0) {
-            //配列の要素０のときも消す
-            viewHolder.toot_media_LinearLayout.removeAllViews();
-        }
-        if (api.getMediaList().size() >= 1) {
-            setGlide(viewHolder.media_ImageView_1, viewHolder, api.getMediaList().get(0));
-        }
-        if (api.getMediaList().size() >= 2) {
-            setGlide(viewHolder.media_ImageView_2, viewHolder, api.getMediaList().get(1));
-        }
-        if (api.getMediaList().size() >= 3) {
-            setGlide(viewHolder.media_ImageView_3, viewHolder, api.getMediaList().get(2));
-        }
-        if (api.getMediaList().size() >= 4) {
-            setGlide(viewHolder.media_ImageView_4, viewHolder, api.getMediaList().get(3));
+        //画像を表示してもよいか？
+        if (getLoadImageConnection(viewHolder)){
+            if (api.getMediaList().size() == 0) {
+                //配列の要素０のときも消す
+                viewHolder.toot_media_LinearLayout.removeAllViews();
+            }
+            if (api.getMediaList().size() >= 1) {
+                setGlide(viewHolder.media_ImageView_1, viewHolder, api.getMediaList().get(0));
+            }
+            if (api.getMediaList().size() >= 2) {
+                setGlide(viewHolder.media_ImageView_2, viewHolder, api.getMediaList().get(1));
+            }
+            if (api.getMediaList().size() >= 3) {
+                setGlide(viewHolder.media_ImageView_3, viewHolder, api.getMediaList().get(2));
+            }
+            if (api.getMediaList().size() >= 4) {
+                setGlide(viewHolder.media_ImageView_4, viewHolder, api.getMediaList().get(3));
+            }
         }
     }
 
@@ -317,8 +348,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
     /**
      * CustomTab
-     * */
-    private void useCustomTabs(String url){
+     */
+    private void useCustomTabs(String url) {
         boolean chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
         //カスタムタグ有効
         if (chrome_custom_tabs) {
@@ -347,15 +378,15 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             //Cardのレイアウト適用
             layoutInflater.inflate(R.layout.custom_menu_recycler_adapter_card_layout, viewHolder.toot_card_LinearLayout);
-            TextView card_TextView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_card_textView);
-            ImageView card_ImageView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_card_imageView);
-            if (CustomMenuTimeLine.isImageShow()){
-                Glide.with(card_ImageView.getContext()).load(api.getCardImage()).into(card_ImageView);
-            }else{
-                ((LinearLayout)card_ImageView.getParent()).removeView(card_ImageView);
+            viewHolder.card_ImageView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_card_imageView);
+            viewHolder.card_TextView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_card_textView);
+            if (getLoadImageConnection(viewHolder)) {
+                Glide.with(viewHolder.card_ImageView.getContext()).load(api.getCardImage()).into(viewHolder.card_ImageView);
+            } else {
+                ((LinearLayout) viewHolder.card_ImageView.getParent()).removeView(viewHolder.card_ImageView);
             }
-            card_TextView.setText(api.getCardTitle() + "\n");
-            card_TextView.append(Html.fromHtml(api.getCardDescription(), Html.FROM_HTML_MODE_LEGACY));
+            viewHolder.card_TextView.setText(api.getCardTitle() + "\n");
+            viewHolder.card_TextView.append(Html.fromHtml(api.getCardDescription(), Html.FROM_HTML_MODE_LEGACY));
             //クリック
             viewHolder.toot_card_LinearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -363,6 +394,64 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                     useCustomTabs(api.getCardURL());
                 }
             });
+        }
+    }
+
+    /**
+     * Reblogに対応させる
+     */
+    private void setReBlogToot(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
+        //null Check
+        viewHolder.toot_reblog_LinearLayout.removeAllViews();
+        if (api.getBTAccountID() != null) {
+            //getLayoutInflaterが使えないので
+            LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            //Cardのレイアウト適用
+            layoutInflater.inflate(R.layout.custom_menu_recyclerview_adapter_reblog, viewHolder.toot_reblog_LinearLayout);
+            viewHolder.reblog_avatar_ImageView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_reblog_avatar);
+            viewHolder.reblog_user_TextView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_reblog_account);
+            viewHolder.reblog_toot_text_TextView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_reblog_text);
+            //入れる
+            if (getLoadImageConnection(viewHolder)) {
+                //既定でGIFは再生しない方向で
+                if (pref_setting.getBoolean("pref_avater_gif", true)) {
+                    //GIFアニメ再生させない
+                    Glide.with(context).load(api.getBTAvatarUrlNotGif()).into(viewHolder.reblog_avatar_ImageView);
+                } else {
+                    //GIFアニメを再生
+                    Glide.with(context).load(api.getBTAvatarUrl()).into(viewHolder.reblog_avatar_ImageView);
+                }
+            } else {
+                ((LinearLayout) viewHolder.reblog_avatar_ImageView.getParent()).removeView(viewHolder.reblog_avatar_ImageView);
+            }
+            PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.reblog_toot_text_TextView);
+            PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.reblog_user_TextView);
+            viewHolder.reblog_user_TextView.setText(Html.fromHtml(api.getBTAccountDisplayName(), Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
+            viewHolder.reblog_toot_text_TextView.setText(Html.fromHtml(api.getBTTootText(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
+            viewHolder.reblog_user_TextView.append("@" + api.getBTAccountAcct());
+            //～～がブーストしましたを出す
+            viewHolder.toot_user_TextView.append(context.getString(R.string.reblog));
+            viewHolder.toot_text_TextView.setText("");
+            Drawable drawable = context.getDrawable(R.drawable.ic_repeat_black_24dp_2);
+            drawable.setTint(Color.parseColor("#008000"));
+            viewHolder.toot_user_TextView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+        }
+    }
+
+    /**
+     * 通知タイプ
+     */
+    private void showNotificationType(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
+        viewHolder.mainLinearLayout.removeView(viewHolder.notification_type_TextView);
+        if (api.getNotification_Type() != null) {
+            viewHolder.notification_type_TextView.setText(api.getNotification_Type());
+            viewHolder.notification_type_TextView.setPadding(10, 10, 10, 10);
+            viewHolder.mainLinearLayout.addView(viewHolder.notification_type_TextView, 0);
+            //DM以外でレイアウト消す
+            if (api.getNotification_Type().contains("follow")) {
+                LinearLayout linearLayout = ((LinearLayout) viewHolder.toot_favourite_TextView.getParent());
+                viewHolder.mainLinearLayout.removeView(linearLayout);
+            }
         }
     }
 

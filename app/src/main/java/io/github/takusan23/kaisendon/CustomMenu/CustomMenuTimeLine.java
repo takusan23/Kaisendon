@@ -1151,7 +1151,7 @@ public class CustomMenuTimeLine extends Fragment {
                         max_id = last_toot_text.getString("id");
                         //わんちゃんJSONすべてがフィルターにかかって０件の場合があるのでそのときは２０個以上になるまで叩き続ける
                         if (adapter.getCount() < 20) {
-                            loadNotification(max_id);
+                            //loadNotification(max_id);
                         }
 
                     } catch (JSONException e) {
@@ -1700,7 +1700,7 @@ public class CustomMenuTimeLine extends Fragment {
                 //ユーザー名
                 Item.add(user_name + " @" + user + type);
                 //時間、クライアント名等
-                Item.add("トゥートID : " + toot_text_id_string + " / " + getString(R.string.time) + " : " + toot_text_time);
+                Item.add(toot_text_jsonObject.toString());
                 //Toot ID 文字列版
                 Item.add(toot_text_id_string);
                 //アバターURL
@@ -1726,28 +1726,13 @@ public class CustomMenuTimeLine extends Fragment {
                     @Override
                     public void run() {
                         if (recyclerViewLayoutManager != null) {
-                            // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
-                            int pos = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
-                            int top = 0;
-                            if (((LinearLayoutManager) recyclerViewLayoutManager).getChildCount() > 0) {
-                                top = ((LinearLayoutManager) recyclerViewLayoutManager).getChildAt(0).getTop();
-                            }
-
-                            CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                            recyclerView.setAdapter(customMenuRecyclerViewAdapter);
-
-                            //一番上なら追いかける
-                            if (pos == 0) {
-                                recyclerView.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        recyclerView.smoothScrollToPosition(0);
-                                    }
-                                });
-                            } else {
-                                ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(pos + 1, top);
-                            }
+                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
                         }
+                        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+                        SnackberProgress.closeProgressSnackber();
+                        scroll = false;
+
 /*
                         if (streaming) {
                             adapter.insert(listItem, 0);

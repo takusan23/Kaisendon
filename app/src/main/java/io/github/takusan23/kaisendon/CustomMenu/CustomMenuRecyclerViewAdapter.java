@@ -8,7 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -20,14 +19,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
+import io.github.takusan23.kaisendon.APIJSONParse.MastodonTLAPIJSONParse;
 import io.github.takusan23.kaisendon.PicassoImageGetter;
 import io.github.takusan23.kaisendon.R;
 import okhttp3.Call;
@@ -44,6 +40,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     private SharedPreferences pref_setting;
     private String Instance;
     private String AccessToken;
+    private Context context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -55,6 +52,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         public TextView toot_bookmark_TextView;
         public TextView toot_client_TextView;
         public TextView toot_createAt_TextView;
+        public TextView toot_visibility_TextView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -66,6 +64,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             toot_bookmark_TextView = itemView.findViewById(R.id.custom_menu_adapter_bookmark);
             toot_client_TextView = itemView.findViewById(R.id.custom_menu_adapter_via);
             toot_createAt_TextView = itemView.findViewById(R.id.custom_menu_adapter_createAt);
+            toot_visibility_TextView = itemView.findViewById(R.id.custom_menu_adapter_visibility);
         }
     }
 
@@ -87,27 +86,28 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         //設定を取得
         AccessToken = pref_setting.getString("main_token", "");
         Instance = pref_setting.getString("main_instance", "");
+        //Context
+        context = viewHolder.toot_text_TextView.getContext();
 
         //レイアウト
         ArrayList<String> item = itemList.get(i);
-        String createAt="";
-        String via = "";
-        try {
-            JSONObject toot_JsonObject = new JSONObject(item.get(3));
-            createAt = toot_JsonObject.getString("createAt");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        //JSONパース用クラス
+        MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(),item.get(3),true);
         //カスタム絵文字
         PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
         PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);
         //SetText
-        viewHolder.toot_text_TextView.setText(Html.fromHtml(item.get(1), Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
-        viewHolder.toot_user_TextView.setText(Html.fromHtml(item.get(2), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
+        viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getToot_text(), Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
+        viewHolder.toot_user_TextView.setText(Html.fromHtml(api.getDisplay_name(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
+        viewHolder.toot_user_TextView.append("@"+api.getAcct());
+        viewHolder.toot_createAt_TextView.setText(api.getCreatedAt());
+        viewHolder.toot_client_TextView.setText(api.getClient());
+        viewHolder.toot_visibility_TextView.setText(api.getVisibility());
+
         //アバター画像
-        loadAvatarImage(item, viewHolder);
+        loadAvatarImage(api, viewHolder);
         //BT,Fav等
-        setBoostFavClick(viewHolder, item);
+        //setBoostFavClick(viewHolder, item);
     }
 
     @Override
@@ -115,10 +115,12 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         return itemList.size();
     }
 
+
+
     /**
      * 画像表示とか
      */
-    private void loadAvatarImage(ArrayList<String> item, ViewHolder viewHolder) {
+    private void loadAvatarImage(MastodonTLAPIJSONParse api, ViewHolder viewHolder) {
         //画像
         ConnectivityManager connectivityManager = (ConnectivityManager) viewHolder.toot_text_TextView.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
@@ -127,48 +129,60 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //既定でGIFは再生しない方向で
                 if (pref_setting.getBoolean("pref_avater_gif", true)) {
                     //GIFアニメ再生させない
-                    Picasso.get().load(item.get(5)).resize(100, 100).into(viewHolder.toot_avatar_ImageView);
+                    Glide.with(viewHolder.toot_avatar_ImageView.getContext()).load(api.getAvatarUrlNotGIF()).into(viewHolder.toot_avatar_ImageView);
                 } else {
                     //GIFアニメを再生
-                    Glide.with(viewHolder.toot_avatar_ImageView.getContext()).load(item.get(5)).into(viewHolder.toot_avatar_ImageView);
+                    Glide.with(viewHolder.toot_avatar_ImageView.getContext()).load(api.getAvatarUrl()).into(viewHolder.toot_avatar_ImageView);
                 }
             }
         } else {
             //既定でGIFは再生しない方向で
             if (pref_setting.getBoolean("pref_avater_gif", true)) {
                 //GIFアニメ再生させない
-                Picasso.get().load(item.get(5)).resize(100, 100).into(viewHolder.toot_avatar_ImageView);
+                Glide.with(viewHolder.toot_avatar_ImageView.getContext()).load(api.getAvatarUrlNotGIF()).into(viewHolder.toot_avatar_ImageView);
             } else {
                 //GIFアニメを再生
-                Glide.with(viewHolder.toot_avatar_ImageView.getContext()).load(item.get(5)).into(viewHolder.toot_avatar_ImageView);
+                Glide.with(viewHolder.toot_avatar_ImageView.getContext()).load(api.getAvatarUrl()).into(viewHolder.toot_avatar_ImageView);
             }
         }
     }
 
     /**
      * Boost,Favourite
+     * @param type favかbtか
      */
-    private void setBoostFavClick(ViewHolder viewHolder, ArrayList<String> item) {
-        viewHolder.toot_favourite_TextView.setOnClickListener(new View.OnClickListener() {
+    private void setClickPOSTStatus(TextView textView,String type,MastodonTLAPIJSONParse api){
+        //クリックイベント
+        textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Snackbar.make(viewHolder.toot_favourite_TextView, viewHolder.toot_favourite_TextView.getContext().getString(R.string.favourite_add_message), Snackbar.LENGTH_SHORT).setAction(viewHolder.toot_favourite_TextView.getContext().getString(R.string.favoutire), new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        TootAction(item.get(4), "favourite", viewHolder.toot_favourite_TextView);
+                //Snackberのテキスト
+                String message = "";
+                String button = "";
+                //Fav/BT
+                if (type.contains("fav")){
+                    //Fav済みか
+                    if (Boolean.valueOf(api.getIsFav())){
+                        //Fav済み
+                        message = context.getString(R.string.delete_fav);
+                        button = context.getString(R.string.delete_ok);
+                    }else{
+                        //Favする
+                        message = context.getString(R.string.favourite_add_message);
+                        button = context.getString(R.string.favoutire);
                     }
-                }).show();
-            }
-        });
-        viewHolder.toot_boost_TextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Snackbar.make(viewHolder.toot_favourite_TextView, viewHolder.toot_favourite_TextView.getContext().getString(R.string.dialog_boost_info), Snackbar.LENGTH_SHORT).setAction(viewHolder.toot_favourite_TextView.getContext().getString(R.string.dialog_boost), new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        TootAction(item.get(4), "reblog", viewHolder.toot_favourite_TextView);
+                }else {
+                    //Fav済みか
+                    if (Boolean.valueOf(api.getIsBT())){
+                        //BT済み
+
+
+                    }else{
+                        //BTする
+
+
                     }
-                }).show();
+                }
             }
         });
     }

@@ -326,6 +326,7 @@ public class CustomMenuTimeLine extends Fragment {
 
         recyclerViewLayoutManager = recyclerView.getLayoutManager();
 
+/*
         //Misskey
         if (misskey_mode) {
             loadMisskeyAccountName();
@@ -486,6 +487,9 @@ public class CustomMenuTimeLine extends Fragment {
             });
 
         }
+*/
+        //試験的
+        loadTimeline("");
     }
 
     /**
@@ -685,13 +689,13 @@ public class CustomMenuTimeLine extends Fragment {
                                 //配列を作成
                                 ArrayList<String> Item = new ArrayList<>();
                                 //メモとか通知とかに
-                                Item.add("CustomMenu");
+                                Item.add("CustomMenu Local");
                                 //内容
                                 Item.add(toot_text);
                                 //ユーザー名
                                 Item.add(user_name + " @" + user);
-                                //時間、クライアント名等
-                                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                                //JSONObject
+                                Item.add(toot_jsonObject.toString());
                                 //Toot ID 文字列版
                                 Item.add(toot_id_string);
                                 //アバターURL

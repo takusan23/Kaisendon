@@ -22,6 +22,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -50,6 +53,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         public TextView toot_boost_TextView;
         public TextView toot_favourite_TextView;
         public TextView toot_bookmark_TextView;
+        public TextView toot_client_TextView;
+        public TextView toot_createAt_TextView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -59,6 +64,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             toot_boost_TextView = itemView.findViewById(R.id.custom_menu_adapter_boost);
             toot_favourite_TextView = itemView.findViewById(R.id.custom_menu_adapter_favourite);
             toot_bookmark_TextView = itemView.findViewById(R.id.custom_menu_adapter_bookmark);
+            toot_client_TextView = itemView.findViewById(R.id.custom_menu_adapter_via);
+            toot_createAt_TextView = itemView.findViewById(R.id.custom_menu_adapter_createAt);
         }
     }
 
@@ -83,6 +90,14 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
         //レイアウト
         ArrayList<String> item = itemList.get(i);
+        String createAt="";
+        String via = "";
+        try {
+            JSONObject toot_JsonObject = new JSONObject(item.get(3));
+            createAt = toot_JsonObject.getString("createAt");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         //カスタム絵文字
         PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
         PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);

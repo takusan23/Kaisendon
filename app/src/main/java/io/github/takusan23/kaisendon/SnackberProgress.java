@@ -34,6 +34,8 @@ public class SnackberProgress {
 
     //終わる
     public static void closeProgressSnackber() {
-        snackbar.dismiss();
+        if (snackbar!=null){
+            snackbar.dismiss();
+        }
     }
 }

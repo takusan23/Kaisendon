@@ -96,20 +96,20 @@ public class CustomMenuTimeLine extends Fragment {
     private String url;
     private static String instance;
     private static String access_token;
-    private String dialog;
-    private String image_load;
-    private String dark_mode;
-    private String setting;
-    private String streaming;
-    private String subtitle;
-    private String image_url;
-    private String background_transparency;
-    private String quick_profile;
-    private String toot_counter;
-    private String custom_emoji;
-    private String gif;
-    private String font;
-    private String one_hand;
+    private static String dialog;
+    private static String image_load;
+    private static String dark_mode;
+    private static String setting;
+    private static String streaming;
+    private static String subtitle;
+    private static String image_url;
+    private static String background_transparency;
+    private static String quick_profile;
+    private static String toot_counter;
+    private static String custom_emoji;
+    private static String gif;
+    private static String font;
+    private static String one_hand;
 
     private Boolean background_screen_fit;
     private boolean dark_theme = false;
@@ -326,7 +326,7 @@ public class CustomMenuTimeLine extends Fragment {
 
         recyclerViewLayoutManager = recyclerView.getLayoutManager();
 
-/*
+
         //Misskey
         if (misskey_mode) {
             loadMisskeyAccountName();
@@ -485,11 +485,7 @@ public class CustomMenuTimeLine extends Fragment {
                     }
                 }
             });
-
         }
-*/
-        //試験的
-        loadTimeline("");
     }
 
     /**
@@ -1434,7 +1430,7 @@ public class CustomMenuTimeLine extends Fragment {
                 //ユーザー名
                 Item.add(user_name + " @" + user);
                 //時間、クライアント名等
-                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                Item.add(toot_jsonObject.toString());
                 //Toot ID 文字列版
                 Item.add(toot_id_string);
                 //アバターURL
@@ -1944,7 +1940,7 @@ public class CustomMenuTimeLine extends Fragment {
                 //ユーザー名
                 Item.add(user_name + " @" + user);
                 //時間、クライアント名等
-                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
+                Item.add(jsonObject.toString());
                 //Toot ID 文字列版
                 Item.add(toot_id_string);
                 //アバターURL
@@ -2278,7 +2274,7 @@ public class CustomMenuTimeLine extends Fragment {
                 //ユーザー名
                 Item.add(name + " @" + username + " " + host);
                 //時間、クライアント名等
-                Item.add("クライアント : " + client + " / " + "ID : " + note_id + " / " + getString(R.string.time) + " : " + createdAt);
+                Item.add(jsonObject.toString());
                 //Toot ID 文字列版
                 Item.add(note_id);
                 //アバターURL
@@ -2894,6 +2890,27 @@ public class CustomMenuTimeLine extends Fragment {
      */
     public static boolean isUseCustomMenu() {
         return true;
+    }
+
+    /**
+     * ダイアログが出ない
+     */
+    public static boolean isDialogNotShow() {
+        return Boolean.valueOf(dialog);
+    }
+
+    /**
+     * 画像を強制表示させるかどうか
+     */
+    public static boolean isImageShow() {
+        return Boolean.valueOf(image_load);
+    }
+
+    /**
+     * カスタム絵文字を読み込むか（既定有効
+     */
+    public static boolean isUseCustomEmoji() {
+        return Boolean.valueOf(custom_emoji);
     }
 
     /**

@@ -322,9 +322,12 @@ public class Home extends AppCompatActivity
         if (pref_setting.getBoolean("pref_custom_emoji", true)) {
             if (pref_setting.getBoolean("pref_avater_wifi", true)) {
                 //WIFIのみ表示有効時
-                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                    //WIFI
-                    emojis_show = true;
+                //ネットワーク未接続時はnullか出る
+                if (networkCapabilities!=null){
+                    if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        //WIFI
+                        emojis_show = true;
+                    }
                 }
             } else {
                 //WIFI/MOBILE DATA 関係なく表示

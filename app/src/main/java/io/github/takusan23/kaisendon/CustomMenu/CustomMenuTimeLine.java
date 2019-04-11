@@ -347,6 +347,7 @@ public class CustomMenuTimeLine extends Fragment {
                 @Override
                 public void onRefresh() {
                     adapter.clear();
+                    recyclerViewList.clear();
                     //トゥートカウンター
                     countTextView.setText("");
                     akeome_count = 0;
@@ -440,6 +441,7 @@ public class CustomMenuTimeLine extends Fragment {
                 @Override
                 public void onRefresh() {
                     adapter.clear();
+                    recyclerViewList.clear();
                     //トゥートカウンター
                     countTextView.setText("");
                     akeome_count = 0;
@@ -692,6 +694,10 @@ public class CustomMenuTimeLine extends Fragment {
                                 Item.add(user_name + " @" + user);
                                 //JSONObject
                                 Item.add(toot_jsonObject.toString());
+                                //ぶーすとした？
+                                Item.add("false");
+                                //ふぁぼした？
+                                Item.add("false");
                                 //Toot ID 文字列版
                                 Item.add(toot_id_string);
                                 //アバターURL
@@ -1431,6 +1437,10 @@ public class CustomMenuTimeLine extends Fragment {
                 Item.add(user_name + " @" + user);
                 //時間、クライアント名等
                 Item.add(toot_jsonObject.toString());
+                //ぶーすとした？
+                Item.add("false");
+                //ふぁぼした？
+                Item.add("false");
                 //Toot ID 文字列版
                 Item.add(toot_id_string);
                 //アバターURL
@@ -1701,6 +1711,10 @@ public class CustomMenuTimeLine extends Fragment {
                 Item.add(user_name + " @" + user + type);
                 //時間、クライアント名等
                 Item.add(toot_text_jsonObject.toString());
+                //ぶーすとした？
+                Item.add("false");
+                //ふぁぼした？
+                Item.add("false");
                 //Toot ID 文字列版
                 Item.add(toot_text_id_string);
                 //アバターURL
@@ -1926,6 +1940,10 @@ public class CustomMenuTimeLine extends Fragment {
                 Item.add(user_name + " @" + user);
                 //時間、クライアント名等
                 Item.add(jsonObject.toString());
+                //ぶーすとした？
+                Item.add("false");
+                //ふぁぼした？
+                Item.add("false");
                 //Toot ID 文字列版
                 Item.add(toot_id_string);
                 //アバターURL
@@ -2260,6 +2278,10 @@ public class CustomMenuTimeLine extends Fragment {
                 Item.add(name + " @" + username + " " + host);
                 //時間、クライアント名等
                 Item.add(jsonObject.toString());
+                //ぶーすとした？
+                Item.add("false");
+                //ふぁぼした？
+                Item.add("");
                 //Toot ID 文字列版
                 Item.add(note_id);
                 //アバターURL
@@ -2420,11 +2442,11 @@ public class CustomMenuTimeLine extends Fragment {
                 //ユーザー名
                 Item.add(name + " @" + username + host + " / " + type);
                 //時間、クライアント名等
-                Item.add("ID : " + note_id + " / " + getString(R.string.time) + " : " + createdAt);
-                //Toot ID 文字列版
-                Item.add(note_id);
-                //アバターURL
-                Item.add(avatar);
+                Item.add(jsonObject.toString());
+                //ぶーすとした？
+                Item.add("false");
+                //ふぁぼした？
+                Item.add("");
                 //アカウントID
                 Item.add(account_id);
                 //ユーザーネーム
@@ -2896,6 +2918,13 @@ public class CustomMenuTimeLine extends Fragment {
      */
     public static boolean isUseCustomEmoji() {
         return Boolean.valueOf(custom_emoji);
+    }
+
+    /**
+     * クイックプロフィール
+     */
+    public static boolean isQuickProfile() {
+        return Boolean.valueOf(quick_profile);
     }
 
     /**

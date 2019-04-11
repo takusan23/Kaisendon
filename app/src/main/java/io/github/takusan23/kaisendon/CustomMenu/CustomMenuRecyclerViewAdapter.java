@@ -174,6 +174,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             setCard(viewHolder, api);
             //ブースト
             setReBlogToot(viewHolder, api);
+            //クイックプロフィール
+            showMisskeyQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_ID());
             //通知タイプ
             showNotificationType(viewHolder, api);
             //クライアント名のTextViewを消す
@@ -455,7 +457,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //上のLinearLayoutがあるレイアウトを特定
             LinearLayout parent_LinearLayout = ((LinearLayout) linearLayout.getParent());
             //消す
-            parent_LinearLayout.removeView(linearLayout);
+            if (parent_LinearLayout != null) {
+                parent_LinearLayout.removeView(linearLayout);
+            }
         }
     }
 
@@ -527,7 +531,11 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             drawable.setTint(Color.parseColor("#008000"));
             viewHolder.toot_user_TextView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
             //クイックプロフィール
-            showQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID(), viewHolder);
+            if (CustomMenuTimeLine.isMisskeyMode()){
+                showMisskeyQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID());
+            }else {
+                showQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID(), viewHolder);
+            }
         }
     }
 
@@ -792,8 +800,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Misskey クイックプロフィール
      */
-    private void showMisskeyQuickProfile(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
-        viewHolder.toot_favourite_TextView.setOnClickListener(new View.OnClickListener() {
+    private void showMisskeyQuickProfile(ImageView imageView, String id) {
+        imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String instance = pref_setting.getString("misskey_main_instance", "");
@@ -816,7 +824,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 JSONObject jsonObject = new JSONObject();
                 try {
                     jsonObject.put("i", token);
-                    jsonObject.put("userId", api.getUser_ID());
+                    jsonObject.put("userId", id);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -833,7 +841,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                     @Override
                     public void onFailure(Call call, IOException e) {
                         //失敗時
-                        viewHolder.toot_favourite_TextView.post(new Runnable() {
+                        imageView.post(new Runnable() {
                             @Override
                             public void run() {
                                 Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_SHORT).show();
@@ -846,7 +854,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                         String response_string = response.body().string();
                         if (!response.isSuccessful()) {
                             //失敗時
-                            viewHolder.toot_favourite_TextView.post(new Runnable() {
+                            imageView.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     Toast.makeText(context, context.getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
@@ -927,7 +935,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                         Intent intent = new Intent(context, UserActivity.class);
                                         //IDを渡す
                                         intent.putExtra("Misskey", true);
-                                        intent.putExtra("Account_ID", api.getUser_ID());
+                                        intent.putExtra("Account_ID", id);
                                         context.startActivity(intent);
                                     }
                                 });

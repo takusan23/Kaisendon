@@ -26,8 +26,8 @@ public class MastodonTLAPIJSONParse {
     private String avatarUrl;
     private String avatarUrlNotGIF;
     private String toot_ID;
-    private String isFav;
-    private String isBT;
+    private String isFav="false";
+    private String isBT="false";
     private String FavCount;
     private String BTCount;
     private String client;

@@ -8,6 +8,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
+
+import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
+import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
 
 public class MastodonTLAPIJSONParse {
 
@@ -26,8 +30,8 @@ public class MastodonTLAPIJSONParse {
     private String avatarUrl;
     private String avatarUrlNotGIF;
     private String toot_ID;
-    private String isFav="false";
-    private String isBT="false";
+    private String isFav = "false";
+    private String isBT = "false";
     private String FavCount;
     private String BTCount;
     private String client;
@@ -49,13 +53,17 @@ public class MastodonTLAPIJSONParse {
     private ArrayList<String> mediaList;
     private String notification_ID;
     private String notification_Type;
+    private String reaction_Type="";
 
     //インスタンス
-    public MastodonTLAPIJSONParse(Context context, String response_string, boolean customEmoji) {
+    public MastodonTLAPIJSONParse(Context context, String response_string) {
         this.context = context;
         this.response_string = response_string;
-        this.isCustomEmoji = customEmoji;
-        setMastodonTLParse();
+        if (CustomMenuTimeLine.isMisskeyMode()) {
+            setMisskeyParse();
+        } else {
+            setMastodonTLParse();
+        }
     }
 
     //それぞれ
@@ -180,6 +188,10 @@ public class MastodonTLAPIJSONParse {
         this.isBT = isBT;
     }
 
+    public String getReaction_Type() {
+        return reaction_Type;
+    }
+
     //JSONパース
     private void setMastodonTLParse() {
         try {
@@ -295,7 +307,7 @@ public class MastodonTLAPIJSONParse {
                 user_ID = account_JsonObject.getString("id");
                 //Status
                 toot_text = "";
-                createdAt = "";
+                //createdAt = "";
                 url = "";
                 visibility = "";
                 toot_ID = "";
@@ -339,6 +351,174 @@ public class MastodonTLAPIJSONParse {
                     }
                 }
             }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Misskey Parse
+     */
+    private void setMisskeyParse() {
+        try {
+            mediaList = new ArrayList<>();
+            JSONObject note_JsonObject = new JSONObject(response_string);
+            //通知と分ける
+            if (note_JsonObject.isNull("type")) {
+                //共通
+                JSONObject account_JsonObject = note_JsonObject.getJSONObject("user");
+                JSONArray media_array = note_JsonObject.getJSONArray("media");
+                toot_text = note_JsonObject.getString("text");
+                createdAt = note_JsonObject.getString("createdAt");
+                //url = note_JsonObject.getString("url");
+                visibility = note_JsonObject.getString("visibility");
+                toot_ID = note_JsonObject.getString("id");
+                display_name = account_JsonObject.getString("name");
+                acct = account_JsonObject.getString("username");
+                avatarUrl = account_JsonObject.getString("avatarUrl");
+                avatarUrlNotGIF = account_JsonObject.getString("avatarUrl");
+                user_ID = account_JsonObject.getString("id");
+                //Local、その他同じクライアントのユーザー
+                if (!note_JsonObject.isNull("application")) {
+                    client = note_JsonObject.getJSONObject("application").getString("name");
+                }
+                //reBlog
+                if (!note_JsonObject.isNull("renote")) {
+                    BTAccountAcct = note_JsonObject.getJSONObject("renote").getJSONObject("user").getString("username");
+                    BTAccountDisplayName = note_JsonObject.getJSONObject("renote").getJSONObject("user").getString("name");
+                    BTAccountID = note_JsonObject.getJSONObject("renote").getJSONObject("user").getString("id");
+                    BTTootText = note_JsonObject.getJSONObject("renote").getString("text");
+                    BTCreatedAt = note_JsonObject.getJSONObject("renote").getString("createdAt");
+                    BTAvatarUrl = note_JsonObject.getJSONObject("renote").getJSONObject("user").getString("avatarUrl");
+                    BTAvatarUrlNotGif = note_JsonObject.getJSONObject("renote").getJSONObject("user").getString("avatarUrl");
+                }
+/*
+            //card
+            if (!note_JsonObject.isNull("card")) {
+                cardTitle = note_JsonObject.getJSONObject("card").getString("title");
+                cardURL = note_JsonObject.getJSONObject("card").getString("url");
+                cardDescription = note_JsonObject.getJSONObject("card").getString("description");
+                cardImage = note_JsonObject.getJSONObject("card").getString("image");
+            }
+*/
+                //MastodonでFavのところはMisskeyリアクション一覧の配列を渡す
+                JSONObject reaction_Object = note_JsonObject.getJSONObject("reactionCounts");
+                //名前を取り出す？
+                FavCount = "";
+                reaction_Object.keys().forEachRemaining(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) {
+                        try {
+                            //カウントを表示
+                            String index = reaction_Object.getString(s);
+                            FavCount = FavCount + " " + HomeTimeLineAdapter.toReactionEmoji(s) + ":" + index + "  ";
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                isBT = note_JsonObject.getString("myRenoteId");
+                BTCount = note_JsonObject.getString("renoteCount");
+                isFav = note_JsonObject.getString("myReaction");
+                //絵文字
+                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || Boolean.valueOf(CustomMenuTimeLine.isUseCustomEmoji())) {
+                    JSONArray emoji = note_JsonObject.getJSONArray("emojis");
+                    for (int e = 0; e < emoji.length(); e++) {
+                        JSONObject emoji_jsonObject = emoji.getJSONObject(e);
+                        String emoji_name = emoji_jsonObject.getString("name");
+                        String emoji_url = emoji_jsonObject.getString("url");
+                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                        toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                    }
+
+                    //ユーザーネームの方の絵文字
+                    if (!account_JsonObject.isNull("emojis")) {
+                        JSONArray account_emoji = account_JsonObject.getJSONArray("emojis");
+                        for (int e = 0; e < account_emoji.length(); e++) {
+                            JSONObject emoji_jsonObject = account_emoji.getJSONObject(e);
+                            String emoji_name = emoji_jsonObject.getString("name");
+                            String emoji_url = emoji_jsonObject.getString("url");
+                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                            display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                        }
+                    }
+                }
+                //画像
+                for (int i = 0; i < media_array.length(); i++) {
+                    //要素があるか確認
+                    if (!media_array.isNull(0)) {
+                        mediaList.add(media_array.getJSONObject(i).getString("url"));
+                    }
+                }
+            } else {
+                //通知
+                notification_ID = note_JsonObject.getString("id");
+                createdAt = note_JsonObject.getString("createdAt");
+                notification_Type = note_JsonObject.getString("type");
+                //Account
+                JSONObject account_JsonObject = note_JsonObject.getJSONObject("user");
+                display_name = account_JsonObject.getString("name");
+                acct = account_JsonObject.getString("username");
+                avatarUrl = account_JsonObject.getString("avatarUrl");
+                avatarUrlNotGIF = account_JsonObject.getString("avatarUrl");
+                user_ID = account_JsonObject.getString("id");
+                //Status
+                toot_text = "";
+                //createdAt = "";
+                url = "";
+                visibility = "";
+                toot_ID = "";
+                //Null
+                if (note_JsonObject.getString("type").contains("reaction")) {
+                    reaction_Type = note_JsonObject.getString("reaction");
+                }
+                //返信しかこれない
+                if (!note_JsonObject.isNull("note")) {
+                    JSONObject status_JsonObject = note_JsonObject.getJSONObject("note");
+                    toot_text = status_JsonObject.getString("text");
+                    //url = status_JsonObject.getString("url");
+                    visibility = status_JsonObject.getString("visibility");
+                    toot_ID = status_JsonObject.getString("id");
+/*
+                    JSONArray media_array = status_JsonObject.getJSONArray("media_attachments");
+                    //画像
+                    for (int i = 0; i < media_array.length(); i++) {
+                        //要素があるか確認
+                        if (!media_array.isNull(0)) {
+                            mediaList.add(media_array.getJSONObject(i).getString("url"));
+                        }
+                    }
+                    if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || isCustomEmoji) {
+                        JSONArray emoji = status_JsonObject.getJSONArray("emojis");
+                        for (int e = 0; e < emoji.length(); e++) {
+                            JSONObject jsonObject = emoji.getJSONObject(e);
+                            String emoji_name = jsonObject.getString("shortcode");
+                            String emoji_url = jsonObject.getString("url");
+                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                            toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+                        }
+                    }
+*/
+                }
+
+                //絵文字
+                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || isCustomEmoji) {
+                    //ユーザーネームの方の絵文字
+                    JSONArray account_emoji = account_JsonObject.getJSONArray("emojis");
+                    for (int e = 0; e < account_emoji.length(); e++) {
+                        JSONObject jsonObject = account_emoji.getJSONObject(e);
+                        String emoji_name = jsonObject.getString("name");
+                        String emoji_url = jsonObject.getString("url");
+                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                        display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                    }
+                }
+
+
+            }
+
 
         } catch (JSONException e) {
             e.printStackTrace();

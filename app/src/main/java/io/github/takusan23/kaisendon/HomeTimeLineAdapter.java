@@ -3077,6 +3077,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             case "star":
                 emoji = "⭐";
                 break;
+            case "null":
+                emoji="";
+                break;
         }
         return emoji;
     }

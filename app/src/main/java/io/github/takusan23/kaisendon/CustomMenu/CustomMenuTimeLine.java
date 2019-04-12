@@ -536,151 +536,6 @@ public class CustomMenuTimeLine extends Fragment {
                         jsonArray = new JSONArray(response_string);
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
-                            JSONObject toot_account = toot_jsonObject.getJSONObject("account");
-                            String toot_text = toot_jsonObject.getString("content");
-                            String user = toot_account.getString("acct");
-                            String user_name = toot_account.getString("display_name");
-                            String toot_id_string = toot_jsonObject.getString("id");
-                            String user_avater_url = toot_account.getString("avatar");
-                            int account_id = toot_account.getInt("id");
-                            String toot_time = "";
-                            //ブースト　ふぁぼ
-                            String isBoost = "no";
-                            String isFav = "no";
-                            String boostCount = "0";
-                            String favCount = "0";
-                            //画像各位
-                            String media_url_1 = null;
-                            String media_url_2 = null;
-                            String media_url_3 = null;
-                            String media_url_4 = null;
-                            //クライアント
-                            String user_use_client = "";
-                            //頑張ってApplication取ろう
-                            if (!toot_jsonObject.isNull("application")) {
-                                JSONObject application = toot_jsonObject.getJSONObject("application");
-                                user_use_client = application.getString("name");
-                            }
-
-                            //ブーストかも
-                            //ブーストあったよ
-                            String boost_content = null;
-                            String boost_user_name = null;
-                            String boost_user = null;
-                            String boost_avater_url = null;
-                            long boost_account_id = 0;
-
-                            if (!toot_jsonObject.isNull("reblog")) {
-                                JSONObject reblogJsonObject = toot_jsonObject.getJSONObject("reblog");
-                                JSONObject reblogAccountJsonObject = reblogJsonObject.getJSONObject("account");
-                                boost_content = reblogJsonObject.getString("content");
-                                boost_user_name = reblogAccountJsonObject.getString("display_name");
-                                boost_user = reblogAccountJsonObject.getString("username");
-                                boost_avater_url = reblogAccountJsonObject.getString("avatar");
-                                boost_account_id = reblogAccountJsonObject.getLong("id");
-                                if (reblogJsonObject.getBoolean("reblogged")) {
-                                    isBoost = "reblogged";
-                                }
-                                if (reblogJsonObject.getBoolean("favourited")) {
-                                    isFav = "favourited";
-                                }
-                                //かうんと
-                                boostCount = String.valueOf(reblogJsonObject.getInt("reblogs_count"));
-                                favCount = String.valueOf(reblogJsonObject.getInt("favourites_count"));
-                            } else {
-                                if (toot_jsonObject.getBoolean("reblogged")) {
-                                    isBoost = "reblogged";
-                                }
-                                if (toot_jsonObject.getBoolean("favourited")) {
-                                    isFav = "favourited";
-                                }
-                                //かうんと
-                                boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
-                                favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
-                            }
-
-
-                            //かうんと
-                            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
-                            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
-
-
-                            //時間フォーマット
-                            toot_time = getCreatedAtFormat(toot_time);
-
-                            JSONArray media_array = toot_jsonObject.getJSONArray("media_attachments");
-                            if (!media_array.isNull(0)) {
-                                media_url_1 = media_array.getJSONObject(0).getString("url");
-                            }
-                            if (!media_array.isNull(1)) {
-                                media_url_2 = media_array.getJSONObject(1).getString("url");
-                            }
-                            if (!media_array.isNull(2)) {
-                                media_url_3 = media_array.getJSONObject(2).getString("url");
-                            }
-                            if (!media_array.isNull(3)) {
-                                media_url_4 = media_array.getJSONObject(3).getString("url");
-                            }
-
-                            //絵文字
-                            if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
-                                JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
-                                for (int e = 0; e < emoji.length(); e++) {
-                                    JSONObject jsonObject = emoji.getJSONObject(e);
-                                    String emoji_name = jsonObject.getString("shortcode");
-                                    String emoji_url = jsonObject.getString("url");
-                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
-                                }
-
-                                //ユーザーネームの方の絵文字
-                                JSONArray account_emoji = toot_account.getJSONArray("emojis");
-                                for (int e = 0; e < account_emoji.length(); e++) {
-                                    JSONObject jsonObject = account_emoji.getJSONObject(e);
-                                    String emoji_name = jsonObject.getString("shortcode");
-                                    String emoji_url = jsonObject.getString("url");
-                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                                }
-
-                                //Pawooで取れない？
-                                if (!toot_jsonObject.isNull("profile_emojis")) {
-                                    //アバター絵文字
-                                    JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
-                                    for (int a = 0; a < avater_emoji.length(); a++) {
-                                        JSONObject jsonObject = avater_emoji.getJSONObject(a);
-                                        String emoji_name = jsonObject.getString("shortcode");
-                                        String emoji_url = jsonObject.getString("url");
-                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                        toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
-                                    }
-
-
-                                    //ユーザーネームの方のアバター絵文字
-                                    JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
-                                    for (int a = 0; a < account_avater_emoji.length(); a++) {
-                                        JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
-                                        String emoji_name = jsonObject.getString("shortcode");
-                                        String emoji_url = jsonObject.getString("url");
-                                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                        user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                                    }
-                                }
-                            }
-
-                            //カード情報
-                            String cardTitle = null;
-                            String cardURL = null;
-                            String cardDescription = null;
-                            String cardImage = null;
-
-                            if (!toot_jsonObject.isNull("card")) {
-                                JSONObject cardObject = toot_jsonObject.getJSONObject("card");
-                                cardURL = cardObject.getString("url");
-                                cardTitle = cardObject.getString("title");
-                                cardDescription = cardObject.getString("description");
-                                cardImage = cardObject.getString("image");
-                            }
 
                             if (getActivity() != null && isAdded()) {
 
@@ -689,53 +544,15 @@ public class CustomMenuTimeLine extends Fragment {
                                 //メモとか通知とかに
                                 Item.add("CustomMenu Local");
                                 //内容
-                                Item.add(toot_text);
+                                Item.add("");
                                 //ユーザー名
-                                Item.add(user_name + " @" + user);
+                                Item.add("");
                                 //JSONObject
                                 Item.add(toot_jsonObject.toString());
                                 //ぶーすとした？
                                 Item.add("false");
                                 //ふぁぼした？
                                 Item.add("false");
-                                //Toot ID 文字列版
-                                Item.add(toot_id_string);
-                                //アバターURL
-                                Item.add(user_avater_url);
-                                //アカウントID
-                                Item.add(String.valueOf(account_id));
-                                //ユーザーネーム
-                                Item.add(user);
-                                //メディア
-                                Item.add(media_url_1);
-                                Item.add(media_url_2);
-                                Item.add(media_url_3);
-                                Item.add(media_url_4);
-                                //カード
-                                Item.add(cardTitle);
-                                Item.add(cardURL);
-                                Item.add(cardDescription);
-                                Item.add(cardImage);
-                                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                                Item.add(isBoost);
-                                Item.add(isFav);
-                                Item.add(boostCount);
-                                Item.add(favCount);
-                                //Reblog ブースト用
-                                Item.add(boost_content);
-                                Item.add(boost_user_name + " @" + boost_user);
-                                Item.add(boost_avater_url);
-                                Item.add(String.valueOf(boost_account_id));
-                                //警告テキスト
-                                //TODO 警告文実装する
-                                Item.add("");
-                                //カスタムメニュー用
-                                Item.add(dialog);
-                                Item.add(image_load);
-                                Item.add(quick_profile);
-                                Item.add(custom_emoji);
-                                Item.add(gif);
-                                Item.add(font);
 
                                 //ListItem listItem = new ListItem(Item);
                                 recyclerViewList.add(Item);
@@ -1571,429 +1388,39 @@ public class CustomMenuTimeLine extends Fragment {
      * @param streaming ストリーミングAPIの場合はtrue
      */
     private void notificationJSONPase(JSONObject toot_text_account, JSONObject toot_text_jsonObject, String type, boolean streaming) throws JSONException {
-        try {
-            String user_id = toot_text_account.getString("username");
 
-            String user_name = toot_text_account.getString("display_name");
-            String toot_text_time = toot_text_jsonObject.getString("created_at");
-            String toot_text_id_string = null;
-            String toot_text = "";
+        if (getActivity() != null && isAdded()) {
 
-            JSONObject toot_text_status = null;
-            String user_avater_url = toot_text_account.getString("avatar");
+            //配列を作成
+            ArrayList<String> Item = new ArrayList<>();
+            //メモとか通知とかに
+            Item.add("");
+            //内容
+            Item.add("");
+            //ユーザー名
+            Item.add("");
+            //時間、クライアント名等
+            Item.add(toot_text_jsonObject.toString());
+            //ぶーすとした？
+            Item.add("false");
+            //ふぁぼした？
+            Item.add("false");
 
-            long account_id = toot_text_account.getLong("id");
+            recyclerViewList.add(Item);
 
-            String user = toot_text_account.getString("acct");
-
-            List<Attachment> attachment = Collections.singletonList(new Attachment());
-
-            //カード情報
-            String cardTitle = null;
-            String cardURL = null;
-            String cardDescription = null;
-            String cardImage = null;
-            //メディア
-            String media_url_1 = null;
-            String media_url_2 = null;
-            String media_url_3 = null;
-            String media_url_4 = null;
-
-            if (toot_text_jsonObject.has("status")) {
-                toot_text_status = toot_text_jsonObject.getJSONObject("status");
-                toot_text = toot_text_status.getString("content");
-                toot_text_id_string = toot_text_status.getString("id");
-
-                JSONArray media_array = toot_text_status.getJSONArray("media_attachments");
-                if (!media_array.isNull(0)) {
-                    media_url_1 = media_array.getJSONObject(0).getString("url");
-                }
-                if (!media_array.isNull(1)) {
-                    media_url_2 = media_array.getJSONObject(1).getString("url");
-                }
-                if (!media_array.isNull(2)) {
-                    media_url_3 = media_array.getJSONObject(2).getString("url");
-                }
-                if (!media_array.isNull(3)) {
-                    media_url_4 = media_array.getJSONObject(3).getString("url");
-
-                }
-
-                //絵文字
-                if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
-                    JSONArray emoji = toot_text_status.getJSONArray("emojis");
-                    for (int e = 0; e < emoji.length(); e++) {
-                        JSONObject jsonObject = emoji.getJSONObject(e);
-                        String emoji_name = jsonObject.getString("shortcode");
-                        String emoji_url = jsonObject.getString("url");
-                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                        toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (recyclerViewLayoutManager != null) {
+                        ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
                     }
-
-                    //ユーザーネームの方の絵文字
-                    JSONArray account_emoji = toot_text_account.getJSONArray("emojis");
-                    for (int e = 0; e < account_emoji.length(); e++) {
-                        JSONObject jsonObject = account_emoji.getJSONObject(e);
-                        String emoji_name = jsonObject.getString("shortcode");
-                        String emoji_url = jsonObject.getString("url");
-                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                        user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                    }
-
-                    //アバター絵文字
-                    //
-                    if (!toot_text_jsonObject.isNull("profile_emojis")) {
-                        JSONArray avater_emoji = toot_text_jsonObject.getJSONArray("profile_emojis");
-                        for (int a = 0; a < avater_emoji.length(); a++) {
-                            JSONObject jsonObject = avater_emoji.getJSONObject(a);
-                            String emoji_name = jsonObject.getString("shortcode");
-                            String emoji_url = jsonObject.getString("url");
-                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                            toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
-                            user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                        }
-
-                        //ユーザーネームの方のアバター絵文字
-                        JSONArray account_avater_emoji = toot_text_account.getJSONArray("profile_emojis");
-                        for (int a = 0; a < account_avater_emoji.length(); a++) {
-                            JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
-                            String emoji_name = jsonObject.getString("shortcode");
-                            String emoji_url = jsonObject.getString("url");
-                            String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                            user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                        }
-                    }
-                }
-
-                //カード情報
-                if (!toot_text_status.isNull("card")) {
-                    JSONObject cardObject = toot_text_status.getJSONObject("card");
-                    cardURL = cardObject.getString("url");
-                    cardTitle = cardObject.getString("title");
-                    cardDescription = cardObject.getString("description");
-                    cardImage = cardObject.getString("image");
-                }
-
-            }
-
-            String layout_type = null;
-            switch (type) {
-                case "mention":
-                    type = getString(R.string.notification_mention);
-                    layout_type = "Notification_mention";
-                    break;
-                case "reblog":
-                    type = getString(R.string.notification_Boost);
-                    layout_type = "Notification_reblog";
-                    break;
-                case "favourite":
-                    type = getString(R.string.notification_favourite);
-                    layout_type = "Notification_favourite";
-                    break;
-                case "follow":
-                    type = getString(R.string.notification_followed);
-                    layout_type = "Notification_follow";
-                    break;
-            }
-
-            //時間フォーマット
-            toot_text_time = getCreatedAtFormat(toot_text_time);
-
-            if (getActivity() != null && isAdded()) {
-
-                //配列を作成
-                ArrayList<String> Item = new ArrayList<>();
-                //メモとか通知とかに
-                Item.add(layout_type);
-                //内容
-                Item.add(toot_text);
-                //ユーザー名
-                Item.add(user_name + " @" + user + type);
-                //時間、クライアント名等
-                Item.add(toot_text_jsonObject.toString());
-                //ぶーすとした？
-                Item.add("false");
-                //ふぁぼした？
-                Item.add("false");
-                //Toot ID 文字列版
-                Item.add(toot_text_id_string);
-                //アバターURL
-                Item.add(user_avater_url);
-                //アカウントID
-                Item.add(String.valueOf(account_id));
-                //ユーザーネーム
-                Item.add(user);
-                //メディア
-                Item.add(media_url_1);
-                Item.add(media_url_2);
-                Item.add(media_url_3);
-                Item.add(media_url_4);
-                //カード
-                Item.add(cardTitle);
-                Item.add(cardURL);
-                Item.add(cardDescription);
-                Item.add(cardImage);
-
-                recyclerViewList.add(Item);
-
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (recyclerViewLayoutManager != null) {
-                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
-                        }
-                        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
-                        SnackberProgress.closeProgressSnackber();
-                        scroll = false;
+                    CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                    recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+                    SnackberProgress.closeProgressSnackber();
+                    scroll = false;
 
 /*
-                        if (streaming) {
-                            adapter.insert(listItem, 0);
-                            // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
-                            int pos = listView.getFirstVisiblePosition();
-                            int top = 0;
-                            if (listView.getChildCount() > 0) {
-                                top = listView.getChildAt(0).getTop();
-                            }
-                            listView.setAdapter(adapter);
-                            // 要素追加前の状態になるようセットする
-                            adapter.notifyDataSetChanged();
-                            //一番上なら追いかける
-                            if (pos == 0) {
-                                listView.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listView.smoothScrollToPosition(0);
-                                    }
-                                });
-                            } else {
-                                listView.setSelectionFromTop(pos + 1, top);
-                            }
-                        } else {
-                            adapter.add(listItem);
-                            adapter.notifyDataSetChanged();
-                            listView.setAdapter(adapter);
-                            SnackberProgress.closeProgressSnackber();
-                            listView.setSelectionFromTop(position, y);
-                            scroll = false;
-                        }
-*/
-
-                    }
-                });
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * ダイレクトメッセージ（ストリーミングAPI）
-     */
-    private void streamingAPIDirect(JSONObject jsonObject) {
-        //絵文字の配列
-        ArrayList<String> emoji_shortcode = new ArrayList<>();
-        ArrayList<String> emoji_url = new ArrayList<>();
-        try {
-            //配列
-            JSONArray jsonArray = jsonObject.getJSONArray("accounts");
-            JSONObject toot_JsonObject = jsonObject.getJSONObject("last_status");
-            JSONObject account_JsonObject = toot_JsonObject.getJSONObject("account");
-            JSONArray media_JsonArray = toot_JsonObject.getJSONArray("media_attachments");
-            //emojis
-            JSONArray emojis = toot_JsonObject.getJSONArray("emojis");
-            JSONArray profile_emojis = toot_JsonObject.getJSONArray("profile_emojis");
-            //Account
-            JSONArray account_emojis = account_JsonObject.getJSONArray("emojis");
-            JSONArray account_profile_emojis = account_JsonObject.getJSONArray("profile_emojis");
-            //last_status
-            JSONArray laststatus_emojis = jsonArray.getJSONObject(0).getJSONArray("emojis");
-            JSONArray laststatus_profile_emojis = jsonArray.getJSONObject(0).getJSONArray("profile_emojis");
-            //CreatedAt
-            String createdAt = toot_JsonObject.getString("created_at");
-
-            String user = account_JsonObject.getString("acct");
-            String user_name = account_JsonObject.getString("display_name");
-            String toot_id_string = account_JsonObject.getString("id");
-            String user_avater_url = account_JsonObject.getString("avatar");
-            int account_id = account_JsonObject.getInt("id");
-
-            String toot_text = toot_JsonObject.getString("content");
-
-            String toot_time = "";
-            //ブースト　ふぁぼ
-            String isBoost = "no";
-            String isFav = "no";
-            String boostCount = "0";
-            String favCount = "0";
-            //画像各位
-            String media_url_1 = null;
-            String media_url_2 = null;
-            String media_url_3 = null;
-            String media_url_4 = null;
-            //クライアント
-            String user_use_client = "";
-            //頑張ってApplication取ろう
-            if (!toot_JsonObject.isNull("application")) {
-                JSONObject application = toot_JsonObject.getJSONObject("application");
-                user_use_client = application.getString("name");
-            }
-
-            //ブーストかも
-            //ブーストあったよ
-            String boost_content = null;
-            String boost_user_name = null;
-            String boost_user = null;
-            String boost_avater_url = null;
-            long boost_account_id = 0;
-
-            //かうんと
-            favCount = String.valueOf(toot_JsonObject.getInt("favourites_count"));
-
-            //時間フォーマット
-            createdAt = getCreatedAtFormat(createdAt);
-
-            if (!media_JsonArray.isNull(0)) {
-                media_url_1 = media_JsonArray.getJSONObject(0).getString("url");
-            }
-            if (!media_JsonArray.isNull(1)) {
-                media_url_2 = media_JsonArray.getJSONObject(1).getString("url");
-            }
-            if (!media_JsonArray.isNull(2)) {
-                media_url_3 = media_JsonArray.getJSONObject(2).getString("url");
-            }
-            if (!media_JsonArray.isNull(3)) {
-                media_url_4 = media_JsonArray.getJSONObject(3).getString("url");
-            }
-
-
-            //絵文字
-            if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
-                //絵文字のデータが色んな所（emojis,accountsのemoji,laststatusのemoji）を一旦配列に入れる
-                for (int e = 0; e < emojis.length(); e++) {
-                    JSONObject emoji_jsonObject = emojis.getJSONObject(e);
-                    emoji_shortcode.add(emoji_jsonObject.getString("shortcode"));
-                    emoji_url.add(emoji_jsonObject.getString("url"));
-                }
-                for (int e = 0; e < profile_emojis.length(); e++) {
-                    JSONObject emoji_jsonObject = profile_emojis.getJSONObject(e);
-                    emoji_shortcode.add(emoji_jsonObject.getString("shortcode"));
-                    emoji_url.add(emoji_jsonObject.getString("url"));
-                }
-                for (int e = 0; e < account_emojis.length(); e++) {
-                    JSONObject emoji_jsonObject = account_emojis.getJSONObject(e);
-                    emoji_shortcode.add(emoji_jsonObject.getString("shortcode"));
-                    emoji_url.add(emoji_jsonObject.getString("url"));
-                }
-                for (int e = 0; e < account_profile_emojis.length(); e++) {
-                    JSONObject emoji_jsonObject = account_profile_emojis.getJSONObject(e);
-                    emoji_shortcode.add(emoji_jsonObject.getString("shortcode"));
-                    emoji_url.add(emoji_jsonObject.getString("url"));
-                }
-                for (int e = 0; e < laststatus_emojis.length(); e++) {
-                    JSONObject emoji_jsonObject = laststatus_emojis.getJSONObject(e);
-                    emoji_shortcode.add(emoji_jsonObject.getString("shortcode"));
-                    emoji_url.add(emoji_jsonObject.getString("url"));
-                }
-                for (int e = 0; e < laststatus_profile_emojis.length(); e++) {
-                    JSONObject emoji_jsonObject = laststatus_profile_emojis.getJSONObject(e);
-                    emoji_shortcode.add(emoji_jsonObject.getString("shortcode"));
-                    emoji_url.add(emoji_jsonObject.getString("url"));
-                }
-
-                //絵文字対応
-                //配列をすべて回す
-                for (int i = 0; i < emoji_shortcode.size(); i++) {
-                    String name = emoji_shortcode.get(i);
-                    String url = emoji_url.get(i);
-                    String custom_emoji_src = "<img src=\'" + url + "\'>";
-                    //一致で置き換え
-                    toot_text = toot_text.replace(":" + name + ":", custom_emoji_src);
-                    user_name = user_name.replace(":" + name + ":", custom_emoji_src);
-                }
-            }
-
-            //カード情報
-            String cardTitle = null;
-            String cardURL = null;
-            String cardDescription = null;
-            String cardImage = null;
-
-            if (!jsonObject.isNull("card")) {
-                JSONObject cardObject = jsonObject.getJSONObject("card");
-                cardURL = cardObject.getString("url");
-                cardTitle = cardObject.getString("title");
-                cardDescription = cardObject.getString("description");
-                cardImage = cardObject.getString("image");
-            }
-
-            if (getActivity() != null && isAdded()) {
-
-                //配列を作成
-                ArrayList<String> Item = new ArrayList<>();
-                //メモとか通知とかに
-                Item.add("CustomMenu");
-                //内容
-                Item.add(toot_text);
-                //ユーザー名
-                Item.add(user_name + " @" + user);
-                //時間、クライアント名等
-                Item.add(jsonObject.toString());
-                //ぶーすとした？
-                Item.add("false");
-                //ふぁぼした？
-                Item.add("false");
-                //Toot ID 文字列版
-                Item.add(toot_id_string);
-                //アバターURL
-                Item.add(user_avater_url);
-                //アカウントID
-                Item.add(String.valueOf(account_id));
-                //ユーザーネーム
-                Item.add(user);
-                //メディア
-                Item.add(media_url_1);
-                Item.add(media_url_2);
-                Item.add(media_url_3);
-                Item.add(media_url_4);
-                //カード
-                Item.add(cardTitle);
-                Item.add(cardURL);
-                Item.add(cardDescription);
-                Item.add(cardImage);
-                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                Item.add(isBoost);
-                Item.add(isFav);
-                Item.add(boostCount);
-                Item.add(favCount);
-                //Reblog ブースト用
-                Item.add(boost_content);
-                Item.add(boost_user_name + " @" + boost_user);
-                Item.add(boost_avater_url);
-                Item.add(String.valueOf(boost_account_id));
-                //警告テキスト
-                //TODO 警告文実装する
-                Item.add("");
-                //カスタムメニュー用
-                Item.add(dialog);
-                Item.add(image_load);
-                Item.add(quick_profile);
-                Item.add(custom_emoji);
-                Item.add(gif);
-                Item.add(font);
-
-                recyclerViewList.add(0, Item);
-
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (recyclerViewLayoutManager != null) {
-                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
-                        }
-                        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
-/*
+                    if (streaming) {
                         adapter.insert(listItem, 0);
                         // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
                         int pos = listView.getFirstVisiblePosition();
@@ -2015,24 +1442,90 @@ public class CustomMenuTimeLine extends Fragment {
                         } else {
                             listView.setSelectionFromTop(pos + 1, top);
                         }
+                    } else {
+                        adapter.add(listItem);
+                        adapter.notifyDataSetChanged();
+                        listView.setAdapter(adapter);
+                        SnackberProgress.closeProgressSnackber();
+                        listView.setSelectionFromTop(position, y);
+                        scroll = false;
+                    }
+*/
 
-                        //カウンター
-                        if (Boolean.valueOf(toot_counter)) {
-                            if (count_text != null) {
-                                //含んでいるか
-                                if (finalToot_text.contains(count_text)) {
-                                    String count_template = " : ";
-                                    akeome_count++;
-                                    countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
-                                }
+                }
+            });
+        }
+    }
+
+    /**
+     * ダイレクトメッセージ（ストリーミングAPI）
+     */
+    private void streamingAPIDirect(JSONObject jsonObject) {
+
+        if (getActivity() != null && isAdded()) {
+
+            //配列を作成
+            ArrayList<String> Item = new ArrayList<>();
+            //メモとか通知とかに
+            Item.add("CustomMenu");
+            //内容
+            Item.add("");
+            //ユーザー名
+            Item.add("");
+            //時間、クライアント名等
+            Item.add(jsonObject.toString());
+            //ぶーすとした？
+            Item.add("false");
+            //ふぁぼした？
+            Item.add("false");
+
+            recyclerViewList.add(0, Item);
+
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (recyclerViewLayoutManager != null) {
+                        ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
+                    }
+                    CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                    recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+/*
+                    adapter.insert(listItem, 0);
+                    // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
+                    int pos = listView.getFirstVisiblePosition();
+                    int top = 0;
+                    if (listView.getChildCount() > 0) {
+                        top = listView.getChildAt(0).getTop();
+                    }
+                    listView.setAdapter(adapter);
+                    // 要素追加前の状態になるようセットする
+                    adapter.notifyDataSetChanged();
+                    //一番上なら追いかける
+                    if (pos == 0) {
+                        listView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listView.smoothScrollToPosition(0);
+                            }
+                        });
+                    } else {
+                        listView.setSelectionFromTop(pos + 1, top);
+                    }
+
+                    //カウンター
+                    if (Boolean.valueOf(toot_counter)) {
+                        if (count_text != null) {
+                            //含んでいるか
+                            if (finalToot_text.contains(count_text)) {
+                                String count_template = " : ";
+                                akeome_count++;
+                                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
                             }
                         }
-*/
                     }
-                });
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+*/
+                }
+            });
         }
     }
 
@@ -2144,207 +1637,44 @@ public class CustomMenuTimeLine extends Fragment {
      * @param jsonObject JSONオブジェクト
      */
     private void setMisskeyTLParse(JSONObject jsonObject) {
-        try {
-            JSONObject account_JsonObject = jsonObject.getJSONObject("user");
-            String toot_text = "";
-            toot_text = jsonObject.getString("text");
-            String name = account_JsonObject.getString("name");
-            String username = account_JsonObject.getString("username");
-            String note_id = jsonObject.getString("id");
-            String avatar = account_JsonObject.getString("avatarUrl");
-            String user_Id = account_JsonObject.getString("id");
-            String renote_count = jsonObject.getString("renoteCount");
-            String createdAt = jsonObject.getString("createdAt");
-            String host = "";
-            String client = null;
-            //media
-            String media_1 = null;
-            String media_2 = null;
-            String media_3 = null;
-            String media_4 = null;
-            //card
-            String cardTitle = null;
-            String cardURL = null;
-            String cardDescription = null;
-            String cardImage = null;
-            //renote
-            String renote_content = null;
-            String renote_user_name = null;
-            String renote_user = null;
-            String renote_avater_url = null;
-            String renote_account_id = null;
-            //クライアント名
-            if (!jsonObject.isNull("app")) {
-                client = jsonObject.getJSONObject("app").getString("name");
-            }
-            //host (acct的な)
-            if (!account_JsonObject.isNull("host")) {
-                host = account_JsonObject.getString("host");
-                host = "@" + host;
-            }
-            //添付メディア
-            if (!jsonObject.isNull("media")) {
-                JSONArray media = jsonObject.getJSONArray("media");
-                if (!media.isNull(0)) {
-                    media_1 = media.getJSONObject(0).getString("url");
-                }
-                if (!media.isNull(1)) {
-                    media_2 = media.getJSONObject(1).getString("url");
-                }
-                if (!media.isNull(2)) {
-                    media_3 = media.getJSONObject(2).getString("url");
-                }
-                if (!media.isNull(3)) {
-                    media_4 = media.getJSONObject(3).getString("url");
-                }
-            }
+        if (getActivity() != null && isAdded()) {
+            //配列を作成
+            ArrayList<String> Item = new ArrayList<>();
+            //メモとか通知とかに
+            Item.add("CustomMenu");
+            //内容
+            Item.add("");
+            //ユーザー名
+            Item.add("");
+            //時間、クライアント名等
+            Item.add(jsonObject.toString());
+            //ぶーすとした？
+            Item.add("false");
+            //ふぁぼした？
+            Item.add("");
+            recyclerViewList.add(Item);
 
-            //ブースト　ふぁぼ
-            //本家Misskeyに自分がRenoteしたかどうかを取得する値が無いらしい（めいめいMisskeyにはあるっぽい）
-            String isBoost = "no";
-            String isFav = "";
-            String boostCount = "0";
-            final String[] favCount = {""};
-            boostCount = jsonObject.getString("renoteCount");
-
-            //renote (Mastodonで言うboost)
-            if (!jsonObject.isNull("renote")) {
-                JSONObject renote_JsonObject = jsonObject.getJSONObject("renote");
-                JSONObject user_JsonObject = renote_JsonObject.getJSONObject("user");
-                renote_content = renote_JsonObject.getString("text");
-                renote_user_name = user_JsonObject.getString("name");
-                renote_user = user_JsonObject.getString("username");
-                renote_avater_url = user_JsonObject.getString("avatarUrl");
-                renote_account_id = user_JsonObject.getString("id");
-            }
-            //自分のアクション内容
-            if (!jsonObject.isNull("myReaction")) {
-                isFav = jsonObject.getString("myReaction");
-            }
-            //MastodonでFavのところはMisskeyリアクション一覧の配列を渡す
-            JSONObject reaction_Object = jsonObject.getJSONObject("reactionCounts");
-            //名前を取り出す？
-            reaction_Object.keys().forEachRemaining(new Consumer<String>() {
+            getActivity().runOnUiThread(new Runnable() {
                 @Override
-                public void accept(String s) {
-                    try {
-                        //カウントを表示
-                        String index = reaction_Object.getString(s);
-                        favCount[0] = favCount[0] + " " + HomeTimeLineAdapter.toReactionEmoji(s) + ":" + index + "  ";
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                public void run() {
+                    if (recyclerViewLayoutManager != null) {
+                        ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
                     }
+                    CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                    recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+                    SnackberProgress.closeProgressSnackber();
+                    scroll = false;
+/*
+                    adapter.add(listItem);
+                    adapter.notifyDataSetChanged();
+                    listView.setAdapter(adapter);
+                    //くるくる終了
+                    SnackberProgress.closeProgressSnackber();
+                    listView.setSelectionFromTop(position, y);
+                    scroll = false;
+*/
                 }
             });
-
-
-            //絵文字
-            if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
-                JSONArray emoji = jsonObject.getJSONArray("emojis");
-                for (int e = 0; e < emoji.length(); e++) {
-                    JSONObject emoji_jsonObject = emoji.getJSONObject(e);
-                    String emoji_name = emoji_jsonObject.getString("name");
-                    String emoji_url = emoji_jsonObject.getString("url");
-                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                    toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
-                }
-
-                //ユーザーネームの方の絵文字
-                if (!account_JsonObject.isNull("emojis")) {
-                    JSONArray account_emoji = account_JsonObject.getJSONArray("emojis");
-                    for (int e = 0; e < account_emoji.length(); e++) {
-                        JSONObject emoji_jsonObject = account_emoji.getJSONObject(e);
-                        String emoji_name = emoji_jsonObject.getString("name");
-                        String emoji_url = emoji_jsonObject.getString("url");
-                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                        name = name.replace(":" + emoji_name + ":", custom_emoji_src);
-                    }
-                }
-            }
-            //時間フォーマット
-            createdAt = getCreatedAtFormat(createdAt);
-
-            //本文の改行コードを\nから<br>へ置き換える（Mastodonと合わせる）
-            toot_text = toot_text.replace("\n", "<br>");
-
-            if (getActivity() != null && isAdded()) {
-                //配列を作成
-                ArrayList<String> Item = new ArrayList<>();
-                //メモとか通知とかに
-                Item.add("CustomMenu");
-                //内容
-                Item.add(toot_text);
-                //ユーザー名
-                Item.add(name + " @" + username + " " + host);
-                //時間、クライアント名等
-                Item.add(jsonObject.toString());
-                //ぶーすとした？
-                Item.add("false");
-                //ふぁぼした？
-                Item.add("");
-                //Toot ID 文字列版
-                Item.add(note_id);
-                //アバターURL
-                Item.add(avatar);
-                //アカウントID
-                Item.add(user_Id);
-                //ユーザーネーム
-                Item.add(host);
-                //メディア
-                Item.add(media_1);
-                Item.add(media_2);
-                Item.add(media_3);
-                Item.add(media_4);
-                //カード
-                Item.add(cardTitle);
-                Item.add(cardURL);
-                Item.add(cardDescription);
-                Item.add(cardImage);
-                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                Item.add(isBoost);
-                Item.add(isFav);
-                Item.add(boostCount);
-                Item.add(favCount[0]);
-                //Reblog ブースト用
-                Item.add(renote_content);
-                Item.add(renote_user_name + " @" + renote_user);
-                Item.add(renote_avater_url);
-                Item.add(renote_account_id);
-                //警告テキスト
-                Item.add("");
-                //カスタムメニュー用
-                Item.add(dialog);
-                Item.add(image_load);
-                Item.add(quick_profile);
-                Item.add(custom_emoji);
-                Item.add(gif);
-                Item.add(font);
-                recyclerViewList.add(Item);
-
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (recyclerViewLayoutManager != null) {
-                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
-                        }
-                        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
-                        SnackberProgress.closeProgressSnackber();
-                        scroll = false;
-/*
-                        adapter.add(listItem);
-                        adapter.notifyDataSetChanged();
-                        listView.setAdapter(adapter);
-                        //くるくる終了
-                        SnackberProgress.closeProgressSnackber();
-                        listView.setSelectionFromTop(position, y);
-                        scroll = false;
-*/
-                    }
-                });
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 
@@ -2352,143 +1682,47 @@ public class CustomMenuTimeLine extends Fragment {
      * Misskey通知
      **/
     private void setMisskeyNotification(JSONObject jsonObject) {
-        try {
-            JSONObject user_JsonObject = jsonObject.getJSONObject("user");
-            String layout_type = "";
-            String text = "";
-            String note_id = "";
-            String id = jsonObject.getString("id");
-            String type = jsonObject.getString("type");
-            String name = user_JsonObject.getString("name");
-            String username = user_JsonObject.getString("username");
-            String createdAt = jsonObject.getString("createdAt");
-            String avatar = user_JsonObject.getString("avatarUrl");
-            String account_id = user_JsonObject.getString("id");
-            String host = "";
-            //画像各位
-            String media_1 = null;
-            String media_2 = null;
-            String media_3 = null;
-            String media_4 = null;
+        if (getActivity() != null && isAdded()) {
 
-            //noteがあるか確認
-            if (!jsonObject.isNull("note")) {
-                JSONObject note_JsonObject = jsonObject.getJSONObject("note");
-                text = note_JsonObject.getString("text");
-                note_id = note_JsonObject.getString("id");
-                //添付メディア
-                if (!note_JsonObject.isNull("media")) {
-                    JSONArray media = note_JsonObject.getJSONArray("media");
-                    if (!media.isNull(0)) {
-                        media_1 = media.getJSONObject(0).getString("url");
+            //配列を作成
+            ArrayList<String> Item = new ArrayList<>();
+            //メモとか通知とかに
+            Item.add("");
+            //内容
+            Item.add("");
+            //ユーザー名
+            Item.add("");
+            //時間、クライアント名等
+            Item.add(jsonObject.toString());
+            //ぶーすとした？
+            Item.add("false");
+            //ふぁぼした？
+            Item.add("");
+            recyclerViewList.add(Item);
+
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (recyclerViewLayoutManager != null) {
+                        ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
                     }
-                    if (!media.isNull(1)) {
-                        media_2 = media.getJSONObject(1).getString("url");
-                    }
-                    if (!media.isNull(2)) {
-                        media_3 = media.getJSONObject(2).getString("url");
-                    }
-                    if (!media.isNull(3)) {
-                        media_4 = media.getJSONObject(3).getString("url");
-                    }
-                }
-            }
-            //リアクション取る
-            String reaction = "";
-            if (!jsonObject.isNull("reaction")) {
-                reaction = jsonObject.getString("reaction");
-                //絵文字変換
-                type = HomeTimeLineAdapter.toReactionEmoji(reaction);
-            }
-            //card
-            String cardTitle = null;
-            String cardURL = null;
-            String cardDescription = null;
-            String cardImage = null;
-            //acct
-            if (!user_JsonObject.isNull("host")) {
-                host = user_JsonObject.getString("host");
-                host = "@" + host;
-            }
-            //添付メディア
-            if (!jsonObject.isNull("media")) {
-                JSONArray media = jsonObject.getJSONArray("media");
-                if (!media.isNull(0)) {
-                    media_1 = media.getJSONObject(0).getString("url");
-                }
-                if (!media.isNull(1)) {
-                    media_2 = media.getJSONObject(1).getString("url");
-                }
-                if (!media.isNull(2)) {
-                    media_3 = media.getJSONObject(2).getString("url");
-                }
-                if (!media.isNull(3)) {
-                    media_4 = media.getJSONObject(3).getString("url");
-                }
-            }
-
-            //時間フォーマット
-            createdAt = getCreatedAtFormat(createdAt);
-
-
-            if (getActivity() != null && isAdded()) {
-
-                //配列を作成
-                ArrayList<String> Item = new ArrayList<>();
-                //メモとか通知とかに
-                Item.add(layout_type);
-                //内容
-                Item.add(text);
-                //ユーザー名
-                Item.add(name + " @" + username + host + " / " + type);
-                //時間、クライアント名等
-                Item.add(jsonObject.toString());
-                //ぶーすとした？
-                Item.add("false");
-                //ふぁぼした？
-                Item.add("");
-                //アカウントID
-                Item.add(account_id);
-                //ユーザーネーム
-                Item.add(username + host);
-                //メディア
-                Item.add(media_1);
-                Item.add(media_2);
-                Item.add(media_3);
-                Item.add(media_4);
-                //カード
-                Item.add(cardTitle);
-                Item.add(cardURL);
-                Item.add(cardDescription);
-                Item.add(cardImage);
-                recyclerViewList.add(Item);
-
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (recyclerViewLayoutManager != null) {
-                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
-                        }
-                        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
-                        SnackberProgress.closeProgressSnackber();
-                        scroll = false;
+                    CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                    recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+                    SnackberProgress.closeProgressSnackber();
+                    scroll = false;
 /*
-                        adapter.add(listItem);
-                        adapter.notifyDataSetChanged();
-                        listView.setAdapter(adapter);
-                        //くるくる終了
-                        SnackberProgress.closeProgressSnackber();
-                        listView.setSelectionFromTop(position, y);
-                        scroll = false;
+                    adapter.add(listItem);
+                    adapter.notifyDataSetChanged();
+                    listView.setAdapter(adapter);
+                    //くるくる終了
+                    SnackberProgress.closeProgressSnackber();
+                    listView.setSelectionFromTop(position, y);
+                    scroll = false;
 */
-                    }
-                });
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
+                }
+            });
         }
+
     }
 
 

@@ -2575,6 +2575,7 @@ public class Home extends AppCompatActivity
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            Toast.makeText(Home.this, getString(R.string.toot_ok) , Toast.LENGTH_SHORT).show();
                             //EditTextを空にする
                             toot_EditText.setText("");
                             tootTextCount = 0;

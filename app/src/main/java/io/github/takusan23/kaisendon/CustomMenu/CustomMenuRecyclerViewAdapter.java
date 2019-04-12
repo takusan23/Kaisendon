@@ -585,7 +585,6 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         return type;
     }
 
-
     /**
      * BT,FavのAPI
      */

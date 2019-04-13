@@ -37,7 +37,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonTLAPIJSONParse;
@@ -156,7 +161,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getToot_text(), Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
         viewHolder.toot_user_TextView.setText(Html.fromHtml(api.getDisplay_name(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
         viewHolder.toot_user_TextView.append("@" + api.getAcct());
-        viewHolder.toot_createAt_TextView.setText(api.getCreatedAt());
+        viewHolder.toot_createAt_TextView.setText(getCreatedAtFormat(api.getCreatedAt()));
         viewHolder.toot_client_TextView.setText(api.getClient());
         viewHolder.toot_visibility_TextView.setText(api.getVisibility());
 
@@ -180,6 +185,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             showNotificationType(viewHolder, api);
             //クライアント名のTextViewを消す
             setClientTextViewRemove(viewHolder);
+            //カスタムフォント
+            setCustomFont(viewHolder);
         } else {
             //アバター画像
             loadAvatarImage(api, viewHolder);
@@ -202,6 +209,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             showQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_ID(), viewHolder);
             //クライアント名のTextViewを消す
             setClientTextViewRemove(viewHolder);
+            //カスタムフォント
+            setCustomFont(viewHolder);
         }
 
     }
@@ -352,6 +361,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      */
     private void setCountAndIconColor(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item) {
         viewHolder.toot_boost_TextView.setText(api.getBTCount());
+        viewHolder.toot_favourite_TextView.setText(api.getFavCount());
         //りぶろぐした、もしくは押した
         if (api.getIsBT().contains("true") || item.get(4).contains("true")) {
             Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp_2, null);
@@ -376,6 +386,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         } else {
             viewHolder.toot_favourite_TextView.setText(HomeTimeLineAdapter.toReactionEmoji(api.getIsFav()));
             viewHolder.mainLinearLayout.removeView(viewHolder.reaction_TextView);
+            viewHolder.reaction_TextView.setPadding(viewHolder.toot_text_TextView.getPaddingLeft(), 0, viewHolder.toot_text_TextView.getPaddingRight(), 0);
             viewHolder.reaction_TextView.setText(api.getFavCount());
             viewHolder.reaction_TextView.setTextSize(10);
             viewHolder.mainLinearLayout.addView(viewHolder.reaction_TextView, 2);
@@ -531,9 +542,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             drawable.setTint(Color.parseColor("#008000"));
             viewHolder.toot_user_TextView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
             //クイックプロフィール
-            if (CustomMenuTimeLine.isMisskeyMode()){
+            if (CustomMenuTimeLine.isMisskeyMode()) {
                 showMisskeyQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID());
-            }else {
+            } else {
                 showQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID(), viewHolder);
             }
         }
@@ -1335,6 +1346,50 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 }
             }
         });
+    }
+
+    /**
+     * 時刻をフォーマットして返す
+     */
+    private String getCreatedAtFormat(String createdAt) {
+        //フォーマットを規定の設定にする？
+        //ここtrueにした
+        if (pref_setting.getBoolean("pref_custom_time_format", true)) {
+            //時差計算？
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            //日本用フォーマット
+            SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"));
+            japanDateFormat.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
+            try {
+                Date date = simpleDateFormat.parse(createdAt);
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+                //タイムゾーンを設定
+                //calendar.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
+                calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                createdAt = japanDateFormat.format(calendar.getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return createdAt;
+    }
+
+    /**
+     * カスタムフォントを利用する
+     */
+    private void setCustomFont(ViewHolder viewHolder) {
+        if (CustomMenuTimeLine.isCustomFont()) {
+            viewHolder.toot_user_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+            viewHolder.toot_createAt_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+            viewHolder.toot_visibility_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+            viewHolder.toot_text_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+            if (!viewHolder.toot_client_TextView.getText().toString().equals("")) {
+                viewHolder.toot_client_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+            }
+        }
     }
 
 

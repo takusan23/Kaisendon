@@ -61,11 +61,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.function.Consumer;
 
 import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
@@ -1094,290 +1092,101 @@ public class CustomMenuTimeLine extends Fragment {
      */
     private void timelineJSONParse(JSONObject toot_jsonObject, boolean streaming) {
         JSONObject toot_account = null;
-        try {
-            toot_account = toot_jsonObject.getJSONObject("account");
-            String toot_text = toot_jsonObject.getString("content");
-            String user = toot_account.getString("acct");
-            String user_name = toot_account.getString("display_name");
-            String toot_id_string = toot_jsonObject.getString("id");
-            String user_avater_url = toot_account.getString("avatar");
-            int account_id = toot_account.getInt("id");
-            String toot_time = toot_jsonObject.getString("created_at");
-            //ブースト　ふぁぼ
-            String isBoost = "no";
-            String isFav = "no";
-            String boostCount = "0";
-            String favCount = "0";
-            //画像各位
-            String media_url_1 = null;
-            String media_url_2 = null;
-            String media_url_3 = null;
-            String media_url_4 = null;
-            //クライアント
-            String user_use_client = "";
-            //頑張ってApplication取ろう
-            if (!toot_jsonObject.isNull("application")) {
-                JSONObject application = toot_jsonObject.getJSONObject("application");
-                user_use_client = application.getString("name");
-            }
+        if (getActivity() != null && isAdded()) {
 
-            //ブーストかも
-            //ブーストあったよ
-            String boost_content = null;
-            String boost_user_name = null;
-            String boost_user = null;
-            String boost_avater_url = null;
-            long boost_account_id = 0;
+            //配列を作成
+            ArrayList<String> Item = new ArrayList<>();
+            //メモとか通知とかに
+            Item.add("CustomMenu");
+            //内容
+            Item.add("");
+            //ユーザー名
+            Item.add("");
+            //時間、クライアント名等
+            Item.add(toot_jsonObject.toString());
+            //ぶーすとした？
+            Item.add("false");
+            //ふぁぼした？
+            Item.add("false");
 
-            if (!toot_jsonObject.isNull("reblog")) {
-                JSONObject reblogJsonObject = toot_jsonObject.getJSONObject("reblog");
-                JSONObject reblogAccountJsonObject = reblogJsonObject.getJSONObject("account");
-                boost_content = reblogJsonObject.getString("content");
-                boost_user_name = reblogAccountJsonObject.getString("display_name");
-                boost_user = reblogAccountJsonObject.getString("username");
-                boost_avater_url = reblogAccountJsonObject.getString("avatar");
-                boost_account_id = reblogAccountJsonObject.getLong("id");
-                if (reblogJsonObject.getBoolean("reblogged")) {
-                    isBoost = "reblogged";
-                }
-                if (reblogJsonObject.getBoolean("favourited")) {
-                    isFav = "favourited";
-                }
-                //かうんと
-                boostCount = String.valueOf(reblogJsonObject.getInt("reblogs_count"));
-                favCount = String.valueOf(reblogJsonObject.getInt("favourites_count"));
+            if (streaming) {
+                recyclerViewList.add(0, Item);
             } else {
-                //Streaming APIだとこれら取れないっぽい
-                if (!streaming) {
-                    if (toot_jsonObject.getBoolean("reblogged")) {
-                        isBoost = "reblogged";
-                    }
-                    if (toot_jsonObject.getBoolean("favourited")) {
-                        isFav = "favourited";
-                    }
-                    //かうんと
-                    boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
-                    favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
-                }
+                recyclerViewList.add(Item);
             }
 
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
 
-            //かうんと
-            boostCount = String.valueOf(toot_jsonObject.getInt("reblogs_count"));
-            favCount = String.valueOf(toot_jsonObject.getInt("favourites_count"));
-
-            //時間
-            toot_time = getCreatedAtFormat(toot_time);
-
-            JSONArray media_array = toot_jsonObject.getJSONArray("media_attachments");
-            if (!media_array.isNull(0)) {
-                media_url_1 = media_array.getJSONObject(0).getString("url");
-            }
-            if (!media_array.isNull(1)) {
-                media_url_2 = media_array.getJSONObject(1).getString("url");
-            }
-            if (!media_array.isNull(2)) {
-                media_url_3 = media_array.getJSONObject(2).getString("url");
-            }
-            if (!media_array.isNull(3)) {
-                media_url_4 = media_array.getJSONObject(3).getString("url");
-            }
-
-            //絵文字
-            if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(custom_emoji)) {
-                JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
-                for (int e = 0; e < emoji.length(); e++) {
-                    JSONObject jsonObject = emoji.getJSONObject(e);
-                    String emoji_name = jsonObject.getString("shortcode");
-                    String emoji_url = jsonObject.getString("url");
-                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                    toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
-                }
-
-                //ユーザーネームの方の絵文字
-                JSONArray account_emoji = toot_account.getJSONArray("emojis");
-                for (int e = 0; e < account_emoji.length(); e++) {
-                    JSONObject jsonObject = account_emoji.getJSONObject(e);
-                    String emoji_name = jsonObject.getString("shortcode");
-                    String emoji_url = jsonObject.getString("url");
-                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                }
-
-                //Pawooだとprofile_emojisない
-                if (!toot_jsonObject.isNull("profile_emojis")) {
-                    //アバター絵文字
-                    JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
-                    for (int a = 0; a < avater_emoji.length(); a++) {
-                        JSONObject jsonObject = avater_emoji.getJSONObject(a);
-                        String emoji_name = jsonObject.getString("shortcode");
-                        String emoji_url = jsonObject.getString("url");
-                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                        toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
-                    }
-
-                    //ユーザーネームの方のアバター絵文字
-                    JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
-                    for (int a = 0; a < account_avater_emoji.length(); a++) {
-                        JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
-                        String emoji_name = jsonObject.getString("shortcode");
-                        String emoji_url = jsonObject.getString("url");
-                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                        user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                    }
-                }
-            }
-
-            //カード情報
-            String cardTitle = null;
-            String cardURL = null;
-            String cardDescription = null;
-            String cardImage = null;
-
-            if (!toot_jsonObject.isNull("card")) {
-                JSONObject cardObject = toot_jsonObject.getJSONObject("card");
-                cardURL = cardObject.getString("url");
-                cardTitle = cardObject.getString("title");
-                cardDescription = cardObject.getString("description");
-                cardImage = cardObject.getString("image");
-            }
-
-            if (getActivity() != null && isAdded()) {
-
-                //配列を作成
-                ArrayList<String> Item = new ArrayList<>();
-                //メモとか通知とかに
-                Item.add("CustomMenu");
-                //内容
-                Item.add(toot_text);
-                //ユーザー名
-                Item.add(user_name + " @" + user);
-                //時間、クライアント名等
-                Item.add(toot_jsonObject.toString());
-                //ぶーすとした？
-                Item.add("false");
-                //ふぁぼした？
-                Item.add("false");
-                //Toot ID 文字列版
-                Item.add(toot_id_string);
-                //アバターURL
-                Item.add(user_avater_url);
-                //アカウントID
-                Item.add(String.valueOf(account_id));
-                //ユーザーネーム
-                Item.add(user);
-                //メディア
-                Item.add(media_url_1);
-                Item.add(media_url_2);
-                Item.add(media_url_3);
-                Item.add(media_url_4);
-                //カード
-                Item.add(cardTitle);
-                Item.add(cardURL);
-                Item.add(cardDescription);
-                Item.add(cardImage);
-                //ブースト、ふぁぼしたか・ブーストカウント・ふぁぼかうんと
-                Item.add(isBoost);
-                Item.add(isFav);
-                Item.add(boostCount);
-                Item.add(favCount);
-                //Reblog ブースト用
-                Item.add(boost_content);
-                Item.add(boost_user_name + " @" + boost_user);
-                Item.add(boost_avater_url);
-                Item.add(String.valueOf(boost_account_id));
-                //警告テキスト
-                //TODO 警告文実装する
-                Item.add("");
-                //カスタムメニュー用
-                Item.add(dialog);
-                Item.add(image_load);
-                Item.add(quick_profile);
-                Item.add(custom_emoji);
-                Item.add(gif);
-                Item.add(font);
-
-                if (streaming) {
-                    recyclerViewList.add(0, Item);
-                } else {
-                    recyclerViewList.add(Item);
-                }
-
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        if (((LinearLayoutManager) recyclerViewLayoutManager) != null) {
-                            // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
-                            int pos = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
-                            int top = 0;
-                            if (((LinearLayoutManager) recyclerViewLayoutManager).getChildCount() > 0) {
-                                top = ((LinearLayoutManager) recyclerViewLayoutManager).getChildAt(0).getTop();
-                            }
-                            CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                            recyclerView.setAdapter(customMenuRecyclerViewAdapter);
-                            //一番上なら追いかける
-                            if (pos == 0) {
-                                recyclerView.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        recyclerView.smoothScrollToPosition(0);
-                                    }
-                                });
-                            } else {
-                                ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(pos + 1, top);
-                            }
+                    if (((LinearLayoutManager) recyclerViewLayoutManager) != null) {
+                        // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
+                        int pos = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
+                        int top = 0;
+                        if (((LinearLayoutManager) recyclerViewLayoutManager).getChildCount() > 0) {
+                            top = ((LinearLayoutManager) recyclerViewLayoutManager).getChildAt(0).getTop();
                         }
+                        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+                        //一番上なら追いかける
+                        if (pos == 0) {
+                            recyclerView.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    recyclerView.smoothScrollToPosition(0);
+                                }
+                            });
+                        } else {
+                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(pos + 1, top);
+                        }
+                    }
 
 /*
-                        if (streaming) {
-                            adapter.insert(listItem, 0);
-                            // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
-                            int pos = listView.getFirstVisiblePosition();
-                            int top = 0;
-                            if (listView.getChildCount() > 0) {
-                                top = listView.getChildAt(0).getTop();
-                            }
-                            listView.setAdapter(adapter);
-                            // 要素追加前の状態になるようセットする
-                            adapter.notifyDataSetChanged();
-                            //一番上なら追いかける
-                            if (pos == 0) {
-                                listView.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listView.smoothScrollToPosition(0);
-                                    }
-                                });
-                            } else {
-                                listView.setSelectionFromTop(pos + 1, top);
-                            }
-                        } else {
-                            adapter.add(listItem);
-                            adapter.notifyDataSetChanged();
-                            listView.setAdapter(adapter);
-                            //くるくる終了
-                            SnackberProgress.closeProgressSnackber();
-                            listView.setSelectionFromTop(position, y);
-                            scroll = false;
+                    if (streaming) {
+                        adapter.insert(listItem, 0);
+                        // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
+                        int pos = listView.getFirstVisiblePosition();
+                        int top = 0;
+                        if (listView.getChildCount() > 0) {
+                            top = listView.getChildAt(0).getTop();
                         }
-                        //カウンター
-                        if (Boolean.valueOf(toot_counter)) {
-                            if (count_text != null) {
-                                //含んでいるか
-                                if (finalToot_text.contains(count_text)) {
-                                    String count_template = " : ";
-                                    akeome_count++;
-                                    countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                        listView.setAdapter(adapter);
+                        // 要素追加前の状態になるようセットする
+                        adapter.notifyDataSetChanged();
+                        //一番上なら追いかける
+                        if (pos == 0) {
+                            listView.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listView.smoothScrollToPosition(0);
                                 }
+                            });
+                        } else {
+                            listView.setSelectionFromTop(pos + 1, top);
+                        }
+                    } else {
+                        adapter.add(listItem);
+                        adapter.notifyDataSetChanged();
+                        listView.setAdapter(adapter);
+                        //くるくる終了
+                        SnackberProgress.closeProgressSnackber();
+                        listView.setSelectionFromTop(position, y);
+                        scroll = false;
+                    }
+                    //カウンター
+                    if (Boolean.valueOf(toot_counter)) {
+                        if (count_text != null) {
+                            //含んでいるか
+                            if (finalToot_text.contains(count_text)) {
+                                String count_template = " : ";
+                                akeome_count++;
+                                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
                             }
                         }
-*/
                     }
-                });
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+*/
+                }
+            });
         }
     }
 
@@ -2100,8 +1909,8 @@ public class CustomMenuTimeLine extends Fragment {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(date);
                 //タイムゾーンを設定
-                calendar.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
-                //calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                //calendar.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
+                calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
                 //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
                 createdAt = japanDateFormat.format(calendar.getTime());
             } catch (ParseException e) {
@@ -2159,6 +1968,20 @@ public class CustomMenuTimeLine extends Fragment {
      */
     public static boolean isQuickProfile() {
         return Boolean.valueOf(quick_profile);
+    }
+
+    /**
+     * フォント変更機能
+     */
+    public static boolean isCustomFont() {
+        boolean mode = false;
+        File file = new File(font);
+        if (file.exists()) {
+            mode=true;
+        } else {
+            mode=false;
+        }
+        return mode;
     }
 
     /**

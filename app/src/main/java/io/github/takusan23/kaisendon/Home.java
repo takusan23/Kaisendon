@@ -38,6 +38,7 @@ import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -99,6 +100,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import io.github.takusan23.kaisendon.Activity.AccountInfoUpdateActivity;
 import io.github.takusan23.kaisendon.Activity.KonoAppNiTuite;
 import io.github.takusan23.kaisendon.Activity.LoginActivity;
 import io.github.takusan23.kaisendon.Activity.UserActivity;
@@ -323,7 +325,7 @@ public class Home extends AppCompatActivity
             if (pref_setting.getBoolean("pref_avater_wifi", true)) {
                 //WIFIのみ表示有効時
                 //ネットワーク未接続時はnullか出る
-                if (networkCapabilities!=null){
+                if (networkCapabilities != null) {
                     if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                         //WIFI
                         emojis_show = true;
@@ -509,9 +511,9 @@ public class Home extends AppCompatActivity
 */
 
         //つかわん
-        if (CustomMenuTimeLine.isMisskeyMode()){
+        if (CustomMenuTimeLine.isMisskeyMode()) {
 
-        }else {
+        } else {
             String url = "https://" + Instance + "/api/v1/accounts/verify_credentials/?access_token=" + AccessToken;
             //作成
             Request request = new Request.Builder()
@@ -631,7 +633,6 @@ public class Home extends AppCompatActivity
                 }
             });
         }
-
 
 
         boolean friends_nico_check_box = pref_setting.getBoolean("pref_friends_nico_mode", false);
@@ -1218,25 +1219,6 @@ public class Home extends AppCompatActivity
                             }
                         });
                     }
-
-                    //アクセストークン
-                    String AccessToken = null;
-
-                    //インスタンス
-                    String Instance = null;
-
-                    boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
-                    if (accessToken_boomelan) {
-
-                        AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
-                        Instance = pref_setting.getString("pref_mastodon_instance", "");
-
-                    } else {
-
-                        AccessToken = pref_setting.getString("main_token", "");
-                        Instance = pref_setting.getString("main_instance", "");
-
-                    }
                     //画像アップロード
                     post_button.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -1292,7 +1274,7 @@ public class Home extends AppCompatActivity
             // /mnt/content/が邪魔なので取って、そこにcontent://スキーマをつける
             // Google Photoからしか動かねーわまあPixel以外にもQが配信される頃には情報がわさわさ出てくることでしょう。
             String content_text = imagePath.replace("/mnt/content/", "content://");
-            System.out.println(imagePath);
+            //System.out.println(imagePath);
             //try-catch
             //実機で確認できず
             //imagePath = getPathAndroidQ(Home.this, Uri.parse(content_text));
@@ -1306,12 +1288,13 @@ public class Home extends AppCompatActivity
         String[] proj = {MediaStore.Images.Media.DATA};
         cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
         int column_index = 0;
+        String path = "";
         if (cursor != null) {
             column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            path = cursor.getString(column_index);
+            cursor.close();
         }
-        cursor.moveToFirst();
-        String path = cursor.getString(column_index);
-        cursor.close();
         return path;
     }
 
@@ -2575,7 +2558,7 @@ public class Home extends AppCompatActivity
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(Home.this, getString(R.string.toot_ok) , Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Home.this, getString(R.string.toot_ok), Toast.LENGTH_SHORT).show();
                             //EditTextを空にする
                             toot_EditText.setText("");
                             tootTextCount = 0;
@@ -2670,10 +2653,9 @@ public class Home extends AppCompatActivity
      * Mastodon 画像POST
      */
     private void uploadMastodonPhoto(String file_extn_post, File file_post) {
-        //画像Upload
-        OkHttpClient okHttpClient = new OkHttpClient();
         //えんどぽいんと
         String url = "https://" + Instance + "/api/v1/media/";
+
         //ぱらめーたー
         MultipartBody.Builder requestBody = new MultipartBody.Builder();
         requestBody.setType(MultipartBody.FORM);
@@ -2687,36 +2669,54 @@ public class Home extends AppCompatActivity
                 .url(url)
                 .post(requestBody.build())
                 .build();
+        //画像Upload
+        OkHttpClient okHttpClient = new OkHttpClient();
         //POST実行
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
-
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                //失敗
+                e.printStackTrace();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(Home.this, getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 String response_string = response.body().string();
                 //System.out.println("画像POST : " + response_string);
-
-                try {
-                    JSONObject jsonObject = new JSONObject(response_string);
-                    String media_id_long = jsonObject.getString("id");
-                    //配列に格納
-                    post_media_id.add(media_id_long);
-                    //確認SnackBer
-                    //数確認
-                    if (media_list.size() == post_media_id.size()) {
-                        View view = findViewById(R.id.container_public);
-                        Snackbar.make(view, R.string.note_create_message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                mastodonStatusesPOST();
-                            }
-                        }).show();
+                if (!response.isSuccessful()) {
+                    //失敗
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(Home.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response_string);
+                        String media_id_long = jsonObject.getString("id");
+                        //配列に格納
+                        post_media_id.add(media_id_long);
+                        //確認SnackBer
+                        //数確認
+                        if (media_list.size() == post_media_id.size()) {
+                            View view = findViewById(R.id.container_public);
+                            Snackbar.make(view, R.string.note_create_message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    mastodonStatusesPOST();
+                                }
+                            }).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
             }
         });

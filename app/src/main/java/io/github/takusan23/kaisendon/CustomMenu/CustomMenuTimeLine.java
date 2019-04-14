@@ -13,12 +13,14 @@ import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -150,6 +152,7 @@ public class CustomMenuTimeLine extends Fragment {
 
     //WebSocket
     private WebSocketClient webSocketClient;
+    private WebSocketClient notification_WebSocketClient;
 
     //フォント
     public static Typeface font_Typeface;
@@ -173,6 +176,9 @@ public class CustomMenuTimeLine extends Fragment {
     //RecyclerView
     private ArrayList<ArrayList> recyclerViewList;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
+
+    //通知
+    private Vibrator vibrator;
 
 
     @Override
@@ -485,6 +491,11 @@ public class CustomMenuTimeLine extends Fragment {
                     }
                 }
             });
+
+            //通知
+            if (pref_setting.getBoolean("pref_notification_toast", true)) {
+                setStreamingNotification();
+            }
         }
     }
 
@@ -1735,6 +1746,9 @@ public class CustomMenuTimeLine extends Fragment {
             //終了
             webSocketClient.close();
         }
+        if (notification_WebSocketClient != null) {
+            notification_WebSocketClient.close();
+        }
         //OLEDとかかかわらず戻す
         getActivity().setTheme(R.style.AppTheme);
         ((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#2196f3"));
@@ -1920,6 +1934,112 @@ public class CustomMenuTimeLine extends Fragment {
         return createdAt;
     }
 
+    /**
+     * 通知（どん
+     * *
+     */
+    private void setStreamingNotification() {
+        String url = "wss://" + instance + "/api/v1/streaming/?stream=user&access_token=" + access_token;
+        vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        try {
+            notification_WebSocketClient = new WebSocketClient(new URI(url)) {
+                @Override
+                public void onOpen(ServerHandshake handshakedata) {
+
+                }
+
+                @Override
+                public void onMessage(String message) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(message);
+                        String object = jsonObject.getString("payload");
+                        JSONObject payload_JsonObject = new JSONObject(object);
+                        String type = payload_JsonObject.getString("type");
+                        JSONObject account = payload_JsonObject.getJSONObject("account");
+                        String display_name = account.getString("display_name");
+                        String acct = account.getString("acct");
+                        //カスタム絵文字
+                        if (isUseCustomEmoji()) {
+                            JSONArray emojis = account.getJSONArray("emojis");
+                            for (int e = 0; e < emojis.length(); e++) {
+                                JSONObject emoji = emojis.getJSONObject(e);
+                                String emoji_name = emoji.getString("shortcode");
+                                String emoji_url = emoji.getString("url");
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                            }
+                        }
+                        //トースト出す
+                        String finalDisplay_name = display_name;
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //カスタムトースト
+                                Toast toast = new Toast(getContext());
+                                LayoutInflater inflater = getLayoutInflater();
+                                View layout = inflater.inflate(R.layout.notification_toast_layout, null);
+                                TextView toast_text = layout.findViewById(R.id.notification_text);
+                                PicassoImageGetter picassoImageGetter = new PicassoImageGetter(toast_text);
+                                toast_text.setText(Html.fromHtml(CustomMenuRecyclerViewAdapter.toNotificationType(getContext(), type) + "<br>" + finalDisplay_name,Html.FROM_HTML_MODE_COMPACT,picassoImageGetter,null));
+                                AppCompatImageView toast_imageview = layout.findViewById(R.id.notification_icon);
+                                toast_imageview.setImageDrawable(getNotificationIcon(type));
+                                toast.setView(layout);
+                                toast.setDuration(Toast.LENGTH_LONG);
+                                toast.show();
+                                if (pref_setting.getBoolean("pref_notification_vibrate", true)) {
+                                    long[] pattern = {100, 100, 100, 100};
+                                    vibrator.vibrate(pattern, -1);
+                                }
+                            }
+                        });
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onClose(int code, String reason, boolean remote) {
+
+                }
+
+                @Override
+                public void onError(Exception ex) {
+
+                }
+            };
+            //接続
+            notification_WebSocketClient.connect();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 通知アイコン
+     */
+    private Drawable getNotificationIcon(String type) {
+        Drawable drawable = getContext().getDrawable(R.drawable.ic_notifications_black_24dp);
+        switch (type) {
+            case "follow":
+                drawable = getContext().getDrawable(R.drawable.ic_person_add_black_24dp);
+                break;
+            case "favourite":
+                drawable = getContext().getDrawable(R.drawable.ic_star_black_24dp);
+                break;
+            case "reblog":
+                drawable = getContext().getDrawable(R.drawable.ic_repeat_black_24dp);
+                break;
+            case "mention":
+                drawable = getContext().getDrawable(R.drawable.ic_announcement_black_24dp);
+                break;
+            case "reaction":
+                drawable = getContext().getDrawable(R.drawable.ic_audiotrack_black_24dp);
+                break;
+        }
+        return drawable;
+    }
+
 
     /**
      * フォント設定
@@ -1977,9 +2097,9 @@ public class CustomMenuTimeLine extends Fragment {
         boolean mode = false;
         File file = new File(font);
         if (file.exists()) {
-            mode=true;
+            mode = true;
         } else {
-            mode=false;
+            mode = false;
         }
         return mode;
     }

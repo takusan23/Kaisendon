@@ -99,6 +99,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         public TextView notification_type_TextView;
         //Reaction
         public TextView reaction_TextView;
+        //spoiler_text
+        public Button spoiler_text_Button;
 
         public ViewHolder(@NonNull View itemView, Context context) {
             super(itemView);
@@ -126,6 +128,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             reblog_toot_text_TextView = itemView.findViewById(R.id.custom_menu_adapter_reblog_text);
             notification_type_TextView = new TextView(context);
             reaction_TextView = new TextView(context);
+            spoiler_text_Button = new Button(context);
         }
     }
 
@@ -211,6 +214,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             setClientTextViewRemove(viewHolder);
             //カスタムフォント
             setCustomFont(viewHolder);
+            //隠す
+            setSpoiler_text(viewHolder, api);
         }
 
     }
@@ -557,7 +562,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         //リアクションを出す
         viewHolder.mainLinearLayout.removeView(viewHolder.notification_type_TextView);
         if (api.getNotification_Type() != null) {
-            viewHolder.notification_type_TextView.setText(toNotificationType(api.getNotification_Type()));
+            viewHolder.notification_type_TextView.setText(toNotificationType(context, api.getNotification_Type()));
             if (api.getReaction_Type() != null) {
                 //Misskey Reaction
                 viewHolder.notification_type_TextView.append("  " + HomeTimeLineAdapter.toReactionEmoji(api.getReaction_Type()));
@@ -575,7 +580,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * 通知タイプ分ける
      */
-    private String toNotificationType(String type) {
+    public static String toNotificationType(Context context, String type) {
         switch (type) {
             case "follow":
                 type = context.getString(R.string.notification_followed);
@@ -600,81 +605,88 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      * BT,FavのAPI
      */
     private void TootAction(String id, String endPoint, TextView textView, MastodonTLAPIJSONParse api, ArrayList<String> item) {
-        String url = "https:" + Instance + "/api/v1/statuses/" + id + "/" + endPoint + "/?access_token=" + AccessToken;
-        RequestBody requestBody = new FormBody.Builder()
-                .build();
-        //作成
-        Request request = new Request.Builder()
-                .url(url)
-                .post(requestBody)
-                .build();
-        //GETリクエスト
-        OkHttpClient client = new OkHttpClient();
-        client.newCall(request).enqueue(new Callback() {
+
+        new Thread(new Runnable() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                textView.post(new Runnable() {
+            public void run() {
+                String url = "https:" + Instance + "/api/v1/statuses/" + id + "/" + endPoint + "/?access_token=" + AccessToken;
+                RequestBody requestBody = new FormBody.Builder()
+                        .build();
+                //作成
+                Request request = new Request.Builder()
+                        .url(url)
+                        .post(requestBody)
+                        .build();
+                //GETリクエスト
+                OkHttpClient client = new OkHttpClient();
+                client.newCall(request).enqueue(new Callback() {
                     @Override
-                    public void run() {
-                        Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
+                        textView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.error), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String response_string = response.body().string();
+                        if (!response.isSuccessful()) {
+                            //失敗
+                            textView.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        } else {
+                            //UI Thread
+                            textView.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (endPoint.contains("reblog")) {
+                                        Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
+                                        Drawable boostIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                                        boostIcon.setTint(Color.parseColor("#008000"));
+                                        textView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+                                        //BTしたぜ！
+                                        item.set(4, "true");
+                                    }
+                                    if (endPoint.contains("favourite")) {
+                                        Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.favourite_add) + " : " + id, Toast.LENGTH_SHORT).show();
+                                        Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                                        favIcon.setTint(Color.parseColor("#ffd700"));
+                                        textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                                        //Favしたぜ！
+                                        item.set(5, "true");
+                                    }
+                                    if (endPoint.contains("unfavourite")) {
+                                        Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.delete_fav_toast) + " : " + id, Toast.LENGTH_SHORT).show();
+                                        Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                                        favIcon.setTint(Color.parseColor("#000000"));
+                                        textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                                        //Favしたぜ！
+                                        item.set(5, "false");
+                                    }
+                                    if (endPoint.contains("unreblog")) {
+                                        Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.delete_bt_toast) + " : " + id, Toast.LENGTH_SHORT).show();
+                                        Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                                        favIcon.setTint(Color.parseColor("#000000"));
+                                        textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                                        //BTしたぜ！
+                                        item.set(4, "false");
+                                    }
+                                }
+                            });
+                        }
                     }
                 });
             }
+        }).start();
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String response_string = response.body().string();
-                if (!response.isSuccessful()) {
-                    //失敗
-                    textView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                } else {
-                    //UI Thread
-                    textView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (endPoint.contains("reblog")) {
-                                Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
-                                Drawable boostIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
-                                boostIcon.setTint(Color.parseColor("#008000"));
-                                textView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
-                                //BTしたぜ！
-                                item.set(4, "true");
-                            }
-                            if (endPoint.contains("favourite")) {
-                                Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.favourite_add) + " : " + id, Toast.LENGTH_SHORT).show();
-                                Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
-                                favIcon.setTint(Color.parseColor("#ffd700"));
-                                textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
-                                //Favしたぜ！
-                                item.set(5, "true");
-                            }
-                            if (endPoint.contains("unfavourite")) {
-                                Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.delete_fav_toast) + " : " + id, Toast.LENGTH_SHORT).show();
-                                Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
-                                favIcon.setTint(Color.parseColor("#000000"));
-                                textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
-                                //Favしたぜ！
-                                item.set(5, "false");
-                            }
-                            if (endPoint.contains("unreblog")) {
-                                Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.delete_bt_toast) + " : " + id, Toast.LENGTH_SHORT).show();
-                                Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
-                                favIcon.setTint(Color.parseColor("#000000"));
-                                textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
-                                //BTしたぜ！
-                                item.set(4, "false");
-                            }
-                        }
-                    });
-                }
-            }
-        });
     }
 
     /**
@@ -1386,9 +1398,42 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.toot_createAt_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
             viewHolder.toot_visibility_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
             viewHolder.toot_text_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+            viewHolder.toot_boost_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+            viewHolder.toot_favourite_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
             if (!viewHolder.toot_client_TextView.getText().toString().equals("")) {
                 viewHolder.toot_client_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
             }
+        }
+    }
+
+    /**
+     * 隠すやつ（語彙力
+     */
+    private void setSpoiler_text(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
+        //なにもないときは動かない
+        if (!api.getSpoiler_text().equals("")) {
+            //本文を消す
+            PicassoImageGetter picassoImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
+            viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getSpoiler_text(), 0, picassoImageGetter, null));
+            //ボタン追加
+            viewHolder.mainLinearLayout.removeView(viewHolder.spoiler_text_Button);
+            viewHolder.spoiler_text_Button.setText(context.getString(R.string.show));
+            viewHolder.spoiler_text_Button.setBackground(context.getDrawable(R.drawable.button_style_white));
+            viewHolder.spoiler_text_Button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            viewHolder.mainLinearLayout.addView(viewHolder.spoiler_text_Button, 2);
+            //クリックイベント
+            viewHolder.spoiler_text_Button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!viewHolder.toot_text_TextView.getText().toString().equals(api.getSpoiler_text())) {
+                        viewHolder.toot_text_TextView.setText(api.getSpoiler_text());
+                        viewHolder.spoiler_text_Button.setText(context.getString(R.string.show));
+                    } else {
+                        viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getToot_text(), Html.FROM_HTML_MODE_COMPACT, picassoImageGetter, null));
+                        viewHolder.spoiler_text_Button.setText(context.getString(R.string.hidden));
+                    }
+                }
+            });
         }
     }
 

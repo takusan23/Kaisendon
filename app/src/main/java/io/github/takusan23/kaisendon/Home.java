@@ -644,6 +644,7 @@ public class Home extends AppCompatActivity
 
         Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 
+/*
         if (notification_toast) {
             //Streaming Notification
             new AsyncTask<String, Void, String>() {
@@ -750,6 +751,7 @@ public class Home extends AppCompatActivity
         } else {
 
         }
+*/
 
 
         //ローカルタイムライントースト

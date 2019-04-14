@@ -53,7 +53,8 @@ public class MastodonTLAPIJSONParse {
     private ArrayList<String> mediaList;
     private String notification_ID;
     private String notification_Type;
-    private String reaction_Type="";
+    private String reaction_Type = "";
+    private String spoiler_text;
 
     //インスタンス
     public MastodonTLAPIJSONParse(Context context, String response_string) {
@@ -192,6 +193,10 @@ public class MastodonTLAPIJSONParse {
         return reaction_Type;
     }
 
+    public String getSpoiler_text() {
+        return spoiler_text;
+    }
+
     //JSONパース
     private void setMastodonTLParse() {
         try {
@@ -207,6 +212,7 @@ public class MastodonTLAPIJSONParse {
                 url = toot_JsonObject.getString("url");
                 visibility = toot_JsonObject.getString("visibility");
                 toot_ID = toot_JsonObject.getString("id");
+                spoiler_text = toot_JsonObject.getString("spoiler_text");
                 display_name = account_JsonObject.getString("display_name");
                 acct = account_JsonObject.getString("acct");
                 avatarUrl = account_JsonObject.getString("avatar");

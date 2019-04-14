@@ -433,5 +433,7 @@
     <string name="i_am_a_cat">このアカウントは猫です</string>
     <string name="account_list">アカウントリスト</string>
     <string name="font_directory_not_found">フォントファイル（ttf）を以下のディレクトリにコピーしてください。</string>
+    <string name="show">表示する</string>
+    <string name="hidden">隠す</string>
 
 </resources>

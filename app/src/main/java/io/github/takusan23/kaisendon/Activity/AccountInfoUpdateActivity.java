@@ -190,6 +190,9 @@ public class AccountInfoUpdateActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     CalenderDialog calenderDialog = new CalenderDialog();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("type","birthday");
+                    calenderDialog.setArguments(bundle);
                     calenderDialog.show(getSupportFragmentManager(),"calender_dialog");
                 }
             });

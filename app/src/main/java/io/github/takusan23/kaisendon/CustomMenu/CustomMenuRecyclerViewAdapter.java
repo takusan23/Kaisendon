@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
@@ -193,6 +194,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             setClientTextViewRemove(viewHolder);
             //カスタムフォント
             setCustomFont(viewHolder);
+            //ボタン
+            showTootOption(viewHolder, api);
         } else {
             //アバター画像
             loadAvatarImage(api, viewHolder);
@@ -219,6 +222,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             setCustomFont(viewHolder);
             //隠す
             setSpoiler_text(viewHolder, api);
+            //ボタン
+            showTootOption(viewHolder, api);
         }
 
     }
@@ -1441,14 +1446,18 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
     /**
      * トゥートオプション
-     * */
-    private void showTootOption(ViewHolder viewHolder){
+     */
+    private void showTootOption(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
         //ブックマークボタン
         viewHolder.toot_bookmark_TextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TootOptionBottomDialog dialog = new TootOptionBottomDialog();
-                //dialog.show((AppCompatActivity)context.);
+                Bundle bundle = new Bundle();
+                bundle.putString("user_id", api.getUser_ID());
+                bundle.putString("status_id", api.getToot_ID());
+                dialog.setArguments(bundle);
+                dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "toot_option");
             }
         });
     }

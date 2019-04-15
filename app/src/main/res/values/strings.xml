@@ -539,5 +539,6 @@
     <string name="font_directory_not_found">Copy the font file (ttf) to the following directory.</string>
     <string name="show">indicate</string>
     <string name="hidden">hide</string>
+    <string name="use_time_post">Use time posting function</string>
 
 </resources>

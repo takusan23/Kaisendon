@@ -435,5 +435,6 @@
     <string name="font_directory_not_found">フォントファイル（ttf）を以下のディレクトリにコピーしてください。</string>
     <string name="show">表示する</string>
     <string name="hidden">隠す</string>
+    <string name="use_time_post">時間投稿機能（予約投稿）を利用する</string>
 
 </resources>

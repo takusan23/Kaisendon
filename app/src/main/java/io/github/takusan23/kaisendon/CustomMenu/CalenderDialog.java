@@ -9,6 +9,7 @@ import android.widget.DatePicker;
 import java.util.Calendar;
 
 import io.github.takusan23.kaisendon.Activity.AccountInfoUpdateActivity;
+import io.github.takusan23.kaisendon.Home;
 
 public class CalenderDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -32,7 +33,13 @@ public class CalenderDialog extends DialogFragment {
                     day_string = String.valueOf(dayOfMonth);
                 }
                 String date = String.valueOf(year) + "-" + month_string + "-" + day_string;
-                AccountInfoUpdateActivity.birthday_Button.setText(date);
+                String iso8601 = String.valueOf(year)+ month_string+day_string+"+0900";
+                //もーど
+                if (getArguments().getString("type").equals("birthday")){
+                    AccountInfoUpdateActivity.birthday_Button.setText(date);
+                }else if (getArguments().getString("type").equals("toot_time")){
+                    Home.mastodon_time_post_TextView.setText(iso8601);
+                }
             }
         },
                 calendar.get(Calendar.YEAR),

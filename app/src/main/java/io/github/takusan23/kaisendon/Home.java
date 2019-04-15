@@ -4,13 +4,14 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.TaskStackBuilder;
+import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,7 +24,6 @@ import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
@@ -32,10 +32,8 @@ import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.DeadObjectException;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
@@ -55,7 +53,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html;
@@ -63,7 +60,6 @@ import android.text.Spanned;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -72,11 +68,14 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -98,12 +97,13 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Locale;
+import java.util.Calendar;
 
 import io.github.takusan23.kaisendon.Activity.AccountInfoUpdateActivity;
 import io.github.takusan23.kaisendon.Activity.KonoAppNiTuite;
 import io.github.takusan23.kaisendon.Activity.LoginActivity;
 import io.github.takusan23.kaisendon.Activity.UserActivity;
+import io.github.takusan23.kaisendon.CustomMenu.CalenderDialog;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSettingFragment;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
@@ -193,6 +193,9 @@ public class Home extends AppCompatActivity
     LinearLayout account_LinearLayout;
     LinearLayout misskey_account_LinearLayout;
     ImageButton misskey_drive_Button;
+    ImageButton mastodon_time_post_Button;
+    public static TextView mastodon_time_post_TextView;
+    boolean isMastodon_time_post;
     LinearLayout toot_Button_LinearLayout;
     //マルチアカウント読み込み用
     ArrayList<String> multi_account_instance;
@@ -424,11 +427,14 @@ public class Home extends AppCompatActivity
                     getMisskeyAccount();
                     setMisskeyVisibilityMenu(toot_area_Button);
                     toot_Button_LinearLayout.removeView(misskey_drive_Button);
+                    toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
                     toot_Button_LinearLayout.addView(misskey_drive_Button);
                 } else {
                     getAccount();
                     setMastodonVisibilityMenu(toot_area_Button);
                     toot_Button_LinearLayout.removeView(misskey_drive_Button);
+                    toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
+                    toot_Button_LinearLayout.addView(mastodon_time_post_Button);
                 }
                 toot_snackbar.dismiss();
                 fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
@@ -1978,6 +1984,94 @@ public class Home extends AppCompatActivity
             }
         });
 
+        //時間投稿ボタン
+        LinearLayout mastodon_time_post_LinearLayout = new LinearLayout(Home.this);
+        getLayoutInflater().inflate(R.layout.mastodon_time_post_layout, mastodon_time_post_LinearLayout);
+        mastodon_time_post_Button = new ImageButton(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        mastodon_time_post_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
+        mastodon_time_post_Button.setImageDrawable(getDrawable(R.drawable.ic_timer_black_24dp));
+        mastodon_time_post_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //2番めに出す
+                if (!isMastodon_time_post) {
+                    isMastodon_time_post = true;
+                    snackber_LinearLayout.addView(mastodon_time_post_LinearLayout, 2);
+                    //設定ボタン等
+                    Button setting = snackber_LinearLayout.findViewById(R.id.time_post_button);
+                    Switch mode = snackber_LinearLayout.findViewById(R.id.time_post_switch);
+                    mastodon_time_post_TextView = snackber_LinearLayout.findViewById(R.id.time_post_textview);
+                    //設定画面
+                    setting.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+/*
+                            CalenderDialog calenderDialog = new CalenderDialog();
+                            Bundle bundle = new Bundle();
+                            bundle.putString("type", "toot_time");
+                            calenderDialog.setArguments(bundle);
+                            calenderDialog.show(getSupportFragmentManager(), "calender_dialog");
+*/
+                            Calendar calendar = Calendar.getInstance();
+                            DatePickerDialog dateBuilder = new DatePickerDialog(Home.this, new DatePickerDialog.OnDateSetListener() {
+                                @Override
+                                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                    String month_string = "";
+                                    String day_string = "";
+                                    //1-9月は前に0を入れる
+                                    if (month++ <= 9) {
+                                        month_string = "0" + String.valueOf(month++);
+                                    } else {
+                                        month_string = String.valueOf(month++);
+                                    }
+                                    //1-9日も前に0を入れる
+                                    if (dayOfMonth <= 9) {
+                                        day_string = "0" + String.valueOf(dayOfMonth);
+                                    } else {
+                                        day_string = String.valueOf(dayOfMonth);
+                                    }
+                                    mastodon_time_post_TextView.append(year + month_string + day_string + "T");
+
+                                    int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                                    int minute = calendar.get(Calendar.MINUTE);
+                                    TimePickerDialog dialog = new TimePickerDialog(Home.this, new TimePickerDialog.OnTimeSetListener() {
+                                        @Override
+                                        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                            String hour_string = "";
+                                            String minute_string = "";
+                                            //1-9月は前に0を入れる
+                                            if (hourOfDay <= 9) {
+                                                hour_string = "0" + String.valueOf(hourOfDay++);
+                                            } else {
+                                                hour_string = String.valueOf(hourOfDay++);
+                                            }
+                                            //1-9日も前に0を入れる
+                                            if (minute <= 9) {
+                                                minute_string = "0" + String.valueOf(minute);
+                                            } else {
+                                                minute_string = String.valueOf(minute);
+                                            }
+                                            mastodon_time_post_TextView.append(hour_string + minute_string + "00" + "+0900");
+                                        }
+                                    }, hour, minute, true);
+                                    dialog.show();
+
+
+                                }
+                            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
+                            );
+                            dateBuilder.show();
+
+                        }
+                    });
+                } else {
+                    //消す
+                    isMastodon_time_post = false;
+                    snackber_LinearLayout.removeView(mastodon_time_post_LinearLayout);
+                }
+            }
+        });
+
         //コマンド実行ボタン
         Button command_Button = new Button(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
         command_Button.setText(R.string.command_run);
@@ -3160,5 +3254,6 @@ public class Home extends AppCompatActivity
         }
         return drawable;
     }
+
 
 }

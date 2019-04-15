@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.Gravity;
@@ -167,6 +168,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         viewHolder.toot_createAt_TextView.setText(getCreatedAtFormat(api.getCreatedAt()));
         viewHolder.toot_client_TextView.setText(api.getClient());
         viewHolder.toot_visibility_TextView.setText(api.getVisibility());
+        //IDを配列に入れておく
+        item.set(1, api.getToot_ID());
 
         //Misskey
         if (CustomMenuTimeLine.isMisskeyMode()) {
@@ -605,11 +608,10 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      * BT,FavのAPI
      */
     private void TootAction(String id, String endPoint, TextView textView, MastodonTLAPIJSONParse api, ArrayList<String> item) {
-
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String url = "https:" + Instance + "/api/v1/statuses/" + id + "/" + endPoint + "/?access_token=" + AccessToken;
+                String url = "https:" + Instance + "/api/v1/statuses/" + item.get(1) + "/" + endPoint + "/?access_token=" + AccessToken;
                 RequestBody requestBody = new FormBody.Builder()
                         .build();
                 //作成
@@ -1425,7 +1427,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.spoiler_text_Button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!viewHolder.toot_text_TextView.getText().toString().equals(api.getSpoiler_text())) {
+                    if (!viewHolder.spoiler_text_Button.getText().toString().equals(context.getString(R.string.show))) {
                         viewHolder.toot_text_TextView.setText(api.getSpoiler_text());
                         viewHolder.spoiler_text_Button.setText(context.getString(R.string.show));
                     } else {
@@ -1435,6 +1437,20 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 }
             });
         }
+    }
+
+    /**
+     * トゥートオプション
+     * */
+    private void showTootOption(ViewHolder viewHolder){
+        //ブックマークボタン
+        viewHolder.toot_bookmark_TextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TootOptionBottomDialog dialog = new TootOptionBottomDialog();
+                //dialog.show((AppCompatActivity)context.);
+            }
+        });
     }
 
 

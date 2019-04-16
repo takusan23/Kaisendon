@@ -1,4 +1,4 @@
-package io.github.takusan23.kaisendon.CustomMenu;
+package io.github.takusan23.kaisendon.CustomMenu.Dialog;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.github.takusan23.kaisendon.Activity.UserActivity;
+import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.kaisendon.R;
 
 public class TootOptionBottomDialog extends BottomSheetDialogFragment {

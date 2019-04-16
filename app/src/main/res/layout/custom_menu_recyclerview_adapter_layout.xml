@@ -18,6 +18,7 @@
             android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/custom_menu_adapter_account_linearlayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="5dp">

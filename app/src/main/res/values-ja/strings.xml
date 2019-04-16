@@ -436,5 +436,12 @@
     <string name="show">表示する</string>
     <string name="hidden">隠す</string>
     <string name="use_time_post">時間投稿機能（予約投稿）を利用する</string>
+    <string name="time_post_time">時間</string>
+    <string name="time_post_date">日付</string>
+    <string name="time_post_message">この機能はmastodonバージョン2.7.0以降で利用可能です。また、時間指定では今から5分以上先を指定してください。</string>
+    <string name="scheduled_statuses">時間指定投稿（予約投稿）待ち一覧</string>
+    <string name="not_fount_time_post">時間指定投稿（予約投稿）はありません</string>
+    <string name="delete_successful">削除できました</string>
+    <string name="time_post_ok">時間指定投稿を送信しました</string>
 
 </resources>

@@ -1,4 +1,4 @@
-package io.github.takusan23.kaisendon.CustomMenu;
+package io.github.takusan23.kaisendon.CustomMenu.Dialog;
 
 import android.content.Intent;
 import android.os.Build;

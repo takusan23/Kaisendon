@@ -68,6 +68,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -99,15 +100,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import io.github.takusan23.kaisendon.Activity.AccountInfoUpdateActivity;
 import io.github.takusan23.kaisendon.Activity.KonoAppNiTuite;
 import io.github.takusan23.kaisendon.Activity.LoginActivity;
 import io.github.takusan23.kaisendon.Activity.UserActivity;
-import io.github.takusan23.kaisendon.CustomMenu.CalenderDialog;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSettingFragment;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
-import io.github.takusan23.kaisendon.CustomMenu.MisskeyDriveBottomDialog;
+import io.github.takusan23.kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog;
 import io.github.takusan23.kaisendon.Fragment.AccountListFragment;
 import io.github.takusan23.kaisendon.Fragment.Bookmark_Frament;
 import io.github.takusan23.kaisendon.Fragment.CustomStreamingFragment;
@@ -197,6 +196,8 @@ public class Home extends AppCompatActivity
     ImageButton mastodon_time_post_Button;
     String post_date;
     String post_time;
+    Switch time_post_Switch;
+    boolean isTimePost = false;
     //public static TextView mastodon_time_post_TextView;
     boolean isMastodon_time_post;
     LinearLayout toot_Button_LinearLayout;
@@ -2002,7 +2003,7 @@ public class Home extends AppCompatActivity
                     snackber_LinearLayout.addView(mastodon_time_post_LinearLayout, 2);
                     //設定ボタン等
                     Button day_setting_Button = snackber_LinearLayout.findViewById(R.id.time_post_button);
-                    Switch mode = snackber_LinearLayout.findViewById(R.id.time_post_switch);
+                    time_post_Switch = snackber_LinearLayout.findViewById(R.id.time_post_switch);
                     TextView date_TextView = snackber_LinearLayout.findViewById(R.id.time_post_textview);
                     Button time_setting_Button = snackber_LinearLayout.findViewById(R.id.time_post_time_button);
                     TextView time_TextView = snackber_LinearLayout.findViewById(R.id.time_post_time_textview);
@@ -2010,14 +2011,28 @@ public class Home extends AppCompatActivity
                     day_setting_Button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                             showDatePicker(date_TextView);
+                            showDatePicker(date_TextView);
                         }
                     });
                     //時間設定画面
                     time_setting_Button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                             showTimePicker(time_TextView);
+                            showTimePicker(time_TextView);
+                        }
+                    });
+                    //有効無効
+                    time_post_Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            //入れておく
+                            isTimePost = isChecked;
+                            //色を変えとく？
+                            if (isChecked) {
+                                mastodon_time_post_Button.setColorFilter(Color.parseColor("#0069c0"), PorterDuff.Mode.SRC_IN);
+                            } else {
+                                mastodon_time_post_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
+                            }
                         }
                     });
 
@@ -2135,10 +2150,10 @@ public class Home extends AppCompatActivity
         boolean setting_avater_wifi = pref_setting.getBoolean("pref_avater_wifi", true);
         //GIFを再生するか？
         boolean setting_avater_gif = pref_setting.getBoolean("pref_avater_gif", false);
-        //アクセストークン
-        String AccessToken = null;
-        //インスタンス
-        String Instance = null;
+        String AccessToken = pref_setting.getString("main_token", "");
+        String Instance = pref_setting.getString("main_instance", "");
+
+/*
         boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
         if (accessToken_boomelan) {
             AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
@@ -2147,6 +2162,7 @@ public class Home extends AppCompatActivity
             AccessToken = pref_setting.getString("main_token", "");
             Instance = pref_setting.getString("main_instance", "");
         }
+*/
         String url = "https://" + Instance + "/api/v1/accounts/verify_credentials/?access_token=" + AccessToken;
         //作成
         Request request = new Request.Builder()
@@ -2156,7 +2172,6 @@ public class Home extends AppCompatActivity
 
         //GETリクエスト
         OkHttpClient client_1 = new OkHttpClient();
-        String finalInstance = Instance;
         client_1.newCall(request).enqueue(new Callback() {
 
             @Override
@@ -2202,7 +2217,7 @@ public class Home extends AppCompatActivity
                             }
                         }
                     }
-                    snackber_Name = "@" + user_id + "@" + finalInstance + "";
+                    snackber_Name = "@" + user_id + "@" + Instance + "";
                     snackber_Avatar = jsonObject.getString("avatar");
                     //UIスレッド
                     runOnUiThread(new Runnable() {
@@ -2566,12 +2581,22 @@ public class Home extends AppCompatActivity
      * Mastodon statuses POST
      */
     private void mastodonStatusesPOST() {
+        String AccessToken = pref_setting.getString("main_token", "");
+        String Instance = pref_setting.getString("main_instance", "");
         String url = "https://" + Instance + "/api/v1/statuses/?access_token=" + AccessToken;
         //ぱらめーたー
         MultipartBody.Builder requestBody = new MultipartBody.Builder();
         requestBody.setType(MultipartBody.FORM);
         requestBody.addFormDataPart("status", toot_EditText.getText().toString());
         requestBody.addFormDataPart("visibility", toot_area);
+        //時間指定
+        if (isTimePost) {
+            System.out.println(post_date + "/" + post_time);
+            //nullCheck
+            if (post_date != null && post_time != null) {
+                requestBody.addFormDataPart("scheduled_at", post_date + post_time);
+            }
+        }
         //画像
         for (int i = 0; i < post_media_id.size(); i++) {
             requestBody.addFormDataPart("media_ids[]", post_media_id.get(i));
@@ -2599,6 +2624,8 @@ public class Home extends AppCompatActivity
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                //System.out.println(response_string);
                 if (!response.isSuccessful()) {
                     //失敗
                     runOnUiThread(new Runnable() {
@@ -2611,7 +2638,13 @@ public class Home extends AppCompatActivity
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(Home.this, getString(R.string.toot_ok), Toast.LENGTH_SHORT).show();
+                            //予約投稿・通常投稿でトースト切り替え
+                            if (time_post_Switch != null) {
+                                time_post_Switch.setChecked(false);
+                                Toast.makeText(Home.this, getString(R.string.time_post_ok), Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(Home.this, getString(R.string.toot_ok), Toast.LENGTH_SHORT).show();
+                            }
                             //EditTextを空にする
                             toot_EditText.setText("");
                             tootTextCount = 0;
@@ -2621,6 +2654,9 @@ public class Home extends AppCompatActivity
                             media_list.clear();
                             post_media_id.clear();
                             media_LinearLayout.removeAllViews();
+                            //予約投稿を無効化
+                            isTimePost = false;
+                            mastodon_time_post_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
                         }
                     });
                 }
@@ -3195,6 +3231,9 @@ public class Home extends AppCompatActivity
                 break;
             case "/api/v1/timelines/direct":
                 drawable = getDrawable(R.drawable.ic_assignment_ind_black_24dp);
+                break;
+            case "/api/v1/scheduled_statuses":
+                drawable = getDrawable(R.drawable.ic_access_alarm_black_24dp);
                 break;
             case "/api/notes/timeline":
                 drawable = getDrawable(R.drawable.ic_home_black_24dp);

@@ -93,7 +93,7 @@ public class CustomMenuTimeLine extends Fragment {
     private LinearLayout parent_linearlayout;
 
     private String misskey;
-    private String url;
+    private static String url;
     private static String instance;
     private static String access_token;
     private static String dialog;
@@ -179,6 +179,8 @@ public class CustomMenuTimeLine extends Fragment {
 
     //通知
     private Vibrator vibrator;
+    //時間指定投稿待ち一覧モード
+    private boolean isScheduled_statuses = false;
 
 
     @Override
@@ -314,10 +316,14 @@ public class CustomMenuTimeLine extends Fragment {
             });
         }
 
-
         //トゥートカウンター
         if (Boolean.valueOf(toot_counter)) {
             setTootCounterLayout();
+        }
+
+        //予約投稿（時間指定投稿）待ち一覧モードかを判断する
+        if (url.contains("/api/v1/scheduled_statuses")) {
+            isScheduled_statuses = true;
         }
 
         recyclerViewList = new ArrayList<>();
@@ -327,175 +333,181 @@ public class CustomMenuTimeLine extends Fragment {
         recyclerView.setLayoutManager(mLayoutManager);
         CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
         recyclerView.setAdapter(customMenuRecyclerViewAdapter);
-
         recyclerViewLayoutManager = recyclerView.getLayoutManager();
 
+        //TL読み込み
+        //APIがTL取得のみに
+        if (!isScheduled_statuses) {
+            //Misskey
+            if (misskey_mode) {
+                loadMisskeyAccountName();
+                //くるくる
+                SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+                //通知以外
+                if (!url.contains("notifications")) {
+                    //普通にAPI叩く
+                    loadMisskeyTimeline(null, false);
+                } else {
+                    //通知レイアウト読み込み
+                    notificationLayout();
+                    loadMisskeyTimeline(null, true);
+                }
 
-        //Misskey
-        if (misskey_mode) {
-            loadMisskeyAccountName();
-            //くるくる
-            SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-            //通知以外
-            if (!url.contains("notifications")) {
-                //普通にAPI叩く
-                loadMisskeyTimeline(null, false);
+                //引っ張って更新
+                swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        adapter.clear();
+                        recyclerViewList.clear();
+                        //トゥートカウンター
+                        countTextView.setText("");
+                        akeome_count = 0;
+                        SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+                        //通知以外
+                        if (!url.contains("notifications")) {
+                            //普通にAPI叩く
+                            loadMisskeyTimeline(null, false);
+                        } else {
+                            loadMisskeyTimeline(null, true);
+                        }
+                    }
+                });
+
+
+                //最後までスクロール
+                recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                        super.onScrollStateChanged(recyclerView, newState);
+                    }
+
+                    @Override
+                    public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                        super.onScrolled(recyclerView, dx, dy);
+                        if (recyclerViewLayoutManager != null) {
+                            int firstVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
+                            int visibleItemCount = ((LinearLayoutManager) recyclerViewLayoutManager).getChildCount();
+                            int totalItemCount = ((LinearLayoutManager) recyclerViewLayoutManager).getItemCount();
+                            //最後までスクロールしたときの処理
+                            if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
+                                position = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
+                                y = recyclerView.getChildAt(0).getTop();
+                                if (recyclerViewList.size() >= 20) {
+                                    SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+                                    scroll = true;
+                                    //通知以外
+                                    if (!url.contains("notifications")) {
+                                        //普通にAPI叩く
+                                        loadMisskeyTimeline(CustomMenuTimeLine.this.untilId, false);
+                                    } else {
+                                        loadMisskeyTimeline(null, true);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
             } else {
-                //通知レイアウト読み込み
-                notificationLayout();
-                loadMisskeyTimeline(null, true);
-            }
+                //名前表示
+                //サブタイトル更新
+                //片手モード有効時の処理
+                loadAccountName();
 
-            //引っ張って更新
-            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    adapter.clear();
-                    recyclerViewList.clear();
-                    //トゥートカウンター
-                    countTextView.setText("");
-                    akeome_count = 0;
-                    SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+                //ストリーミングAPI。本来は無効のときチェックを付けてるけど保存時に反転してるのでおっけ
+                //無効・有効
+                SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+                if (Boolean.valueOf(streaming)) {
+                    //有効
+                    //引っ張って更新無効
+                    swipeRefreshLayout.setEnabled(false);
                     //通知以外
-                    if (!url.contains("notifications")) {
-                        //普通にAPI叩く
-                        loadMisskeyTimeline(null, false);
+                    if (!url.contains("/api/v1/notifications")) {
+                        loadTimeline("");
+                        //ストリーミング
+                        useStreamingAPI(false);
                     } else {
-                        loadMisskeyTimeline(null, true);
+                        notificationLayout();
+                        //普通にAPI叩く
+                        loadNotification("");
+                        //ストリーミング
+                        useStreamingAPI(true);
+                    }
+                } else {
+                    //無効
+                    //引っ張って更新有効
+                    swipeRefreshLayout.setEnabled(true);
+                    //通知以外
+                    if (url.contains("/api/v1/notifications")) {
+                        //通知用レイアウト呼ぶ
+                        notificationLayout();
+                        //普通にAPI叩く
+                        loadNotification("");
+                    } else {
+                        //通常読み込み
+                        loadTimeline("");
                     }
                 }
-            });
+                //引っ張って更新
+                swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        adapter.clear();
+                        recyclerViewList.clear();
+                        //トゥートカウンター
+                        countTextView.setText("");
+                        akeome_count = 0;
+                        SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+                        //通知以外
+                        if (!url.contains("/api/v1/notifications")) {
+                            //普通にAPI叩く
+                            loadTimeline("");
+                        } else {
+                            loadNotification("");
+                        }
+                    }
+                });
 
+                //最後までスクロール
+                recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                        super.onScrollStateChanged(recyclerView, newState);
+                    }
 
-            //最後までスクロール
-            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                }
-
-                @Override
-                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-                    if (recyclerViewLayoutManager != null) {
-                        int firstVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
-                        int visibleItemCount = ((LinearLayoutManager) recyclerViewLayoutManager).getChildCount();
-                        int totalItemCount = ((LinearLayoutManager) recyclerViewLayoutManager).getItemCount();
+                    @Override
+                    public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                        super.onScrolled(recyclerView, dx, dy);
+                        int firstVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+                        int visibleItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getChildCount();
+                        int totalItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getItemCount();
                         //最後までスクロールしたときの処理
                         if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
-                            position = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
+                            position = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
                             y = recyclerView.getChildAt(0).getTop();
                             if (recyclerViewList.size() >= 20) {
                                 SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
                                 scroll = true;
                                 //通知以外
-                                if (!url.contains("notifications")) {
+                                if (!url.contains("/api/v1/notifications")) {
                                     //普通にAPI叩く
-                                    loadMisskeyTimeline(CustomMenuTimeLine.this.untilId, false);
+                                    loadTimeline(max_id);
                                 } else {
-                                    loadMisskeyTimeline(null, true);
+                                    loadNotification(max_id);
                                 }
                             }
                         }
                     }
+                });
+
+                //通知
+                if (pref_setting.getBoolean("pref_notification_toast", true)) {
+                    setStreamingNotification();
                 }
-            });
+            }
         } else {
-            //名前表示
-            //サブタイトル更新
-            //片手モード有効時の処理
             loadAccountName();
-
-            //ストリーミングAPI。本来は無効のときチェックを付けてるけど保存時に反転してるのでおっけ
-            //無効・有効
-            SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-            if (Boolean.valueOf(streaming)) {
-                //有効
-                //引っ張って更新無効
-                swipeRefreshLayout.setEnabled(false);
-                //通知以外
-                if (!url.contains("/api/v1/notifications")) {
-                    loadTimeline("");
-                    //ストリーミング
-                    useStreamingAPI(false);
-                } else {
-                    notificationLayout();
-                    //普通にAPI叩く
-                    loadNotification("");
-                    //ストリーミング
-                    useStreamingAPI(true);
-                }
-            } else {
-                //無効
-                //引っ張って更新有効
-                swipeRefreshLayout.setEnabled(true);
-                //通知以外
-                if (url.contains("/api/v1/notifications")) {
-                    //通知用レイアウト呼ぶ
-                    notificationLayout();
-                    //普通にAPI叩く
-                    loadNotification("");
-                } else {
-                    //通常読み込み
-                    loadTimeline("");
-                }
-            }
-            //引っ張って更新
-            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    adapter.clear();
-                    recyclerViewList.clear();
-                    //トゥートカウンター
-                    countTextView.setText("");
-                    akeome_count = 0;
-                    SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-                    //通知以外
-                    if (!url.contains("/api/v1/notifications")) {
-                        //普通にAPI叩く
-                        loadTimeline("");
-                    } else {
-                        loadNotification("");
-                    }
-                }
-            });
-
-            //最後までスクロール
-            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                }
-
-                @Override
-                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-                    int firstVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
-                    int visibleItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getChildCount();
-                    int totalItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getItemCount();
-                    //最後までスクロールしたときの処理
-                    if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
-                        position = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-                        y = recyclerView.getChildAt(0).getTop();
-                        if (recyclerViewList.size() >= 20) {
-                            SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-                            scroll = true;
-                            //通知以外
-                            if (!url.contains("/api/v1/notifications")) {
-                                //普通にAPI叩く
-                                loadTimeline(max_id);
-                            } else {
-                                loadNotification(max_id);
-                            }
-                        }
-                    }
-                }
-            });
-
-            //通知
-            if (pref_setting.getBoolean("pref_notification_toast", true)) {
-                setStreamingNotification();
-            }
+            //時間指定待ち一覧を読み込む
+            loadScheduled_statuses(view);
         }
     }
 
@@ -1980,7 +1992,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 View layout = inflater.inflate(R.layout.notification_toast_layout, null);
                                 TextView toast_text = layout.findViewById(R.id.notification_text);
                                 PicassoImageGetter picassoImageGetter = new PicassoImageGetter(toast_text);
-                                toast_text.setText(Html.fromHtml(CustomMenuRecyclerViewAdapter.toNotificationType(getContext(), type) + "<br>" + finalDisplay_name,Html.FROM_HTML_MODE_COMPACT,picassoImageGetter,null));
+                                toast_text.setText(Html.fromHtml(CustomMenuRecyclerViewAdapter.toNotificationType(getContext(), type) + "<br>" + finalDisplay_name, Html.FROM_HTML_MODE_COMPACT, picassoImageGetter, null));
                                 AppCompatImageView toast_imageview = layout.findViewById(R.id.notification_icon);
                                 toast_imageview.setImageDrawable(getNotificationIcon(type));
                                 toast.setView(layout);
@@ -2013,6 +2025,96 @@ public class CustomMenuTimeLine extends Fragment {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 時間指定投稿（予約投稿）一覧読み込み
+     **/
+    private void loadScheduled_statuses(View view) {
+        //作成
+        String url = this.url + "?access_token=" + access_token;
+        SnackberProgress.showProgressSnackber(view, view.getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+        //GETリクエスト
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                //System.out.println(response_string);
+                if (!response.isSuccessful()) {
+                    //失敗時
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    try {
+                        JSONArray jsonArray = new JSONArray(response_string);
+                        //無いとき
+                        if (jsonArray.length() == 0) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    SnackberProgress.closeProgressSnackber();
+                                    Toast.makeText(getContext(), getString(R.string.not_fount_time_post), Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        } else {
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
+                                if (getActivity() != null && isAdded()) {
+                                    //配列を作成
+                                    ArrayList<String> Item = new ArrayList<>();
+                                    //メモとか通知とかに
+                                    Item.add("CustomMenu 時間指定投稿");
+                                    //内容
+                                    Item.add("");
+                                    //ユーザー名
+                                    Item.add("");
+                                    //JSONObject
+                                    Item.add(toot_jsonObject.toString());
+                                    //ぶーすとした？
+                                    Item.add("false");
+                                    //ふぁぼした？
+                                    Item.add("false");
+                                    recyclerViewList.add(Item);
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (recyclerViewLayoutManager != null) {
+                                                ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
+                                            }
+                                            CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                                            recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+                                            SnackberProgress.closeProgressSnackber();
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -2104,6 +2206,7 @@ public class CustomMenuTimeLine extends Fragment {
         return mode;
     }
 
+
     /**
      * Instance
      */
@@ -2121,5 +2224,9 @@ public class CustomMenuTimeLine extends Fragment {
 
     public static String getAccount_id() {
         return account_id;
+    }
+
+    public static String getUrl() {
+        return url;
     }
 }

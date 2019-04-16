@@ -609,6 +609,11 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                                 load_Button.setText(R.string.direct_message);
                                 load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_assignment_ind_black_24dp, 0, 0, 0);
                                 break;
+                            case R.id.custom_menu_load_scheduled_statuses:
+                                load_url = "/api/v1/scheduled_statuses";
+                                load_Button.setText(R.string.scheduled_statuses);
+                                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_access_alarm_black_24dp, 0, 0, 0);
+                                break;
                         }
                         return false;
                     }

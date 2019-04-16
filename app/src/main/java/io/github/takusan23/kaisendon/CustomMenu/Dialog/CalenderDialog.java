@@ -1,4 +1,4 @@
-package io.github.takusan23.kaisendon.CustomMenu;
+package io.github.takusan23.kaisendon.CustomMenu.Dialog;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -9,7 +9,6 @@ import android.widget.DatePicker;
 import java.util.Calendar;
 
 import io.github.takusan23.kaisendon.Activity.AccountInfoUpdateActivity;
-import io.github.takusan23.kaisendon.Home;
 
 public class CalenderDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {

@@ -193,8 +193,11 @@ public class Home extends AppCompatActivity
     LinearLayout account_LinearLayout;
     LinearLayout misskey_account_LinearLayout;
     ImageButton misskey_drive_Button;
+    //時間指定投稿
     ImageButton mastodon_time_post_Button;
-    public static TextView mastodon_time_post_TextView;
+    String post_date;
+    String post_time;
+    //public static TextView mastodon_time_post_TextView;
     boolean isMastodon_time_post;
     LinearLayout toot_Button_LinearLayout;
     //マルチアカウント読み込み用
@@ -1998,72 +2001,26 @@ public class Home extends AppCompatActivity
                     isMastodon_time_post = true;
                     snackber_LinearLayout.addView(mastodon_time_post_LinearLayout, 2);
                     //設定ボタン等
-                    Button setting = snackber_LinearLayout.findViewById(R.id.time_post_button);
+                    Button day_setting_Button = snackber_LinearLayout.findViewById(R.id.time_post_button);
                     Switch mode = snackber_LinearLayout.findViewById(R.id.time_post_switch);
-                    mastodon_time_post_TextView = snackber_LinearLayout.findViewById(R.id.time_post_textview);
-                    //設定画面
-                    setting.setOnClickListener(new View.OnClickListener() {
+                    TextView date_TextView = snackber_LinearLayout.findViewById(R.id.time_post_textview);
+                    Button time_setting_Button = snackber_LinearLayout.findViewById(R.id.time_post_time_button);
+                    TextView time_TextView = snackber_LinearLayout.findViewById(R.id.time_post_time_textview);
+                    //日付設定画面
+                    day_setting_Button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-/*
-                            CalenderDialog calenderDialog = new CalenderDialog();
-                            Bundle bundle = new Bundle();
-                            bundle.putString("type", "toot_time");
-                            calenderDialog.setArguments(bundle);
-                            calenderDialog.show(getSupportFragmentManager(), "calender_dialog");
-*/
-                            Calendar calendar = Calendar.getInstance();
-                            DatePickerDialog dateBuilder = new DatePickerDialog(Home.this, new DatePickerDialog.OnDateSetListener() {
-                                @Override
-                                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                    String month_string = "";
-                                    String day_string = "";
-                                    //1-9月は前に0を入れる
-                                    if (month++ <= 9) {
-                                        month_string = "0" + String.valueOf(month++);
-                                    } else {
-                                        month_string = String.valueOf(month++);
-                                    }
-                                    //1-9日も前に0を入れる
-                                    if (dayOfMonth <= 9) {
-                                        day_string = "0" + String.valueOf(dayOfMonth);
-                                    } else {
-                                        day_string = String.valueOf(dayOfMonth);
-                                    }
-                                    mastodon_time_post_TextView.append(year + month_string + day_string + "T");
-
-                                    int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                                    int minute = calendar.get(Calendar.MINUTE);
-                                    TimePickerDialog dialog = new TimePickerDialog(Home.this, new TimePickerDialog.OnTimeSetListener() {
-                                        @Override
-                                        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                                            String hour_string = "";
-                                            String minute_string = "";
-                                            //1-9月は前に0を入れる
-                                            if (hourOfDay <= 9) {
-                                                hour_string = "0" + String.valueOf(hourOfDay++);
-                                            } else {
-                                                hour_string = String.valueOf(hourOfDay++);
-                                            }
-                                            //1-9日も前に0を入れる
-                                            if (minute <= 9) {
-                                                minute_string = "0" + String.valueOf(minute);
-                                            } else {
-                                                minute_string = String.valueOf(minute);
-                                            }
-                                            mastodon_time_post_TextView.append(hour_string + minute_string + "00" + "+0900");
-                                        }
-                                    }, hour, minute, true);
-                                    dialog.show();
-
-
-                                }
-                            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
-                            );
-                            dateBuilder.show();
-
+                             showDatePicker(date_TextView);
                         }
                     });
+                    //時間設定画面
+                    time_setting_Button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                             showTimePicker(time_TextView);
+                        }
+                    });
+
                 } else {
                     //消す
                     isMastodon_time_post = false;
@@ -3253,6 +3210,69 @@ public class Home extends AppCompatActivity
                 break;
         }
         return drawable;
+    }
+
+    /**
+     * DatePicker
+     */
+    private void showDatePicker(TextView textView) {
+        final String[] date = {""};
+
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog dateBuilder = new DatePickerDialog(Home.this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                String month_string = "";
+                String day_string = "";
+                //1-9月は前に0を入れる
+                if (month++ <= 9) {
+                    month_string = "0" + String.valueOf(month++);
+                } else {
+                    month_string = String.valueOf(month++);
+                }
+                //1-9日も前に0を入れる
+                if (dayOfMonth <= 9) {
+                    day_string = "0" + String.valueOf(dayOfMonth);
+                } else {
+                    day_string = String.valueOf(dayOfMonth);
+                }
+                post_date = year + month_string + day_string + "T";
+                textView.setText(post_date);
+            }
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
+        );
+        dateBuilder.show();
+    }
+
+    /**
+     * TimePicker
+     */
+    private void showTimePicker(TextView textView) {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+        TimePickerDialog dialog = new TimePickerDialog(Home.this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                String hour_string = "";
+                String minute_string = "";
+                //1-9月は前に0を入れる
+                if (hourOfDay <= 9) {
+                    hour_string = "0" + String.valueOf(hourOfDay++);
+                } else {
+                    hour_string = String.valueOf(hourOfDay++);
+                }
+                //1-9日も前に0を入れる
+                if (minute <= 9) {
+                    minute_string = "0" + String.valueOf(minute);
+                } else {
+                    minute_string = String.valueOf(minute);
+                }
+                post_time = hour_string + minute_string + "00" + "+0900";
+                textView.setText(post_time);
+            }
+        }, hour, minute, true);
+        dialog.show();
     }
 
 

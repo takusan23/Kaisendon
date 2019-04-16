@@ -38,7 +38,7 @@ public class CalenderDialog extends DialogFragment {
                 if (getArguments().getString("type").equals("birthday")){
                     AccountInfoUpdateActivity.birthday_Button.setText(date);
                 }else if (getArguments().getString("type").equals("toot_time")){
-                    Home.mastodon_time_post_TextView.setText(iso8601);
+                    //Home.mastodon_time_post_TextView.setText(iso8601);
                 }
             }
         },

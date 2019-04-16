@@ -19,5 +19,9 @@
         android:id="@+id/custom_menu_load_direct"
         android:icon="@drawable/ic_assignment_ind_black_24dp"
         android:title="@string/direct_message"></item>
+    <item
+        android:id="@+id/custom_menu_load_scheduled_statuses"
+        android:icon="@drawable/ic_access_alarm_black_24dp"
+        android:title="@string/scheduled_statuses"></item>
 
 </menu>

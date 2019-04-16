@@ -540,5 +540,12 @@
     <string name="show">indicate</string>
     <string name="hidden">hide</string>
     <string name="use_time_post">Use time posting function</string>
+    <string name="time_post_date">date</string>
+    <string name="time_post_time">Time</string>
+    <string name="time_post_message">This feature is available in mastodon version 2.7.0 and later. In addition, please specify 5 minutes or more from now in time designation.</string>
+    <string name="scheduled_statuses">Timed Post (Reserved Post / scheduled_statuses) Waiting List</string>
+    <string name="not_fount_time_post">Time specified post (reservation contribution) There is no</string>
+    <string name="delete_successful">I was able to delete</string>
+    <string name="time_post_ok">A timed post has been sent</string>
 
 </resources>

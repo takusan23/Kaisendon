@@ -40,7 +40,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 
-import io.github.takusan23.kaisendon.CustomMenu.CalenderDialog;
+import io.github.takusan23.kaisendon.CustomMenu.Dialog.CalenderDialog;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.kaisendon.Preference_ApplicationContext;
 import io.github.takusan23.kaisendon.R;

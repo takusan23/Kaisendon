@@ -18,6 +18,12 @@
         android:text="@string/use_time_post"
         android:textColor="#ffffff" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#ffffff"
+        android:text="@string/time_post_message" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -40,7 +46,7 @@
             android:background="#00000000"
             android:drawableStart="@drawable/ic_date_range_black_24dp"
             android:drawableTint="#ffffff"
-            android:text="@string/setting"
+            android:text="@string/time_post_date"
             android:textColor="#ffffff" />
     </LinearLayout>
 
@@ -67,7 +73,7 @@
             android:background="#00000000"
             android:drawableStart="@drawable/ic_timer_black_24dp"
             android:drawableTint="#ffffff"
-            android:text="@string/setting"
+            android:text="@string/time_post_time"
             android:textColor="#ffffff" />
     </LinearLayout>
 

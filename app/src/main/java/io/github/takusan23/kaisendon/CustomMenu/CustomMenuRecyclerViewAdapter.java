@@ -47,8 +47,10 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
+import io.github.takusan23.kaisendon.APIJSONParse.MastodonScheduledStatusesJSONParse;
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonTLAPIJSONParse;
 import io.github.takusan23.kaisendon.Activity.UserActivity;
+import io.github.takusan23.kaisendon.CustomMenu.Dialog.TootOptionBottomDialog;
 import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
 import io.github.takusan23.kaisendon.PicassoImageGetter;
 import io.github.takusan23.kaisendon.R;
@@ -74,6 +76,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
         public TextView toot_text_TextView;
         public TextView toot_user_TextView;
+        public LinearLayout account_LinearLayout;
         public ImageView toot_avatar_ImageView;
         public TextView toot_boost_TextView;
         public TextView toot_favourite_TextView;
@@ -83,6 +86,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         public TextView toot_visibility_TextView;
         public LinearLayout toot_media_LinearLayout;
         public LinearLayout mainLinearLayout;
+        public LinearLayout action_LinearLayout;
         //画像
         public ImageView media_ImageView_1;
         public ImageView media_ImageView_2;
@@ -107,6 +111,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         public ViewHolder(@NonNull View itemView, Context context) {
             super(itemView);
             mainLinearLayout = itemView.findViewById(R.id.custom_menu_adapter_mainLinearLayout);
+            account_LinearLayout = itemView.findViewById(R.id.custom_menu_adapter_account_linearlayout);
             toot_text_TextView = itemView.findViewById(R.id.custom_menu_adapter_text);
             toot_user_TextView = itemView.findViewById(R.id.custom_menu_adapter_account);
             toot_avatar_ImageView = itemView.findViewById(R.id.custom_menu_adapter_main_avatar);
@@ -117,6 +122,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             toot_createAt_TextView = itemView.findViewById(R.id.custom_menu_adapter_createAt);
             toot_visibility_TextView = itemView.findViewById(R.id.custom_menu_adapter_visibility);
             toot_media_LinearLayout = itemView.findViewById(R.id.custom_menu_adapter_mediaLinearLayout);
+            action_LinearLayout = itemView.findViewById(R.id.custom_menu_adapter_notification_layout);
             media_ImageView_1 = new ImageView(context);
             media_ImageView_2 = new ImageView(context);
             media_ImageView_3 = new ImageView(context);
@@ -155,75 +161,84 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         //Context
         context = viewHolder.toot_text_TextView.getContext();
 
-        //レイアウト
         ArrayList<String> item = itemList.get(i);
-        //JSONパース用クラス
-        MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3));
-        //カスタム絵文字
-        PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
-        PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);
-        //SetText
-        viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getToot_text(), Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
-        viewHolder.toot_user_TextView.setText(Html.fromHtml(api.getDisplay_name(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
-        viewHolder.toot_user_TextView.append("@" + api.getAcct());
-        viewHolder.toot_createAt_TextView.setText(getCreatedAtFormat(api.getCreatedAt()));
-        viewHolder.toot_client_TextView.setText(api.getClient());
-        viewHolder.toot_visibility_TextView.setText(api.getVisibility());
-        //IDを配列に入れておく
-        item.set(1, api.getToot_ID());
 
-        //Misskey
-        if (CustomMenuTimeLine.isMisskeyMode()) {
-            //アバター画像
-            loadAvatarImage(api, viewHolder);
-            //Misskeyリアクション
-            setMisskeyReaction(viewHolder, api, item);
-            //Fav、BT済み、カウント数を出す
-            setCountAndIconColor(viewHolder, api, item);
-            //添付メディア
-            showMedia(viewHolder, api);
-            //card
-            setCard(viewHolder, api);
-            //ブースト
-            setReBlogToot(viewHolder, api);
-            //クイックプロフィール
-            showMisskeyQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_ID());
-            //通知タイプ
-            showNotificationType(viewHolder, api);
-            //クライアント名のTextViewを消す
-            setClientTextViewRemove(viewHolder);
-            //カスタムフォント
-            setCustomFont(viewHolder);
-            //ボタン
-            showTootOption(viewHolder, api);
+        //TL/それ以外
+        if (!CustomMenuTimeLine.getUrl().contains("/api/v1/scheduled_statuses")) {
+            //レイアウト
+            //JSONパース用クラス
+            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3));
+            //カスタム絵文字
+            PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
+            PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);
+            //SetText
+            viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getToot_text(), Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
+            viewHolder.toot_user_TextView.setText(Html.fromHtml(api.getDisplay_name(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
+            viewHolder.toot_user_TextView.append("@" + api.getAcct());
+            viewHolder.toot_createAt_TextView.setText(getCreatedAtFormat(api.getCreatedAt()));
+            viewHolder.toot_client_TextView.setText(api.getClient());
+            viewHolder.toot_visibility_TextView.setText(api.getVisibility());
+            //IDを配列に入れておく
+            item.set(1, api.getToot_ID());
+            //Misskey
+            if (CustomMenuTimeLine.isMisskeyMode()) {
+                //アバター画像
+                loadAvatarImage(api, viewHolder);
+                //Misskeyリアクション
+                setMisskeyReaction(viewHolder, api, item);
+                //Fav、BT済み、カウント数を出す
+                setCountAndIconColor(viewHolder, api, item);
+                //添付メディア
+                showMedia(viewHolder, api);
+                //card
+                setCard(viewHolder, api);
+                //ブースト
+                setReBlogToot(viewHolder, api);
+                //クイックプロフィール
+                showMisskeyQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_ID());
+                //通知タイプ
+                showNotificationType(viewHolder, api);
+                //クライアント名のTextViewを消す
+                setClientTextViewRemove(viewHolder);
+                //カスタムフォント
+                setCustomFont(viewHolder);
+                //ボタン
+                showTootOption(viewHolder, api);
+            } else {
+                //アバター画像
+                loadAvatarImage(api, viewHolder);
+                //BT、Favできるようにする
+                setStatusClick(viewHolder.toot_boost_TextView, "bt_only", api, item);
+                setStatusClick(viewHolder.toot_favourite_TextView, "fav_only", api, item);
+                //Fav+BTできるように
+                setPostBtFav(viewHolder, api, item);
+                //Fav、BT済み、カウント数を出す
+                setCountAndIconColor(viewHolder, api, item);
+                //添付メディア
+                showMedia(viewHolder, api);
+                //card
+                setCard(viewHolder, api);
+                //ブースト
+                setReBlogToot(viewHolder, api);
+                //通知タイプ
+                showNotificationType(viewHolder, api);
+                //クイックプロフィール
+                showQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_ID(), viewHolder);
+                //クライアント名のTextViewを消す
+                setClientTextViewRemove(viewHolder);
+                //カスタムフォント
+                setCustomFont(viewHolder);
+                //隠す
+                setSpoiler_text(viewHolder, api);
+                //ボタン
+                showTootOption(viewHolder, api);
+            }
         } else {
-            //アバター画像
-            loadAvatarImage(api, viewHolder);
-            //BT、Favできるようにする
-            setStatusClick(viewHolder.toot_boost_TextView, "bt_only", api, item);
-            setStatusClick(viewHolder.toot_favourite_TextView, "fav_only", api, item);
-            //Fav+BTできるように
-            setPostBtFav(viewHolder, api, item);
-            //Fav、BT済み、カウント数を出す
-            setCountAndIconColor(viewHolder, api, item);
-            //添付メディア
-            showMedia(viewHolder, api);
-            //card
-            setCard(viewHolder, api);
-            //ブースト
-            setReBlogToot(viewHolder, api);
-            //通知タイプ
-            showNotificationType(viewHolder, api);
-            //クイックプロフィール
-            showQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_ID(), viewHolder);
-            //クライアント名のTextViewを消す
-            setClientTextViewRemove(viewHolder);
-            //カスタムフォント
-            setCustomFont(viewHolder);
-            //隠す
-            setSpoiler_text(viewHolder, api);
-            //ボタン
-            showTootOption(viewHolder, api);
+            MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
+            //時間指定投稿（予約投稿）ようレイアウト
+            setSimpleLayout(viewHolder);
+            setScheduled_statuses_layout(viewHolder, api);
+
         }
 
     }
@@ -1418,29 +1433,31 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      */
     private void setSpoiler_text(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
         //なにもないときは動かない
-        if (!api.getSpoiler_text().equals("")) {
-            //本文を消す
-            PicassoImageGetter picassoImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
-            viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getSpoiler_text(), 0, picassoImageGetter, null));
-            //ボタン追加
-            viewHolder.mainLinearLayout.removeView(viewHolder.spoiler_text_Button);
-            viewHolder.spoiler_text_Button.setText(context.getString(R.string.show));
-            viewHolder.spoiler_text_Button.setBackground(context.getDrawable(R.drawable.button_style_white));
-            viewHolder.spoiler_text_Button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            viewHolder.mainLinearLayout.addView(viewHolder.spoiler_text_Button, 2);
-            //クリックイベント
-            viewHolder.spoiler_text_Button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!viewHolder.spoiler_text_Button.getText().toString().equals(context.getString(R.string.show))) {
-                        viewHolder.toot_text_TextView.setText(api.getSpoiler_text());
-                        viewHolder.spoiler_text_Button.setText(context.getString(R.string.show));
-                    } else {
-                        viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getToot_text(), Html.FROM_HTML_MODE_COMPACT, picassoImageGetter, null));
-                        viewHolder.spoiler_text_Button.setText(context.getString(R.string.hidden));
+        if (api.getSpoiler_text() != null) {
+            if (!api.getSpoiler_text().contains("")) {
+                //本文を消す
+                PicassoImageGetter picassoImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
+                viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getSpoiler_text(), 0, picassoImageGetter, null));
+                //ボタン追加
+                viewHolder.mainLinearLayout.removeView(viewHolder.spoiler_text_Button);
+                viewHolder.spoiler_text_Button.setText(context.getString(R.string.show));
+                viewHolder.spoiler_text_Button.setBackground(context.getDrawable(R.drawable.button_style_white));
+                viewHolder.spoiler_text_Button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                viewHolder.mainLinearLayout.addView(viewHolder.spoiler_text_Button, 2);
+                //クリックイベント
+                viewHolder.spoiler_text_Button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!viewHolder.spoiler_text_Button.getText().toString().equals(context.getString(R.string.show))) {
+                            viewHolder.toot_text_TextView.setText(api.getSpoiler_text());
+                            viewHolder.spoiler_text_Button.setText(context.getString(R.string.show));
+                        } else {
+                            viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getToot_text(), Html.FROM_HTML_MODE_COMPACT, picassoImageGetter, null));
+                            viewHolder.spoiler_text_Button.setText(context.getString(R.string.hidden));
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
@@ -1460,6 +1477,94 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "toot_option");
             }
         });
+    }
+
+    /**
+     * レイアウトをほぼ消す
+     */
+    private void setSimpleLayout(ViewHolder viewHolder) {
+        //TootTextView以外消す
+        LinearLayout parent_LinearLayout = viewHolder.mainLinearLayout;
+        parent_LinearLayout.removeView(viewHolder.account_LinearLayout);
+        parent_LinearLayout.removeView(viewHolder.toot_reblog_LinearLayout);
+        parent_LinearLayout.removeView(viewHolder.toot_media_LinearLayout);
+        parent_LinearLayout.removeView(viewHolder.toot_card_LinearLayout);
+        parent_LinearLayout.removeView(viewHolder.action_LinearLayout);
+    }
+
+    /**
+     * 時間指定投稿（予約投稿）のレイアウト
+     */
+    private void setScheduled_statuses_layout(ViewHolder viewHolder, MastodonScheduledStatusesJSONParse api) {
+        LinearLayout parent_LinearLayout = viewHolder.mainLinearLayout;
+        //parent_LinearLayout.setPadding(viewHolder.toot_text_TextView.getPaddingLeft(),10,viewHolder.toot_text_TextView.getPaddingRight(),10);
+        //TextView
+        TextView scheduled_status_at_TextView = new TextView(viewHolder.mainLinearLayout.getContext());
+        scheduled_status_at_TextView.setText(getCreatedAtFormat(api.getScheduled_at()));
+        scheduled_status_at_TextView.setTextSize(14);
+        scheduled_status_at_TextView.setPadding(viewHolder.toot_text_TextView.getPaddingLeft(), 10, viewHolder.toot_text_TextView.getPaddingRight(), 10);
+        viewHolder.toot_text_TextView.setText(api.getText());
+        viewHolder.toot_text_TextView.setTextSize(14);
+        parent_LinearLayout.addView(scheduled_status_at_TextView, 0);
+        //削除ボタン
+        TextView delete_TextView = new TextView(viewHolder.mainLinearLayout.getContext());
+        delete_TextView.setCompoundDrawablesWithIntrinsicBounds(context.getDrawable(R.drawable.ic_alarm_off_black_24dp), null, null, null);
+        delete_TextView.setPadding(viewHolder.toot_text_TextView.getPaddingLeft(), 10, viewHolder.toot_text_TextView.getPaddingRight(), 10);
+        delete_TextView.setText(context.getString(R.string.delete_ok));
+        delete_TextView.setPadding(0, 10, 0, 0);
+        parent_LinearLayout.addView(delete_TextView);
+        //API叩く
+        delete_TextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Snackbar.make(v, context.getString(R.string.toot_shortcut_delete), Snackbar.LENGTH_LONG).setAction(context.getText(R.string.delete_ok), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //削除
+                        String url = "https://" + Instance + "/api/v1/scheduled_statuses/" + api.getId() + "?access_token=" + AccessToken;
+                        Request request = new Request.Builder()
+                                .url(url)
+                                .delete()
+                                .build();
+                        //GETリクエスト
+                        OkHttpClient client = new OkHttpClient();
+                        client.newCall(request).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                e.printStackTrace();
+                                viewHolder.mainLinearLayout.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                if (!response.isSuccessful()) {
+                                    //失敗時
+                                    viewHolder.mainLinearLayout.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(context, context.getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                } else {
+                                    viewHolder.mainLinearLayout.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(context, context.getString(R.string.delete_successful), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }).show();
+            }
+        });
+
     }
 
 

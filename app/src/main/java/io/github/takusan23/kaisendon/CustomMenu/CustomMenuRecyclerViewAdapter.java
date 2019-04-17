@@ -11,6 +11,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
@@ -44,7 +46,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
@@ -646,7 +647,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                     @Override
                     public void onFailure(Call call, IOException e) {
                         e.printStackTrace();
-                        textView.post(new Runnable() {
+                        Handler handler = new Handler(Looper.getMainLooper());
+                        handler.post(new Runnable() {
                             @Override
                             public void run() {
                                 Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.error), Toast.LENGTH_SHORT).show();
@@ -659,7 +661,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                         String response_string = response.body().string();
                         if (!response.isSuccessful()) {
                             //失敗
-                            textView.post(new Runnable() {
+                            Handler handler = new Handler(Looper.getMainLooper());
+                            handler.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
@@ -667,7 +670,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                             });
                         } else {
                             //UI Thread
-                            textView.post(new Runnable() {
+                            Handler handler = new Handler(Looper.getMainLooper());
+                            handler.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     if (endPoint.contains("reblog")) {
@@ -1565,7 +1569,6 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 }).show();
             }
         });
-
     }
 
 

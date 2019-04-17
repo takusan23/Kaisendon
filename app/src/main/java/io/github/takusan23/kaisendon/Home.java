@@ -1886,9 +1886,16 @@ public class Home extends AppCompatActivity
                 if (media_list.isEmpty() || media_list == null || media_list.get(0) == null) {
                     //FABのアイコン戻す
                     fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
+                    //時間指定投稿（予約投稿）を送信するね！メッセージ
+                    String message;
+                    if (isTimePost) {
+                        message = getString(R.string.time_post_post_button);
+                    } else {
+                        message = getString(R.string.note_create_message);
+                    }
                     //Tootする
                     //確認SnackBer
-                    Snackbar.make(v, R.string.note_create_message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
+                    Snackbar.make(v, message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             //FABのアイコン戻す
@@ -2029,8 +2036,10 @@ public class Home extends AppCompatActivity
                             isTimePost = isChecked;
                             //色を変えとく？
                             if (isChecked) {
+                                post_button.setText(getString(R.string.time_post_post_button));
                                 mastodon_time_post_Button.setColorFilter(Color.parseColor("#0069c0"), PorterDuff.Mode.SRC_IN);
                             } else {
+                                post_button.setText(getString(R.string.toot_text));
                                 mastodon_time_post_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
                             }
                         }
@@ -2066,7 +2075,14 @@ public class Home extends AppCompatActivity
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/じゃんけん", "じゃんけん");
                 //カウント
                 tootTextCount = toot_EditText.getText().toString().length();
-                post_button.setText(String.valueOf(tootTextCount) + "/" + "500 " + getString(R.string.toot_text));
+                //投稿ボタンの文字
+                String buttonText;
+                if (isTimePost){
+                    buttonText = getString(R.string.time_post_post_button);
+                }else{
+                    buttonText = getString(R.string.toot_text);
+                }
+                post_button.setText(String.valueOf(tootTextCount) + "/" + "500 " + buttonText);
             }
 
             @Override

@@ -547,5 +547,6 @@
     <string name="not_fount_time_post">Time specified post (reservation contribution) There is no</string>
     <string name="delete_successful">I was able to delete</string>
     <string name="time_post_ok">A timed post has been sent</string>
+    <string name="time_post_post_button">Send timed post</string>
 
 </resources>

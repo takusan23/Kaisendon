@@ -443,5 +443,6 @@
     <string name="not_fount_time_post">時間指定投稿（予約投稿）はありません</string>
     <string name="delete_successful">削除できました</string>
     <string name="time_post_ok">時間指定投稿を送信しました</string>
+    <string name="time_post_post_button">時間指定投稿を送信</string>
 
 </resources>

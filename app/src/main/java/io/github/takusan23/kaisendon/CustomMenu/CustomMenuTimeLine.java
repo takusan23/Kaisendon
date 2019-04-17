@@ -181,7 +181,7 @@ public class CustomMenuTimeLine extends Fragment {
     private Vibrator vibrator;
     //時間指定投稿待ち一覧モード
     private boolean isScheduled_statuses = false;
-
+    private CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -331,7 +331,7 @@ public class CustomMenuTimeLine extends Fragment {
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(mLayoutManager);
-        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+        customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
         recyclerView.setAdapter(customMenuRecyclerViewAdapter);
         recyclerViewLayoutManager = recyclerView.getLayoutManager();
 
@@ -505,6 +505,9 @@ public class CustomMenuTimeLine extends Fragment {
                 }
             }
         } else {
+            //引っ張って更新無効
+            swipeRefreshLayout.setEnabled(false);
+            //アカウント情報
             loadAccountName();
             //時間指定待ち一覧を読み込む
             loadScheduled_statuses(view);
@@ -584,7 +587,7 @@ public class CustomMenuTimeLine extends Fragment {
                                         if (recyclerViewLayoutManager != null) {
                                             ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
                                         }
-                                        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                                        //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
                                         recyclerView.setAdapter(customMenuRecyclerViewAdapter);
                                         SnackberProgress.closeProgressSnackber();
                                         scroll = false;
@@ -1141,7 +1144,7 @@ public class CustomMenuTimeLine extends Fragment {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-
+                    ///customMenuRecyclerViewAdapter.notifyItemChanged(0,recyclerViewList.size());
                     if (((LinearLayoutManager) recyclerViewLayoutManager) != null) {
                         // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
                         int pos = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
@@ -1149,7 +1152,7 @@ public class CustomMenuTimeLine extends Fragment {
                         if (((LinearLayoutManager) recyclerViewLayoutManager).getChildCount() > 0) {
                             top = ((LinearLayoutManager) recyclerViewLayoutManager).getChildAt(0).getTop();
                         }
-                        CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                        //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
                         recyclerView.setAdapter(customMenuRecyclerViewAdapter);
                         //一番上なら追いかける
                         if (pos == 0) {
@@ -1246,7 +1249,7 @@ public class CustomMenuTimeLine extends Fragment {
                     if (recyclerViewLayoutManager != null) {
                         ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
                     }
-                    CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                    //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
                     recyclerView.setAdapter(customMenuRecyclerViewAdapter);
                     SnackberProgress.closeProgressSnackber();
                     scroll = false;
@@ -1319,7 +1322,7 @@ public class CustomMenuTimeLine extends Fragment {
                     if (recyclerViewLayoutManager != null) {
                         ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
                     }
-                    CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                    //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
                     recyclerView.setAdapter(customMenuRecyclerViewAdapter);
 /*
                     adapter.insert(listItem, 0);
@@ -1492,7 +1495,7 @@ public class CustomMenuTimeLine extends Fragment {
                     if (recyclerViewLayoutManager != null) {
                         ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
                     }
-                    CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                    //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
                     recyclerView.setAdapter(customMenuRecyclerViewAdapter);
                     SnackberProgress.closeProgressSnackber();
                     scroll = false;
@@ -1538,7 +1541,7 @@ public class CustomMenuTimeLine extends Fragment {
                     if (recyclerViewLayoutManager != null) {
                         ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
                     }
-                    CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                    //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
                     recyclerView.setAdapter(customMenuRecyclerViewAdapter);
                     SnackberProgress.closeProgressSnackber();
                     scroll = false;
@@ -1729,7 +1732,7 @@ public class CustomMenuTimeLine extends Fragment {
                     if (recyclerViewLayoutManager != null) {
                         ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
                     }
-                    CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                    //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
                     recyclerView.setAdapter(customMenuRecyclerViewAdapter);
 /*
                     position = listView.getFirstVisiblePosition();
@@ -2101,7 +2104,7 @@ public class CustomMenuTimeLine extends Fragment {
                                             if (recyclerViewLayoutManager != null) {
                                                 ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
                                             }
-                                            CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                                            //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
                                             recyclerView.setAdapter(customMenuRecyclerViewAdapter);
                                             SnackberProgress.closeProgressSnackber();
                                         }

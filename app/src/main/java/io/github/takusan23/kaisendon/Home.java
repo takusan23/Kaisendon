@@ -1810,7 +1810,9 @@ public class Home extends AppCompatActivity
 
         //Button
         //画像追加
-        ImageButton add_image_Button = new ImageButton(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        ImageButton add_image_Button = new ImageButton(Home.this);
+        add_image_Button.setPadding(20,20,20,20);
+        add_image_Button.setBackgroundColor(Color.parseColor("#00000000"));
         add_image_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
         add_image_Button.setImageDrawable(getDrawable(R.drawable.ic_image_black_24dp));
         add_image_Button.setOnClickListener(new View.OnClickListener() {
@@ -1844,7 +1846,9 @@ public class Home extends AppCompatActivity
         });
 
         //公開範囲選択用Button
-        toot_area_Button = new ImageButton(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        toot_area_Button = new ImageButton(Home.this);
+        toot_area_Button.setPadding(20,20,20,20);
+        toot_area_Button.setBackgroundColor(Color.parseColor("#00000000"));
         toot_area_Button.setImageDrawable(getDrawable(R.drawable.ic_public_black_24dp));
         toot_area_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
         //toot_area_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_public_black_24dp, 0, 0, 0);
@@ -1913,7 +1917,9 @@ public class Home extends AppCompatActivity
         });
 
         //端末情報とぅーと
-        ImageButton device_Button = new ImageButton(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        ImageButton device_Button = new ImageButton(Home.this);
+        device_Button.setPadding(20,20,20,20);
+        device_Button.setBackgroundColor(Color.parseColor("#00000000"));
         device_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
         device_Button.setImageDrawable(getDrawable(R.drawable.ic_perm_device_information_black_24dp));
         //ポップアップメニュー作成
@@ -1982,8 +1988,10 @@ public class Home extends AppCompatActivity
         });
 
         //Misskey Driveボタン
-        misskey_drive_Button = new ImageButton(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        misskey_drive_Button = new ImageButton(Home.this);
         //misskey_drive_Button.setBackground(getDrawable(R.drawable.button_clear));
+        misskey_drive_Button.setPadding(20,20,20,20);
+        misskey_drive_Button.setBackgroundColor(Color.parseColor("#00000000"));
         misskey_drive_Button.setImageDrawable(getDrawable(R.drawable.ic_cloud_queue_white_24dp));
         misskey_drive_Button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1998,7 +2006,9 @@ public class Home extends AppCompatActivity
         //時間投稿ボタン
         LinearLayout mastodon_time_post_LinearLayout = new LinearLayout(Home.this);
         getLayoutInflater().inflate(R.layout.mastodon_time_post_layout, mastodon_time_post_LinearLayout);
-        mastodon_time_post_Button = new ImageButton(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        mastodon_time_post_Button = new ImageButton(Home.this);
+        mastodon_time_post_Button.setPadding(20,20,20,20);
+        mastodon_time_post_Button.setBackgroundColor(Color.parseColor("#00000000"));
         mastodon_time_post_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
         mastodon_time_post_Button.setImageDrawable(getDrawable(R.drawable.ic_timer_black_24dp));
         mastodon_time_post_Button.setOnClickListener(new View.OnClickListener() {
@@ -2077,9 +2087,9 @@ public class Home extends AppCompatActivity
                 tootTextCount = toot_EditText.getText().toString().length();
                 //投稿ボタンの文字
                 String buttonText;
-                if (isTimePost){
+                if (isTimePost) {
                     buttonText = getString(R.string.time_post_post_button);
-                }else{
+                } else {
                     buttonText = getString(R.string.toot_text);
                 }
                 post_button.setText(String.valueOf(tootTextCount) + "/" + "500 " + buttonText);
@@ -2658,6 +2668,9 @@ public class Home extends AppCompatActivity
                             if (time_post_Switch != null) {
                                 time_post_Switch.setChecked(false);
                                 Toast.makeText(Home.this, getString(R.string.time_post_ok), Toast.LENGTH_SHORT).show();
+                                //予約投稿を無効化
+                                isTimePost = false;
+                                mastodon_time_post_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
                             } else {
                                 Toast.makeText(Home.this, getString(R.string.toot_ok), Toast.LENGTH_SHORT).show();
                             }
@@ -2670,9 +2683,6 @@ public class Home extends AppCompatActivity
                             media_list.clear();
                             post_media_id.clear();
                             media_LinearLayout.removeAllViews();
-                            //予約投稿を無効化
-                            isTimePost = false;
-                            mastodon_time_post_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
                         }
                     });
                 }

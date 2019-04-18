@@ -295,6 +295,7 @@ public class Home extends AppCompatActivity
             }
         }
 
+
 /*
         String start_fragment = pref_setting.getString("pref_startFragment", "HomeCard");
         if (savedInstanceState == null) {
@@ -467,6 +468,33 @@ public class Home extends AppCompatActivity
 
             }
         });
+
+        //共有を受け取る
+        Intent intent = getIntent();
+        String action_string = intent.getAction();
+        System.out.println(action_string);
+        if (Intent.ACTION_SEND.equals(action_string)) {
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                //URL
+                CharSequence text = extras.getCharSequence(Intent.EXTRA_TEXT);
+                //タイトル
+                CharSequence title = extras.getCharSequence(Intent.EXTRA_SUBJECT);
+                //EXTRA TEXTにタイトルが含まれているかもしれない？
+                //含まれているときは消す
+                text = text.toString().replace(title, "");
+                if (title != null) {
+                    toot_EditText.append(title);
+                }
+                if (text != null) {
+                    toot_EditText.append("\n");
+                    toot_EditText.append(text);
+                }
+            }
+        }
+
+
+
         //長押し
 
 /*

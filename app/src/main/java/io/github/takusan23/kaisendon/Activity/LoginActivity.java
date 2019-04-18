@@ -213,7 +213,7 @@ public class LoginActivity extends AppCompatActivity {
         //OkHttp
         //ぱらめーたー
         RequestBody requestBody = new FormBody.Builder()
-                .add("client_name", instance_name_EditText.getText().toString())
+                .add("client_name", client_name_EditText.getText().toString())
                 .add("redirect_uris", "https://takusan23.github.io/Kaisendon-Callback-Website/")
                 .add("scopes", "read write follow")
                 .add("website", "https://play.google.com/store/apps/details?id=io.github.takusan23.kaisendon")

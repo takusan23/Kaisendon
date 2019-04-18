@@ -44,6 +44,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- 共有受け取る -->
+            <intent-filter android:label="@string/toot">
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/*" />
+            </intent-filter>
+
+
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
@@ -57,19 +67,11 @@
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
-        </service> <!-- トゥート画面 -->
+        </service>
+        <!-- トゥート画面 -->
         <activity
             android:name=".Activity.TootSnackberActivity"
             android:theme="@style/Theme.TranslucentBackground">
-
-            <!-- 共有受け取る -->
-            <intent-filter android:label="@string/toot">
-                <action android:name="android.intent.action.SEND" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="text/*" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".Activity.LoginActivity"

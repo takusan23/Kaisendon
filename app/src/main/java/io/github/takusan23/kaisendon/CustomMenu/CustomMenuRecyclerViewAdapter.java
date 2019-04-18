@@ -109,6 +109,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         public TextView reaction_TextView;
         //spoiler_text
         public Button spoiler_text_Button;
+        //vote
+        public LinearLayout vote_LinearLayout;
+        public Button vote_1;
+        public Button vote_2;
+        public Button vote_3;
+        public Button vote_4;
+        public TextView vote_time;
 
         public ViewHolder(@NonNull View itemView, Context context) {
             super(itemView);
@@ -139,6 +146,12 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             notification_type_TextView = new TextView(context);
             reaction_TextView = new TextView(context);
             spoiler_text_Button = new Button(context);
+            vote_LinearLayout = itemView.findViewById(R.id.custom_menu_adapter_voteLinearLayout);
+            vote_1 = new Button(context);
+            vote_2 = new Button(context);
+            vote_3 = new Button(context);
+            vote_4 = new Button(context);
+            vote_time = new TextView(context);
         }
     }
 
@@ -234,6 +247,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 setSpoiler_text(viewHolder, api);
                 //ボタン
                 showTootOption(viewHolder, api);
+                //投票
+                showVoteLayout(viewHolder, api);
             }
         } else {
             MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
@@ -1478,6 +1493,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 Bundle bundle = new Bundle();
                 bundle.putString("user_id", api.getUser_ID());
                 bundle.putString("status_id", api.getToot_ID());
+                bundle.putString("status_text", viewHolder.toot_text_TextView.getText().toString());
                 dialog.setArguments(bundle);
                 dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "toot_option");
             }
@@ -1496,6 +1512,108 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         parent_LinearLayout.removeView(viewHolder.toot_card_LinearLayout);
         parent_LinearLayout.removeView(viewHolder.action_LinearLayout);
     }
+
+    /**
+     * 投票
+     */
+    private void showVoteLayout(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
+        viewHolder.vote_LinearLayout.removeAllViews();
+        //投票があるか
+        if (api.isVote()) {
+            System.out.println(api.getVotes_title().size());
+            viewHolder.vote_1.setText(api.getVotes_title().get(0) + " (" + api.getVotes_count().get(0) + ")");
+            viewHolder.vote_2.setText(api.getVotes_title().get(1) + " (" + api.getVotes_count().get(1) + ")");
+            viewHolder.vote_1.setBackground(context.getDrawable(R.drawable.button_style_white));
+            viewHolder.vote_2.setBackground(context.getDrawable(R.drawable.button_style_white));
+            viewHolder.vote_LinearLayout.addView(viewHolder.vote_1);
+            viewHolder.vote_LinearLayout.addView(viewHolder.vote_2);
+            postVote(viewHolder, api, "0", viewHolder.vote_1);
+            postVote(viewHolder, api, "1", viewHolder.vote_2);
+
+            if (api.getVotes_title().size() > 2) {
+                viewHolder.vote_3.setText(api.getVotes_title().get(2) + " (" + api.getVotes_count().get(2) + ")");
+                viewHolder.vote_3.setBackground(context.getDrawable(R.drawable.button_style_white));
+                viewHolder.vote_LinearLayout.addView(viewHolder.vote_3);
+                postVote(viewHolder, api, "2", viewHolder.vote_3);
+            }
+            if (api.getVotes_title().size() > 3) {
+                viewHolder.vote_4.setText(api.getVotes_title().get(3) + " (" + api.getVotes_count().get(3) + ")");
+                viewHolder.vote_4.setBackground(context.getDrawable(R.drawable.button_style_white));
+                viewHolder.vote_LinearLayout.addView(viewHolder.vote_4);
+                postVote(viewHolder, api, "3", viewHolder.vote_4);
+            }
+            //時間
+            viewHolder.vote_time.setText(getCreatedAtFormat(api.getVote_expires_at()));
+            viewHolder.vote_time.setCompoundDrawablesRelativeWithIntrinsicBounds(context.getDrawable(R.drawable.ic_access_time_black_24dp), null, null, null);
+            viewHolder.vote_LinearLayout.addView(viewHolder.vote_time);
+        }
+    }
+
+    /**
+     * 投票API
+     */
+    private void postVote(ViewHolder viewHolder, MastodonTLAPIJSONParse api, String choices, Button button) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Snackbar.make(viewHolder.mainLinearLayout, context.getString(R.string.vote_post_message), Snackbar.LENGTH_LONG).setAction(context.getText(R.string.vote_ok), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String url = "https://" + Instance + "/api/v1/polls/" + api.getVote_id() + "/votes";
+                        //複数行けるっぽい？
+                        JSONObject jsonObject = new JSONObject();
+                        JSONArray jsonArray = new JSONArray();
+                        jsonArray.put(choices);
+                        try {
+                            jsonObject.put("choices", jsonArray);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        RequestBody requestBody_json = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+                        Request request = new Request.Builder()
+                                .url(url)
+                                .post(requestBody_json)
+                                .build();
+                        //GETリクエスト
+                        OkHttpClient client = new OkHttpClient();
+                        client.newCall(request).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                e.printStackTrace();
+                                viewHolder.mainLinearLayout.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                if (!response.isSuccessful()) {
+                                    //失敗時
+                                    viewHolder.mainLinearLayout.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(context, context.getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                } else {
+                                    viewHolder.mainLinearLayout.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(context, context.getString(R.string.vote_successful) + choices, Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }).show();
+            }
+        });
+    }
+
 
     /**
      * 時間指定投稿（予約投稿）のレイアウト

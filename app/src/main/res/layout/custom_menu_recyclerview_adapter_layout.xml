@@ -146,6 +146,14 @@
                 android:paddingRight="10dp"></LinearLayout>
 
             <LinearLayout
+                android:id="@+id/custom_menu_adapter_voteLinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"></LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/custom_menu_adapter_notification_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

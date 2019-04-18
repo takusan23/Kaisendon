@@ -548,5 +548,17 @@
     <string name="delete_successful">I was able to delete</string>
     <string name="time_post_ok">A timed post has been sent</string>
     <string name="time_post_post_button">Send timed post</string>
+    <string name="vote_message">Voting features are available in mastodon version 2.8.0 and later.</string>
+    <string name="vote_multiple">Allow multiple votes</string>
+    <string name="vote_hide">Hide the total until the poll is over.</string>
+    <string name="vote_time">Duration the poll should be open for in seconds</string>
+    <string name="vote_1">Item 1</string>
+    <string name="vote_2">Item 2</string>
+    <string name="vote_3">Item 3 (option)</string>
+    <string name="vote_4">Item 4 (option)</string>
+    <string name="vote_use">Use the voting function</string>
+    <string name="vote_successful">I voted</string>
+    <string name="vote_post_message">Do you want to vote?</string>
+    <string name="vote_ok">Voting</string>
 
 </resources>

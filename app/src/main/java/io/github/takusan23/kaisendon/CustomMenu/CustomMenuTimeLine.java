@@ -525,10 +525,11 @@ public class CustomMenuTimeLine extends Fragment {
         HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
         builder.addQueryParameter("limit", "40");
         builder.addQueryParameter("access_token", access_token);
-        if (max_id_id.length() != 0) {
-            builder.addQueryParameter("max_id", max_id_id);
+        if (max_id_id != null) {
+            if (max_id_id.length() != 0) {
+                builder.addQueryParameter("max_id", max_id_id);
+            }
         }
-
         String max_id_final_url = builder.build().toString();
 
         //作成

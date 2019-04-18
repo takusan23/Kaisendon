@@ -55,6 +55,12 @@ public class MastodonTLAPIJSONParse {
     private String notification_Type;
     private String reaction_Type = "";
     private String spoiler_text;
+    private boolean isVote = false;
+    private String vote_id;
+    private String vote_expires_at;
+    private String total_votes_count;
+    private ArrayList<String> votes_title;
+    private ArrayList<String> votes_count;
 
     //インスタンス
     public MastodonTLAPIJSONParse(Context context, String response_string) {
@@ -197,6 +203,30 @@ public class MastodonTLAPIJSONParse {
         return spoiler_text;
     }
 
+    public String getVote_id() {
+        return vote_id;
+    }
+
+    public String getVote_expires_at() {
+        return vote_expires_at;
+    }
+
+    public String getTotal_votes_count() {
+        return total_votes_count;
+    }
+
+    public ArrayList<String> getVotes_count() {
+        return votes_count;
+    }
+
+    public ArrayList<String> getVotes_title() {
+        return votes_title;
+    }
+
+    public boolean isVote(){
+        return isVote;
+    }
+
     //JSONパース
     private void setMastodonTLParse() {
         try {
@@ -297,6 +327,22 @@ public class MastodonTLAPIJSONParse {
                     //要素があるか確認
                     if (!media_array.isNull(0)) {
                         mediaList.add(media_array.getJSONObject(i).getString("url"));
+                    }
+                }
+                //投票
+                if (!toot_JsonObject.isNull("poll")) {
+                    votes_title = new ArrayList<>();
+                    votes_count = new ArrayList<>();
+                    JSONObject vote = toot_JsonObject.getJSONObject("poll");
+                    JSONArray options = vote.getJSONArray("options");
+                    isVote = true;
+                    vote_id = vote.getString("id");
+                    total_votes_count = vote.getString("votes_count");
+                    vote_expires_at = vote.getString("expires_at");
+                    for (int i = 0; i < options.length(); i++) {
+                        JSONObject option = options.getJSONObject(i);
+                        votes_title.add(option.getString("title"));
+                        votes_count.add(option.getString("votes_count"));
                     }
                 }
             } else {

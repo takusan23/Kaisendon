@@ -444,5 +444,17 @@
     <string name="delete_successful">削除できました</string>
     <string name="time_post_ok">時間指定投稿を送信しました</string>
     <string name="time_post_post_button">時間指定投稿を送信</string>
+    <string name="vote_message">投票機能はマストドンバージョン2.8.0以降で利用可能です。</string>
+    <string name="vote_hide">投票が終了するまで合計を非表示にする。</string>
+    <string name="vote_multiple">複数の投票を許可する</string>
+    <string name="vote_time">投票が開かれる期間（秒）</string>
+    <string name="vote_1">項目１</string>
+    <string name="vote_2">項目２</string>
+    <string name="vote_3">項目３（オプション）</string>
+    <string name="vote_4">項目４（オプション）</string>
+    <string name="vote_use">投票機能を利用する</string>
+    <string name="vote_successful">投票しました</string>
+    <string name="vote_ok">投票</string>
+    <string name="vote_post_message">投票しますか</string>
 
 </resources>

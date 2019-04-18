@@ -198,9 +198,20 @@ public class Home extends AppCompatActivity
     String post_time;
     Switch time_post_Switch;
     boolean isTimePost = false;
-    //public static TextView mastodon_time_post_TextView;
     boolean isMastodon_time_post;
+    //投票
+    ImageButton mastodon_vote_Button;
     LinearLayout toot_Button_LinearLayout;
+    boolean isMastodon_vote = false;
+    boolean isMastodon_vote_layout = false;
+    EditText vote_1;
+    EditText vote_2;
+    EditText vote_3;
+    EditText vote_4;
+    EditText vote_time;
+    Switch vote_use_Switch;
+    Switch vote_multi_Switch;
+    Switch vote_hide_Switch;
     //マルチアカウント読み込み用
     ArrayList<String> multi_account_instance;
     ArrayList<String> multi_account_access_token;
@@ -432,13 +443,16 @@ public class Home extends AppCompatActivity
                     setMisskeyVisibilityMenu(toot_area_Button);
                     toot_Button_LinearLayout.removeView(misskey_drive_Button);
                     toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
+                    toot_Button_LinearLayout.removeView(mastodon_vote_Button);
                     toot_Button_LinearLayout.addView(misskey_drive_Button);
                 } else {
                     getAccount();
                     setMastodonVisibilityMenu(toot_area_Button);
                     toot_Button_LinearLayout.removeView(misskey_drive_Button);
                     toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
+                    toot_Button_LinearLayout.removeView(mastodon_vote_Button);
                     toot_Button_LinearLayout.addView(mastodon_time_post_Button);
+                    toot_Button_LinearLayout.addView(mastodon_vote_Button);
                 }
                 toot_snackbar.dismiss();
                 fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
@@ -1811,7 +1825,7 @@ public class Home extends AppCompatActivity
         //Button
         //画像追加
         ImageButton add_image_Button = new ImageButton(Home.this);
-        add_image_Button.setPadding(20,20,20,20);
+        add_image_Button.setPadding(20, 20, 20, 20);
         add_image_Button.setBackgroundColor(Color.parseColor("#00000000"));
         add_image_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
         add_image_Button.setImageDrawable(getDrawable(R.drawable.ic_image_black_24dp));
@@ -1847,7 +1861,7 @@ public class Home extends AppCompatActivity
 
         //公開範囲選択用Button
         toot_area_Button = new ImageButton(Home.this);
-        toot_area_Button.setPadding(20,20,20,20);
+        toot_area_Button.setPadding(20, 20, 20, 20);
         toot_area_Button.setBackgroundColor(Color.parseColor("#00000000"));
         toot_area_Button.setImageDrawable(getDrawable(R.drawable.ic_public_black_24dp));
         toot_area_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
@@ -1918,7 +1932,7 @@ public class Home extends AppCompatActivity
 
         //端末情報とぅーと
         ImageButton device_Button = new ImageButton(Home.this);
-        device_Button.setPadding(20,20,20,20);
+        device_Button.setPadding(20, 20, 20, 20);
         device_Button.setBackgroundColor(Color.parseColor("#00000000"));
         device_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
         device_Button.setImageDrawable(getDrawable(R.drawable.ic_perm_device_information_black_24dp));
@@ -1990,7 +2004,7 @@ public class Home extends AppCompatActivity
         //Misskey Driveボタン
         misskey_drive_Button = new ImageButton(Home.this);
         //misskey_drive_Button.setBackground(getDrawable(R.drawable.button_clear));
-        misskey_drive_Button.setPadding(20,20,20,20);
+        misskey_drive_Button.setPadding(20, 20, 20, 20);
         misskey_drive_Button.setBackgroundColor(Color.parseColor("#00000000"));
         misskey_drive_Button.setImageDrawable(getDrawable(R.drawable.ic_cloud_queue_white_24dp));
         misskey_drive_Button.setOnClickListener(new View.OnClickListener() {
@@ -2007,7 +2021,7 @@ public class Home extends AppCompatActivity
         LinearLayout mastodon_time_post_LinearLayout = new LinearLayout(Home.this);
         getLayoutInflater().inflate(R.layout.mastodon_time_post_layout, mastodon_time_post_LinearLayout);
         mastodon_time_post_Button = new ImageButton(Home.this);
-        mastodon_time_post_Button.setPadding(20,20,20,20);
+        mastodon_time_post_Button.setPadding(20, 20, 20, 20);
         mastodon_time_post_Button.setBackgroundColor(Color.parseColor("#00000000"));
         mastodon_time_post_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
         mastodon_time_post_Button.setImageDrawable(getDrawable(R.drawable.ic_timer_black_24dp));
@@ -2059,6 +2073,54 @@ public class Home extends AppCompatActivity
                     //消す
                     isMastodon_time_post = false;
                     snackber_LinearLayout.removeView(mastodon_time_post_LinearLayout);
+                }
+            }
+        });
+
+        //投票
+        LinearLayout vote_LinearLayout = new LinearLayout(Home.this);
+        getLayoutInflater().inflate(R.layout.toot_vote_layout, vote_LinearLayout);
+        mastodon_vote_Button = new ImageButton(Home.this);
+        mastodon_vote_Button.setPadding(20, 20, 20, 20);
+        mastodon_vote_Button.setBackgroundColor(Color.parseColor("#00000000"));
+        mastodon_vote_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
+        mastodon_vote_Button.setImageDrawable(getDrawable(R.drawable.ic_move_to_inbox_black_24dp));
+        mastodon_vote_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isMastodon_vote_layout) {
+                    isMastodon_vote_layout = true;
+                    snackber_LinearLayout.addView(vote_LinearLayout, 2);
+                    vote_use_Switch = snackber_LinearLayout.findViewById(R.id.vote_use_switch);
+                    vote_multi_Switch = snackber_LinearLayout.findViewById(R.id.vote_multi_switch);
+                    vote_hide_Switch = snackber_LinearLayout.findViewById(R.id.vote_hide_switch);
+                    vote_1 = snackber_LinearLayout.findViewById(R.id.vote_editText_1);
+                    vote_2 = snackber_LinearLayout.findViewById(R.id.vote_editText_2);
+                    vote_3 = snackber_LinearLayout.findViewById(R.id.vote_editText_3);
+                    vote_4 = snackber_LinearLayout.findViewById(R.id.vote_editText_4);
+                    vote_time = snackber_LinearLayout.findViewById(R.id.vote_editText_time);
+                    ((TextInputLayout)snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_1)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+                    ((TextInputLayout)snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_2)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+                    ((TextInputLayout)snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_3)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+                    ((TextInputLayout)snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_4)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+                    ((TextInputLayout)snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_time)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+                    //有効無効
+                    vote_use_Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            //入れておく
+                            isMastodon_vote = isChecked;
+                            //色を変えとく？
+                            if (isChecked) {
+                                mastodon_vote_Button.setColorFilter(Color.parseColor("#0069c0"), PorterDuff.Mode.SRC_IN);
+                            } else {
+                                mastodon_vote_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
+                            }
+                        }
+                    });
+                } else {
+                    isMastodon_vote_layout = false;
+                    snackber_LinearLayout.removeView(vote_LinearLayout);
                 }
             }
         });
@@ -2610,28 +2672,61 @@ public class Home extends AppCompatActivity
         String AccessToken = pref_setting.getString("main_token", "");
         String Instance = pref_setting.getString("main_instance", "");
         String url = "https://" + Instance + "/api/v1/statuses/?access_token=" + AccessToken;
+/*
         //ぱらめーたー
-        MultipartBody.Builder requestBody = new MultipartBody.Builder();
-        requestBody.setType(MultipartBody.FORM);
-        requestBody.addFormDataPart("status", toot_EditText.getText().toString());
-        requestBody.addFormDataPart("visibility", toot_area);
+        FormBody.Builder requestBody = new FormBody.Builder();
+        requestBody.add("status", toot_EditText.getText().toString());
+        requestBody.add("visibility", toot_area);
+
         //時間指定
         if (isTimePost) {
-            System.out.println(post_date + "/" + post_time);
+            //System.out.println(post_date + "/" + post_time);
             //nullCheck
             if (post_date != null && post_time != null) {
-                requestBody.addFormDataPart("scheduled_at", post_date + post_time);
+                requestBody.add("scheduled_at", post_date + post_time);
             }
         }
         //画像
         for (int i = 0; i < post_media_id.size(); i++) {
-            requestBody.addFormDataPart("media_ids[]", post_media_id.get(i));
+            requestBody.add("media_ids[]", post_media_id.get(i));
+        }
+        //投票機能
+        if (isMastodon_vote) {
+            requestBody.add("poll", createMastodonVote().toString());
         }
         requestBody.build();
+*/
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("status", toot_EditText.getText().toString());
+            jsonObject.put("visibility", toot_area);
+            //時間指定
+            if (isTimePost) {
+                //System.out.println(post_date + "/" + post_time);
+                //nullCheck
+                if (post_date != null && post_time != null) {
+                    jsonObject.put("scheduled_at", post_date + post_time);
+                }
+            }
+            //画像
+            for (int i = 0; i < post_media_id.size(); i++) {
+                jsonObject.put("media_ids[]", post_media_id.get(i));
+            }
+            //投票機能
+            if (isMastodon_vote) {
+                jsonObject.put("poll", createMastodonVote());
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestBody requestBody_json = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+        //System.out.println(jsonObject.toString());
 
         Request request = new Request.Builder()
                 .url(url)
-                .post(requestBody.build())
+                .post(requestBody_json)
                 .build();
 
         //POST
@@ -2673,6 +2768,11 @@ public class Home extends AppCompatActivity
                                 mastodon_time_post_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
                             } else {
                                 Toast.makeText(Home.this, getString(R.string.toot_ok), Toast.LENGTH_SHORT).show();
+                            }
+                            //投票
+                            if (isMastodon_vote){
+                                isMastodon_vote = false;
+                                vote_use_Switch.setChecked(false);
                             }
                             //EditTextを空にする
                             toot_EditText.setText("");
@@ -2835,6 +2935,37 @@ public class Home extends AppCompatActivity
                 }
             }
         });
+    }
+
+    /**
+     * Mastodon 投票
+     */
+    private JSONObject createMastodonVote() {
+        JSONObject object = new JSONObject();
+        try {
+            //配列
+            JSONArray jsonArray = new JSONArray();
+            if (vote_1.getText().toString().contains("")) {
+                jsonArray.put(vote_1.getText().toString());
+            }
+            if (vote_2.getText().toString().contains("")) {
+                jsonArray.put(vote_2.getText().toString());
+            }
+            if (vote_3.getText().toString().contains("")) {
+                jsonArray.put(vote_3.getText().toString());
+            }
+            if (vote_4.getText().toString().contains("")) {
+                jsonArray.put(vote_4.getText().toString());
+            }
+            object.put("options", jsonArray);
+            object.put("expires_in", vote_time.getText().toString());
+            object.put("multiple", vote_multi_Switch.isChecked());
+            //object.put("hide_totals", vote_hide_Switch.isChecked());
+            System.out.println(object.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return object;
     }
 
 

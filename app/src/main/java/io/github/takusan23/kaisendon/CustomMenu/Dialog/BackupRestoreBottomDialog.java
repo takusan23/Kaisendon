@@ -68,7 +68,7 @@ public class BackupRestoreBottomDialog extends BottomSheetDialogFragment {
             path = "/sdcard/Android/sandbox/io.github.takusan23/kaisendon";
         }
         //パスをTextViewに入れる
-        path_TextView.append("\n" +path + "/kaisendon_backup");
+        path_TextView.append("\n" + path + "/kaisendon_backup");
     }
 
     /*バックアップ、リストアはちゃんとUI作って書き直す予定（）*/
@@ -82,6 +82,7 @@ public class BackupRestoreBottomDialog extends BottomSheetDialogFragment {
         //Android Pie（9.0）だと/sdcardに作られるけど、
         //Android Q（不明）はScoped Storageの関係上/sdcard/Android/sandbox/io.github.takusan23/kaisendonに作成されます
         backup("CustomMenu.db");
+        backup("TootBookmark.db");
         Toast.makeText(getContext(), getString(R.string.backup_successful) + "\n" + path + "/kaisendon_backup", Toast.LENGTH_SHORT).show();
     }
 
@@ -90,6 +91,7 @@ public class BackupRestoreBottomDialog extends BottomSheetDialogFragment {
      */
     private void startRestore() {
         restore("CustomMenu.db");
+        restore("TootBookmark.db");
         Toast.makeText(getContext(), getString(R.string.restore_successful), Toast.LENGTH_SHORT).show();
     }
 

@@ -5,11 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
-import android.app.TaskStackBuilder;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,28 +19,26 @@ import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.RemoteInput;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
@@ -56,8 +50,8 @@ import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html;
-import android.text.Spanned;
 import android.text.TextWatcher;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -65,6 +59,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -81,16 +76,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
-import com.sys1yagi.mastodon4j.MastodonClient;
-import com.sys1yagi.mastodon4j.api.Handler;
-import com.sys1yagi.mastodon4j.api.Shutdownable;
-import com.sys1yagi.mastodon4j.api.entity.Notification;
-import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
-import com.sys1yagi.mastodon4j.api.method.Streaming;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -508,7 +495,6 @@ public class Home extends AppCompatActivity
         }
 
 
-
         //長押し
 
 /*
@@ -545,27 +531,7 @@ public class Home extends AppCompatActivity
         //ImageView header_imageView = navHeaderView
         TextView user_account_textView = navHeaderView.findViewById(R.id.drawer_account);
         TextView user_id_textView = navHeaderView.findViewById(R.id.drawer_id);
-//        user_id_textView.setText(user_id);
-//        user_account_textView.setText(display_name);
-
-/*
-        if (!pref_setting.getBoolean("custom_menu", false)) {
-            Menu drawer_menu = navigationView.getMenu();
-            MenuItem favourite_menu = drawer_menu.findItem(R.id.favourite_list);
-            //ニコるかお気に入りか
-            boolean nicoru_favourite_check = pref_setting.getBoolean("pref_friends_nico_mode", false);
-            if (!nicoru_favourite_check) {
-                favourite_menu.setTitle(R.string.favourite_list);
-            } else {
-                favourite_menu.setTitle("ニコったリスト");
-            }
-        }
-*/
-
-        //つかわん
-        if (CustomMenuTimeLine.isMisskeyMode()) {
-
-        } else {
+        if (!CustomMenuTimeLine.isMisskeyMode()) {
             String url = "https://" + Instance + "/api/v1/accounts/verify_credentials/?access_token=" + AccessToken;
             //作成
             Request request = new Request.Builder()
@@ -687,125 +653,7 @@ public class Home extends AppCompatActivity
         }
 
 
-        boolean friends_nico_check_box = pref_setting.getBoolean("pref_friends_nico_mode", false);
-
-
-        //通知
-        boolean notification_toast = pref_setting.getBoolean("pref_notification_toast", true);
-        boolean notification_vibrate = pref_setting.getBoolean("pref_notification_vibrate", true);
-
-        Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-
 /*
-        if (notification_toast) {
-            //Streaming Notification
-            new AsyncTask<String, Void, String>() {
-                @Override
-                protected String doInBackground(String... string) {
-                    MastodonClient client = new MastodonClient.Builder(finalInstance, new OkHttpClient.Builder(), new Gson()).accessToken(finalAccessToken).useStreamingApi().build();
-
-                    Handler handler = new Handler() {
-
-                        @Override
-                        public void onStatus(com.sys1yagi.mastodon4j.api.entity.Status status) {
-                        }
-
-                        //これ通知
-                        @Override
-                        public void onNotification(Notification notification) {
-
-                            String user = notification.getAccount().getAcct();
-                            String user_name = notification.getAccount().getDisplayName();
-                            String notification_type = notification.getType();
-
-                            Locale locale = Locale.getDefault();
-
-                            Drawable drawable = getDrawable(R.drawable.ic_android_black_24dp);
-
-                            if (notification_type.equals("mention") && locale.equals(Locale.JAPAN)) {
-                                notification_type = "返信し";
-                                drawable = getDrawable(R.drawable.notification_to_mention);
-                            }
-                            if (notification_type.equals("reblog") && locale.equals(Locale.JAPAN)) {
-                                notification_type = "ブーストし";
-                                drawable = getDrawable(R.drawable.notification_to_boost);
-                            }
-                            if (notification_type.equals("favourite") && locale.equals(Locale.JAPAN)) {
-                                if (!friends_nico_check_box) {
-                                    notification_type = "お気に入りし";
-                                    drawable = getDrawable(R.drawable.notification_to_favourite);
-                                } else {
-                                    notification_type = "二コり";
-                                    drawable = getDrawable(R.drawable.nicoru);
-                                    nicoru = true;
-                                }
-                            }
-                            if (notification_type.equals("follow") && locale.equals(Locale.JAPAN)) {
-                                notification_type = "フォローし";
-                                drawable = getDrawable(R.drawable.notification_to_person);
-                            }
-
-
-                            String notification_string = user_name + "(" + user + ")" + "さんが" + notification_type + "ました";
-
-
-                            Drawable finalDrawable = drawable;
-                            String finalNotification_type = notification_type;
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    //カスタムトースト
-                                    Toast toast = new Toast(getApplicationContext());
-                                    LayoutInflater inflater = getLayoutInflater();
-                                    View layout = inflater.inflate(R.layout.notification_toast_layout, null);
-                                    TextView toast_text = layout.findViewById(R.id.notification_text);
-                                    toast_text.setText(notification_string);
-                                    AppCompatImageView toast_imageview = layout.findViewById(R.id.notification_icon);
-                                    toast_imageview.setImageDrawable(finalDrawable);
-                                    try {
-                                        Animatable animatable = (Animatable) finalDrawable;
-                                        animatable.start();
-                                    } catch (ClassCastException e) {
-
-                                    }
-                                    toast.setView(layout);
-                                    toast.setDuration(Toast.LENGTH_LONG);
-                                    toast.show();
-
-                                    //Toast.makeText(getApplicationContext(), notification_string, Toast.LENGTH_LONG).show();
-                                }
-                            });
-
-                            if (notification_vibrate) {
-                                long[] pattern = {100, 100, 100, 100};
-                                vibrator.vibrate(pattern, -1);
-                            }
-
-                        }
-
-                        @Override
-                        public void onDelete(long l) {
-
-                        }
-                    };
-                    Streaming streaming = new Streaming(client);
-                    try {
-                        Shutdownable shutdownable = streaming.user(handler);
-                        //Thread.sleep(10000L);
-                        //shutdownable.shutdown();
-                    } catch (Mastodon4jRequestException e) {
-                        e.printStackTrace();
-                    }
-                    return toot_text;
-                }
-
-            }.execute();
-        } else {
-
-        }
-*/
-
-
         //ローカルタイムライントースト
         if (pref_setting.getInt("timeline_toast_check", 0) == 1) {
 
@@ -912,6 +760,7 @@ public class Home extends AppCompatActivity
 
 
                                     //トースト表示
+*/
 /*
                                     Toast toast = new Toast(getApplicationContext());
                                     LayoutInflater inflater = getLayoutInflater();
@@ -921,7 +770,8 @@ public class Home extends AppCompatActivity
                                     toast_text.setText(Html.fromHtml(user_name + "\r\n" + toot_text, Html.FROM_HTML_MODE_COMPACT));
                                     ImageView toast_imageview = layout.findViewById(R.id.notification_icon);
                                     //toast_imageview.setImageDrawable(finalDrawable);
-*/
+*//*
+
 
                                     //ブロードキャストを送信
                                     //ブロードキャスト先を指定（明示的ブロードキャスト）
@@ -1170,13 +1020,6 @@ public class Home extends AppCompatActivity
 
                             // 正規表現
                             finaltoot = Html.fromHtml(finaltoot, Html.FROM_HTML_MODE_COMPACT).toString();
-                            //finaltoot = finaltoot.replaceFirst("^https?://[a-z\\\\.:/\\\\+\\\\-\\\\#\\\\?\\\\=\\\\&\\\\;\\\\%\\\\~]+$","Minecraft");
-                            //System.out.println(finaltoot);
-
-
-//                            String str_1 = finaltoot.replaceFirst("(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+","URL省略");
-//                            System.out.println(str_1);
-
                             String final_toot_1 = finaltoot;
                             //URL省略
                             if (pref_setting.getBoolean("pref_speech_url", true)) {
@@ -1192,10 +1035,14 @@ public class Home extends AppCompatActivity
                         }
 
                         @Override
-                        public void onNotification(@NotNull Notification notification) {/* no op */}
+                        public void onNotification(@NotNull Notification notification) {*/
+/* no op *//*
+}
 
                         @Override
-                        public void onDelete(long id) {/* no op */}
+                        public void onDelete(long id) {*/
+/* no op *//*
+}
                     };
 
                     Streaming streaming = new Streaming(client);
@@ -1217,6 +1064,7 @@ public class Home extends AppCompatActivity
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
+*/
         //スリープ無効？
         boolean setting_sleep = pref_setting.getBoolean("pref_no_sleep", false);
         if (setting_sleep) {
@@ -1832,6 +1680,16 @@ public class Home extends AppCompatActivity
         snackber_LinearLayout.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams warp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         snackber_LinearLayout.setLayoutParams(warp);
+        //スワイプで消せないようにする
+        toot_snackbar.getView().getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                toot_snackbar.getView().getViewTreeObserver().removeOnPreDrawListener(this);
+                ((CoordinatorLayout.LayoutParams) toot_snackbar.getView().getLayoutParams()).setBehavior(null);
+                return true;
+            }
+        });
+
         //テキストボックス
         //Materialふうに
         LinearLayout toot_textBox_LinearLayout = new LinearLayout(Home.this);
@@ -2106,8 +1964,14 @@ public class Home extends AppCompatActivity
         });
 
         //投票
+        //高さ調整
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        //ここから
         LinearLayout vote_LinearLayout = new LinearLayout(Home.this);
         getLayoutInflater().inflate(R.layout.toot_vote_layout, vote_LinearLayout);
+        vote_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, size.y / 2));
         mastodon_vote_Button = new ImageButton(Home.this);
         mastodon_vote_Button.setPadding(20, 20, 20, 20);
         mastodon_vote_Button.setBackgroundColor(Color.parseColor("#00000000"));
@@ -2127,11 +1991,11 @@ public class Home extends AppCompatActivity
                     vote_3 = snackber_LinearLayout.findViewById(R.id.vote_editText_3);
                     vote_4 = snackber_LinearLayout.findViewById(R.id.vote_editText_4);
                     vote_time = snackber_LinearLayout.findViewById(R.id.vote_editText_time);
-                    ((TextInputLayout)snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_1)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
-                    ((TextInputLayout)snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_2)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
-                    ((TextInputLayout)snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_3)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
-                    ((TextInputLayout)snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_4)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
-                    ((TextInputLayout)snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_time)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+                    ((TextInputLayout) snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_1)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+                    ((TextInputLayout) snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_2)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+                    ((TextInputLayout) snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_3)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+                    ((TextInputLayout) snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_4)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
+                    ((TextInputLayout) snackber_LinearLayout.findViewById(R.id.vote_textInputLayout_time)).setDefaultHintTextColor(ColorStateList.valueOf(Color.parseColor("#ffffff")));
                     //有効無効
                     vote_use_Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                         @Override
@@ -2798,7 +2662,7 @@ public class Home extends AppCompatActivity
                                 Toast.makeText(Home.this, getString(R.string.toot_ok), Toast.LENGTH_SHORT).show();
                             }
                             //投票
-                            if (isMastodon_vote){
+                            if (isMastodon_vote) {
                                 isMastodon_vote = false;
                                 vote_use_Switch.setChecked(false);
                             }

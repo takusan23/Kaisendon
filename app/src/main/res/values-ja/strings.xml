@@ -391,7 +391,7 @@
     <string name="backup_successful">バックアップを作成しました</string>
     <string name="restore_successful">リストアが完了しました</string>
     <string name="backup_restore_menu">バックアップ、リストアメニュー</string>
-    <string name="backup_restore_message">カスタムメニューの内容を引き継ぐことができます。ただし、背景画像を引き継ぐことはできません。</string>
+    <string name="backup_restore_message">カスタムメニュー、ブックマークの内容を引き継ぐことができます。ただし、背景画像、フォントを引き継ぐことはできません。</string>
     <string name="backup_restore_path">バックアップファイルは次の場所に生成されます。復元するときも同じ場所に保存してください。</string>
     <string name="custom_menu_font">フォントを変更</string>
     <string name="custom_setting_font_reset">フォント設定をリセット</string>
@@ -456,5 +456,6 @@
     <string name="vote_successful">投票しました</string>
     <string name="vote_ok">投票</string>
     <string name="vote_post_message">投票しますか</string>
+    <string name="tootbookmark_backup_restore_button_title">ブックマークをバックアップ、復元</string>
 
 </resources>

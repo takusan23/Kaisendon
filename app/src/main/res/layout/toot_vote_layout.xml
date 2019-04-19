@@ -6,136 +6,146 @@
     android:padding="@dimen/widget_margin">
 
 
-    <Switch
-        android:id="@+id/vote_use_switch"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/vote_use"
-        android:textColor="#ffffff" />
+        android:layout_height="match_parent">
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="10dp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/vote_message"
-        android:textColor="#ffffff" />
-
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/vote_textInputLayout_1"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:boxStrokeColor="#ffffff">
-
-        <EditText
-            android:id="@+id/vote_editText_1"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/vote_1"
-            android:importantForAutofill="no"
-            android:inputType="textMultiLine"
-            android:singleLine="true"
-            android:textColor="#ffffff" />
-    </android.support.design.widget.TextInputLayout>
+            android:orientation="vertical">
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/vote_textInputLayout_2"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColorHint="#ffffff"
-        app:boxStrokeColor="#ffffff">
+            <Switch
+                android:id="@+id/vote_use_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vote_use"
+                android:textColor="#ffffff" />
 
-        <EditText
-            android:id="@+id/vote_editText_2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/vote_2"
-            android:importantForAutofill="no"
-            android:inputType="textMultiLine"
-            android:singleLine="true"
-            android:textColor="#ffffff" />
-    </android.support.design.widget.TextInputLayout>
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/vote_textInputLayout_3"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColorHint="#ffffff"
-        app:boxStrokeColor="#ffffff">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vote_message"
+                android:textColor="#ffffff" />
 
-        <EditText
-            android:id="@+id/vote_editText_3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/vote_3"
-            android:importantForAutofill="no"
-            android:inputType="textMultiLine"
-            android:singleLine="true"
-            android:textColor="#ffffff" />
-    </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/vote_textInputLayout_1"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:boxStrokeColor="#ffffff">
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/vote_textInputLayout_4"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColorHint="#ffffff"
-        app:boxStrokeColor="#ffffff">
+                <EditText
+                    android:id="@+id/vote_editText_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/vote_1"
+                    android:importantForAutofill="no"
+                    android:inputType="textMultiLine"
+                    android:singleLine="true"
+                    android:textColor="#ffffff" />
+            </android.support.design.widget.TextInputLayout>
 
-        <EditText
-            android:id="@+id/vote_editText_4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/vote_4"
-            android:importantForAutofill="no"
-            android:inputType="textMultiLine"
-            android:singleLine="true"
-            android:textColor="#ffffff" />
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/vote_textInputLayout_2"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="#ffffff"
+                app:boxStrokeColor="#ffffff">
 
-    </android.support.design.widget.TextInputLayout>
+                <EditText
+                    android:id="@+id/vote_editText_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/vote_2"
+                    android:importantForAutofill="no"
+                    android:inputType="textMultiLine"
+                    android:singleLine="true"
+                    android:textColor="#ffffff" />
+            </android.support.design.widget.TextInputLayout>
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="10dp" />
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/vote_textInputLayout_3"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="#ffffff"
+                app:boxStrokeColor="#ffffff">
 
-    <Switch
-        android:id="@+id/vote_multi_switch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="@string/vote_multiple"
-        android:textColor="#ffffff" />
+                <EditText
+                    android:id="@+id/vote_editText_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/vote_3"
+                    android:importantForAutofill="no"
+                    android:inputType="textMultiLine"
+                    android:singleLine="true"
+                    android:textColor="#ffffff" />
+            </android.support.design.widget.TextInputLayout>
 
-    <Switch
-        android:id="@+id/vote_hide_switch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/vote_hide"
-        android:textColor="#ffffff" />
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/vote_textInputLayout_4"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="#ffffff"
+                app:boxStrokeColor="#ffffff">
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/vote_textInputLayout_time"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textColorHint="#ffffff"
-        app:boxStrokeColor="#ffffff">
+                <EditText
+                    android:id="@+id/vote_editText_4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/vote_4"
+                    android:importantForAutofill="no"
+                    android:inputType="textMultiLine"
+                    android:singleLine="true"
+                    android:textColor="#ffffff" />
 
-        <EditText
-            android:id="@+id/vote_editText_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/vote_time"
-            android:importantForAutofill="no"
-            android:inputType="number"
-            android:singleLine="true"
-            android:textColor="#ffffff" />
+            </android.support.design.widget.TextInputLayout>
 
-    </android.support.design.widget.TextInputLayout>
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
 
+            <Switch
+                android:id="@+id/vote_multi_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/vote_multiple"
+                android:textColor="#ffffff" />
+
+            <Switch
+                android:id="@+id/vote_hide_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vote_hide"
+                android:textColor="#ffffff" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/vote_textInputLayout_time"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColorHint="#ffffff"
+                app:boxStrokeColor="#ffffff">
+
+                <EditText
+                    android:id="@+id/vote_editText_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/vote_time"
+                    android:importantForAutofill="no"
+                    android:inputType="number"
+                    android:singleLine="true"
+                    android:textColor="#ffffff" />
+
+            </android.support.design.widget.TextInputLayout>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

@@ -1,59 +1,34 @@
 package io.github.takusan23.kaisendon.Fragment;
 
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.util.Log;
-import android.view.Gravity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.Switch;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.Button;
 
-import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.sys1yagi.mastodon4j.MastodonClient;
-import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
-import com.sys1yagi.mastodon4j.api.method.Statuses;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
-import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
-import io.github.takusan23.kaisendon.ListItem;
-import io.github.takusan23.kaisendon.Preference_ApplicationContext;
+import io.github.takusan23.kaisendon.CustomMenu.CustomMenuRecyclerViewAdapter;
+import io.github.takusan23.kaisendon.CustomMenu.Dialog.BackupRestoreBottomDialog;
 import io.github.takusan23.kaisendon.R;
 import io.github.takusan23.kaisendon.TootBookmark_SQLite;
-import okhttp3.OkHttpClient;
 
 public class Bookmark_Frament extends Fragment {
-
-    private TootBookmark_SQLite sqLite;
-    private SQLiteDatabase sqLiteDatabase;
+    private RecyclerView recyclerView;
+    private CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter;
+    private ArrayList<ArrayList> recyclerViewList;
+    private RecyclerView.LayoutManager recyclerViewLayoutManager;
+    //BookMarkDB
+    private TootBookmark_SQLite tootBookmark_sqLite;
+    private SQLiteDatabase db;
+    //めにゅー
+    private Button backup_restore_Button;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,197 +39,84 @@ public class Bookmark_Frament extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-
-
         getActivity().setTitle(R.string.bookmark);
+        recyclerView = view.findViewById(R.id.bookmark_recycler_view);
+        backup_restore_Button = view.findViewById(R.id.bookmark_backup_restore_button);
+        recyclerViewList = new ArrayList<>();
+        //ここから下三行必須
+        recyclerView.setHasFixedSize(true);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+        recyclerViewLayoutManager = recyclerView.getLayoutManager();
 
-        ArrayList<ListItem> toot_list = new ArrayList<>();
-        HomeTimeLineAdapter adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_list);
-        ListView listView = view.findViewById(R.id.bookmark_listview);
-
-        getActivity().setTitle(R.string.bookmark);
-
-        //設定読み込み
-        SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
-
-        String AccessToken = null;
-        String Instance = null;
-
-        boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
-        if (accessToken_boomelan) {
-
-            AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
-            Instance = pref_setting.getString("pref_mastodon_instance", "");
-
-        } else {
-
-            AccessToken = pref_setting.getString("main_token", "");
-            Instance = pref_setting.getString("main_instance", "");
-
+        if (tootBookmark_sqLite == null) {
+            tootBookmark_sqLite = new TootBookmark_SQLite(getContext());
         }
-
-        //スリープを無効にする
-        if (pref_setting.getBoolean("pref_no_sleep", false)){
-            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if (db == null) {
+            db = tootBookmark_sqLite.getWritableDatabase();
+            db.disableWriteAheadLogging();
         }
-
-
-        //背景
-        ImageView background_imageView = view.findViewById(R.id.bookmark_background_imageview);
-
-        if (pref_setting.getBoolean("background_image", true)) {
-            Uri uri = Uri.parse(pref_setting.getString("background_image_path", ""));
-            Glide.with(getContext())
-                    .load(uri)
-                    .into(background_imageView);
-        }
-
-
-        //画面に合わせる
-        if (pref_setting.getBoolean("background_fit_image", false)) {
-            //有効
-            background_imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        }
-
-        //透明度
-        if (pref_setting.getFloat("transparency", 1.0f) != 0.0) {
-            background_imageView.setAlpha(pref_setting.getFloat("transparency", 1.0f));
-        }
-
 
         //読み込み
-        if (sqLite == null) {
-            sqLite = new TootBookmark_SQLite(getContext());
-        }
+        getDBData();
+        //Backup/Restore
+        setBookmarkBackupRestore();
+    }
 
-        if (sqLiteDatabase == null) {
-            sqLiteDatabase = sqLite.getReadableDatabase();
-        }
-        Log.d("debug", "**********Cursor");
-
-        Cursor cursor = sqLiteDatabase.query(
+    /**
+     * データ読み込み
+     */
+    private void getDBData() {
+        Cursor cursor = db.query(
                 "tootbookmarkdb",
-                new String[]{"toot", "id", "account", "info", "account_id", "avater_url", "username", "media1", "media2", "media3", "media4"},
+                new String[]{"instance", "json"},
                 null,
                 null,
                 null,
                 null,
                 null
         );
-
+        //スタートに
         cursor.moveToFirst();
-
         for (int i = 0; i < cursor.getCount(); i++) {
-/*
-            System.out.println("値 : " + cursor.getString(1));
-            arrayAdapter.add(cursor.getString(1));
-*/
-
-            String toot = cursor.getString(0);
-            String toot_id = cursor.getString(1);
-            String account = cursor.getString(2);
-            String info = cursor.getString(3);
-            String account_id_string = cursor.getString(4);
-            long account_id = Long.parseLong(account_id_string);
-            String avater_url = cursor.getString(5);
-            String username = cursor.getString(6);
-
-            String media1 = cursor.getString(7);
-            String media2 = cursor.getString(8);
-            String media3 = cursor.getString(9);
-            String media4 = cursor.getString(10);
-
-
             //配列を作成
             ArrayList<String> Item = new ArrayList<>();
             //メモとか通知とかに
-            Item.add("bookmark");
+            Item.add("CustomMenu Local");
             //内容
-            Item.add(toot);
+            Item.add("");
             //ユーザー名
-            Item.add(account);
-            //時間、クライアント名等
-            Item.add(info);
-            //Toot ID 文字列版
-            Item.add(toot_id);
-            //アバターURL
-            Item.add(avater_url);
-            //アカウントID
-            Item.add(String.valueOf(account_id));
-            //ユーザーネーム
-            Item.add(null);
-            //メディア
-            Item.add(media1);
-            Item.add(media2);
-            Item.add(media3);
-            Item.add(media4);
-            //カード
-            Item.add(null);
-            Item.add(null);
-            Item.add(null);
-            Item.add(null);
-
-
-            if (getActivity() != null){
-                ListItem listItem = new ListItem(Item);
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.insert(listItem, 0);
-                        adapter.notifyDataSetChanged();
-                    }
-                });
-            }
-
+            Item.add("");
+            //JSONObject
+            Item.add(cursor.getString(1));
+            //ぶーすとした？
+            Item.add("false");
+            //ふぁぼした？
+            Item.add("false");
+            recyclerViewList.add(Item);
+            //つぎ
             cursor.moveToNext();
         }
-
-        // 忘れずに！
         cursor.close();
+        //配列を逆にする
+        Collections.reverse(recyclerViewList);
+        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+    }
 
-        //アダプターにアイテムが有るか確認
-        if (!adapter.isEmpty()) {
-            //ある時（if反転）
-            listView.setAdapter(adapter);
-        } else {
-            //無いとき
-            LinearLayout linearLayout = view.findViewById(R.id.bookmark_linearlayout);
-            ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-            ((LinearLayout.LayoutParams) layoutParams).gravity = Gravity.CENTER;
-            TextView textView = new TextView(getContext());
-            textView.setTextSize(20);
-            textView.setText(getString(R.string.bookmark_isempty)+"　😢");
-
-            textView.setLayoutParams(layoutParams);
-            linearLayout.addView(textView);
-        }
-
-
-        //Log.d("debug", "**********" + sbuilder.toString());
-        //listView.setAdapter(adapter);
-
-
-/*
-        //Listview
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
+    /**
+     * ブックマーク　バックアップ・復元
+     * */
+    private void setBookmarkBackupRestore(){
+        backup_restore_Button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //読み込み
-                if (sqLite == null) {
-                    sqLite = new TootBookmark_SQLite(getContext());
-                }
-
-                if (sqLiteDatabase == null) {
-                    sqLiteDatabase = sqLite.getReadableDatabase();
-                }
-                //消去
-                TextView toot_text_box = view.findViewById(R.id.client);
-                sqLiteDatabase.delete("tootbookmarkdb", "info=?", new String[]{toot_text_box.getText().toString()});
-                Toast.makeText(getContext(), "Delete", Toast.LENGTH_SHORT).show();
-
+            public void onClick(View v) {
+                BackupRestoreBottomDialog dialogFragment = new BackupRestoreBottomDialog();
+                dialogFragment.show(getActivity().getSupportFragmentManager(), "backup_restore_menu");
             }
         });
-*/
     }
+
+
 }

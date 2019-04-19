@@ -1,6 +1,5 @@
 package io.github.takusan23.kaisendon;
 
-import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -9,7 +8,6 @@ import android.app.RemoteInput;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -30,10 +28,6 @@ import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Statuses;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
-
-import java.sql.Time;
-import java.util.ArrayList;
-import java.util.List;
 
 import okhttp3.OkHttpClient;
 
@@ -56,6 +50,7 @@ public class NewAppWidget extends AppWidgetProvider {
 
             setOnButtonClickPendingIntent_Load(ctx, rv, appWidgetId);
             setOnButtonClickPendingIntent_Toot(ctx, rv, appWidgetId);
+            setOnButtonClickPendingIntent_Lunch(ctx, rv, appWidgetId);
 
             Intent URLJumpIntent = new Intent(ctx, NewAppWidget.class);
             PendingIntent URLJumpPendingIntent = PendingIntent.getBroadcast(ctx, 30, URLJumpIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -95,14 +90,14 @@ public class NewAppWidget extends AppWidgetProvider {
                         .build();
 
                 NotificationCompat.Action notification_toot_action = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_send
-                        ,ctx.getString(R.string.imananisiteru), notification_localtimeline_pendingIntent)
+                        , ctx.getString(R.string.imananisiteru), notification_localtimeline_pendingIntent)
                         .addRemoteInput(remoteInput)
                         .build();
 
                 long[] pattern = {100};
 
                 Notification newMessageNotification =
-                        new NotificationCompat.Builder(ctx,channel)
+                        new NotificationCompat.Builder(ctx, channel)
                                 .setSmallIcon(R.drawable.ic_create_black_24dp_black)
                                 .setContentTitle(ctx.getString(R.string.toot))
                                 .setContentText(ctx.getString(R.string.imananisiteru))
@@ -113,7 +108,7 @@ public class NewAppWidget extends AppWidgetProvider {
                 NotificationManagerCompat notificationManager_1 = NotificationManagerCompat.from(ctx);
                 notificationManager_1.notify(R.string.add_widget, newMessageNotification);
 
-            }else{
+            } else {
                 Intent notification_localtimeline_toot = new Intent(ctx, NewAppWidget.class);
                 PendingIntent notification_localtimeline_pendingIntent = PendingIntent.getBroadcast(ctx, 1, notification_localtimeline_toot, PendingIntent.FLAG_UPDATE_CURRENT);
                 //トゥート
@@ -122,7 +117,7 @@ public class NewAppWidget extends AppWidgetProvider {
                         .build();
 
                 NotificationCompat.Action notification_toot_action = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_send
-                        ,ctx.getString(R.string.imananisiteru), notification_localtimeline_pendingIntent)
+                        , ctx.getString(R.string.imananisiteru), notification_localtimeline_pendingIntent)
                         .addRemoteInput(remoteInput)
                         .build();
 
@@ -181,6 +176,13 @@ public class NewAppWidget extends AppWidgetProvider {
             }
         }
 
+        //アプリ起動
+        if (intent.getBooleanExtra("Lunch", false)) {
+            Intent lunch_Intent = new Intent(ctx, Home.class);
+            lunch_Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            ctx.startActivity(lunch_Intent);
+        }
+
         if (intent.getBooleanExtra("ListViewClick", false)) {
             String mediaURL = intent.getStringExtra("URL");
             pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
@@ -192,6 +194,7 @@ public class NewAppWidget extends AppWidgetProvider {
                 CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
                 CustomTabsIntent customTabsIntent = builder.build();
                 customTabsIntent.intent.setPackage(custom);
+                customTabsIntent.intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 customTabsIntent.launchUrl(ctx, Uri.parse(mediaURL));
                 //無効
             } else {
@@ -257,6 +260,21 @@ public class NewAppWidget extends AppWidgetProvider {
         );
 
         rv.setOnClickPendingIntent(R.id.widget_button_toot, btnClickPendingIntent);
+    }
+
+    private void setOnButtonClickPendingIntent_Lunch(Context ctx, RemoteViews rv, int appWidgetId) {
+        Intent btnClickIntent = new Intent(ctx, NewAppWidget.class);
+        btnClickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        btnClickIntent.putExtra("Lunch", true);
+
+        PendingIntent btnClickPendingIntent = PendingIntent.getBroadcast(
+                ctx,
+                25,
+                btnClickIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        rv.setOnClickPendingIntent(R.id.widget_button_lunch, btnClickPendingIntent);
     }
 
 }

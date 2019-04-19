@@ -2,8 +2,10 @@ package io.github.takusan23.kaisendon.CustomMenu.Dialog;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +19,7 @@ import android.widget.Toast;
 import io.github.takusan23.kaisendon.Activity.UserActivity;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.kaisendon.R;
+import io.github.takusan23.kaisendon.TootBookmark_SQLite;
 
 public class TootOptionBottomDialog extends BottomSheetDialogFragment {
 
@@ -24,6 +27,9 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
     private TextView account_Button;
     private TextView bookmark_Button;
     private TextView copy_TextView;
+    //BookMarkDB
+    private TootBookmark_SQLite tootBookmark_sqLite;
+    private SQLiteDatabase db;
 
 
     @Nullable
@@ -59,10 +65,30 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
                     ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                     if (clipboardManager != null) {
                         clipboardManager.setPrimaryClip(ClipData.newPlainText(getArguments().getString("status_text"), "copy"));
-                        Toast.makeText(getContext(),getString(R.string.copy) + " : " + getArguments().getString("status_text"),Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.copy) + " : " + getArguments().getString("status_text"), Toast.LENGTH_SHORT).show();
                     }
                     dismiss();
                 }
+            }
+        });
+        //ブックマーク
+        bookmark_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (tootBookmark_sqLite == null) {
+                    tootBookmark_sqLite = new TootBookmark_SQLite(getContext());
+                }
+                if (db == null) {
+                    db = tootBookmark_sqLite.getWritableDatabase();
+                    db.disableWriteAheadLogging();
+                }
+                //DBに入れる
+                String json = getArguments().getString("json");
+                ContentValues values = new ContentValues();
+                values.put("json", json);
+                values.put("instance", CustomMenuTimeLine.getInstance());
+                db.insert("tootbookmarkdb", null, values);
+                dismiss();
             }
         });
     }

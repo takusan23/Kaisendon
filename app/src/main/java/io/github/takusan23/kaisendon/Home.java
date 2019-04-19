@@ -491,6 +491,7 @@ public class Home extends AppCompatActivity
                     toot_EditText.append("\n");
                     toot_EditText.append(text);
                 }
+                toot_snackbar.show();
             }
         }
 

@@ -18,6 +18,7 @@ import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
@@ -82,6 +83,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -1037,12 +1039,12 @@ public class Home extends AppCompatActivity
 
                         @Override
                         public void onNotification(@NotNull Notification notification) {*/
-/* no op *//*
+        /* no op *//*
 }
 
                         @Override
                         public void onDelete(long id) {*/
-/* no op *//*
+        /* no op *//*
 }
                     };
 
@@ -1080,6 +1082,7 @@ public class Home extends AppCompatActivity
     //画像POST
     int count = 0;
     ArrayList<String> media_list = new ArrayList<>();
+    ArrayList<Uri> media_uri_list = new ArrayList<>();
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -1101,13 +1104,13 @@ public class Home extends AppCompatActivity
 
                 if (file_extn.equals("img") || file_extn.equals("jpg") || file_extn.equals("jpeg") || file_extn.equals("gif") || file_extn.equals("png")) {
                     //配列に入れる
-                    media_list.add(selectedImage.toString());
+                    media_uri_list.add(data.getData());
                     media_LinearLayout.removeAllViews();
                     //配列に入れた要素をもとにImageViewを生成する
-                    for (int i = 0; i < media_list.size(); i++) {
+                    for (int i = 0; i < media_uri_list.size(); i++) {
                         ImageView imageView = new ImageView(Home.this);
                         imageView.setLayoutParams(layoutParams);
-                        imageView.setImageURI(Uri.parse(media_list.get(i)));
+                        imageView.setImageURI(data.getData());
                         imageView.setTag(i);
                         media_LinearLayout.addView(imageView);
                         //押したとき
@@ -1134,16 +1137,13 @@ public class Home extends AppCompatActivity
                                 }
                             }
                             //配列からUriを取り出す
-                            for (int i = 0; i < media_list.size(); i++) {
+                            for (int i = 0; i < media_uri_list.size(); i++) {
                                 //ひつようなやつ
-                                String filePath_post = getPath(Uri.parse(media_list.get(i)));
-                                String file_extn_post = filePath_post.substring(filePath_post.lastIndexOf(".") + 1);
-                                File file_post = new File(filePath_post);
-
+                                Uri uri = media_uri_list.get(i);
                                 if (CustomMenuTimeLine.isMisskeyMode()) {
-                                    uploadDrivePhoto(file_extn_post, file_post);
+                                    uploadDrivePhoto(uri);
                                 } else {
-                                    uploadMastodonPhoto(file_extn_post, file_post);
+                                    uploadMastodonPhoto(uri);
                                 }
                             }
                         }
@@ -1205,10 +1205,10 @@ public class Home extends AppCompatActivity
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(200, 200);
         media_LinearLayout.removeAllViews();
         //配列に入れた要素をもとにImageViewを生成する
-        for (int i = 0; i < media_list.size(); i++) {
+        for (int i = 0; i < media_uri_list.size(); i++) {
             ImageView imageView = new ImageView(Home.this);
             imageView.setLayoutParams(layoutParams);
-            imageView.setImageURI(Uri.parse(media_list.get(i)));
+            imageView.setImageURI(media_uri_list.get(i));
             imageView.setTag(i);
             media_LinearLayout.addView(imageView);
             //押したとき
@@ -1220,13 +1220,13 @@ public class Home extends AppCompatActivity
                     //なんだこのくそｇｍコードは
                     //removeにgetTagそのまま書くとなんかだめなんだけど何これ意味不
                     if ((Integer) imageView.getTag() == 0) {
-                        media_list.remove(0);
+                        media_uri_list.remove(0);
                     } else if ((Integer) imageView.getTag() == 1) {
-                        media_list.remove(1);
+                        media_uri_list.remove(1);
                     } else if ((Integer) imageView.getTag() == 2) {
-                        media_list.remove(2);
+                        media_uri_list.remove(2);
                     } else if ((Integer) imageView.getTag() == 3) {
-                        media_list.remove(3);
+                        media_uri_list.remove(3);
                     }
                     //再生成
                     ImageViewClick();
@@ -1788,7 +1788,7 @@ public class Home extends AppCompatActivity
                 }
                 //画像添付なしのときはここを利用して、
                 //画像添付トゥートは別に書くよ
-                if (media_list.isEmpty() || media_list == null || media_list.get(0) == null) {
+                if (media_uri_list.isEmpty() || media_uri_list == null || media_uri_list.get(0) == null) {
                     //FABのアイコン戻す
                     fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
                     //時間指定投稿（予約投稿）を送信するね！メッセージ
@@ -2548,7 +2548,7 @@ public class Home extends AppCompatActivity
                             //TootSnackber閉じる
                             toot_snackbar.dismiss();
                             //配列を空にする
-                            media_list.clear();
+                            media_uri_list.clear();
                             post_media_id.clear();
                             media_LinearLayout.removeAllViews();
                         }
@@ -2603,8 +2603,12 @@ public class Home extends AppCompatActivity
                 }
             }
             //画像
-            for (int i = 0; i < post_media_id.size(); i++) {
-                jsonObject.put("media_ids[]", post_media_id.get(i));
+            if (post_media_id.size() != 0) {
+                JSONArray media = new JSONArray();
+                for (int i = 0; i < post_media_id.size(); i++) {
+                    media.put(post_media_id.get(i));
+                }
+                jsonObject.put("media_ids", media);
             }
             //投票機能
             if (isMastodon_vote) {
@@ -2613,7 +2617,7 @@ public class Home extends AppCompatActivity
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
+        System.out.println(jsonObject.toString());
         RequestBody requestBody_json = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
         //System.out.println(jsonObject.toString());
 
@@ -2673,7 +2677,7 @@ public class Home extends AppCompatActivity
                             //TootSnackber閉じる
                             toot_snackbar.dismiss();
                             //配列を空にする
-                            media_list.clear();
+                            media_uri_list.clear();
                             post_media_id.clear();
                             media_LinearLayout.removeAllViews();
                         }
@@ -2686,7 +2690,7 @@ public class Home extends AppCompatActivity
     /**
      * Misskey 画像POST
      */
-    private void uploadDrivePhoto(String file_extn_post, File file_post) {
+    private void uploadDrivePhoto(Uri uri) {
         String instance = pref_setting.getString("misskey_main_instance", "");
         String token = pref_setting.getString("misskey_main_token", "");
         String username = pref_setting.getString("misskey_main_username", "");
@@ -2694,16 +2698,29 @@ public class Home extends AppCompatActivity
         //くるくる
         SnackberProgress.showProgressSnackber(toot_EditText, Home.this, getString(R.string.loading) + "\n" + url);
         //ぱらめーたー
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("file", file_post.getName(), RequestBody.create(MediaType.parse("image/" + file_extn_post), file_post))
-                .addFormDataPart("i", token)
-                .addFormDataPart("force", "true")
-                .build();
+        MultipartBody.Builder requestBody = new MultipartBody.Builder();
+        requestBody.setType(MultipartBody.FORM);
+        //requestBody.addFormDataPart("file", file_post.getName(), RequestBody.create(MediaType.parse("image/" + file_extn_post), file_post));
+        requestBody.addFormDataPart("i", token);
+        requestBody.addFormDataPart("force", "true");
+        //Android Qで動かないのでUriからBitmap変換してそれをバイトに変換してPOSTしてます
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            byte[] imageBytes = baos.toByteArray();
+            String file_name = getFileNameUri(uri);
+            String extn = file_name.substring(file_name.lastIndexOf(".") + 1);
+            requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn), imageBytes));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        requestBody.build();
         //作成
         Request request = new Request.Builder()
                 .url(url)
-                .post(requestBody)
+                .post(requestBody.build())
                 .build();
 
         //GETリクエスト
@@ -2740,7 +2757,7 @@ public class Home extends AppCompatActivity
                         post_media_id.add(media_id_long);
                         //確認SnackBer
                         //数確認
-                        if (media_list.size() == post_media_id.size()) {
+                        if (media_uri_list.size() == post_media_id.size()) {
                             View view = findViewById(R.id.container_public);
                             Snackbar.make(view, R.string.note_create_message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
                                 @Override
@@ -2760,15 +2777,27 @@ public class Home extends AppCompatActivity
     /**
      * Mastodon 画像POST
      */
-    private void uploadMastodonPhoto(String file_extn_post, File file_post) {
+    private void uploadMastodonPhoto(Uri uri) {
         //えんどぽいんと
         String url = "https://" + Instance + "/api/v1/media/";
-
         //ぱらめーたー
         MultipartBody.Builder requestBody = new MultipartBody.Builder();
         requestBody.setType(MultipartBody.FORM);
-        requestBody.addFormDataPart("file", file_post.getName(), RequestBody.create(MediaType.parse("image/" + file_extn_post), file_post));
+        //requestBody.addFormDataPart("file", file_post.getName(), RequestBody.create(MediaType.parse("image/" + file_extn_post), file_post));
         requestBody.addFormDataPart("access_token", AccessToken);
+        //Android Qで動かないのでUriからBitmap変換してそれをバイトに変換してPOSTしてます
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            byte[] imageBytes = baos.toByteArray();
+            String file_name = getFileNameUri(uri);
+            String extn = file_name.substring(file_name.lastIndexOf(".") + 1);
+            requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn), imageBytes));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         //くるくる
         SnackberProgress.showProgressSnackber(toot_EditText, Home.this, getString(R.string.loading) + "\n" + url);
 
@@ -2813,7 +2842,7 @@ public class Home extends AppCompatActivity
                         post_media_id.add(media_id_long);
                         //確認SnackBer
                         //数確認
-                        if (media_list.size() == post_media_id.size()) {
+                        if (media_uri_list.size() == post_media_id.size()) {
                             View view = findViewById(R.id.container_public);
                             Snackbar.make(view, R.string.note_create_message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
                                 @Override
@@ -2829,6 +2858,22 @@ public class Home extends AppCompatActivity
             }
         });
     }
+
+    /**
+     * Uri→FileName
+     */
+    private String getFileNameUri(Uri uri) {
+        String file_name = null;
+        String[] projection = {MediaStore.MediaColumns.DISPLAY_NAME};
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                file_name = cursor.getString(0);
+            }
+        }
+        return file_name;
+    }
+
 
     /**
      * Mastodon 投票
@@ -2975,6 +3020,7 @@ public class Home extends AppCompatActivity
             }
         });
     }
+
 
     /**
      * 最後に開いたカスタムメニュー保存

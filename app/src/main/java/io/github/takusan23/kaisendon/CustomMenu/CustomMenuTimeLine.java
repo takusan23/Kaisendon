@@ -4,7 +4,6 @@ package io.github.takusan23.kaisendon.CustomMenu;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -18,7 +17,6 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -514,6 +512,7 @@ public class CustomMenuTimeLine extends Fragment {
             //時間指定待ち一覧を読み込む
             loadScheduled_statuses(view);
         }
+
     }
 
     /**

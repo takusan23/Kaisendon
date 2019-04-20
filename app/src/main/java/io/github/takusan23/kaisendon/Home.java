@@ -88,6 +88,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.github.takusan23.kaisendon.Activity.KonoAppNiTuite;
 import io.github.takusan23.kaisendon.Activity.LoginActivity;
@@ -221,7 +223,7 @@ public class Home extends AppCompatActivity
 
 
         //設定のプリファレンス
-        pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(Home.this);
 
         //Wi-Fi接続状況確認
         ConnectivityManager connectivityManager =
@@ -372,14 +374,6 @@ public class Home extends AppCompatActivity
             loadCustomMenu(null);
         }
 
-
-        //App Shortcutから起動
-        if (getIntent().getBooleanExtra("home_card", false)) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new HomeCrad_Fragment());
-            transaction.commit();
-        }
-
         //ネットワークが切り替わったらトースト表示
         if (pref_setting.getBoolean("pref_networkchange", false)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -427,48 +421,7 @@ public class Home extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //ユーザー情報を取得
-                if (CustomMenuTimeLine.isMisskeyMode()) {
-                    getMisskeyAccount();
-                    setMisskeyVisibilityMenu(toot_area_Button);
-                    toot_Button_LinearLayout.removeView(misskey_drive_Button);
-                    toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
-                    toot_Button_LinearLayout.removeView(mastodon_vote_Button);
-                    toot_Button_LinearLayout.addView(misskey_drive_Button);
-                } else {
-                    getAccount();
-                    setMastodonVisibilityMenu(toot_area_Button);
-                    toot_Button_LinearLayout.removeView(misskey_drive_Button);
-                    toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
-                    toot_Button_LinearLayout.removeView(mastodon_vote_Button);
-                    toot_Button_LinearLayout.addView(mastodon_time_post_Button);
-                    toot_Button_LinearLayout.addView(mastodon_vote_Button);
-                }
-                toot_snackbar.dismiss();
-                fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-                if (!toot_snackbar.isShown()) {
-                    //アイコン変更
-                    //fab.setImageDrawable(getDrawable(R.drawable.ic_arrow_downward_black_24dp));
-                    toot_snackbar.show();
-
-                    //ふぉーかす
-                    toot_EditText.requestFocus();
-                    //キーボード表示
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    if (imm != null) {
-                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                    }
-                } else {
-                    //クローズでソフトキーボード非表示
-                    fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    if (imm != null) {
-                        if (Home.this.getCurrentFocus() != null) {
-                            imm.hideSoftInputFromWindow(Home.this.getCurrentFocus().getWindowToken(), 0);
-                        }
-                    }
-                }
-
+                showTootShortcut();
             }
         });
 
@@ -493,12 +446,43 @@ public class Home extends AppCompatActivity
                     toot_EditText.append("\n");
                     toot_EditText.append(text);
                 }
-                toot_snackbar.show();
+                //0.5秒後に起動するように
+                Timer timer = new Timer(false);
+                TimerTask task = new TimerTask() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showTootShortcut();
+                                timer.cancel();
+                            }
+                        });
+                    }
+                };
+                timer.schedule(task, 500);
             }
         }
 
+        //App Shortcutから起動
+        if (getIntent().getBooleanExtra("toot", false)) {
+            //0.5秒後に起動するように
+            Timer timer = new Timer(false);
+            TimerTask task = new TimerTask() {
+                @Override
+                public void run() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showTootShortcut();
+                            timer.cancel();
+                        }
+                    });
+                }
+            };
+            timer.schedule(task, 500);
+        }
 
-        //長押し
 
 /*
         fab.setOnLongClickListener(new View.OnLongClickListener() {
@@ -1645,32 +1629,16 @@ public class Home extends AppCompatActivity
 
 
     @SuppressLint("RestrictedApi")
-    private void tootSnackBer() {
+    public void tootSnackBer() {
         //画像ID配列
         post_media_id = new ArrayList<>();
         misskey_media_url = new ArrayList<>();
 
-        //アクセストークン
-        String AccessToken = null;
-
-        //インスタンス
-        String Instance = null;
+        String AccessToken = pref_setting.getString("main_token", "");
+        String Instance = pref_setting.getString("main_instance", "");
 
 
-        boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
-        if (accessToken_boomelan) {
-
-            AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
-            Instance = pref_setting.getString("pref_mastodon_instance", "");
-
-        } else {
-
-            AccessToken = pref_setting.getString("main_token", "");
-            Instance = pref_setting.getString("main_instance", "");
-
-        }
-
-        View view = findViewById(R.id.container_public);
+        View view = Home.this.findViewById(R.id.container_public);
         toot_snackbar = Snackbar.make(view, "", Snackbar.LENGTH_INDEFINITE);
         //Snackber生成
         ViewGroup snackBer_viewGrop = (ViewGroup) toot_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
@@ -2115,6 +2083,10 @@ public class Home extends AppCompatActivity
 
         //SnackBerに追加
         snackBer_viewGrop.addView(snackber_LinearLayout);
+    }
+
+    public Snackbar getToot_snackbar() {
+        return toot_snackbar;
     }
 
     //自分の情報を手に入れる
@@ -3410,5 +3382,51 @@ public class Home extends AppCompatActivity
         dialog.show();
     }
 
+    /**
+     * TootShortcutShow
+     */
+    private void showTootShortcut() {
+        //ユーザー情報を取得
+        if (CustomMenuTimeLine.isMisskeyMode()) {
+            getMisskeyAccount();
+            setMisskeyVisibilityMenu(toot_area_Button);
+            toot_Button_LinearLayout.removeView(misskey_drive_Button);
+            toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
+            toot_Button_LinearLayout.removeView(mastodon_vote_Button);
+            toot_Button_LinearLayout.addView(misskey_drive_Button);
+        } else {
+            getAccount();
+            setMastodonVisibilityMenu(toot_area_Button);
+            toot_Button_LinearLayout.removeView(misskey_drive_Button);
+            toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
+            toot_Button_LinearLayout.removeView(mastodon_vote_Button);
+            toot_Button_LinearLayout.addView(mastodon_time_post_Button);
+            toot_Button_LinearLayout.addView(mastodon_vote_Button);
+        }
+        toot_snackbar.dismiss();
+        fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
+        if (!toot_snackbar.isShown()) {
+            //アイコン変更
+            //fab.setImageDrawable(getDrawable(R.drawable.ic_arrow_downward_black_24dp));
+            toot_snackbar.show();
+
+            //ふぉーかす
+            toot_EditText.requestFocus();
+            //キーボード表示
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            }
+        } else {
+            //クローズでソフトキーボード非表示
+            fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                if (Home.this.getCurrentFocus() != null) {
+                    imm.hideSoftInputFromWindow(Home.this.getCurrentFocus().getWindowToken(), 0);
+                }
+            }
+        }
+    }
 
 }

@@ -561,5 +561,6 @@
     <string name="vote_post_message">Do you want to vote?</string>
     <string name="vote_ok">Voting</string>
     <string name="tootbookmark_backup_restore_button_title">Backup and restore bookmarks</string>
+    <string name="app_shortcut_toot_title">Toot from AppShortcut</string>
 
 </resources>

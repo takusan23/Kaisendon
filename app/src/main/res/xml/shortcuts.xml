@@ -10,30 +10,33 @@
 
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="io.github.takusan23.kaisendon.Activity.TootSnackberActivity"
-            android:targetPackage="io.github.takusan23.kaisendon">
-        </intent>
-    </shortcut>
-
-    <shortcut
-        android:enabled="true"
-        android:icon="@drawable/ic_view_day_black_24dp"
-        android:shortcutDisabledMessage="@string/homecard"
-        android:shortcutId="homecard_shortcut"
-        android:shortcutLongLabel="@string/homecard"
-        android:shortcutShortLabel="@string/homecard">
-
-        <intent
-            android:action="android.intent.action.VIEW"
             android:targetClass="io.github.takusan23.kaisendon.Home"
             android:targetPackage="io.github.takusan23.kaisendon">
-
             <extra
-                android:name="home_card"
+                android:name="toot"
                 android:value="true" />
-
         </intent>
-
     </shortcut>
+
+    <!--<shortcut-->
+    <!--android:enabled="true"-->
+    <!--android:icon="@drawable/ic_view_day_black_24dp"-->
+    <!--android:shortcutDisabledMessage="@string/homecard"-->
+    <!--android:shortcutId="homecard_shortcut"-->
+    <!--android:shortcutLongLabel="@string/homecard"-->
+    <!--android:shortcutShortLabel="@string/homecard">-->
+
+    <!--<intent-->
+    <!--android:action="android.intent.action.VIEW"-->
+    <!--android:targetClass="io.github.takusan23.kaisendon.Home"-->
+    <!--android:targetPackage="io.github.takusan23.kaisendon">-->
+
+    <!--<extra-->
+    <!--android:name="home_card"-->
+    <!--android:value="true" />-->
+
+    <!--</intent>-->
+
+    <!--</shortcut>-->
 
 </shortcuts>

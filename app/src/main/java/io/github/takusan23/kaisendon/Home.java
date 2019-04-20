@@ -1110,7 +1110,7 @@ public class Home extends AppCompatActivity
                     for (int i = 0; i < media_uri_list.size(); i++) {
                         ImageView imageView = new ImageView(Home.this);
                         imageView.setLayoutParams(layoutParams);
-                        imageView.setImageURI(data.getData());
+                        imageView.setImageURI(media_uri_list.get(i));
                         imageView.setTag(i);
                         media_LinearLayout.addView(imageView);
                         //押したとき

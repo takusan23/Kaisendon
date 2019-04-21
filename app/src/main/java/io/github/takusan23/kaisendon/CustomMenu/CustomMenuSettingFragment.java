@@ -264,7 +264,7 @@ public class CustomMenuSettingFragment extends Fragment {
                 setNewTmpData(String.valueOf((fromPosition) + 1));
 */
 
-                Toast.makeText(getContext(), "End - position: " + toPosition + "\n" + "Start - position: " + fromPosition, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(), "End - position: " + toPosition + "\n" + "Start - position: " + fromPosition, Toast.LENGTH_SHORT).show();
                 setSortMenu(fromPosition, toPosition);
 
             }

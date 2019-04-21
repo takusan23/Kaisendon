@@ -1731,13 +1731,14 @@ public class Home extends AppCompatActivity
         //投稿用LinearLayout
         LinearLayout toot_LinearLayout = new LinearLayout(Home.this);
         toot_LinearLayout.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout.LayoutParams toot_button_LayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams toot_button_LayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
         toot_button_LayoutParams.gravity = Gravity.RIGHT;
         toot_LinearLayout.setLayoutParams(toot_button_LayoutParams);
 
         //投稿用Button
-        post_button = new Button(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        post_button = new Button(Home.this,null, 0, R.style.Widget_AppCompat_Button_Borderless);
         post_button.setText(String.valueOf(tootTextCount) + "/" + "500 " + getString(R.string.toot_text));
+        post_button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
         post_button.setTextColor(Color.parseColor("#ffffff"));
         Drawable toot_icon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_create_black_24dp, null);
         post_button.setCompoundDrawablesWithIntrinsicBounds(toot_icon, null, null, null);
@@ -1873,8 +1874,13 @@ public class Home extends AppCompatActivity
         });
 
         //時間投稿ボタン
+        //高さ調整
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
         LinearLayout mastodon_time_post_LinearLayout = new LinearLayout(Home.this);
         getLayoutInflater().inflate(R.layout.mastodon_time_post_layout, mastodon_time_post_LinearLayout);
+        mastodon_time_post_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         mastodon_time_post_Button = new ImageButton(Home.this);
         mastodon_time_post_Button.setPadding(20, 20, 20, 20);
         mastodon_time_post_Button.setBackgroundColor(Color.parseColor("#00000000"));
@@ -1933,10 +1939,6 @@ public class Home extends AppCompatActivity
         });
 
         //投票
-        //高さ調整
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
         //ここから
         LinearLayout vote_LinearLayout = new LinearLayout(Home.this);
         getLayoutInflater().inflate(R.layout.toot_vote_layout, vote_LinearLayout);

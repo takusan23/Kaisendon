@@ -182,6 +182,8 @@ public class CustomMenuTimeLine extends Fragment {
     //時間指定投稿待ち一覧モード
     private boolean isScheduled_statuses = false;
     private CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter;
+    //フォロー推奨ユーザー表示モード
+    private boolean isFollowSuggestions = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -325,6 +327,11 @@ public class CustomMenuTimeLine extends Fragment {
         if (url.contains("/api/v1/scheduled_statuses")) {
             isScheduled_statuses = true;
         }
+        //フォロー推奨ユーザー読み込みモード
+        if (url.contains("/api/v1/suggestions")) {
+            isFollowSuggestions = true;
+        }
+
 
         recyclerViewList = new ArrayList<>();
         //ここから下三行必須
@@ -337,7 +344,8 @@ public class CustomMenuTimeLine extends Fragment {
 
         //TL読み込み
         //APIがTL取得のみに
-        if (!isScheduled_statuses) {
+        //TL と Favourite List
+        if (!isScheduled_statuses && !isFollowSuggestions) {
             //Misskey
             if (misskey_mode) {
                 loadMisskeyAccountName();
@@ -384,6 +392,7 @@ public class CustomMenuTimeLine extends Fragment {
                     @Override
                     public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                         super.onScrolled(recyclerView, dx, dy);
+                        //Favのときはしない
                         if (recyclerViewLayoutManager != null) {
                             int firstVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
                             int visibleItemCount = ((LinearLayoutManager) recyclerViewLayoutManager).getChildCount();
@@ -404,6 +413,7 @@ public class CustomMenuTimeLine extends Fragment {
                                     }
                                 }
                             }
+
                         }
                     }
                 });
@@ -477,22 +487,24 @@ public class CustomMenuTimeLine extends Fragment {
                     @Override
                     public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                         super.onScrolled(recyclerView, dx, dy);
-                        int firstVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
-                        int visibleItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getChildCount();
-                        int totalItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getItemCount();
-                        //最後までスクロールしたときの処理
-                        if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
-                            position = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-                            y = recyclerView.getChildAt(0).getTop();
-                            if (recyclerViewList.size() >= 20) {
-                                SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-                                scroll = true;
-                                //通知以外
-                                if (!url.contains("/api/v1/notifications")) {
-                                    //普通にAPI叩く
-                                    loadTimeline(max_id);
-                                } else {
-                                    loadNotification(max_id);
+                        if (!url.contains("/api/v1/favourites")) {
+                            int firstVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+                            int visibleItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getChildCount();
+                            int totalItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getItemCount();
+                            //最後までスクロールしたときの処理
+                            if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
+                                position = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                                y = recyclerView.getChildAt(0).getTop();
+                                if (recyclerViewList.size() >= 20) {
+                                    SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+                                    scroll = true;
+                                    //通知以外
+                                    if (!url.contains("/api/v1/notifications")) {
+                                        //普通にAPI叩く
+                                        loadTimeline(max_id);
+                                    } else {
+                                        loadNotification(max_id);
+                                    }
                                 }
                             }
                         }
@@ -504,13 +516,22 @@ public class CustomMenuTimeLine extends Fragment {
                     setStreamingNotification();
                 }
             }
-        } else {
+        } else if (isScheduled_statuses) {
+            //予約リスト
             //引っ張って更新無効
             swipeRefreshLayout.setEnabled(false);
             //アカウント情報
             loadAccountName();
             //時間指定待ち一覧を読み込む
             loadScheduled_statuses(view);
+        } else if (isFollowSuggestions) {
+            //フォロー一覧
+            //引っ張って更新無効
+            swipeRefreshLayout.setEnabled(false);
+            //アカウント情報
+            loadAccountName();
+            //フォロー推奨ユーザーを読み込む
+            loadFollowSuggestions(view);
         }
 
     }
@@ -2121,6 +2142,85 @@ public class CustomMenuTimeLine extends Fragment {
             }
         });
     }
+
+    /**
+     * お気に入り一覧を取得
+     */
+    private void loadFollowSuggestions(View view) {
+        //作成
+        String url = this.url + "?access_token=" + access_token;
+        SnackberProgress.showProgressSnackber(view, view.getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+        //GETリクエスト
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+                //System.out.println(response_string);
+                if (!response.isSuccessful()) {
+                    //失敗時
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    try {
+                        JSONArray jsonArray = new JSONArray(response_string);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
+                            if (getActivity() != null && isAdded()) {
+                                //配列を作成
+                                ArrayList<String> Item = new ArrayList<>();
+                                //メモとか通知とかに
+                                Item.add("CustomMenu フォロー推奨");
+                                //内容
+                                Item.add("");
+                                //ユーザー名
+                                Item.add("");
+                                //JSONObject
+                                Item.add(toot_jsonObject.toString());
+                                //ぶーすとした？
+                                Item.add("false");
+                                //ふぁぼした？
+                                Item.add("false");
+                                recyclerViewList.add(Item);
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (recyclerViewLayoutManager != null) {
+                                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
+                                        }
+                                        //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+                                        SnackberProgress.closeProgressSnackber();
+                                    }
+                                });
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
 
     /**
      * 通知アイコン

@@ -49,6 +49,7 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
+import io.github.takusan23.kaisendon.APIJSONParse.MastodonAccountJSONParse;
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonScheduledStatusesJSONParse;
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonTLAPIJSONParse;
 import io.github.takusan23.kaisendon.Activity.UserActivity;
@@ -73,6 +74,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     private String Instance;
     private String AccessToken;
     private Context context;
+    private boolean isScheduled_statuses = false;
+    private boolean isFollowSuggestions = false;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -178,8 +181,15 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
         ArrayList<String> item = itemList.get(i);
 
+        //パースする種類
+        if (CustomMenuTimeLine.getUrl().contains("/api/v1/scheduled_statuses")) {
+            isScheduled_statuses = true;
+        }
+        if (CustomMenuTimeLine.getUrl().contains("/api/v1/suggestions")) {
+            isFollowSuggestions = true;
+        }
         //TL/それ以外
-        if (!CustomMenuTimeLine.getUrl().contains("/api/v1/scheduled_statuses")) {
+        if (!isScheduled_statuses && !isFollowSuggestions) {
             //レイアウト
             //JSONパース用クラス
             MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3));
@@ -250,12 +260,15 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //投票
                 showVoteLayout(viewHolder, api);
             }
-        } else {
+        } else if (isScheduled_statuses) {
             MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
             //時間指定投稿（予約投稿）ようレイアウト
             setSimpleLayout(viewHolder);
             setScheduled_statuses_layout(viewHolder, api);
-
+        } else if (isFollowSuggestions) {
+            MastodonAccountJSONParse api = new MastodonAccountJSONParse(viewHolder.mainLinearLayout.getContext(), item.get(3));
+            setAccountLayout(viewHolder);
+            createAccountLinearLayout(viewHolder, api);
         }
 
     }
@@ -304,6 +317,28 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             } else {
                 //GIFアニメを再生
                 Glide.with(viewHolder.toot_avatar_ImageView.getContext()).load(api.getAvatarUrl()).into(viewHolder.toot_avatar_ImageView);
+            }
+        } else {
+            //Layout Remove
+            if (((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()) != null) {
+                ((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()).removeView(viewHolder.toot_avatar_ImageView);
+            }
+        }
+    }
+
+    /**
+     * Account Layout 画像表示
+     */
+    private void loadAccountLayoutAvatarImage(MastodonAccountJSONParse api, ViewHolder viewHolder) {
+        //画像
+        if (getLoadImageConnection(viewHolder)) {
+            //既定でGIFは再生しない方向で
+            if (pref_setting.getBoolean("pref_avater_gif", true)) {
+                //GIFアニメ再生させない
+                Glide.with(viewHolder.toot_avatar_ImageView.getContext()).load(api.getAvatar_url()).into(viewHolder.toot_avatar_ImageView);
+            } else {
+                //GIFアニメを再生
+                Glide.with(viewHolder.toot_avatar_ImageView.getContext()).load(api.getAvatar_url()).into(viewHolder.toot_avatar_ImageView);
             }
         } else {
             //Layout Remove
@@ -1512,6 +1547,42 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         parent_LinearLayout.removeView(viewHolder.toot_media_LinearLayout);
         parent_LinearLayout.removeView(viewHolder.toot_card_LinearLayout);
         parent_LinearLayout.removeView(viewHolder.action_LinearLayout);
+    }
+
+    /**
+     * FollowLayout
+     */
+    private void setAccountLayout(ViewHolder viewHolder) {
+        //TootTextView/ImageView以外消す
+        LinearLayout parent_LinearLayout = viewHolder.mainLinearLayout;
+        LinearLayout account_LinearLayout = viewHolder.account_LinearLayout;
+        LinearLayout toot_info_LinearLayout = (LinearLayout) viewHolder.toot_createAt_TextView.getParent().getParent().getParent();
+        if (toot_info_LinearLayout!=null){
+            toot_info_LinearLayout.removeView((LinearLayout) viewHolder.toot_createAt_TextView.getParent().getParent());
+            toot_info_LinearLayout.removeView((LinearLayout) viewHolder.toot_visibility_TextView.getParent().getParent());
+            toot_info_LinearLayout.removeView((LinearLayout) viewHolder.toot_client_TextView.getParent());
+        }
+        parent_LinearLayout.removeView(viewHolder.toot_reblog_LinearLayout);
+        parent_LinearLayout.removeView(viewHolder.toot_media_LinearLayout);
+        parent_LinearLayout.removeView(viewHolder.toot_card_LinearLayout);
+        parent_LinearLayout.removeView(viewHolder.action_LinearLayout);
+    }
+
+    /**
+     * Account Layout設定
+     */
+    private void createAccountLinearLayout(ViewHolder viewHolder, MastodonAccountJSONParse api) {
+        //カスタム絵文字
+        PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
+        PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);
+        //SetText
+        viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getNote(), Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
+        viewHolder.toot_user_TextView.setText(Html.fromHtml(api.getDisplay_name(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
+        viewHolder.toot_user_TextView.append("@" + api.getAcct());
+        //アバター画像
+        loadAccountLayoutAvatarImage(api, viewHolder);
+        //クイックプロフィール
+        showQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_id(), viewHolder);
     }
 
     /**

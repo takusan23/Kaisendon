@@ -359,7 +359,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                     for (int i = 0; i < files.length; i++) {
                         //追加
                         //ItemIDに配列の番号を入れる
-                        menu.add(0,i,0,files[i].getName());
+                        menu.add(0, i, 0, files[i].getName());
                     }
                 }
             } else {
@@ -383,13 +383,13 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             }
         }
 
-        //Android Pieまでの処理
         PopupMenu finalPopupMenu = popupMenu;
         boolean finalFile_40 = file_404;
         font_Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!Build.VERSION.CODENAME.contains("Q")) {
+                    //Android Pieまでの処理
                     //パーミッション？
                     if (ContextCompat.checkSelfPermission(AddCustomMenuActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                         //権限をリクエストする
@@ -613,6 +613,16 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                                 load_url = "/api/v1/scheduled_statuses";
                                 load_Button.setText(R.string.scheduled_statuses);
                                 load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_access_alarm_black_24dp, 0, 0, 0);
+                                break;
+                            case R.id.custom_menu_load_favourite_list:
+                                load_url = "/api/v1/favourites";
+                                load_Button.setText(R.string.favourite_list);
+                                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_star_black_24dp, 0, 0, 0);
+                                break;
+                            case R.id.custom_menu_load_follow_suggestions:
+                                load_url = "/api/v1/suggestions";
+                                load_Button.setText(R.string.follow_suggestions);
+                                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_person_add_black_24dp, 0, 0, 0);
                                 break;
                         }
                         return false;

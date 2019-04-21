@@ -3302,8 +3302,14 @@ public class Home extends AppCompatActivity
             case "/api/v1/timelines/direct":
                 drawable = getDrawable(R.drawable.ic_assignment_ind_black_24dp);
                 break;
+            case "/api/v1/favourites":
+                drawable = getDrawable(R.drawable.ic_star_black_24dp);
+                break;
             case "/api/v1/scheduled_statuses":
                 drawable = getDrawable(R.drawable.ic_access_alarm_black_24dp);
+                break;
+            case "/api/v1/suggestions":
+                drawable = getDrawable(R.drawable.ic_person_add_black_24dp);
                 break;
             case "/api/notes/timeline":
                 drawable = getDrawable(R.drawable.ic_home_black_24dp);

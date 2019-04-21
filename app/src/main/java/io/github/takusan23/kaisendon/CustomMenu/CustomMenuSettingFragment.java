@@ -252,7 +252,7 @@ public class CustomMenuSettingFragment extends Fragment {
 
             @Override
             public void onItemDragEnded(int fromPosition, int toPosition) {
-                //Toast.makeText(getContext(), "End - position: " + toPosition + "\n" + "Start - position: " + fromPosition, Toast.LENGTH_SHORT).show();
+/*
 
                 //置き換え先のデータ取得
                 //_idが1から始まるので１足す
@@ -262,6 +262,10 @@ public class CustomMenuSettingFragment extends Fragment {
                 setNewData(String.valueOf((fromPosition) + 1), String.valueOf((toPosition) + 1));
                 //一時避難してたアイテムを移動させたアイテムが元あった場所にしまう
                 setNewTmpData(String.valueOf((fromPosition) + 1));
+*/
+
+                Toast.makeText(getContext(), "End - position: " + toPosition + "\n" + "Start - position: " + fromPosition, Toast.LENGTH_SHORT).show();
+                setSortMenu(fromPosition, toPosition);
 
             }
         });
@@ -287,6 +291,66 @@ public class CustomMenuSettingFragment extends Fragment {
         snackbar.setAction(action, clickListener);
         snackbar.show();
         return snackbar;
+    }
+
+    /**
+     * 新置き換えシステム
+     */
+    private void setSortMenu(int start, int end) {
+        //startを一時保存アンド削除
+        String start_item = nameStringArrayList.get(start);
+        nameStringArrayList.remove(start_item);
+        //入れる
+        nameStringArrayList.add(end, start_item);
+        //一時的にSQLiteの内容を配列に入れる
+        ArrayList<String> name_List = new ArrayList<>();
+        ArrayList<String> value_List = new ArrayList<>();
+        for (int i = 0; i < nameStringArrayList.size(); i++) {
+            //Step 1.name/valueを取得する
+            name_List.add(nameStringArrayList.get(i));
+            value_List.add(getSQLiteDBValue(nameStringArrayList.get(i)));
+        }
+
+        //Step 2.SQLite更新
+        //最初にDB全クリアする
+        db.delete("custom_menudb", null, null);
+        for (int i = 0; i < name_List.size(); i++) {
+            writeSQLiteDB(String.valueOf((i) + 1), name_List.get(i), value_List.get(i));
+        }
+
+    }
+
+
+    /**
+     * SQLiteから指定した名前の値を返します
+     */
+    private String getSQLiteDBValue(String name) {
+        String value = null;
+        Cursor cursor = db.query(
+                "custom_menudb",
+                new String[]{"name", "setting"},
+                "name=?",
+                new String[]{name},
+                null,
+                null,
+                null
+        );
+        if (cursor != null && cursor.moveToFirst()) {
+            value = cursor.getString(1);
+            cursor.close();
+        }
+        return value;
+    }
+
+    /**
+     * SQLite書き込む
+     */
+    private void writeSQLiteDB(String position, String name, String value) {
+        //入れる
+        ContentValues values = new ContentValues();
+        values.put("name", name);
+        values.put("setting", value);
+        db.insert("custom_menudb", "", values);
     }
 
 }

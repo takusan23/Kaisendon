@@ -10,7 +10,7 @@
     <Space
         android:layout_width="match_parent"
         android:layout_height="10dp" />
-    
+
     <Switch
         android:id="@+id/time_post_switch"
         android:layout_width="match_parent"
@@ -21,12 +21,12 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#ffffff"
-        android:text="@string/time_post_message" />
+        android:text="@string/time_post_message"
+        android:textColor="#ffffff" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <TextView
@@ -50,10 +50,9 @@
             android:textColor="#ffffff" />
     </LinearLayout>
 
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <TextView

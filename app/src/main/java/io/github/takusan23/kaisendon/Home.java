@@ -1120,16 +1120,48 @@ public class Home extends AppCompatActivity
                                     imm.hideSoftInputFromWindow(Home.this.getCurrentFocus().getWindowToken(), 0);
                                 }
                             }
-                            //配列からUriを取り出す
-                            for (int i = 0; i < media_uri_list.size(); i++) {
-                                //ひつようなやつ
-                                Uri uri = media_uri_list.get(i);
-                                if (CustomMenuTimeLine.isMisskeyMode()) {
-                                    uploadDrivePhoto(uri);
-                                } else {
-                                    uploadMastodonPhoto(uri);
+                            //通常POST・画像つきPOST
+                            if (!media_uri_list.isEmpty()) {
+                                //配列からUriを取り出す
+                                for (int i = 0; i < media_uri_list.size(); i++) {
+                                    //ひつようなやつ
+                                    Uri uri = media_uri_list.get(i);
+                                    if (CustomMenuTimeLine.isMisskeyMode()) {
+                                        uploadDrivePhoto(uri);
+                                    } else {
+                                        uploadMastodonPhoto(uri);
+                                    }
+                                }
+                            } else {
+                                //画像添付トゥートは別に書くよ
+                                if (media_uri_list.isEmpty() || media_uri_list == null || media_uri_list.get(0) == null) {
+                                    //FABのアイコン戻す
+                                    fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
+                                    //時間指定投稿（予約投稿）を送信するね！メッセージ
+                                    String message;
+                                    if (isTimePost) {
+                                        message = getString(R.string.time_post_post_button);
+                                    } else {
+                                        message = getString(R.string.note_create_message);
+                                    }
+                                    //Tootする
+                                    //確認SnackBer
+                                    Snackbar.make(v, message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            //FABのアイコン戻す
+                                            fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
+                                            //Mastodon / Misskey
+                                            if (CustomMenuTimeLine.isMisskeyMode()) {
+                                                misskeyNoteCreatePOST();
+                                            } else {
+                                                mastodonStatusesPOST();
+                                            }
+                                        }
+                                    }).show();
                                 }
                             }
+
                         }
                     });
                 }
@@ -1736,7 +1768,7 @@ public class Home extends AppCompatActivity
         toot_LinearLayout.setLayoutParams(toot_button_LayoutParams);
 
         //投稿用Button
-        post_button = new Button(Home.this,null, 0, R.style.Widget_AppCompat_Button_Borderless);
+        post_button = new Button(Home.this, null, 0, R.style.Widget_AppCompat_Button_Borderless);
         post_button.setText(String.valueOf(tootTextCount) + "/" + "500 " + getString(R.string.toot_text));
         post_button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
         post_button.setTextColor(Color.parseColor("#ffffff"));

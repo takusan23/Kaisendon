@@ -223,7 +223,7 @@ public class MastodonTLAPIJSONParse {
         return votes_title;
     }
 
-    public boolean isVote(){
+    public boolean isVote() {
         return isVote;
     }
 
@@ -232,8 +232,8 @@ public class MastodonTLAPIJSONParse {
         try {
             mediaList = new ArrayList<>();
             JSONObject toot_JsonObject = new JSONObject(response_string);
-            //通知と分ける
-            if (toot_JsonObject.isNull("type")) {
+            //通知/と分ける
+            if (toot_JsonObject.isNull("type") && !CustomMenuTimeLine.isNotification()) {
                 //共通
                 JSONObject account_JsonObject = toot_JsonObject.getJSONObject("account");
                 JSONArray media_array = toot_JsonObject.getJSONArray("media_attachments");

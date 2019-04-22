@@ -882,7 +882,11 @@ public class CustomMenuTimeLine extends Fragment {
                             String payload = jsonObject.getString("payload");
                             JSONObject toot_jsonObject = new JSONObject(payload);
                             //これでストリーミング有効・無効でもJSONパースになるので楽になる（？）
-                            timelineJSONParse(toot_jsonObject, true);
+                            String type = jsonObject.getString("event");
+                            //通知はParseしない
+                            if (!type.contains("notification")){
+                                timelineJSONParse(toot_jsonObject, true);
+                            }
                         } else if (finalNotification) {
                             JSONObject jsonObject = new JSONObject(message);
                             String payload = jsonObject.getString("payload");
@@ -1163,7 +1167,6 @@ public class CustomMenuTimeLine extends Fragment {
             } else {
                 recyclerViewList.add(Item);
             }
-
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -1245,7 +1248,7 @@ public class CustomMenuTimeLine extends Fragment {
      *
      * @param streaming ストリーミングAPIの場合はtrue
      */
-    private void notificationJSONPase(JSONObject toot_text_account, JSONObject toot_text_jsonObject, String type, boolean streaming) throws JSONException {
+    private void notificationJSONPase(JSONObject toot_text_account, JSONObject toot_text_jsonObject, String type, boolean streaming) {
 
         if (getActivity() != null && isAdded()) {
 
@@ -1264,7 +1267,11 @@ public class CustomMenuTimeLine extends Fragment {
             //ふぁぼした？
             Item.add("false");
 
-            recyclerViewList.add(Item);
+            if (streaming) {
+                recyclerViewList.add(0, Item);
+            } else {
+                recyclerViewList.add(Item);
+            }
 
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -1990,47 +1997,48 @@ public class CustomMenuTimeLine extends Fragment {
                 public void onMessage(String message) {
                     try {
                         JSONObject jsonObject = new JSONObject(message);
-                        String object = jsonObject.getString("payload");
-                        JSONObject payload_JsonObject = new JSONObject(object);
-                        String type = payload_JsonObject.getString("type");
-                        JSONObject account = payload_JsonObject.getJSONObject("account");
-                        String display_name = account.getString("display_name");
-                        String acct = account.getString("acct");
-                        //カスタム絵文字
-                        if (isUseCustomEmoji()) {
-                            JSONArray emojis = account.getJSONArray("emojis");
-                            for (int e = 0; e < emojis.length(); e++) {
-                                JSONObject emoji = emojis.getJSONObject(e);
-                                String emoji_name = emoji.getString("shortcode");
-                                String emoji_url = emoji.getString("url");
-                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                            }
-                        }
-                        //トースト出す
-                        String finalDisplay_name = display_name;
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //カスタムトースト
-                                Toast toast = new Toast(getContext());
-                                LayoutInflater inflater = getLayoutInflater();
-                                View layout = inflater.inflate(R.layout.notification_toast_layout, null);
-                                TextView toast_text = layout.findViewById(R.id.notification_text);
-                                PicassoImageGetter picassoImageGetter = new PicassoImageGetter(toast_text);
-                                toast_text.setText(Html.fromHtml(CustomMenuRecyclerViewAdapter.toNotificationType(getContext(), type) + "<br>" + finalDisplay_name, Html.FROM_HTML_MODE_COMPACT, picassoImageGetter, null));
-                                AppCompatImageView toast_imageview = layout.findViewById(R.id.notification_icon);
-                                toast_imageview.setImageDrawable(getNotificationIcon(type));
-                                toast.setView(layout);
-                                toast.setDuration(Toast.LENGTH_LONG);
-                                toast.show();
-                                if (pref_setting.getBoolean("pref_notification_vibrate", true)) {
-                                    long[] pattern = {100, 100, 100, 100};
-                                    vibrator.vibrate(pattern, -1);
+                        if (jsonObject.getString("type").contains("notification")) {
+                            String object = jsonObject.getString("payload");
+                            JSONObject payload_JsonObject = new JSONObject(object);
+                            String type = payload_JsonObject.getString("type");
+                            JSONObject account = payload_JsonObject.getJSONObject("account");
+                            String display_name = account.getString("display_name");
+                            String acct = account.getString("acct");
+                            //カスタム絵文字
+                            if (isUseCustomEmoji()) {
+                                JSONArray emojis = account.getJSONArray("emojis");
+                                for (int e = 0; e < emojis.length(); e++) {
+                                    JSONObject emoji = emojis.getJSONObject(e);
+                                    String emoji_name = emoji.getString("shortcode");
+                                    String emoji_url = emoji.getString("url");
+                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                    display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
                                 }
                             }
-                        });
-
+                            //トースト出す
+                            String finalDisplay_name = display_name;
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //カスタムトースト
+                                    Toast toast = new Toast(getContext());
+                                    LayoutInflater inflater = getLayoutInflater();
+                                    View layout = inflater.inflate(R.layout.notification_toast_layout, null);
+                                    TextView toast_text = layout.findViewById(R.id.notification_text);
+                                    PicassoImageGetter picassoImageGetter = new PicassoImageGetter(toast_text);
+                                    toast_text.setText(Html.fromHtml(CustomMenuRecyclerViewAdapter.toNotificationType(getContext(), type) + "<br>" + finalDisplay_name, Html.FROM_HTML_MODE_COMPACT, picassoImageGetter, null));
+                                    AppCompatImageView toast_imageview = layout.findViewById(R.id.notification_icon);
+                                    toast_imageview.setImageDrawable(getNotificationIcon(type));
+                                    toast.setView(layout);
+                                    toast.setDuration(Toast.LENGTH_LONG);
+                                    toast.show();
+                                    if (pref_setting.getBoolean("pref_notification_vibrate", true)) {
+                                        long[] pattern = {100, 100, 100, 100};
+                                        vibrator.vibrate(pattern, -1);
+                                    }
+                                }
+                            });
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -2311,6 +2319,16 @@ public class CustomMenuTimeLine extends Fragment {
         return mode;
     }
 
+    /**
+     * 通知かどうか
+     */
+    public static boolean isNotification() {
+        boolean mode = false;
+        if (url.contains("/api/v1/notifications")) {
+            mode = true;
+        }
+        return mode;
+    }
 
     /**
      * Instance

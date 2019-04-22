@@ -4,24 +4,24 @@
 またアプリの機能でアクセストークンを含むファイルをコピーする機能が搭載されていますが、ユーザーの操作なく勝手に動くことはありません。
 
 ## 利用する権限について
-### android.permission.READ_MEDIA_IMAGES"
+### android.permission.READ_MEDIA_IMAGES
 画像の共有コレクションへアクセスする権限です。  
 Android Q 以降で画像つき投稿をするときに利用します。
-### android.permission.ACCESS_WIFI_STATE"　　
+### android.permission.ACCESS_WIFI_STATE　　
 Wi-Fiネットワークに関する情報へアクセスする権限です。  
 Wi-Fi接続時のみ画像を表示する設定を利用するときに利用します。
-### android.permission.INTERNET"
+### android.permission.INTERNET
 インターネットへアクセスする権限です。  
 Mastodon/Misskey API へアクセスするときに利用します。
-### android.permission.ACCESS_NETWORK_STATE" 
+### android.permission.ACCESS_NETWORK_STATE
 ネットワークに関する情報へアクセスする権限です。  
 Wi-Fi接続時のみ画像表示、ネットワーク切り替え通知時に利用しています。
-### android.permission.VIBRATE" 
+### android.permission.VIBRATE
 バイブレーターへアクセスする権限です。  
 通知が来たとき等でバイブを鳴らすのでそのときに利用しています。
-### android.permission.READ_EXTERNAL_STORAGE" 
+### android.permission.READ_EXTERNAL_STORAGE
 ストレージへ読み込む権限です。Android Q以降で利用していません。  
 カスタムメニューのデータ、ブックマークのデータ、フォントデータを他の場所から読み込むときに利用しています。
-### android.permission.WRITE_EXTERNAL_STORAGE" 
+### android.permission.WRITE_EXTERNAL_STORAGE
 ストレージへ書き込む権限です。Android Q以降で利用していません。  
 カスタムメニューのデータ、ブックマークのデータを他の場所にコピーするときに利用しています。

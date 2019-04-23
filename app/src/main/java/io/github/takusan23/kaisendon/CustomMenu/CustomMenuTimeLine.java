@@ -1184,13 +1184,20 @@ public class CustomMenuTimeLine extends Fragment {
                             top = ((LinearLayoutManager) recyclerViewLayoutManager).getChildAt(0).getTop();
                         }
                         //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+                        if (streaming) {
+                            //一番上にアイテムが追加されたことを通知する？
+                            //notifyDataSetChanged()と違って追加時にアニメーションされる
+                            customMenuRecyclerViewAdapter.notifyItemInserted(0);
+                        } else {
+                            customMenuRecyclerViewAdapter.notifyDataSetChanged();
+                        }
                         //一番上なら追いかける
                         if (pos == 0) {
                             recyclerView.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    recyclerView.smoothScrollToPosition(0);
+                                    //scrollToPosition()に置き換えた。アニメーションされるようになった
+                                    recyclerView.scrollToPosition(0);
                                 }
                             });
                         } else {

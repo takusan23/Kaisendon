@@ -88,6 +88,7 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
                 values.put("json", json);
                 values.put("instance", CustomMenuTimeLine.getInstance());
                 db.insert("tootbookmarkdb", null, values);
+                Toast.makeText(getContext(),getString(R.string.add_Bookmark),Toast.LENGTH_SHORT).show();
                 dismiss();
             }
         });

@@ -34,7 +34,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.Priority;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONArray;
@@ -728,11 +727,14 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
+                                    //Fav/BT Countを表示できるようにする
+                                    MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context,response_string);
                                     if (endPoint.contains("reblog")) {
                                         Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
                                         Drawable boostIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
                                         boostIcon.setTint(Color.parseColor("#008000"));
                                         textView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+                                        textView.setText(api.getBTCount());
                                         //BTしたぜ！
                                         item.set(4, "true");
                                     }
@@ -741,6 +743,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                         Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
                                         favIcon.setTint(Color.parseColor("#ffd700"));
                                         textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                                        textView.setText(api.getFavCount());
                                         //Favしたぜ！
                                         item.set(5, "true");
                                     }
@@ -749,6 +752,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                         Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
                                         favIcon.setTint(Color.parseColor("#000000"));
                                         textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                                        textView.setText(api.getFavCount());
                                         //Favしたぜ！
                                         item.set(5, "false");
                                     }
@@ -757,6 +761,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                         Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
                                         favIcon.setTint(Color.parseColor("#000000"));
                                         textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                                        textView.setText(api.getBTCount());
                                         //BTしたぜ！
                                         item.set(4, "false");
                                     }

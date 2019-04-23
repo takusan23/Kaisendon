@@ -185,6 +185,11 @@ public class CustomMenuTimeLine extends Fragment {
     //フォロー推奨ユーザー表示モード
     private boolean isFollowSuggestions = false;
 
+    //時間
+    private SimpleDateFormat simpleDateFormat;
+    private SimpleDateFormat japanDateFormat;
+    private Calendar calendar;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -884,7 +889,7 @@ public class CustomMenuTimeLine extends Fragment {
                             //これでストリーミング有効・無効でもJSONパースになるので楽になる（？）
                             String type = jsonObject.getString("event");
                             //通知はParseしない
-                            if (!type.contains("notification")){
+                            if (!type.contains("notification")) {
                                 timelineJSONParse(toot_jsonObject, true);
                             }
                         } else if (finalNotification) {
@@ -1958,14 +1963,16 @@ public class CustomMenuTimeLine extends Fragment {
         //ここtrueにした
         if (pref_setting.getBoolean("pref_custom_time_format", true)) {
             //時差計算？
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            //日本用フォーマット
-            SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"));
-            japanDateFormat.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
+            if (simpleDateFormat == null && japanDateFormat == null && calendar == null) {
+                simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                //日本用フォーマット
+                japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"));
+                japanDateFormat.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
+                calendar = Calendar.getInstance();
+            }
             try {
                 Date date = simpleDateFormat.parse(createdAt);
-                Calendar calendar = Calendar.getInstance();
                 calendar.setTime(date);
                 //タイムゾーンを設定
                 //calendar.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
@@ -1997,48 +2004,48 @@ public class CustomMenuTimeLine extends Fragment {
                 public void onMessage(String message) {
                     try {
                         JSONObject jsonObject = new JSONObject(message);
-                        if (jsonObject.getString("type").contains("notification")) {
-                            String object = jsonObject.getString("payload");
-                            JSONObject payload_JsonObject = new JSONObject(object);
-                            String type = payload_JsonObject.getString("type");
-                            JSONObject account = payload_JsonObject.getJSONObject("account");
-                            String display_name = account.getString("display_name");
-                            String acct = account.getString("acct");
-                            //カスタム絵文字
-                            if (isUseCustomEmoji()) {
-                                JSONArray emojis = account.getJSONArray("emojis");
-                                for (int e = 0; e < emojis.length(); e++) {
-                                    JSONObject emoji = emojis.getJSONObject(e);
-                                    String emoji_name = emoji.getString("shortcode");
-                                    String emoji_url = emoji.getString("url");
-                                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                                    display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                        //if (jsonObject.getString("type").equals("notification")) {
+                        String object = jsonObject.getString("payload");
+                        JSONObject payload_JsonObject = new JSONObject(object);
+                        String type = payload_JsonObject.getString("type");
+                        JSONObject account = payload_JsonObject.getJSONObject("account");
+                        String display_name = account.getString("display_name");
+                        String acct = account.getString("acct");
+                        //カスタム絵文字
+                        if (isUseCustomEmoji()) {
+                            JSONArray emojis = account.getJSONArray("emojis");
+                            for (int e = 0; e < emojis.length(); e++) {
+                                JSONObject emoji = emojis.getJSONObject(e);
+                                String emoji_name = emoji.getString("shortcode");
+                                String emoji_url = emoji.getString("url");
+                                String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                                display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                            }
+                        }
+                        //トースト出す
+                        String finalDisplay_name = display_name;
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //カスタムトースト
+                                Toast toast = new Toast(getContext());
+                                LayoutInflater inflater = getLayoutInflater();
+                                View layout = inflater.inflate(R.layout.notification_toast_layout, null);
+                                TextView toast_text = layout.findViewById(R.id.notification_text);
+                                PicassoImageGetter picassoImageGetter = new PicassoImageGetter(toast_text);
+                                toast_text.setText(Html.fromHtml(CustomMenuRecyclerViewAdapter.toNotificationType(getContext(), type) + "<br>" + finalDisplay_name, Html.FROM_HTML_MODE_COMPACT, picassoImageGetter, null));
+                                AppCompatImageView toast_imageview = layout.findViewById(R.id.notification_icon);
+                                toast_imageview.setImageDrawable(getNotificationIcon(type));
+                                toast.setView(layout);
+                                toast.setDuration(Toast.LENGTH_LONG);
+                                toast.show();
+                                if (pref_setting.getBoolean("pref_notification_vibrate", true)) {
+                                    long[] pattern = {100, 100, 100, 100};
+                                    vibrator.vibrate(pattern, -1);
                                 }
                             }
-                            //トースト出す
-                            String finalDisplay_name = display_name;
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    //カスタムトースト
-                                    Toast toast = new Toast(getContext());
-                                    LayoutInflater inflater = getLayoutInflater();
-                                    View layout = inflater.inflate(R.layout.notification_toast_layout, null);
-                                    TextView toast_text = layout.findViewById(R.id.notification_text);
-                                    PicassoImageGetter picassoImageGetter = new PicassoImageGetter(toast_text);
-                                    toast_text.setText(Html.fromHtml(CustomMenuRecyclerViewAdapter.toNotificationType(getContext(), type) + "<br>" + finalDisplay_name, Html.FROM_HTML_MODE_COMPACT, picassoImageGetter, null));
-                                    AppCompatImageView toast_imageview = layout.findViewById(R.id.notification_icon);
-                                    toast_imageview.setImageDrawable(getNotificationIcon(type));
-                                    toast.setView(layout);
-                                    toast.setDuration(Toast.LENGTH_LONG);
-                                    toast.show();
-                                    if (pref_setting.getBoolean("pref_notification_vibrate", true)) {
-                                        long[] pattern = {100, 100, 100, 100};
-                                        vibrator.vibrate(pattern, -1);
-                                    }
-                                }
-                            });
-                        }
+                        });
+                        // }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

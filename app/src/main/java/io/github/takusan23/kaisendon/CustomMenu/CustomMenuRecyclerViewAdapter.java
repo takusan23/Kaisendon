@@ -77,6 +77,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     private Context context;
     private boolean isScheduled_statuses = false;
     private boolean isFollowSuggestions = false;
+    private SimpleDateFormat simpleDateFormat;
+    private SimpleDateFormat japanDateFormat;
+    private Calendar calendar;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -1446,11 +1449,14 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         //ここtrueにした
         if (pref_setting.getBoolean("pref_custom_time_format", true)) {
             //時差計算？
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            //日本用フォーマット
-            SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"));
-            //japanDateFormat.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
+            if (simpleDateFormat == null && japanDateFormat == null) {
+                simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                //日本用フォーマット
+                japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"));
+                japanDateFormat.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
+                //calendar = Calendar.getInstance();
+            }
             try {
                 Date date = simpleDateFormat.parse(createdAt);
                 Calendar calendar = Calendar.getInstance();
@@ -1558,7 +1564,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         LinearLayout parent_LinearLayout = viewHolder.mainLinearLayout;
         LinearLayout account_LinearLayout = viewHolder.account_LinearLayout;
         LinearLayout toot_info_LinearLayout = (LinearLayout) viewHolder.toot_createAt_TextView.getParent().getParent().getParent();
-        if (toot_info_LinearLayout!=null){
+        if (toot_info_LinearLayout != null) {
             toot_info_LinearLayout.removeView((LinearLayout) viewHolder.toot_createAt_TextView.getParent().getParent());
             toot_info_LinearLayout.removeView((LinearLayout) viewHolder.toot_visibility_TextView.getParent().getParent());
             toot_info_LinearLayout.removeView((LinearLayout) viewHolder.toot_client_TextView.getParent());

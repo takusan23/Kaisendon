@@ -77,7 +77,12 @@
                 android:id="@+id/home_menu_thisapp"
                 android:title="@string/konoappnituite"
                 app:showAsAction="never" />
+            <item
+                android:id="@+id/home_menu_privacy-policy"
+                android:title="@string/privacy_policy"
+                app:showAsAction="never" />
         </menu>
-
     </item>
 </menu>
+
+

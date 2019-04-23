@@ -38,7 +38,8 @@ public class KonoAppNiTuite extends AppCompatActivity {
     private String release_name_3 = "さーもんどん";
     private String release_ver_3 = "3.0";
     private String release_name_4 = "いかどん";
-    private String release_ver_4 = "4.0";
+    //private String release_ver_4 = "4.0";
+    private String release_ver_4 = "4.1.0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

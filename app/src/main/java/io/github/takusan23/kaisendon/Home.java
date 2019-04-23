@@ -19,6 +19,7 @@ import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
@@ -33,6 +34,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -79,6 +81,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.squareup.picasso.Picasso;
 
+import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -1352,6 +1355,9 @@ public class Home extends AppCompatActivity
                 Intent thisApp = new Intent(this, KonoAppNiTuite.class);
                 startActivity(thisApp);
                 break;
+            case R.id.home_menu_privacy_policy:
+                showPrivacyPolicy();
+                break;
             case R.id.home_menu_wear:
                 transaction.replace(R.id.container_container, new WearFragment());
                 transaction.commit();
@@ -1374,6 +1380,25 @@ public class Home extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * プライバシーポリシー
+     * */
+    private void showPrivacyPolicy(){
+        String githubUrl = "https://github.com/takusan23/Kaisendon/blob/master/kaisendon-privacy-policy.md";
+        if (pref_setting.getBoolean("pref_chrome_custom_tabs", true)) {
+            Bitmap back_icon = BitmapFactory.decodeResource(Home.this.getResources(), R.drawable.ic_action_arrow_back);
+            String custom = CustomTabsHelper.getPackageNameToUse(Home.this);
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+            CustomTabsIntent customTabsIntent = builder.build();
+            customTabsIntent.intent.setPackage(custom);
+            customTabsIntent.launchUrl(Home.this, Uri.parse(githubUrl));
+        } else {
+            Uri uri = Uri.parse(githubUrl);
+            Intent browser = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(browser);
+        }
     }
 
 

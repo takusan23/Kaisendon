@@ -458,5 +458,6 @@
     <string name="vote_post_message">投票しますか</string>
     <string name="tootbookmark_backup_restore_button_title">ブックマークをバックアップ、復元</string>
     <string name="app_shortcut_toot_title">AppShortcutからトゥート</string>
+    <string name="privacy_policy">プライバシーポリシー</string>
 
 </resources>

@@ -57,6 +57,13 @@
         android:title="@string/kaisendon_wear"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/home_menu_desktop_mode"
+        android:icon="@drawable/ic_view_week_black_24dp"
+        android:orderInCategory="100"
+        android:title="@string/desktop_mode_depelopment"
+        app:showAsAction="never" />
+
 
     <item
         android:id="@+id/home_menu_sonota"

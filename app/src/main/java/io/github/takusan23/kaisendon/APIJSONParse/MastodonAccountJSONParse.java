@@ -7,6 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
+
 public class MastodonAccountJSONParse {
     private Context context;
     private String acct;
@@ -17,7 +19,11 @@ public class MastodonAccountJSONParse {
 
     public MastodonAccountJSONParse(Context context, String response_string) {
         this.context = context;
-        jsonParse(response_string);
+        if (CustomMenuTimeLine.isMisskeyMode()) {
+            setMisskeyParse(response_string);
+        } else {
+            jsonParse(response_string);
+        }
     }
 
     public String getAcct() {
@@ -54,6 +60,31 @@ public class MastodonAccountJSONParse {
                 for (int i = 0; i < emojis.length(); i++) {
                     JSONObject emoji = emojis.getJSONObject(i);
                     String emoji_name = emoji.getString("shortcode");
+                    String emoji_url = emoji.getString("url");
+                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
+                    display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);
+                    note = note.replace(":" + emoji_name + ":", custom_emoji_src);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setMisskeyParse(String response_string){
+        try {
+            JSONObject jsonObject = new JSONObject(response_string);
+            acct = jsonObject.getString("username");
+            display_name = jsonObject.getString("name");
+            user_id = jsonObject.getString("id");
+            avatar_url = jsonObject.getString("avatarUrl");
+            note = jsonObject.getString("description");
+            //絵文字
+            if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true)) {
+                JSONArray emojis = jsonObject.getJSONArray("emojis");
+                for (int i = 0; i < emojis.length(); i++) {
+                    JSONObject emoji = emojis.getJSONObject(i);
+                    String emoji_name = emoji.getString("name");
                     String emoji_url = emoji.getString("url");
                     String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
                     display_name = display_name.replace(":" + emoji_name + ":", custom_emoji_src);

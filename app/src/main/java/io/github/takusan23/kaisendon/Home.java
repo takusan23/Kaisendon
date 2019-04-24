@@ -104,7 +104,8 @@ import io.github.takusan23.kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog;
 import io.github.takusan23.kaisendon.Fragment.AccountListFragment;
 import io.github.takusan23.kaisendon.Fragment.Bookmark_Frament;
 import io.github.takusan23.kaisendon.Fragment.CustomStreamingFragment;
-import io.github.takusan23.kaisendon.Fragment.DirectMessage_Fragment;
+import io.github.takusan23.kaisendon.CustomMenu.DirectMessage_Fragment;
+import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
 import io.github.takusan23.kaisendon.Fragment.Favourites_List_Fragment;
 import io.github.takusan23.kaisendon.Fragment.Federated_TimeLine_Fragment;
 import io.github.takusan23.kaisendon.Fragment.Follow_Suggestions_Fragment;
@@ -1342,6 +1343,10 @@ public class Home extends AppCompatActivity
                 }
                 intent.putExtra("my", true);
                 startActivity(intent);
+                break;
+            case R.id.home_menu_desktop_mode:
+                transaction.replace(R.id.container_container, new DesktopFragment());
+                transaction.commit();
                 break;
             case R.id.home_menu_setting:
                 transaction.replace(R.id.container_container, new SettingFragment());

@@ -79,6 +79,10 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     private SimpleDateFormat simpleDateFormat;
     private SimpleDateFormat japanDateFormat;
     private Calendar calendar;
+    private boolean isMastodonStatus = false;
+    private boolean isMastodonFollowes = false;
+    private boolean isMisskeyNotes = false;
+    private boolean isMisskeyFollowes = false;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -191,8 +195,23 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (CustomMenuTimeLine.getUrl().contains("/api/v1/suggestions")) {
             isFollowSuggestions = true;
         }
+        if (item.get(1).contains("/api/v1/accounts/")) {
+            if (item.get(1).contains("/following") || item.get(1).contains("/followers")) {
+                isMastodonFollowes = true;
+            }
+            if (item.get(1).contains("/statuses")) {
+                isMastodonStatus = true;
+            }
+        }
+        if (item.get(1).contains("/api/users/following") || item.get(1).contains("/api/users/followers")) {
+            isMisskeyFollowes = true;
+        }
+        if (item.get(1).contains("/api/users/notes")) {
+            isMisskeyNotes = true;
+        }
+
         //TL/それ以外
-        if (!isScheduled_statuses && !isFollowSuggestions) {
+        if (!isScheduled_statuses && !isFollowSuggestions && !isMisskeyFollowes && !isMastodonFollowes) {
             //レイアウト
             //JSONパース用クラス
             MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3));
@@ -269,6 +288,10 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             setSimpleLayout(viewHolder);
             setScheduled_statuses_layout(viewHolder, api);
         } else if (isFollowSuggestions) {
+            MastodonAccountJSONParse api = new MastodonAccountJSONParse(viewHolder.mainLinearLayout.getContext(), item.get(3));
+            setAccountLayout(viewHolder);
+            createAccountLinearLayout(viewHolder, api);
+        } else if (isMastodonFollowes || isMisskeyFollowes) {
             MastodonAccountJSONParse api = new MastodonAccountJSONParse(viewHolder.mainLinearLayout.getContext(), item.get(3));
             setAccountLayout(viewHolder);
             createAccountLinearLayout(viewHolder, api);
@@ -728,7 +751,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                 @Override
                                 public void run() {
                                     //Fav/BT Countを表示できるようにする
-                                    MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context,response_string);
+                                    MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string);
                                     if (endPoint.contains("reblog")) {
                                         Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
                                         Drawable boostIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);

@@ -563,5 +563,6 @@
     <string name="tootbookmark_backup_restore_button_title">Backup and restore bookmarks</string>
     <string name="app_shortcut_toot_title">Toot from AppShortcut</string>
     <string name="privacy_policy">privacy policy</string>
+    <string name="desktop_mode_depelopment">Desktop mode (under development)</string>
 
 </resources>

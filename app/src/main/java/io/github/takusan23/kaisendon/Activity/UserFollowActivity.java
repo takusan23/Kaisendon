@@ -3,45 +3,28 @@ package io.github.takusan23.kaisendon.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
-import com.sys1yagi.mastodon4j.api.entity.Attachment;
-
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
-import io.github.takusan23.kaisendon.Home;
-import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
-import io.github.takusan23.kaisendon.ListItem;
+import io.github.takusan23.kaisendon.CustomMenu.CustomMenuRecyclerViewAdapter;
 import io.github.takusan23.kaisendon.Preference_ApplicationContext;
 import io.github.takusan23.kaisendon.R;
-import io.github.takusan23.kaisendon.SimpleAdapter;
 import io.github.takusan23.kaisendon.SnackberProgress;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -62,10 +45,10 @@ public class UserFollowActivity extends AppCompatActivity {
     private String AccessToken = null;
     private String Instance = null;
 
-    private ListView listView;
-    private ArrayList<ListItem> toot_list;
-    private HomeTimeLineAdapter adapter;
-    private SimpleAdapter simpleAdapter;
+    //private ListView listView;
+    //private ArrayList<ListItem> toot_list;
+    //private HomeTimeLineAdapter adapter;
+    //private SimpleAdapter simpleAdapter;
 
     private String snackber_text = null;
 
@@ -102,6 +85,13 @@ public class UserFollowActivity extends AppCompatActivity {
      */
     private String misskeyUrl = "";
 
+    //RecyclerView
+    private ArrayList<ArrayList> recyclerViewList;
+    private RecyclerView.LayoutManager recyclerViewLayoutManager;
+    private RecyclerView recyclerView;
+    private CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,7 +103,7 @@ public class UserFollowActivity extends AppCompatActivity {
         boolean dark_mode = pref_setting.getBoolean("pref_dark_theme", false);
         if (dark_mode) {
             setTheme(R.style.Theme_AppCompat_DayNight);
-        } 
+        }
         //OLEDように真っ暗のテーマも使えるように
         //この画面用にNoActionBerなダークテーマを指定している
         boolean oled_mode = pref_setting.getBoolean("pref_oled_mode", false);
@@ -134,10 +124,16 @@ public class UserFollowActivity extends AppCompatActivity {
             Instance = pref_setting.getString("main_instance", "");
         }
 
-        toot_list = new ArrayList<>();
-        adapter = new HomeTimeLineAdapter(UserFollowActivity.this, R.layout.timeline_item, toot_list);
-        simpleAdapter = new SimpleAdapter(UserFollowActivity.this, R.layout.timeline_item, toot_list);
-        listView = findViewById(R.id.follow_follower_list);
+        recyclerView = findViewById(R.id.follow_follower_list);
+
+        recyclerViewList = new ArrayList<>();
+        //ここから下三行必須
+        recyclerView.setHasFixedSize(true);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+        recyclerViewLayoutManager = recyclerView.getLayoutManager();
 
         //account_idを受け取る
         Intent intent = getIntent();
@@ -184,41 +180,52 @@ public class UserFollowActivity extends AppCompatActivity {
         if (isMisskey) {
             postMisskeyAPI(misskeyUrl, null);
             //最後までスクロール
-            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
-                public void onScrollStateChanged(AbsListView view, int scrollState) {
-
+                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
                 }
 
                 @Override
-                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount && !scroll) {
-                        position = listView.getFirstVisiblePosition();
-                        y = listView.getChildAt(0).getTop();
-                        if (adapter.getCount() >= 20) {
-                            SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + misskeyUrl);
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    int firstVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+                    int visibleItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getChildCount();
+                    int totalItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getItemCount();
+                    //最後までスクロールしたときの処理
+                    if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
+                        position = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                        y = recyclerView.getChildAt(0).getTop();
+                        if (recyclerViewList.size()>= 20) {
+                            SnackberProgress.showProgressSnackber(recyclerView, getContext(), getString(R.string.loading) + "\n" + misskeyUrl);
                             scroll = true;
                             postMisskeyAPI(misskeyUrl, nextID);
                         }
                     }
                 }
             });
+
         } else {
             postMastodonAPI(mastodonUrl, null);
             //最後までスクロール
-            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
-                public void onScrollStateChanged(AbsListView view, int scrollState) {
-
+                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
                 }
 
                 @Override
-                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount && !scroll) {
-                        position = listView.getFirstVisiblePosition();
-                        y = listView.getChildAt(0).getTop();
-                        if (adapter.getCount() >= 20) {
-                            SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + misskeyUrl);
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    int firstVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+                    int visibleItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getChildCount();
+                    int totalItemCount = ((LinearLayoutManager) recyclerView.getLayoutManager()).getItemCount();
+                    //最後までスクロールしたときの処理
+                    if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
+                        position = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                        y = recyclerView.getChildAt(0).getTop();
+                        if (recyclerViewList.size()>= 20) {
+                            SnackberProgress.showProgressSnackber(recyclerView, getContext(), getString(R.string.loading) + "\n" + misskeyUrl);
                             scroll = true;
                             postMastodonAPI(mastodonUrl, nextID);
                         }
@@ -240,7 +247,7 @@ public class UserFollowActivity extends AppCompatActivity {
         String token = pref_setting.getString("misskey_main_token", "");
         String username = pref_setting.getString("misskey_main_username", "");
         String url = "https://" + instance + api_url;
-        SnackberProgress.showProgressSnackber(listView, getContext(), getString(R.string.loading) + "\n" + url);
+        SnackberProgress.showProgressSnackber(recyclerView, getContext(), getString(R.string.loading) + "\n" + url);
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("i", token);
@@ -319,7 +326,7 @@ public class UserFollowActivity extends AppCompatActivity {
      */
     private void postMastodonAPI(String api_url, String max_id) {
         //作成
-        SnackberProgress.showProgressSnackber(listView, getContext(), getString(R.string.loading) + "\n" + api_url);
+        SnackberProgress.showProgressSnackber(recyclerView, getContext(), getString(R.string.loading) + "\n" + api_url);
         //パラメータを設定
         HttpUrl.Builder builder = HttpUrl.parse(api_url).newBuilder();
         builder.addQueryParameter("limit", "80");
@@ -394,162 +401,33 @@ public class UserFollowActivity extends AppCompatActivity {
             //max_count = jsonArray.length();
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
-                JSONObject toot_account = toot_jsonObject.getJSONObject("account");
-                JSONArray media_array = toot_jsonObject.getJSONArray("media_attachments");
-                String toot_text = toot_jsonObject.getString("content");
-                String user = toot_account.getString("username");
-                String user_name = toot_account.getString("display_name");
-                toot_time = toot_jsonObject.getString("created_at");
-                String type = "";
-                String user_use_client = null;
-
-                //クライアント名がある？ない？
-                try {
-                    JSONObject application = toot_jsonObject.getJSONObject("application");
-                    user_use_client = application.getString("name");
-                } catch (JSONException e) {
-                    user_use_client = toot_jsonObject.getString("application");
-                }
-
-                //user_use_client = status.getApplication().getName();
-                //toot_id = toot_jsonObject.getString("id");
-                String toot_id_string = toot_jsonObject.getString("id");
-
-                String user_avater_url = toot_account.getString("avatar");
-
-                account_id = toot_account.getString("id");
-
-                List<Attachment> attachment = Collections.singletonList(new Attachment());
-
-
-                final String[] medias = new String[1];
-
-                final String[] media_url = {null};
-
-                if (!media_array.isNull(0)) {
-                    media_url_1 = media_array.getJSONObject(0).getString("url");
-                }
-                if (!media_array.isNull(1)) {
-                    media_url_2 = media_array.getJSONObject(1).getString("url");
-                }
-                if (!media_array.isNull(2)) {
-                    media_url_3 = media_array.getJSONObject(2).getString("url");
-                }
-                if (!media_array.isNull(3)) {
-                    media_url_4 = media_array.getJSONObject(3).getString("url");
-                }
-                //System.out.println("これかあ！ ： " + media_url_1 + " / " + media_url_2  + " / " + media_url_3 + " / " + media_url_4);
-
-                //絵文字
-                JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
-                for (int e = 0; e < emoji.length(); e++) {
-                    JSONObject jsonObject = emoji.getJSONObject(e);
-                    String emoji_name = jsonObject.getString("shortcode");
-                    String emoji_url = jsonObject.getString("url");
-                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                    toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
-                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                }
-
-                //アバター絵文字
-                try {
-                    JSONArray avater_emoji = toot_jsonObject.getJSONArray("profile_emojis");
-                    for (int a = 0; a < avater_emoji.length(); a++) {
-                        JSONObject jsonObject = avater_emoji.getJSONObject(a);
-                        String emoji_name = jsonObject.getString("shortcode");
-                        String emoji_url = jsonObject.getString("url");
-                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                        toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
-                        user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                    }
-
-                    //ユーザーネームの方のアバター絵文字
-                    JSONArray account_avater_emoji = toot_account.getJSONArray("profile_emojis");
-                    for (int a = 0; a < account_avater_emoji.length(); a++) {
-                        JSONObject jsonObject = account_avater_emoji.getJSONObject(a);
-                        String emoji_name = jsonObject.getString("shortcode");
-                        String emoji_url = jsonObject.getString("url");
-                        String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                        user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                    }
-                } catch (JSONException e) {
-
-                }
-
-                //ユーザーネームの方の絵文字
-                JSONArray account_emoji = toot_account.getJSONArray("emojis");
-                for (int e = 0; e < account_emoji.length(); e++) {
-                    JSONObject jsonObject = account_emoji.getJSONObject(e);
-                    String emoji_name = jsonObject.getString("shortcode");
-                    String emoji_url = jsonObject.getString("url");
-                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                }
-
-
-                //カード情報
-                String cardTitle = null;
-                String cardURL = null;
-                String cardDescription = null;
-                String cardImage = null;
-
-                if (!toot_jsonObject.isNull("card")) {
-                    JSONObject cardObject = toot_jsonObject.getJSONObject("card");
-                    cardURL = cardObject.getString("url");
-                    cardTitle = cardObject.getString("title");
-                    cardDescription = cardObject.getString("description");
-                    cardImage = cardObject.getString("image");
-                }
                 //配列を作成
                 ArrayList<String> Item = new ArrayList<>();
                 //メモとか通知とかに
-                Item.add(type);
+                Item.add("CustomMenu Mastodon Toot");
                 //内容
-                Item.add(toot_text);
+                Item.add(mastodonUrl);
                 //ユーザー名
-                Item.add(user_name + " @" + user);
-                //時間、クライアント名等
-                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                //Toot ID 文字列版
-                Item.add(toot_id_string);
-                //アバターURL
-                Item.add(user_avater_url);
-                //アカウントID
-                Item.add(String.valueOf(account_id));
-                //ユーザーネーム
-                Item.add(user);
-                //メディア
-                Item.add(media_url_1);
-                Item.add(media_url_2);
-                Item.add(media_url_3);
-                Item.add(media_url_4);
-                //カード
-                Item.add(cardTitle);
-                Item.add(cardURL);
-                Item.add(cardDescription);
-                Item.add(cardImage);
-
-                ListItem listItem = new ListItem(Item);
-
-
+                Item.add("");
+                //JSONObject
+                Item.add(toot_jsonObject.toString());
+                //ぶーすとした？
+                Item.add("false");
+                //ふぁぼした？
+                Item.add("false");
+                recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        adapter.add(listItem);
-                        adapter.notifyDataSetChanged();
-                        listView.setAdapter(adapter);
-                        listView.setSelectionFromTop(position, y);
-                        scroll = false;
-                        //おわり
+                        if (recyclerViewLayoutManager != null) {
+                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
+                        }
+                        //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                        //recyclerView.setAdapter(customMenuRecyclerViewAdapter);
                         SnackberProgress.closeProgressSnackber();
+                        scroll = false;
                     }
                 });
-                media_url_1 = null;
-                media_url_2 = null;
-                media_url_3 = null;
-                media_url_4 = null;
-                type = null;
-
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -564,59 +442,29 @@ public class UserFollowActivity extends AppCompatActivity {
             JSONArray jsonArray = new JSONArray(response_string);
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                //アカウント情報ー
-                String display_name = jsonObject.getString("display_name");
-                String id = jsonObject.getString("acct");
-                String avater_url = jsonObject.getString("avatar");
-                String account_info = jsonObject.getString("note");
-                long account_id_follow = jsonObject.getLong("id");
-
                 //配列を作成
                 ArrayList<String> Item = new ArrayList<>();
                 //メモとか通知とかに
-                Item.add("");
+                Item.add("CustomMenu Mastodon Follow");
                 //内容
-                Item.add(account_info);
+                Item.add(mastodonUrl);
                 //ユーザー名
-                Item.add(display_name + " @" + id);
-                //時間、クライアント名等
-                Item.add(null);
-                //Toot ID 文字列版
                 Item.add("");
-                //アバターURL
-                Item.add(avater_url);
-                //アカウントID
-                Item.add(String.valueOf(account_id_follow));
-                //ユーザーネーム
-                Item.add(display_name);
-                //メディア
-                Item.add(null);
-                Item.add(null);
-                Item.add(null);
-                Item.add(null);
-                //カード
-                Item.add(null);
-                Item.add(null);
-                Item.add(null);
-                Item.add(null);
-
-                ListItem listItem = new ListItem(Item);
-
+                //JSONObject
+                Item.add(jsonObject.toString());
+                //ぶーすとした？
+                Item.add("false");
+                //ふぁぼした？
+                Item.add("false");
+                recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        simpleAdapter.add(listItem);
-                        simpleAdapter.notifyDataSetChanged();
-                    }
-                });
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        listView.setAdapter(simpleAdapter);
-                        listView.setSelectionFromTop(position, y);
-                        scroll = false;
-                        //おわり
+                        if (recyclerViewLayoutManager != null) {
+                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
+                        }
+                        //recyclerView.setAdapter(customMenuRecyclerViewAdapter);
+                        //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);recyclerView.setAdapter(customMenuRecyclerViewAdapter);
                         SnackberProgress.closeProgressSnackber();
                     }
                 });
@@ -635,122 +483,33 @@ public class UserFollowActivity extends AppCompatActivity {
             //max_count = jsonArray.length();
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
-                JSONObject toot_account = toot_jsonObject.getJSONObject("user");
-                JSONArray media_array = toot_jsonObject.getJSONArray("media");
-                String toot_text = toot_jsonObject.getString("text");
-                String user = toot_account.getString("username");
-                String user_name = toot_account.getString("name");
-                toot_time = toot_jsonObject.getString("createdAt");
-                String type = "";
-                String user_use_client = null;
-
-                //user_use_client = status.getApplication().getName();
-                //toot_id = toot_jsonObject.getString("id");
-                String toot_id_string = toot_jsonObject.getString("id");
-
-                String user_avater_url = toot_account.getString("avatarUrl");
-
-                account_id = toot_account.getString("id");
-
-                if (!media_array.isNull(0)) {
-                    media_url_1 = media_array.getJSONObject(0).getString("url");
-                }
-                if (!media_array.isNull(1)) {
-                    media_url_2 = media_array.getJSONObject(1).getString("url");
-                }
-                if (!media_array.isNull(2)) {
-                    media_url_3 = media_array.getJSONObject(2).getString("url");
-                }
-                if (!media_array.isNull(3)) {
-                    media_url_4 = media_array.getJSONObject(3).getString("url");
-                }
-                //System.out.println("これかあ！ ： " + media_url_1 + " / " + media_url_2  + " / " + media_url_3 + " / " + media_url_4);
-
-                //絵文字
-                JSONArray emoji = toot_jsonObject.getJSONArray("emojis");
-                for (int e = 0; e < emoji.length(); e++) {
-                    JSONObject jsonObject = emoji.getJSONObject(e);
-                    String emoji_name = jsonObject.getString("name");
-                    String emoji_url = jsonObject.getString("url");
-                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                    toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
-                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                }
-                //ユーザーネームの方の絵文字
-                JSONArray account_emoji = toot_account.getJSONArray("emojis");
-                for (int e = 0; e < account_emoji.length(); e++) {
-                    JSONObject jsonObject = account_emoji.getJSONObject(e);
-                    String emoji_name = jsonObject.getString("name");
-                    String emoji_url = jsonObject.getString("url");
-                    String custom_emoji_src = "<img src=\'" + emoji_url + "\'>";
-                    user_name = user_name.replace(":" + emoji_name + ":", custom_emoji_src);
-                }
-                //カード情報
-                String cardTitle = null;
-                String cardURL = null;
-                String cardDescription = null;
-                String cardImage = null;
-
-/*
-                        if (!toot_jsonObject.isNull("card")) {
-                            JSONObject cardObject = toot_jsonObject.getJSONObject("card");
-                            cardURL = cardObject.getString("url");
-                            cardTitle = cardObject.getString("title");
-                            cardDescription = cardObject.getString("description");
-                            cardImage = cardObject.getString("image");
-                        }
-*/
                 //配列を作成
                 ArrayList<String> Item = new ArrayList<>();
                 //メモとか通知とかに
-                Item.add(type);
+                Item.add("CustomMenu Misskey Notes");
                 //内容
-                Item.add(toot_text);
+                Item.add(misskeyUrl);
                 //ユーザー名
-                Item.add(user_name + " @" + user);
-                //時間、クライアント名等
-                Item.add("クライアント : " + user_use_client + " / " + "トゥートID : " + toot_id_string + " / " + getString(R.string.time) + " : " + toot_time);
-                //Toot ID 文字列版
-                Item.add(toot_id_string);
-                //アバターURL
-                Item.add(user_avater_url);
-                //アカウントID
-                Item.add(String.valueOf(account_id));
-                //ユーザーネーム
-                Item.add(user);
-                //メディア
-                Item.add(media_url_1);
-                Item.add(media_url_2);
-                Item.add(media_url_3);
-                Item.add(media_url_4);
-                //カード
-                Item.add(cardTitle);
-                Item.add(cardURL);
-                Item.add(cardDescription);
-                Item.add(cardImage);
-
-                ListItem listItem = new ListItem(Item);
-
-
+                Item.add("");
+                //JSONObject
+                Item.add(toot_jsonObject.toString());
+                //ぶーすとした？
+                Item.add("false");
+                //ふぁぼした？
+                Item.add("false");
+                recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        adapter.add(listItem);
-                        adapter.notifyDataSetChanged();
-                        listView.setAdapter(adapter);
-
-                        listView.setSelectionFromTop(position, y);
-                        scroll = false;
-                        //おわり
+                        if (recyclerViewLayoutManager != null) {
+                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
+                        }
+                        //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                        //recyclerView.setAdapter(customMenuRecyclerViewAdapter);
                         SnackberProgress.closeProgressSnackber();
+                        scroll = false;
                     }
                 });
-                media_url_1 = null;
-                media_url_2 = null;
-                media_url_3 = null;
-                media_url_4 = null;
-                type = null;
-
             }
             //最後のIDを更新する
             JSONObject last_toot = jsonArray.getJSONObject(99);
@@ -772,59 +531,31 @@ public class UserFollowActivity extends AppCompatActivity {
             JSONArray jsonArray = first_Object.getJSONArray("users");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                //アカウント情報ー
-                String display_name = jsonObject.getString("name");
-                String id = jsonObject.getString("username");
-                String avater_url = jsonObject.getString("avatarUrl");
-                String account_info = jsonObject.getString("description");
-                String account_id_follow = jsonObject.getString("id");
                 //配列を作成
                 ArrayList<String> Item = new ArrayList<>();
                 //メモとか通知とかに
-                Item.add("");
+                Item.add("CustomMenu Misskey Follow");
                 //内容
-                Item.add(account_info);
+                Item.add(mastodonUrl);
                 //ユーザー名
-                Item.add(display_name + " @" + id);
-                //時間、クライアント名等
-                Item.add(null);
-                //Toot ID 文字列版
                 Item.add("");
-                //アバターURL
-                Item.add(avater_url);
-                //アカウントID
-                Item.add(account_id_follow);
-                //ユーザーネーム
-                Item.add(display_name);
-                //メディア
-                Item.add(null);
-                Item.add(null);
-                Item.add(null);
-                Item.add(null);
-                //カード
-                Item.add(null);
-                Item.add(null);
-                Item.add(null);
-                Item.add(null);
-
-                ListItem listItem = new ListItem(Item);
-
+                //JSONObject
+                Item.add(jsonObject.toString());
+                //ぶーすとした？
+                Item.add("false");
+                //ふぁぼした？
+                Item.add("false");
+                recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        simpleAdapter.add(listItem);
-                        simpleAdapter.notifyDataSetChanged();
-                    }
-                });
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        listView.setAdapter(simpleAdapter);
-                        listView.setSelectionFromTop(position, y);
-                        scroll = false;
-                        //おわり
+                        if (recyclerViewLayoutManager != null) {
+                            ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(position, y);
+                        }
+                        //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                        //recyclerView.setAdapter(customMenuRecyclerViewAdapter);
                         SnackberProgress.closeProgressSnackber();
+                        scroll = false;
                     }
                 });
             }

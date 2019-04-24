@@ -9,24 +9,19 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LevelListDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.text.Html;
-import android.text.Spannable;
 import android.text.util.Linkify;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -49,21 +44,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
-import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.PicassoImageGetter;
 import io.github.takusan23.kaisendon.Preference_ApplicationContext;
 import io.github.takusan23.kaisendon.R;
@@ -130,6 +120,8 @@ public class UserActivity extends AppCompatActivity {
     private Button followButton;
     private ImageView headerImageView;
     private LinearLayout display_name_avatar_LinearLayout;
+    private SimpleDateFormat simpleDateFormat;
+    private SimpleDateFormat japanDateFormat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -477,6 +469,7 @@ public class UserActivity extends AppCompatActivity {
                                 try {
                                     if (jsonObject.getBoolean("isFollowing")) {
                                         followButton.setText(getResources().getString(R.string.following));
+                                        followButton.setPadding(10,10,10,10);
                                         followButton.setTextColor(Color.parseColor("#2196f3"));
                                         Drawable favIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_done_black_24dp, null);
                                         favIcon.setTint(Color.parseColor("#2196f3"));
@@ -537,7 +530,9 @@ public class UserActivity extends AppCompatActivity {
 
 
         ImageView avatarImageView = new ImageView(UserActivity.this);
+        avatarImageView.setPadding(10,10,10,10);
         TextView display_name_TextView = new TextView(UserActivity.this);
+        display_name_TextView.setPadding(10,10,10,10);
         FrameLayout frameLayout = new FrameLayout(UserActivity.this);
         //真ん中
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -671,6 +666,7 @@ public class UserActivity extends AppCompatActivity {
         //nico_url Button
         if (nico_url != null) {
             Button nicoButton = new Button(UserActivity.this);
+            nicoButton.setPadding(10,10,10,10);
             nicoButton.setText("niconico");
             nicoButton.setBackground(getDrawable(R.drawable.button_style));
             nicoButton.setTextColor(Color.parseColor("#000000"));
@@ -727,7 +723,7 @@ public class UserActivity extends AppCompatActivity {
         user_activity_LinearLayout.addView(noteCardLinearLayout);
         //補足情報
         //Misskeyは飛ばす
-        if (CustomMenuTimeLine.isMisskeyMode() && fieldsJsonArray != null) {
+        if (!CustomMenuTimeLine.isMisskeyMode() && fieldsJsonArray != null) {
             LinearLayout fieldsLinearLayout = fieldsCard();
             if (!fieldsJsonArray.isNull(0)) {
                 user_activity_LinearLayout.addView(fieldsLinearLayout);
@@ -993,6 +989,7 @@ public class UserActivity extends AppCompatActivity {
         TextView textView = (TextView) top_linearLayout.findViewById(R.id.cardview_textview);
         //名前とか
         textView.setText(getString(R.string.follow) + "/" + getString(R.string.follower));
+        textView.setPadding(10,10,10,10);
         textView.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_person_black_24dp), null, null, null);
         //ここについか
         LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
@@ -1002,6 +999,7 @@ public class UserActivity extends AppCompatActivity {
         //forで回すか
         for (int i = 0; i < 3; i++) {
             TextView menuTextView = new TextView(UserActivity.this);
+            menuTextView.setPadding(10,10,10,10);
             menuTextView.setText(menuList[i]);
             menuTextView.setTextSize(24);
             menuTextView.setCompoundDrawablesWithIntrinsicBounds(drawableList[i], null, null, null);
@@ -1030,12 +1028,14 @@ public class UserActivity extends AppCompatActivity {
         TextView textView = (TextView) top_linearLayout.findViewById(R.id.cardview_textview);
         //名前とか
         textView.setText(getString(R.string.note));
+        textView.setPadding(10,10,10,10);
         textView.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_create_black_24dp_black), null, null, null);
         //ここについか
         LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
         //note
         TextView noteTextView = new TextView(UserActivity.this);
         PicassoImageGetter imageGetter = new PicassoImageGetter(noteTextView);
+        noteTextView.setPadding(10,10,10,10);
         noteTextView.setAutoLinkMask(Linkify.WEB_URLS);
         noteTextView.setText(Html.fromHtml(profile, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
         main_LinearLayout.addView(noteTextView);
@@ -1051,12 +1051,14 @@ public class UserActivity extends AppCompatActivity {
         CardView cardView = (CardView) top_linearLayout.findViewById(R.id.cardview);
         TextView textView = (TextView) top_linearLayout.findViewById(R.id.cardview_textview);
         //名前とか
+        textView.setPadding(10,10,10,10);
         textView.setText(getString(R.string.create_at_date));
         textView.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_date_range_black_24dp), null, null, null);
         //ここについか
         LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
         TextView dateTextView = new TextView(UserActivity.this);
         dateTextView.setText(dateFormat(create_at));
+        dateTextView.setPadding(10,10,10,10);
         dateTextView.setTextSize(18);
 
         main_LinearLayout.addView(dateTextView);
@@ -1065,29 +1067,32 @@ public class UserActivity extends AppCompatActivity {
     }
 
     private String dateFormat(String dateText) {
-        String dateString = dateText;
-        boolean japan_timeSetting = pref_setting.getBoolean("pref_custom_time_format", false);
-        if (japan_timeSetting) {
+        //フォーマットを規定の設定にする？
+        //ここtrueにした
+        if (pref_setting.getBoolean("pref_custom_time_format", true)) {
             //時差計算？
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-            //simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Tokyo"));
-            //日本用フォーマット
-            SimpleDateFormat japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"), Locale.JAPAN);
+            if (simpleDateFormat == null && japanDateFormat == null) {
+                simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                //日本用フォーマット
+                japanDateFormat = new SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS"));
+                japanDateFormat.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
+                //calendar = Calendar.getInstance();
+            }
             try {
                 Date date = simpleDateFormat.parse(dateText);
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(date);
-                //9時間足して日本時間へ
-                calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
+                //タイムゾーンを設定
+                //calendar.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
+                //calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")));
                 //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                dateString = japanDateFormat.format(calendar.getTime());
+                dateText = japanDateFormat.format(calendar.getTime());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-        } else {
-            dateString = dateText;
         }
-        return dateString;
+        return dateText;
     }
 
     private LinearLayout fieldsCard() {
@@ -1136,6 +1141,9 @@ public class UserActivity extends AppCompatActivity {
                 TextView nameTextView = new TextView(UserActivity.this);
                 TextView valueTextView = new TextView(UserActivity.this);
                 TextView created_atTextView = new TextView(UserActivity.this);
+                nameTextView.setPadding(10,10,10,10);
+                valueTextView.setPadding(10,10,10,10);
+                created_atTextView.setPadding(10,10,10,10);
                 nameTextView.setTextSize(18);
                 valueTextView.setTextSize(18);
                 valueTextView.setAutoLinkMask(Linkify.WEB_URLS);

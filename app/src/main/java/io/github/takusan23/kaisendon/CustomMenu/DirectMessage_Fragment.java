@@ -1,4 +1,4 @@
-package io.github.takusan23.kaisendon.Fragment;
+package io.github.takusan23.kaisendon.CustomMenu;
 
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;

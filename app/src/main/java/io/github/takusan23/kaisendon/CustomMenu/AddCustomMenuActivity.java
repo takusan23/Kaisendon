@@ -917,6 +917,21 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 load_Button.setText(R.string.direct_message);
                 load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_assignment_ind_black_24dp, 0, 0, 0);
                 break;
+            case "/api/v1/scheduled_statuses":
+                load_url = "/api/v1/scheduled_statuses";
+                load_Button.setText(R.string.scheduled_statuses);
+                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_access_alarm_black_24dp, 0, 0, 0);
+                break;
+            case "/api/v1/favourites":
+                load_url = "/api/v1/favourites";
+                load_Button.setText(R.string.favourite_list);
+                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_star_black_24dp, 0, 0, 0);
+                break;
+            case "/api/v1/suggestions":
+                load_url = "/api/v1/suggestions";
+                load_Button.setText(R.string.follow_suggestions);
+                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_person_add_black_24dp, 0, 0, 0);
+                break;
             case "/api/notes/timeline":
                 load_url = "/api/notes/timeline";
                 load_Button.setText(R.string.home);

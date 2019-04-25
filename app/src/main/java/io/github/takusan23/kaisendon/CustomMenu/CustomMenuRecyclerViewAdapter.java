@@ -215,7 +215,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //レイアウト
             //JSONパース用クラス
             //System.out.println(item.get(3));
-            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), CustomMenuTimeLine.isMisskeyMode());
+            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), String.valueOf(CustomMenuTimeLine.getUrl()));
             //カスタム絵文字
             PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
             PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);
@@ -227,7 +227,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.toot_client_TextView.setText(api.getClient());
             viewHolder.toot_visibility_TextView.setText(api.getVisibility());
             //IDを配列に入れておく
-            item.set(1, api.getToot_ID());
+            item.set(2, api.getToot_ID());
             //Misskey
             if (CustomMenuTimeLine.isMisskeyMode()) {
                 //アバター画像
@@ -710,7 +710,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String url = "https:" + Instance + "/api/v1/statuses/" + item.get(1) + "/" + endPoint + "/?access_token=" + AccessToken;
+                String url = "https://" + Instance + "/api/v1/statuses/" + item.get(2) + "/" + endPoint + "/?access_token=" + AccessToken;
                 RequestBody requestBody = new FormBody.Builder()
                         .build();
                 //作成
@@ -752,7 +752,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                 @Override
                                 public void run() {
                                     //Fav/BT Countを表示できるようにする
-                                    MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string,CustomMenuTimeLine.isMisskeyMode());
+                                    MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string, url);
                                     if (endPoint.contains("reblog")) {
                                         Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
                                         Drawable boostIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);

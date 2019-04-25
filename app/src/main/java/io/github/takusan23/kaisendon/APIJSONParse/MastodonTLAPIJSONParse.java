@@ -63,15 +63,29 @@ public class MastodonTLAPIJSONParse {
     private ArrayList<String> votes_count;
 
     //インスタンス
-    public MastodonTLAPIJSONParse(Context context, String response_string,boolean isMisskeyMode) {
+    public MastodonTLAPIJSONParse(Context context, String response_string, String mode) {
         this.context = context;
         this.response_string = response_string;
-        System.out.println(response_string);
-        if (isMisskeyMode) {
-            setMisskeyParse();
+        if (isMisskeyCheck(response_string)) {
+            setMisskeyParse(response_string);
         } else {
-            setMastodonTLParse();
+            setMastodonTLParse(response_string);
         }
+    }
+
+    //createAtがあるとMisskey、ないとMastodonって分けるコード
+    //ちなみにMastodonはcreated_at
+    private boolean isMisskeyCheck(String response_string){
+        boolean isCheck = false;
+        try {
+            JSONObject jsonObject = new JSONObject(response_string);
+            if (!jsonObject.isNull("createdAt")){
+                isCheck=true;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return isCheck;
     }
 
     //それぞれ
@@ -229,12 +243,12 @@ public class MastodonTLAPIJSONParse {
     }
 
     //JSONパース
-    private void setMastodonTLParse() {
+    private void setMastodonTLParse(String response_string) {
         try {
             mediaList = new ArrayList<>();
             JSONObject toot_JsonObject = new JSONObject(response_string);
             //通知/と分ける
-            if (toot_JsonObject.isNull("type") && !CustomMenuTimeLine.isNotification()) {
+            if (toot_JsonObject.isNull("type")) {
                 //共通
                 JSONObject account_JsonObject = toot_JsonObject.getJSONObject("account");
                 JSONArray media_array = toot_JsonObject.getJSONArray("media_attachments");
@@ -413,7 +427,7 @@ public class MastodonTLAPIJSONParse {
     /**
      * Misskey Parse
      */
-    private void setMisskeyParse() {
+    private void setMisskeyParse(String response_string) {
         try {
             mediaList = new ArrayList<>();
             JSONObject note_JsonObject = new JSONObject(response_string);

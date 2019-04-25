@@ -1,7 +1,6 @@
 package io.github.takusan23.kaisendon.CustomMenu;
 
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -208,8 +207,8 @@ public class CustomMenuTimeLine extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        pref_setting = PreferenceManager.getDefaultSharedPreferences(getContext());
 
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(getContext());
         parent_linearlayout = view.findViewById(R.id.custom_menu_parent_linearlayout);
         linearLayout = view.findViewById(R.id.custom_menu_fragment_linearlayout);
         recyclerView = view.findViewById(R.id.custom_menu_recycler_view);
@@ -595,7 +594,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 //メモとか通知とかに
                                 Item.add("CustomMenu Local");
                                 //内容
-                                Item.add("");
+                                Item.add(url);
                                 //ユーザー名
                                 Item.add("");
                                 //JSONObject
@@ -716,8 +715,9 @@ public class CustomMenuTimeLine extends Fragment {
                                 name = name.replace(":" + emoji_name + ":", custom_emoji_src);
                             }
                         }
+                        String finalName = name;
+/*
                         if (getActivity() != null) {
-                            String finalName = name;
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -732,6 +732,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 }
                             });
                         }
+*/
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -805,10 +806,12 @@ public class CustomMenuTimeLine extends Fragment {
                                     //ドロワー
                                     setDrawerImageText(avatar, header, display_name, "@" + username + "@" + instance);
                                     //サブタイトル更新
-                                    if (subtitle.length() >= 1) {
-                                        ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
-                                    } else {
-                                        ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(name + "( @" + id + " / " + instance + " )");
+                                    if (getContext() != null && ((AppCompatActivity) getContext()).getSupportActionBar() != null) {
+                                        if (subtitle.length() >= 1) {
+                                            ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
+                                        } else {
+                                            ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(name + "( @" + id + " / " + instance + " )");
+                                        }
                                     }
                                 }
                             });
@@ -937,9 +940,12 @@ public class CustomMenuTimeLine extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getContext(), getString(R.string.error) + "\n" + reason, Toast.LENGTH_SHORT).show();
+                            if (isAdded()) {
+                                Toast.makeText(getContext(), getString(R.string.error) + "\n" + reason, Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
+
                 }
 
                 @Override
@@ -982,12 +988,14 @@ public class CustomMenuTimeLine extends Fragment {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getContext(), R.string.error, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                if (getContext() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), R.string.error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
 
             @Override
@@ -1038,12 +1046,14 @@ public class CustomMenuTimeLine extends Fragment {
 
                 } else {
                     //失敗時
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getContext(), R.string.error + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    if (getContext() != null) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getContext(), R.string.error + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -1053,54 +1063,54 @@ public class CustomMenuTimeLine extends Fragment {
      * 通知メニューレイアウト
      */
     private void notificationLayout() {
-        //追加
-        //新しいLinearlayout
-        LinearLayout notificationLinearLayout = new LinearLayout(getContext());
-        notificationLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
-        notificationLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        //配列で勘弁して
-        Drawable icon[] = {getContext().getDrawable(R.drawable.ic_star_black_24dp),
-                getContext().getDrawable(R.drawable.ic_repeat_black_24dp),
-                getContext().getDrawable(R.drawable.ic_announcement_black_24dp),
-                getContext().getDrawable(R.drawable.ic_person_add_black_24dp)};
-        String tag[] = {"fav_filter", "bt_filter", "mention_filter", "follow_filter"};
-        //背景
-        String background = "ffffff";
-        if (Boolean.valueOf(dark_mode)) {
-            background = "000000";
-        }
+        if (getContext() != null) {
+            //追加
+            //新しいLinearlayout
+            LinearLayout notificationLinearLayout = new LinearLayout(getContext());
+            notificationLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            notificationLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            //配列で勘弁して
+            Drawable icon[] = {getContext().getDrawable(R.drawable.ic_star_black_24dp),
+                    getContext().getDrawable(R.drawable.ic_repeat_black_24dp),
+                    getContext().getDrawable(R.drawable.ic_announcement_black_24dp),
+                    getContext().getDrawable(R.drawable.ic_person_add_black_24dp)};
+            String tag[] = {"fav_filter", "bt_filter", "mention_filter", "follow_filter"};
+            //背景
+            String background = "ffffff";
+            if (Boolean.valueOf(dark_mode)) {
+                background = "000000";
+            }
 
-        for (int i = 0; i < 4; i++) {
-            Switch sw = new Switch(getContext());
-            sw.setCompoundDrawablesWithIntrinsicBounds(icon[i], null, null, null);
-            sw.setTag(tag[i]);
-            sw.setChecked(true);
-            notificationLinearLayout.addView(sw);
-            //切り替え
-            int finalI = i;
-            sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        notificationFilterBoolean(tag[finalI], true);
-                    } else {
-                        notificationFilterBoolean(tag[finalI], false);
+            for (int i = 0; i < 4; i++) {
+                Switch sw = new Switch(getContext());
+                sw.setCompoundDrawablesWithIntrinsicBounds(icon[i], null, null, null);
+                sw.setTag(tag[i]);
+                sw.setChecked(true);
+                notificationLinearLayout.addView(sw);
+                //切り替え
+                int finalI = i;
+                sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            notificationFilterBoolean(tag[finalI], true);
+                        } else {
+                            notificationFilterBoolean(tag[finalI], false);
+                        }
+                        //通知更新
+                        adapter.clear();
+                        SnackberProgress.showProgressSnackber(sw, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
+                        if (misskey_mode) {
+                            loadMisskeyTimeline(null, true);
+                        } else {
+                            loadNotification("");
+                        }
                     }
-                    //通知更新
-                    adapter.clear();
-                    SnackberProgress.showProgressSnackber(sw, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-                    if (misskey_mode) {
-                        loadMisskeyTimeline(null, true);
-                    } else {
-                        loadNotification("");
-                    }
-                }
-            });
+                });
+            }
+            //メインLinearLayoutに追加
+            linearLayout.addView(notificationLinearLayout, 0);
         }
-
-
-        //メインLinearLayoutに追加
-        linearLayout.addView(notificationLinearLayout, 0);
     }
 
     /**
@@ -1156,7 +1166,7 @@ public class CustomMenuTimeLine extends Fragment {
             //メモとか通知とかに
             Item.add("CustomMenu");
             //内容
-            Item.add("");
+            Item.add(url);
             //ユーザー名
             Item.add("");
             //時間、クライアント名等
@@ -1266,7 +1276,7 @@ public class CustomMenuTimeLine extends Fragment {
             //配列を作成
             ArrayList<String> Item = new ArrayList<>();
             //メモとか通知とかに
-            Item.add("");
+            Item.add(url);
             //内容
             Item.add("");
             //ユーザー名
@@ -1345,7 +1355,7 @@ public class CustomMenuTimeLine extends Fragment {
             //メモとか通知とかに
             Item.add("CustomMenu");
             //内容
-            Item.add("");
+            Item.add(url);
             //ユーザー名
             Item.add("");
             //時間、クライアント名等
@@ -1473,7 +1483,7 @@ public class CustomMenuTimeLine extends Fragment {
                 //System.out.println(response_string);
                 if (!response.isSuccessful()) {
                     //失敗時
-                    if (getActivity()!=null){
+                    if (getActivity() != null) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -1492,7 +1502,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 setMisskeyNotification(jsonObject);
                             }
                         }
-                        if (getActivity()!=null){
+                        if (getActivity() != null) {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -1525,7 +1535,7 @@ public class CustomMenuTimeLine extends Fragment {
             //メモとか通知とかに
             Item.add("CustomMenu");
             //内容
-            Item.add("");
+            Item.add(url);
             //ユーザー名
             Item.add("");
             //時間、クライアント名等
@@ -1569,7 +1579,7 @@ public class CustomMenuTimeLine extends Fragment {
             //配列を作成
             ArrayList<String> Item = new ArrayList<>();
             //メモとか通知とかに
-            Item.add("");
+            Item.add(url);
             //内容
             Item.add("");
             //ユーザー名
@@ -1933,37 +1943,39 @@ public class CustomMenuTimeLine extends Fragment {
      */
     private void setDrawerImageText(String avatarUrl, String headerUri, String display_name, String username) {
         //Wi-Fi接続状況確認
-        ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
-        //一応Nullチェック
-        if (header_imageView != null) {
-            //画像読み込むか
-            if (pref_setting.getBoolean("pref_drawer_avater", false)) {
-                //読み込まない
-                avater_imageView.setImageResource(R.drawable.ic_person_black_24dp);
-                header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"));
-            }
-            //Wi-Fi時は読み込む
-            if (pref_setting.getBoolean("pref_avater_wifi", true)) {
-                //既定でGIFは再生しない方向で
-                if (pref_setting.getBoolean("pref_avater_gif", true)) {
-                    //GIFアニメ再生させない
-                    Picasso.get().load(avatarUrl).resize(100, 100).into(avater_imageView);
-                    Picasso.get().load(headerUri).into(header_imageView);
-                } else {
-                    //GIFアニメを再生
-                    Glide.with(getContext()).load(avatarUrl).apply(new RequestOptions().override(100, 100)).into(avater_imageView);
-                    Glide.with(getContext()).load(headerUri).into(header_imageView);
+        if (getContext() != null) {
+            ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+            //一応Nullチェック
+            if (header_imageView != null) {
+                //画像読み込むか
+                if (pref_setting.getBoolean("pref_drawer_avater", false)) {
+                    //読み込まない
+                    avater_imageView.setImageResource(R.drawable.ic_person_black_24dp);
+                    header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"));
                 }
-            } else {
-                avater_imageView.setImageResource(R.drawable.ic_person_black_24dp);
-                header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"));
-            }
-            //UserName
-            PicassoImageGetter imageGetter = new PicassoImageGetter(user_account_textView);
-            user_account_textView.setText(Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
-            user_id_textView.setText(username);
+                //Wi-Fi時は読み込む
+                if (pref_setting.getBoolean("pref_avater_wifi", true)) {
+                    //既定でGIFは再生しない方向で
+                    if (pref_setting.getBoolean("pref_avater_gif", true)) {
+                        //GIFアニメ再生させない
+                        Picasso.get().load(avatarUrl).resize(100, 100).into(avater_imageView);
+                        Picasso.get().load(headerUri).into(header_imageView);
+                    } else {
+                        //GIFアニメを再生
+                        Glide.with(getContext()).load(avatarUrl).apply(new RequestOptions().override(100, 100)).into(avater_imageView);
+                        Glide.with(getContext()).load(headerUri).into(header_imageView);
+                    }
+                } else {
+                    avater_imageView.setImageResource(R.drawable.ic_person_black_24dp);
+                    header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"));
+                }
+                //UserName
+                PicassoImageGetter imageGetter = new PicassoImageGetter(user_account_textView);
+                user_account_textView.setText(Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
+                user_id_textView.setText(username);
 
+            }
         }
     }
 
@@ -2138,7 +2150,7 @@ public class CustomMenuTimeLine extends Fragment {
                                     //メモとか通知とかに
                                     Item.add("CustomMenu 時間指定投稿");
                                     //内容
-                                    Item.add("");
+                                    Item.add(url);
                                     //ユーザー名
                                     Item.add("");
                                     //JSONObject
@@ -2218,7 +2230,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 //メモとか通知とかに
                                 Item.add("CustomMenu フォロー推奨");
                                 //内容
-                                Item.add("");
+                                Item.add(url);
                                 //ユーザー名
                                 Item.add("");
                                 //JSONObject

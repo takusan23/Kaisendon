@@ -2,6 +2,7 @@ package io.github.takusan23.kaisendon.DesktopTL;
 
 
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
@@ -9,9 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -28,11 +27,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import io.github.takusan23.kaisendon.APIAccess.MastodonTimeline;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuRecyclerViewAdapter;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
-import io.github.takusan23.kaisendon.Fragment.HelloFragment;
 import io.github.takusan23.kaisendon.R;
 import io.github.takusan23.kaisendon.SnackberProgress;
 import okhttp3.Call;
@@ -41,8 +38,6 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static io.github.takusan23.kaisendon.Preference_ApplicationContext.getContext;
 
 
 /**
@@ -59,6 +54,9 @@ public class DesktopFragment extends Fragment {
     private SQLiteDatabase db = null;
     private Display display;
     private Point point;
+    private Configuration config;
+    private int x;
+    private boolean isDesktopFragment = false;
 
 
     @Override
@@ -73,6 +71,7 @@ public class DesktopFragment extends Fragment {
         pref_setting = PreferenceManager.getDefaultSharedPreferences(getContext());
         main_LinearLayout = view.findViewById(R.id.descktop_parent_linearlayout);
         scrollview_LinearLayout = view.findViewById(R.id.scrollview_linearlayout);
+        isDesktopFragment = true;
 
         if (helper == null) {
             helper = new CustomMenuSQLiteHelper(getContext());
@@ -86,18 +85,23 @@ public class DesktopFragment extends Fragment {
         display = getActivity().getWindowManager().getDefaultDisplay();
         point = new Point();
         display.getSize(point);
+        config = getResources().getConfiguration();
+        //縦→２、横→３
+        if (config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            x = point.x / 3;
+        } else {
+            x = point.x / 2;
+        }
+
+        //再生成しない？
+        setRetainInstance(true);
 
 
         instance = pref_setting.getString("main_instance", "");
         access_token = pref_setting.getString("main_token", "");
-
-        getActivity().setTitle(getString(R.string.desktop_mode_depelopment));
-
-        //とりあえず2つ
-        String[] list = {"https://" + instance + "/api/v1/timelines/home", "https://" + instance + "/api/v1/timelines/public?local=true", "https://" + instance + "/api/v1/timelines/public"};
-        String[] name = {"Home", "Local", "Federated"};
-
+        //マルチカラム
         loadCustomMenu();
+        getActivity().setTitle(getString(R.string.desktop_mode_depelopment));
 
         /*
         for (int i = 0; i < 3; i++) {
@@ -137,21 +141,21 @@ public class DesktopFragment extends Fragment {
             //LinearLayout生成
             LinearLayout linearLayout = new LinearLayout(getContext());
             CardView cardView = new CardView(getContext());
-            ViewGroup.LayoutParams card_LayoutParams = new LinearLayout.LayoutParams(point.x / 2, ViewGroup.LayoutParams.MATCH_PARENT);
-            ((LinearLayout.LayoutParams) card_LayoutParams).setMargins(10,10,10,10);
+            ViewGroup.LayoutParams card_LayoutParams = new LinearLayout.LayoutParams(x, ViewGroup.LayoutParams.MATCH_PARENT);
+            ((LinearLayout.LayoutParams) card_LayoutParams).setMargins(10, 10, 10, 10);
             cardView.setLayoutParams(card_LayoutParams);
             //Title + replaceするLinearLayoutを入れるLinearlayout
             LinearLayout card_LinearLayout = new LinearLayout(getContext());
             card_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             card_LinearLayout.setOrientation(LinearLayout.VERTICAL);
             //Title
-            TextView title_TextView  = new TextView(getContext());
+            TextView title_TextView = new TextView(getContext());
             //replaceするView
             LinearLayout add_LinearLayout = new LinearLayout(getContext());
             //動的にID設定
             add_LinearLayout.setId(View.generateViewId());
             //addViewする
-            card_LinearLayout.setPadding(10,10,10,10);
+            card_LinearLayout.setPadding(10, 10, 10, 10);
             card_LinearLayout.addView(title_TextView);
             card_LinearLayout.addView(add_LinearLayout);
             //CardViewをAddView
@@ -237,7 +241,7 @@ public class DesktopFragment extends Fragment {
                 customMenuTimeLine.setArguments(bundle);
                 //置き換え
                 title_TextView.setText(name);
-                FragmentTransaction transaction = ((AppCompatActivity) getActivity()).getSupportFragmentManager().beginTransaction();
+                FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
                 transaction.replace(add_LinearLayout.getId(), customMenuTimeLine);
                 transaction.commit();
             } catch (JSONException e) {
@@ -335,5 +339,4 @@ public class DesktopFragment extends Fragment {
             }
         });
     }
-
 }

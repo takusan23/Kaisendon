@@ -83,6 +83,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     private boolean isMastodonFollowes = false;
     private boolean isMisskeyNotes = false;
     private boolean isMisskeyFollowes = false;
+    private boolean isMisskeyMode = false;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -189,10 +190,10 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         ArrayList<String> item = itemList.get(i);
 
         //パースする種類
-        if (CustomMenuTimeLine.getUrl().contains("/api/v1/scheduled_statuses")) {
+        if (item.get(1).contains("/api/v1/scheduled_statuses")) {
             isScheduled_statuses = true;
         }
-        if (CustomMenuTimeLine.getUrl().contains("/api/v1/suggestions")) {
+        if (item.get(1).contains("/api/v1/suggestions")) {
             isFollowSuggestions = true;
         }
         if (item.get(1).contains("/api/v1/accounts/")) {
@@ -209,12 +210,12 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (item.get(1).contains("/api/users/notes")) {
             isMisskeyNotes = true;
         }
-
         //TL/それ以外
         if (!isScheduled_statuses && !isFollowSuggestions && !isMisskeyFollowes && !isMastodonFollowes) {
             //レイアウト
             //JSONパース用クラス
-            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3));
+            //System.out.println(item.get(3));
+            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), CustomMenuTimeLine.isMisskeyMode());
             //カスタム絵文字
             PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
             PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);
@@ -751,7 +752,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                 @Override
                                 public void run() {
                                     //Fav/BT Countを表示できるようにする
-                                    MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string);
+                                    MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string,CustomMenuTimeLine.isMisskeyMode());
                                     if (endPoint.contains("reblog")) {
                                         Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
                                         Drawable boostIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
@@ -1795,6 +1796,5 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             }
         });
     }
-
 
 }

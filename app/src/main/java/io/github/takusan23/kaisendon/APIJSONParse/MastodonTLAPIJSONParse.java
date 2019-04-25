@@ -63,10 +63,11 @@ public class MastodonTLAPIJSONParse {
     private ArrayList<String> votes_count;
 
     //インスタンス
-    public MastodonTLAPIJSONParse(Context context, String response_string) {
+    public MastodonTLAPIJSONParse(Context context, String response_string,boolean isMisskeyMode) {
         this.context = context;
         this.response_string = response_string;
-        if (CustomMenuTimeLine.isMisskeyMode()) {
+        System.out.println(response_string);
+        if (isMisskeyMode) {
             setMisskeyParse();
         } else {
             setMastodonTLParse();

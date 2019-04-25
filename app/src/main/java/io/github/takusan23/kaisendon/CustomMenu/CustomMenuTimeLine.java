@@ -1,6 +1,7 @@
 package io.github.takusan23.kaisendon.CustomMenu;
 
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -588,9 +589,7 @@ public class CustomMenuTimeLine extends Fragment {
                         jsonArray = new JSONArray(response_string);
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
-
                             if (getActivity() != null && isAdded()) {
-
                                 //配列を作成
                                 ArrayList<String> Item = new ArrayList<>();
                                 //メモとか通知とかに
@@ -1474,12 +1473,14 @@ public class CustomMenuTimeLine extends Fragment {
                 //System.out.println(response_string);
                 if (!response.isSuccessful()) {
                     //失敗時
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getContext(), getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    if (getActivity()!=null){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getContext(), getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
                 } else {
                     try {
                         JSONArray jsonArray = new JSONArray(response_string);
@@ -1491,12 +1492,14 @@ public class CustomMenuTimeLine extends Fragment {
                                 setMisskeyNotification(jsonObject);
                             }
                         }
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                swipeRefreshLayout.setRefreshing(false);
-                            }
-                        });
+                        if (getActivity()!=null){
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    swipeRefreshLayout.setRefreshing(false);
+                                }
+                            });
+                        }
                         //最後のIDを保存
                         JSONObject last = jsonArray.getJSONObject(99);
                         CustomMenuTimeLine.this.untilId = last.getString("id");
@@ -1514,6 +1517,8 @@ public class CustomMenuTimeLine extends Fragment {
      * @param jsonObject JSONオブジェクト
      */
     private void setMisskeyTLParse(JSONObject jsonObject) {
+        //AppCompatActivity activity = (AppCompatActivity)getContext();
+
         if (getActivity() != null && isAdded()) {
             //配列を作成
             ArrayList<String> Item = new ArrayList<>();

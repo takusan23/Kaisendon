@@ -2,11 +2,18 @@ package io.github.takusan23.kaisendon.DesktopTL;
 
 
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +28,11 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import io.github.takusan23.kaisendon.APIAccess.MastodonTimeline;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuRecyclerViewAdapter;
+import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
+import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
+import io.github.takusan23.kaisendon.Fragment.HelloFragment;
 import io.github.takusan23.kaisendon.R;
 import io.github.takusan23.kaisendon.SnackberProgress;
 import okhttp3.Call;
@@ -30,6 +41,8 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static io.github.takusan23.kaisendon.Preference_ApplicationContext.getContext;
 
 
 /**
@@ -42,6 +55,11 @@ public class DesktopFragment extends Fragment {
     private LinearLayout scrollview_LinearLayout;
     private String access_token;
     private String instance;
+    private CustomMenuSQLiteHelper helper = null;
+    private SQLiteDatabase db = null;
+    private Display display;
+    private Point point;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,14 +74,32 @@ public class DesktopFragment extends Fragment {
         main_LinearLayout = view.findViewById(R.id.descktop_parent_linearlayout);
         scrollview_LinearLayout = view.findViewById(R.id.scrollview_linearlayout);
 
+        if (helper == null) {
+            helper = new CustomMenuSQLiteHelper(getContext());
+        }
+        if (db == null) {
+            db = helper.getWritableDatabase();
+            db.disableWriteAheadLogging();
+        }
+
+        //高さ調整で使う
+        display = getActivity().getWindowManager().getDefaultDisplay();
+        point = new Point();
+        display.getSize(point);
+
+
         instance = pref_setting.getString("main_instance", "");
         access_token = pref_setting.getString("main_token", "");
 
         getActivity().setTitle(getString(R.string.desktop_mode_depelopment));
 
         //とりあえず2つ
-        String[] list = {"https://" + instance + "/api/v1/timelines/home","https://" + instance + "/api/v1/timelines/public?local=true","https://" + instance + "/api/v1/timelines/public"};
-        String[] name = {"Home","Local","Federated"};
+        String[] list = {"https://" + instance + "/api/v1/timelines/home", "https://" + instance + "/api/v1/timelines/public?local=true", "https://" + instance + "/api/v1/timelines/public"};
+        String[] name = {"Home", "Local", "Federated"};
+
+        loadCustomMenu();
+
+        /*
         for (int i = 0; i < 3; i++) {
             LinearLayout linearLayout = new LinearLayout(getContext());
             scrollview_LinearLayout.addView(linearLayout);
@@ -79,7 +115,139 @@ public class DesktopFragment extends Fragment {
             CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
             loadTimeline(list[i], recyclerViewList, customMenuRecyclerViewAdapter, recyclerView);
         }
+*/
     }
+
+    /**
+     * SQLite読み込み
+     */
+    private void loadCustomMenu() {
+        Cursor cursor = db.query(
+                "custom_menudb",
+                new String[]{"name", "setting"},
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        cursor.moveToFirst();
+
+        for (int i = 0; i < cursor.getCount(); i++) {
+            //LinearLayout生成
+            LinearLayout linearLayout = new LinearLayout(getContext());
+            CardView cardView = new CardView(getContext());
+            ViewGroup.LayoutParams card_LayoutParams = new LinearLayout.LayoutParams(point.x / 2, ViewGroup.LayoutParams.MATCH_PARENT);
+            ((LinearLayout.LayoutParams) card_LayoutParams).setMargins(10,10,10,10);
+            cardView.setLayoutParams(card_LayoutParams);
+            //Title + replaceするLinearLayoutを入れるLinearlayout
+            LinearLayout card_LinearLayout = new LinearLayout(getContext());
+            card_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            card_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+            //Title
+            TextView title_TextView  = new TextView(getContext());
+            //replaceするView
+            LinearLayout add_LinearLayout = new LinearLayout(getContext());
+            //動的にID設定
+            add_LinearLayout.setId(View.generateViewId());
+            //addViewする
+            card_LinearLayout.setPadding(10,10,10,10);
+            card_LinearLayout.addView(title_TextView);
+            card_LinearLayout.addView(add_LinearLayout);
+            //CardViewをAddView
+            cardView.addView(card_LinearLayout);
+            linearLayout.addView(cardView);
+/*
+            getLayoutInflater().inflate(R.layout.desktop_tl_column_layout, linearLayout);
+            LinearLayout linearLayout_add = linearLayout.findViewById(R.id.desktop_tl_column_linearlayout);
+            TextView title_TextView = linearLayout.findViewById(R.id.desktop_tl_column_title_textview);
+*/
+            scrollview_LinearLayout.addView(linearLayout);
+
+            String misskey = "";
+            String name = "";
+            String content = "";
+            String instance = "";
+            String access_token = "";
+            String image_load = "";
+            String dialog = "";
+            String dark_mode = "";
+            String position = "";
+            String streaming = "";
+            String subtitle = "";
+            String image_url = "";
+            String background_transparency = "";
+            String background_screen_fit = "";
+            String quick_profile = "";
+            String toot_counter = "";
+            String custom_emoji = "";
+            String gif = "";
+            String font = "";
+            String one_hand = "";
+            String misskey_username = "";
+            String setting = "";
+            try {
+                JSONObject jsonObject = new JSONObject(cursor.getString(1));
+                name = jsonObject.getString("name");
+                content = jsonObject.getString("content");
+                instance = jsonObject.getString("instance");
+                access_token = jsonObject.getString("access_token");
+                image_load = jsonObject.getString("image_load");
+                dialog = jsonObject.getString("dialog");
+                dark_mode = jsonObject.getString("dark_mode");
+                position = jsonObject.getString("position");
+                streaming = jsonObject.getString("streaming");
+                subtitle = jsonObject.getString("subtitle");
+                image_url = jsonObject.getString("image_url");
+                background_transparency = jsonObject.getString("background_transparency");
+                background_screen_fit = jsonObject.getString("background_screen_fit");
+                quick_profile = jsonObject.getString("quick_profile");
+                toot_counter = jsonObject.getString("toot_counter");
+                custom_emoji = jsonObject.getString("custom_emoji");
+                gif = jsonObject.getString("gif");
+                font = jsonObject.getString("font");
+                one_hand = jsonObject.getString("one_hand");
+                misskey = jsonObject.getString("misskey");
+                misskey_username = jsonObject.getString("misskey_username");
+                setting = jsonObject.getString("setting");
+                Bundle bundle = new Bundle();
+                bundle.putString("misskey", misskey);
+                bundle.putString("name", name);
+                bundle.putString("content", content);
+                bundle.putString("instance", instance);
+                bundle.putString("access_token", access_token);
+                bundle.putString("image_load", image_load);
+                bundle.putString("dialog", dialog);
+                bundle.putString("dark_mode", dark_mode);
+                bundle.putString("position", position);
+                bundle.putString("streaming", streaming);
+                bundle.putString("subtitle", subtitle);
+                bundle.putString("image_url", image_url);
+                bundle.putString("background_transparency", background_transparency);
+                bundle.putString("background_screen_fit", background_screen_fit);
+                bundle.putString("quick_profile", quick_profile);
+                bundle.putString("toot_counter", toot_counter);
+                bundle.putString("custom_emoji", custom_emoji);
+                bundle.putString("gif", gif);
+                bundle.putString("font", font);
+                bundle.putString("one_hand", one_hand);
+                bundle.putString("misskey_username", misskey_username);
+                bundle.putString("setting", setting);
+                CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
+                customMenuTimeLine.setArguments(bundle);
+                //置き換え
+                title_TextView.setText(name);
+                FragmentTransaction transaction = ((AppCompatActivity) getActivity()).getSupportFragmentManager().beginTransaction();
+                transaction.replace(add_LinearLayout.getId(), customMenuTimeLine);
+                transaction.commit();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            cursor.moveToNext();
+        }
+        cursor.close();
+    }
+
 
     /**
      * TL読み込み

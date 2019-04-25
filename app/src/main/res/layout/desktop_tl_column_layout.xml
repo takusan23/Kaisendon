@@ -24,10 +24,11 @@
                 android:layout_height="wrap_content"
                 android:text="タイトル" />
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/desktop_tl_column_recyclerview"
+            <LinearLayout
+                android:id="@+id/desktop_tl_column_linearlayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:orientation="vertical" />
         </LinearLayout>
 
     </android.support.v7.widget.CardView>

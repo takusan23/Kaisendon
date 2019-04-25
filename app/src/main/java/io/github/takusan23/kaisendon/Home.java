@@ -101,11 +101,11 @@ import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSettingFragment;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog;
+import io.github.takusan23.kaisendon.CustomMenu.DirectMessage_Fragment;
+import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
 import io.github.takusan23.kaisendon.Fragment.AccountListFragment;
 import io.github.takusan23.kaisendon.Fragment.Bookmark_Frament;
 import io.github.takusan23.kaisendon.Fragment.CustomStreamingFragment;
-import io.github.takusan23.kaisendon.CustomMenu.DirectMessage_Fragment;
-import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
 import io.github.takusan23.kaisendon.Fragment.Favourites_List_Fragment;
 import io.github.takusan23.kaisendon.Fragment.Federated_TimeLine_Fragment;
 import io.github.takusan23.kaisendon.Fragment.Follow_Suggestions_Fragment;
@@ -266,7 +266,6 @@ public class Home extends AppCompatActivity
 
         navigationView = findViewById(R.id.nav_view);
 
-
         //ログイン情報があるか
         //アクセストークンがない場合はログイン画面へ飛ばす
         if (pref_setting.getString("main_token", "").equals("") && pref_setting.getString("misskey_instance_list", "").equals("")) {
@@ -295,11 +294,21 @@ public class Home extends AppCompatActivity
         if (lastName != null) {
             try {
                 loadCustomMenu(lastName);
-
             } catch (CursorIndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
         }
+
+        //デスクトップモード時で再生成されないようにする
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container_container);
+        if (fragment != null && fragment instanceof DesktopFragment) {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.container_container, new DesktopFragment(), "desktop");
+            fragmentTransaction.commit();
+
+        }
+
+
 
 
 /*
@@ -413,9 +422,6 @@ public class Home extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
-
-        String finalInstance2 = Instance;
-        String finalAccessToken1 = AccessToken;
 
         //TootSnackBerのコードがクソ長いのでメゾット化
         //Misskey
@@ -1345,7 +1351,8 @@ public class Home extends AppCompatActivity
                 startActivity(intent);
                 break;
             case R.id.home_menu_desktop_mode:
-                transaction.replace(R.id.container_container, new DesktopFragment());
+                DesktopFragment desktopFragment = new DesktopFragment();
+                transaction.replace(R.id.container_container, new DesktopFragment(), "desktop");
                 transaction.commit();
                 break;
             case R.id.home_menu_setting:
@@ -1389,8 +1396,8 @@ public class Home extends AppCompatActivity
 
     /**
      * プライバシーポリシー
-     * */
-    private void showPrivacyPolicy(){
+     */
+    private void showPrivacyPolicy() {
         String githubUrl = "https://github.com/takusan23/Kaisendon/blob/master/kaisendon-privacy-policy.md";
         if (pref_setting.getBoolean("pref_chrome_custom_tabs", true)) {
             Bitmap back_icon = BitmapFactory.decodeResource(Home.this.getResources(), R.drawable.ic_action_arrow_back);
@@ -2115,9 +2122,6 @@ public class Home extends AppCompatActivity
         //マルチアカウント読み込み
         //押したときの処理とかもこっち
         //カスタムメニュー時は無効（）
-        if (!CustomMenuTimeLine.isUseCustomMenu()) {
-            readMultiAccount();
-        }
 
         //LinearLayoutに入れる
         account_LinearLayout.addView(snackberAccountAvaterImageView);
@@ -2282,6 +2286,65 @@ public class Home extends AppCompatActivity
         });
     }
 
+    @SuppressLint("RestrictedApi")
+    private void showMultiAccount() {
+        //押したときの処理
+        account_LinearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //そもそも呼ばれてない説
+                if (multi_account_instance == null) {
+                    //一度だけ取得する
+                    readMultiAccount();
+                } else {
+                    //追加中に押したら落ちるから回避
+                    if (account_menuBuilder.size() == multi_account_instance.size()) {
+                        account_optionsMenu.show();
+                        account_menuBuilder.setCallback(new MenuBuilder.Callback() {
+                            @Override
+                            public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
+
+                                //ItemIdにマルチアカウントのカウントを入れている
+                                int position = menuItem.getItemId();
+
+                                String multi_instance = multi_account_instance.get(position);
+                                String multi_access_token = multi_account_access_token.get(position);
+
+                                AccessToken = multi_access_token;
+                                Instance = multi_instance;
+
+                                SharedPreferences.Editor editor = pref_setting.edit();
+                                editor.putString("main_instance", multi_instance);
+                                editor.putString("main_token", multi_access_token);
+                                editor.apply();
+
+                                //アカウント情報更新
+                                getAccount();
+
+
+/*
+                            //アプリ再起動
+                            Intent intent = new Intent(getContext(), Home.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+*/
+
+                                return false;
+                            }
+
+                            @Override
+                            public void onMenuModeChange(MenuBuilder menuBuilder) {
+
+                            }
+                        });
+
+                    } else {
+                        Toast.makeText(getContext(), R.string.loading, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+    }
 
     @SuppressLint("RestrictedApi")
     private void readMultiAccount() {
@@ -2344,48 +2407,6 @@ public class Home extends AppCompatActivity
                 });
             }
         }
-
-        //押したときの処理
-        account_LinearLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //追加中に押したら落ちるから回避
-                if (account_menuBuilder.size() == multi_account_instance.size()) {
-                    account_optionsMenu.show();
-                    account_menuBuilder.setCallback(new MenuBuilder.Callback() {
-                        @Override
-                        public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
-
-                            //ItemIdにマルチアカウントのカウントを入れている
-                            int position = menuItem.getItemId();
-
-                            String multi_instance = multi_account_instance.get(position);
-                            String multi_access_token = multi_account_access_token.get(position);
-
-                            SharedPreferences.Editor editor = pref_setting.edit();
-                            editor.putString("main_instance", multi_instance);
-                            editor.putString("main_token", multi_access_token);
-                            editor.apply();
-
-                            //アプリ再起動
-                            Intent intent = new Intent(getContext(), Home.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-
-                            return false;
-                        }
-
-                        @Override
-                        public void onMenuModeChange(MenuBuilder menuBuilder) {
-
-                        }
-                    });
-
-                } else {
-                    Toast.makeText(getContext(), R.string.loading, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
     }
 
 
@@ -3472,6 +3493,11 @@ public class Home extends AppCompatActivity
             toot_Button_LinearLayout.removeView(mastodon_vote_Button);
             toot_Button_LinearLayout.addView(mastodon_time_post_Button);
             toot_Button_LinearLayout.addView(mastodon_vote_Button);
+            //デスクトップモード利用時はマルチアカウント表示できるように
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container_container);
+            if (fragment != null && fragment instanceof DesktopFragment) {
+                showMultiAccount();
+            }
         }
         toot_snackbar.dismiss();
         fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));

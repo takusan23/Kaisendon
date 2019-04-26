@@ -234,6 +234,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 loadAvatarImage(api, viewHolder);
                 //Misskeyリアクション
                 setMisskeyReaction(viewHolder, api, item);
+                //Renote
+                setRenote(viewHolder, api, item);
                 //Fav、BT済み、カウント数を出す
                 setCountAndIconColor(viewHolder, api, item);
                 //添付メディア
@@ -241,7 +243,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //card
                 setCard(viewHolder, api);
                 //ブースト
-                setReBlogToot(viewHolder, api,item);
+                setReBlogToot(viewHolder, api, item);
                 //クイックプロフィール
                 showMisskeyQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_ID());
                 //通知タイプ
@@ -267,7 +269,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //card
                 setCard(viewHolder, api);
                 //ブースト
-                setReBlogToot(viewHolder, api,item);
+                setReBlogToot(viewHolder, api, item);
                 //通知タイプ
                 showNotificationType(viewHolder, api);
                 //クイックプロフィール
@@ -480,7 +482,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         }
         //ふぁぼ
         //Mastodonでは使わない
-        if (!item.get(6).contains("Misskey")) {
+        if (item.get(6).contains("Mastodon")) {
             //ふぁぼした、もしくはふぁぼ押した
             if (api.getIsFav().contains("true") || item.get(5).contains("true")) {
                 Drawable favIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp_1, null);
@@ -613,7 +615,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Reblogに対応させる
      */
-    private void setReBlogToot(ViewHolder viewHolder, MastodonTLAPIJSONParse api,ArrayList<String> item) {
+    private void setReBlogToot(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item) {
         //null Check
         viewHolder.toot_reblog_LinearLayout.removeAllViews();
         if (api.getBTAccountID() != null) {
@@ -1786,6 +1788,101 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                         @Override
                                         public void run() {
                                             Toast.makeText(context, context.getString(R.string.delete_successful), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }).show();
+            }
+        });
+    }
+
+    /**
+     * Misskey Renote
+     */
+    private void setRenote(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item) {
+        final String[] message = {context.getString(R.string.renote_message)};
+        final String[] button_text = {context.getString(R.string.renote)};
+        String instance = pref_setting.getString("misskey_main_instance", "");
+        String token = pref_setting.getString("misskey_main_token", "");
+        final String[] api_url = {"https://" + instance + "/api/notes/create"};
+        final JSONObject[] jsonObject = {new JSONObject()};
+        viewHolder.toot_boost_TextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (api.getIsBT().contains("true") || item.set(4, "false").contains("true")) {
+                    message[0] = context.getString(R.string.renote_delete_message);
+                    button_text[0] = context.getString(R.string.delete_renote);
+                    api_url[0] = "https://" + instance + "/api/notes/delete";
+                    //APIを叩く
+                    try {
+                        jsonObject[0].put("i", token);
+                        jsonObject[0].put("noteId", api.getToot_ID());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    message[0] = context.getString(R.string.renote_message);
+                    button_text[0] = context.getString(R.string.renote);
+                    api_url[0] = "https://" + instance + "/api/notes/create";
+                    //APIを叩く
+                    try {
+                        jsonObject[0].put("i", token);
+                        jsonObject[0].put("visibility", "home");
+                        jsonObject[0].put("renoteId", api.getToot_ID());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                //SnackBar
+                Snackbar.make(v, message[0], Snackbar.LENGTH_SHORT).setAction(button_text[0], new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject[0].toString());
+                        Request request = new Request.Builder().url(api_url[0]).post(requestBody).build();
+                        OkHttpClient client = new OkHttpClient();
+                        client.newCall(request).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                e.printStackTrace();
+                                viewHolder.toot_boost_TextView.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                System.out.println(jsonObject[0].toString());
+                                System.out.println(response.body().string());
+                                if (!response.isSuccessful()) {
+                                    viewHolder.toot_boost_TextView.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(context, context.getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                } else {
+                                    viewHolder.toot_boost_TextView.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (api_url[0].contains("create")) {
+                                                Toast.makeText(context, context.getString(R.string.renote_ok) + "\n" + api.getToot_ID(), Toast.LENGTH_SHORT).show();
+                                                Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                                                boostIcon.setTint(Color.parseColor("#008000"));
+                                                viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+                                                item.set(4, "true");
+                                            } else {
+                                                Toast.makeText(context, context.getString(R.string.renote_delete_ok) + "\n" + api.getToot_ID(), Toast.LENGTH_SHORT).show();
+                                                Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp, null);
+                                                viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+                                                item.set(4, "false");
+                                            }
+                                            jsonObject[0] = new JSONObject();
                                         }
                                     });
                                 }

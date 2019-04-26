@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/desktop_mode_menu_mastodon"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="Mastodon"></item>
+    <item
+        android:id="@+id/desktop_mode_menu_misskey"
+        android:icon="@drawable/ic_notifications_black_24dp"
+        android:title="Misskey"></item>
+</menu>

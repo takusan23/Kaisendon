@@ -546,6 +546,9 @@ public class MastodonTLAPIJSONParse {
                     JSONObject status_JsonObject = note_JsonObject.getJSONObject("note");
                     toot_text = status_JsonObject.getString("text");
                     //url = status_JsonObject.getString("url");
+                    isBT = status_JsonObject.getString("myRenoteId");
+                    BTCount = status_JsonObject.getString("renoteCount");
+                    isFav = status_JsonObject.getString("myReaction");
                     visibility = status_JsonObject.getString("visibility");
                     toot_ID = status_JsonObject.getString("id");
 /*

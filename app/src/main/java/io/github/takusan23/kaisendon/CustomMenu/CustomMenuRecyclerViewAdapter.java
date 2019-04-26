@@ -229,7 +229,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //IDを配列に入れておく
             item.set(2, api.getToot_ID());
             //Misskey
-            if (CustomMenuTimeLine.isMisskeyMode()) {
+            if (item.get(6).contains("Misskey")) {
                 //アバター画像
                 loadAvatarImage(api, viewHolder);
                 //Misskeyリアクション
@@ -241,7 +241,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //card
                 setCard(viewHolder, api);
                 //ブースト
-                setReBlogToot(viewHolder, api);
+                setReBlogToot(viewHolder, api,item);
                 //クイックプロフィール
                 showMisskeyQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_ID());
                 //通知タイプ
@@ -267,7 +267,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //card
                 setCard(viewHolder, api);
                 //ブースト
-                setReBlogToot(viewHolder, api);
+                setReBlogToot(viewHolder, api,item);
                 //通知タイプ
                 showNotificationType(viewHolder, api);
                 //クイックプロフィール
@@ -480,7 +480,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         }
         //ふぁぼ
         //Mastodonでは使わない
-        if (!CustomMenuTimeLine.isMisskeyMode()) {
+        if (!item.get(6).contains("Misskey")) {
             //ふぁぼした、もしくはふぁぼ押した
             if (api.getIsFav().contains("true") || item.get(5).contains("true")) {
                 Drawable favIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp_1, null);
@@ -613,7 +613,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Reblogに対応させる
      */
-    private void setReBlogToot(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
+    private void setReBlogToot(ViewHolder viewHolder, MastodonTLAPIJSONParse api,ArrayList<String> item) {
         //null Check
         viewHolder.toot_reblog_LinearLayout.removeAllViews();
         if (api.getBTAccountID() != null) {
@@ -649,7 +649,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             drawable.setTint(Color.parseColor("#008000"));
             viewHolder.toot_user_TextView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
             //クイックプロフィール
-            if (CustomMenuTimeLine.isMisskeyMode()) {
+            if (item.get(6).contains("Misskey")) {
                 showMisskeyQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID());
             } else {
                 showQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID(), viewHolder);

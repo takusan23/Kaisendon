@@ -184,6 +184,8 @@ public class Home extends AppCompatActivity
     TextView snackberAccount_TextView;
     MenuBuilder account_menuBuilder;
     MenuPopupHelper account_optionsMenu;
+    MenuBuilder misskey_account_menuBuilder;
+    MenuPopupHelper misskey_account_optionMenu;
     LinearLayout account_LinearLayout;
     LinearLayout misskey_account_LinearLayout;
     ImageButton misskey_drive_Button;
@@ -210,6 +212,8 @@ public class Home extends AppCompatActivity
     //マルチアカウント読み込み用
     ArrayList<String> multi_account_instance;
     ArrayList<String> multi_account_access_token;
+    ArrayList<String> misskey_multi_account_instance;
+    ArrayList<String> misskey_multi_account_access_token;
     //添付メディア
     public static ArrayList<String> post_media_id;
     public static ArrayList<String> misskey_media_url;
@@ -220,6 +224,11 @@ public class Home extends AppCompatActivity
 
     //最後に開いたカスタムメニューを保管（）
     private String lastMenuName = "";
+
+    //DesktomMode用Mastodon Misskey分岐
+    private boolean isDesktoopMisskeyMode = false;
+    private Switch misskey_switch;
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -305,7 +314,6 @@ public class Home extends AppCompatActivity
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.container_container, new DesktopFragment(), "desktop");
             fragmentTransaction.commit();
-
         }
 
 
@@ -431,7 +439,15 @@ public class Home extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showTootShortcut();
+                showTootShortcut(false);
+            }
+        });
+        //DesktopMode実行時で長押し時はMisskey
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                showTootShortcut(true);
+                return true;
             }
         });
 
@@ -464,7 +480,7 @@ public class Home extends AppCompatActivity
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                showTootShortcut();
+                                showTootShortcut(false);
                                 timer.cancel();
                             }
                         });
@@ -484,7 +500,7 @@ public class Home extends AppCompatActivity
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            showTootShortcut();
+                            showTootShortcut(false);
                             timer.cancel();
                         }
                     });
@@ -1706,7 +1722,6 @@ public class Home extends AppCompatActivity
         String AccessToken = pref_setting.getString("main_token", "");
         String Instance = pref_setting.getString("main_instance", "");
 
-
         View view = Home.this.findViewById(R.id.container_public);
         toot_snackbar = Snackbar.make(view, "", Snackbar.LENGTH_INDEFINITE);
         //Snackber生成
@@ -2119,6 +2134,8 @@ public class Home extends AppCompatActivity
         //ポップアップメニューを展開する
         account_menuBuilder = new MenuBuilder(this);
         account_optionsMenu = new MenuPopupHelper(this, account_menuBuilder, account_LinearLayout);
+        misskey_account_menuBuilder = new MenuBuilder(this);
+        misskey_account_optionMenu = new MenuPopupHelper(this, misskey_account_menuBuilder, account_LinearLayout);
         //マルチアカウント読み込み
         //押したときの処理とかもこっち
         //カスタムメニュー時は無効（）
@@ -2303,32 +2320,18 @@ public class Home extends AppCompatActivity
                         account_menuBuilder.setCallback(new MenuBuilder.Callback() {
                             @Override
                             public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
-
                                 //ItemIdにマルチアカウントのカウントを入れている
                                 int position = menuItem.getItemId();
-
                                 String multi_instance = multi_account_instance.get(position);
                                 String multi_access_token = multi_account_access_token.get(position);
-
                                 AccessToken = multi_access_token;
                                 Instance = multi_instance;
-
                                 SharedPreferences.Editor editor = pref_setting.edit();
                                 editor.putString("main_instance", multi_instance);
                                 editor.putString("main_token", multi_access_token);
                                 editor.apply();
-
                                 //アカウント情報更新
                                 getAccount();
-
-
-/*
-                            //アプリ再起動
-                            Intent intent = new Intent(getContext(), Home.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-*/
-
                                 return false;
                             }
 
@@ -2337,7 +2340,51 @@ public class Home extends AppCompatActivity
 
                             }
                         });
+                    } else {
+                        Toast.makeText(getContext(), R.string.loading, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+    }
 
+    @SuppressLint("RestrictedApi")
+    private void showMisskeyMultiAccount() {
+        //押したときの処理
+        account_LinearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //そもそも呼ばれてない説
+                if (misskey_multi_account_instance == null) {
+                    //一度だけ取得する
+                    readMultiAccount();
+                } else {
+                    //追加中に押したら落ちるから回避
+                    if (misskey_account_menuBuilder.size() == misskey_multi_account_instance.size()) {
+                        misskey_account_optionMenu.show();
+                        misskey_account_menuBuilder.setCallback(new MenuBuilder.Callback() {
+                            @Override
+                            public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
+                                //ItemIdにマルチアカウントのカウントを入れている
+                                int position = menuItem.getItemId();
+                                String multi_instance = misskey_multi_account_instance.get(position);
+                                String multi_access_token = misskey_multi_account_instance.get(position);
+                                AccessToken = multi_access_token;
+                                Instance = multi_instance;
+                                SharedPreferences.Editor editor = pref_setting.edit();
+                                editor.putString("misskey_main_instance", multi_instance);
+                                editor.putString("misskey_main_token", multi_access_token);
+                                editor.apply();
+                                //アカウント情報更新
+                                getMisskeyAccount();
+                                return false;
+                            }
+
+                            @Override
+                            public void onMenuModeChange(MenuBuilder menuBuilder) {
+
+                            }
+                        });
                     } else {
                         Toast.makeText(getContext(), R.string.loading, Toast.LENGTH_SHORT).show();
                     }
@@ -2350,9 +2397,13 @@ public class Home extends AppCompatActivity
     private void readMultiAccount() {
         multi_account_instance = new ArrayList<>();
         multi_account_access_token = new ArrayList<>();
+        misskey_multi_account_instance = new ArrayList<>();
+        misskey_multi_account_access_token = new ArrayList<>();
         //とりあえずPreferenceに書き込まれた値を
         String instance_instance_string = pref_setting.getString("instance_list", "");
         String account_instance_string = pref_setting.getString("access_list", "");
+        String misskey_instance_instance_string = pref_setting.getString("misskey_instance_list", "");
+        String misskey_account_instance_string = pref_setting.getString("misskey_access_list", "");
         if (!instance_instance_string.equals("")) {
             try {
                 JSONArray instance_array = new JSONArray(instance_instance_string);
@@ -2362,7 +2413,19 @@ public class Home extends AppCompatActivity
                     multi_account_instance.add(instance_array.getString(i));
                 }
             } catch (Exception e) {
-
+                e.printStackTrace();
+            }
+        }
+        if (!misskey_instance_instance_string.equals("")) {
+            try {
+                JSONArray instance_array = new JSONArray(misskey_account_instance_string);
+                JSONArray access_array = new JSONArray(misskey_account_instance_string);
+                for (int i = 0; i < instance_array.length(); i++) {
+                    misskey_multi_account_access_token.add(access_array.getString(i));
+                    misskey_multi_account_instance.add(instance_array.getString(i));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
@@ -2400,6 +2463,76 @@ public class Home extends AppCompatActivity
                             snackber_Name = "@" + user_id + "@" + finalInstance + "";
                             snackber_Avatar = jsonObject.getString("avatar");
                             account_menuBuilder.add(0, finalCount, 0, display_name + "(" + user_id + " / " + multi_instance + ")");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+
+    /**
+     * マルチアカウント読み込み　Misskey
+     */
+    @SuppressLint("RestrictedApi")
+    private void readMisskeyMultiAccount() {
+        misskey_multi_account_instance = new ArrayList<>();
+        misskey_multi_account_access_token = new ArrayList<>();
+        //とりあえずPreferenceに書き込まれた値を
+        String instance_instance_string = pref_setting.getString("misskey_instance_list", "");
+        String account_instance_string = pref_setting.getString("misskey_access_list", "");
+        if (!instance_instance_string.equals("")) {
+            try {
+                JSONArray instance_array = new JSONArray(instance_instance_string);
+                JSONArray access_array = new JSONArray(account_instance_string);
+                for (int i = 0; i < instance_array.length(); i++) {
+                    multi_account_access_token.add(access_array.getString(i));
+                    multi_account_instance.add(instance_array.getString(i));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (multi_account_instance.size() >= 1) {
+            for (int count = 0; count < multi_account_instance.size(); count++) {
+                String multi_instance = multi_account_instance.get(count);
+                String multi_access_token = multi_account_access_token.get(count);
+                int finalCount = count;
+                //GetAccount
+                String url = "https://" + multi_instance + "/api/i";
+                //JSON
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("i", multi_access_token);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+                //作成
+                Request request = new Request.Builder()
+                        .url(url)
+                        .post(requestBody)
+                        .build();
+
+                //GETリクエスト
+                OkHttpClient client_1 = new OkHttpClient();
+                client_1.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String response_string = response.body().string();
+                        try {
+                            JSONObject jsonObject = new JSONObject(response_string);
+                            String display_name = jsonObject.getString("name");
+                            String user_id = jsonObject.getString("username");
+                            misskey_account_menuBuilder.add(0, finalCount, 0, display_name + "(" + user_id + " / " + multi_instance + ")");
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -3476,15 +3609,26 @@ public class Home extends AppCompatActivity
     /**
      * TootShortcutShow
      */
-    private void showTootShortcut() {
+    private void showTootShortcut(boolean isMisskeyMode) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container_container);
+        if (fragment != null && fragment instanceof DesktopFragment) {
+            //DesktopModeは現在Misskey/Mastodon切替方法が確立してないので引数に入れた値がそのまま適用される
+        } else {
+            //CustomMenuTimeLineはstaticからMisskeyかどうかを持ってくる
+            isMisskeyMode = CustomMenuTimeLine.isMisskeyMode();
+        }
         //ユーザー情報を取得
-        if (CustomMenuTimeLine.isMisskeyMode()) {
+        if (isMisskeyMode) {
             getMisskeyAccount();
             setMisskeyVisibilityMenu(toot_area_Button);
             toot_Button_LinearLayout.removeView(misskey_drive_Button);
             toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
             toot_Button_LinearLayout.removeView(mastodon_vote_Button);
             toot_Button_LinearLayout.addView(misskey_drive_Button);
+            //デスクトップモード利用時はマルチアカウント表示できるように
+            if (fragment != null && fragment instanceof DesktopFragment) {
+                showMisskeyMultiAccount();
+            }
         } else {
             getAccount();
             setMastodonVisibilityMenu(toot_area_Button);
@@ -3494,11 +3638,11 @@ public class Home extends AppCompatActivity
             toot_Button_LinearLayout.addView(mastodon_time_post_Button);
             toot_Button_LinearLayout.addView(mastodon_vote_Button);
             //デスクトップモード利用時はマルチアカウント表示できるように
-            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container_container);
             if (fragment != null && fragment instanceof DesktopFragment) {
                 showMultiAccount();
             }
         }
+
         toot_snackbar.dismiss();
         fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
         if (!toot_snackbar.isShown()) {
@@ -3524,5 +3668,4 @@ public class Home extends AppCompatActivity
             }
         }
     }
-
 }

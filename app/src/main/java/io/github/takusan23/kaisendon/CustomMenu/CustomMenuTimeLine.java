@@ -189,6 +189,7 @@ public class CustomMenuTimeLine extends Fragment {
     private SimpleDateFormat simpleDateFormat;
     private SimpleDateFormat japanDateFormat;
     private Calendar calendar;
+    private String desktop_url = "";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -291,6 +292,7 @@ public class CustomMenuTimeLine extends Fragment {
 
         //最終的なURL
         url = "https://" + instance + url;
+
         //タイトル
         ((AppCompatActivity) getContext()).setTitle(getArguments().getString("name"));
 
@@ -504,7 +506,7 @@ public class CustomMenuTimeLine extends Fragment {
                                     SnackberProgress.showProgressSnackber(view, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
                                     scroll = true;
                                     //通知以外
-                                    if (!url.contains("/api/v1/notifications")) {
+                                    if (!CustomMenuTimeLine.this.getArguments().getString("content").contains("/api/v1/notifications")) {
                                         //普通にAPI叩く
                                         loadTimeline(max_id);
                                     } else {
@@ -538,8 +540,17 @@ public class CustomMenuTimeLine extends Fragment {
             //フォロー推奨ユーザーを読み込む
             loadFollowSuggestions(view);
         }
-
     }
+
+    /**
+     * 変数 : url
+     * これCustomMenuTimeLine単体だと動くけどDesktopModeだとおかしくなるのでこのメゾット使って
+     * */
+    private String getDesktopModeURL(){
+        //最終的なURL(static使いまくったらDesktopMode実装で困った（）
+        return  "https://" + getArguments().getString("instance") + getArguments().getString("content");
+    }
+
 
     /**
      * タイムラインを読み込む
@@ -549,16 +560,17 @@ public class CustomMenuTimeLine extends Fragment {
      */
     private void loadTimeline(String max_id_id) {
         //パラメータを設定
+        //最終的なURL(static使いまくったらDesktopMode実装で困った（）
+        url = getDesktopModeURL();
         HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
         builder.addQueryParameter("limit", "40");
-        builder.addQueryParameter("access_token", access_token);
+        builder.addQueryParameter("access_token", getArguments().getString("access_token"));
         if (max_id_id != null) {
             if (max_id_id.length() != 0) {
                 builder.addQueryParameter("max_id", max_id_id);
             }
         }
         String max_id_final_url = builder.build().toString();
-
         //作成
         Request request = new Request.Builder()
                 .url(max_id_final_url)
@@ -603,6 +615,9 @@ public class CustomMenuTimeLine extends Fragment {
                                 Item.add("false");
                                 //ふぁぼした？
                                 Item.add("false");
+                                //Mastodon / Misskey
+                                Item.add("Mastodon");
+
 
                                 //ListItem listItem = new ListItem(Item);
                                 recyclerViewList.add(Item);
@@ -968,7 +983,7 @@ public class CustomMenuTimeLine extends Fragment {
      */
     private void loadNotification(String max_id_id) {
         //パラメータを設定
-        HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
+        HttpUrl.Builder builder = HttpUrl.parse(getDesktopModeURL()).newBuilder();
         builder.addQueryParameter("limit", "40");
         builder.addQueryParameter("access_token", access_token);
         if (max_id_id.length() != 0) {
@@ -1175,6 +1190,8 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add("false");
             //ふぁぼした？
             Item.add("false");
+            //Mastodon / Misskey
+            Item.add("Mastodon");
 
             if (streaming) {
                 recyclerViewList.add(0, Item);
@@ -1287,6 +1304,8 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add("false");
             //ふぁぼした？
             Item.add("false");
+            //Mastodon / Misskey
+            Item.add("Mastodon");
 
             if (streaming) {
                 recyclerViewList.add(0, Item);
@@ -1364,6 +1383,8 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add("false");
             //ふぁぼした？
             Item.add("false");
+            //Mastodon / Misskey
+            Item.add("Mastodon");
 
             recyclerViewList.add(0, Item);
 
@@ -1544,6 +1565,9 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add("false");
             //ふぁぼした？
             Item.add("");
+            //Mastodon / Misskey
+            Item.add("Misskey");
+
             recyclerViewList.add(Item);
 
             getActivity().runOnUiThread(new Runnable() {
@@ -1590,6 +1614,9 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add("false");
             //ふぁぼした？
             Item.add("");
+            //Mastodon / Misskey
+            Item.add("Misskey");
+
             recyclerViewList.add(Item);
 
             getActivity().runOnUiThread(new Runnable() {
@@ -2158,7 +2185,9 @@ public class CustomMenuTimeLine extends Fragment {
                                     //ぶーすとした？
                                     Item.add("false");
                                     //ふぁぼした？
-                                    Item.add("false");
+                                    //Mastodon / Misskey
+                                    Item.add("Mastodon");
+
                                     recyclerViewList.add(Item);
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override
@@ -2239,6 +2268,9 @@ public class CustomMenuTimeLine extends Fragment {
                                 Item.add("false");
                                 //ふぁぼした？
                                 Item.add("false");
+                                //Mastodon / Misskey
+                                Item.add("Mastodon");
+
                                 recyclerViewList.add(Item);
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override

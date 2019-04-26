@@ -16,7 +16,6 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,6 +72,9 @@ public class DesktopFragment extends Fragment {
         main_LinearLayout = view.findViewById(R.id.descktop_parent_linearlayout);
         scrollview_LinearLayout = view.findViewById(R.id.scrollview_linearlayout);
         isDesktopFragment = true;
+
+        //投稿に関しての注意書き
+        Toast.makeText(getContext(),getString(R.string.desktop_create_menu_message),Toast.LENGTH_LONG).show();
 
         if (helper == null) {
             helper = new CustomMenuSQLiteHelper(getContext());

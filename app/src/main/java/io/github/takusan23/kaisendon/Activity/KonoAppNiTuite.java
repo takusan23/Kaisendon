@@ -40,6 +40,8 @@ public class KonoAppNiTuite extends AppCompatActivity {
     private String release_name_4 = "いかどん";
     //private String release_ver_4 = "4.0";
     private String release_ver_4 = "4.1.0";
+    private String release_name_5 = "べーたどん";
+    private String release_ver_5 = "5.0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +85,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
         Button wear_document_Button = findViewById(R.id.wear_document_button);
 
 
-        KonoAppTextView_2.setText(getString(R.string.version) + " " + release_ver_4 + "\r\n" + release_name_4);
+        KonoAppTextView_2.setText(getString(R.string.version) + " " + release_ver_5 + "\r\n" + release_name_5);
         githubButton.setText(getString(R.string.sourceCode) + ": " + "GitHub");
 
         document_button.setText(getString(R.string.document) + "\n" + "GitHub Wiki");

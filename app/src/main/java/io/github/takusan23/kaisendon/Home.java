@@ -72,6 +72,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -442,14 +443,7 @@ public class Home extends AppCompatActivity
                 showTootShortcut(false);
             }
         });
-        //DesktopMode実行時で長押し時はMisskey
-        fab.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                showTootShortcut(true);
-                return true;
-            }
-        });
+
 
         //共有を受け取る
         Intent intent = getIntent();
@@ -2357,7 +2351,7 @@ public class Home extends AppCompatActivity
                 //そもそも呼ばれてない説
                 if (misskey_multi_account_instance == null) {
                     //一度だけ取得する
-                    readMultiAccount();
+                    readMisskeyMultiAccount();
                 } else {
                     //追加中に押したら落ちるから回避
                     if (misskey_account_menuBuilder.size() == misskey_multi_account_instance.size()) {
@@ -2488,18 +2482,18 @@ public class Home extends AppCompatActivity
                 JSONArray instance_array = new JSONArray(instance_instance_string);
                 JSONArray access_array = new JSONArray(account_instance_string);
                 for (int i = 0; i < instance_array.length(); i++) {
-                    multi_account_access_token.add(access_array.getString(i));
-                    multi_account_instance.add(instance_array.getString(i));
+                    misskey_multi_account_instance.add(instance_array.getString(i));
+                    misskey_multi_account_access_token.add(access_array.getString(i));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        if (multi_account_instance.size() >= 1) {
-            for (int count = 0; count < multi_account_instance.size(); count++) {
-                String multi_instance = multi_account_instance.get(count);
-                String multi_access_token = multi_account_access_token.get(count);
+        if (misskey_multi_account_instance.size() >= 1) {
+            for (int count = 0; count < misskey_multi_account_instance.size(); count++) {
+                String multi_instance = misskey_multi_account_instance.get(count);
+                String multi_access_token = misskey_multi_account_access_token.get(count);
                 int finalCount = count;
                 //GetAccount
                 String url = "https://" + multi_instance + "/api/i";
@@ -3612,60 +3606,152 @@ public class Home extends AppCompatActivity
     private void showTootShortcut(boolean isMisskeyMode) {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container_container);
         if (fragment != null && fragment instanceof DesktopFragment) {
-            //DesktopModeは現在Misskey/Mastodon切替方法が確立してないので引数に入れた値がそのまま適用される
-        } else {
-            //CustomMenuTimeLineはstaticからMisskeyかどうかを持ってくる
-            isMisskeyMode = CustomMenuTimeLine.isMisskeyMode();
-        }
-        //ユーザー情報を取得
-        if (isMisskeyMode) {
-            getMisskeyAccount();
-            setMisskeyVisibilityMenu(toot_area_Button);
-            toot_Button_LinearLayout.removeView(misskey_drive_Button);
-            toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
-            toot_Button_LinearLayout.removeView(mastodon_vote_Button);
-            toot_Button_LinearLayout.addView(misskey_drive_Button);
-            //デスクトップモード利用時はマルチアカウント表示できるように
-            if (fragment != null && fragment instanceof DesktopFragment) {
-                showMisskeyMultiAccount();
+            //DesktopModeはPopupMenuからMastodon/Misskeyを選ぶ
+            //Misskeyアカウントが登録されていなければ話にならない
+            if (!pref_setting.getString("misskey_instance_list", "").equals("")) {
+                //ポップアップメニュー作成
+                PopupMenu sns_PopupMenu = new PopupMenu(this, fab);
+                sns_PopupMenu.inflate(R.menu.desktop_mode_sns_menu);
+                //クリックイベント
+                sns_PopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.desktop_mode_menu_mastodon:
+                                getAccount();
+                                setMastodonVisibilityMenu(toot_area_Button);
+                                toot_Button_LinearLayout.removeView(misskey_drive_Button);
+                                toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
+                                toot_Button_LinearLayout.removeView(mastodon_vote_Button);
+                                toot_Button_LinearLayout.addView(mastodon_time_post_Button);
+                                toot_Button_LinearLayout.addView(mastodon_vote_Button);
+                                //デスクトップモード利用時はマルチアカウント表示できるように
+                                if (fragment != null && fragment instanceof DesktopFragment) {
+                                    showMultiAccount();
+                                }
+                                break;
+                            case R.id.desktop_mode_menu_misskey:
+                                if (!pref_setting.getString("misskey_instance_list", "").equals("")) {
+                                    getMisskeyAccount();
+                                    setMisskeyVisibilityMenu(toot_area_Button);
+                                    toot_Button_LinearLayout.removeView(misskey_drive_Button);
+                                    toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
+                                    toot_Button_LinearLayout.removeView(mastodon_vote_Button);
+                                    toot_Button_LinearLayout.addView(misskey_drive_Button);
+                                    //デスクトップモード利用時はマルチアカウント表示できるように
+                                    if (fragment != null && fragment instanceof DesktopFragment) {
+                                        showMisskeyMultiAccount();
+                                    }
+                                }
+                                break;
+                        }
+                        toot_snackbar.show();
+                        //ふぉーかす
+                        toot_EditText.requestFocus();
+                        //キーボード表示
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        if (imm != null) {
+                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                        }
+                        return false;
+                    }
+                });
+                //すでにTootSnackberが表示されている場合は消して、ポップアップメニューを表示する
+                if (toot_snackbar.isShown()) {
+                    toot_snackbar.dismiss();
+                    //キーボード非表示
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        if (Home.this.getCurrentFocus() != null) {
+                            imm.hideSoftInputFromWindow(Home.this.getCurrentFocus().getWindowToken(), 0);
+                        }
+                    }
+                    sns_PopupMenu.show();
+                } else {
+                    sns_PopupMenu.show();
+                }
+            } else {
+                //Mastodonのみ表示
+                getAccount();
+                setMastodonVisibilityMenu(toot_area_Button);
+                toot_Button_LinearLayout.removeView(misskey_drive_Button);
+                toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
+                toot_Button_LinearLayout.removeView(mastodon_vote_Button);
+                toot_Button_LinearLayout.addView(mastodon_time_post_Button);
+                toot_Button_LinearLayout.addView(mastodon_vote_Button);
+                //デスクトップモード利用時はマルチアカウント表示できるように
+                if (fragment != null && fragment instanceof DesktopFragment) {
+                    showMultiAccount();
+                }
+                if (!toot_snackbar.isShown()) {
+                    toot_snackbar.show();
+                    //ふぉーかす
+                    toot_EditText.requestFocus();
+                    //キーボード表示
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                    }
+                } else {
+                    toot_snackbar.dismiss();
+                    //クローズでソフトキーボード非表示
+                    fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        if (Home.this.getCurrentFocus() != null) {
+                            imm.hideSoftInputFromWindow(Home.this.getCurrentFocus().getWindowToken(), 0);
+                        }
+                    }
+                }
             }
         } else {
-            getAccount();
-            setMastodonVisibilityMenu(toot_area_Button);
-            toot_Button_LinearLayout.removeView(misskey_drive_Button);
-            toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
-            toot_Button_LinearLayout.removeView(mastodon_vote_Button);
-            toot_Button_LinearLayout.addView(mastodon_time_post_Button);
-            toot_Button_LinearLayout.addView(mastodon_vote_Button);
-            //デスクトップモード利用時はマルチアカウント表示できるように
-            if (fragment != null && fragment instanceof DesktopFragment) {
-                showMultiAccount();
+            //ユーザー情報を取得
+            //MisskeyモードでMisskeyアカウントが登録されれいるときのみ表示
+            if (isMisskeyMode && !pref_setting.getString("misskey_instance_list", "").equals("")) {
+                getMisskeyAccount();
+                setMisskeyVisibilityMenu(toot_area_Button);
+                toot_Button_LinearLayout.removeView(misskey_drive_Button);
+                toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
+                toot_Button_LinearLayout.removeView(mastodon_vote_Button);
+                toot_Button_LinearLayout.addView(misskey_drive_Button);
+                //デスクトップモード利用時はマルチアカウント表示できるように
+                if (fragment != null && fragment instanceof DesktopFragment) {
+                    showMisskeyMultiAccount();
+                }
+            } else {
+                getAccount();
+                setMastodonVisibilityMenu(toot_area_Button);
+                toot_Button_LinearLayout.removeView(misskey_drive_Button);
+                toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
+                toot_Button_LinearLayout.removeView(mastodon_vote_Button);
+                toot_Button_LinearLayout.addView(mastodon_time_post_Button);
+                toot_Button_LinearLayout.addView(mastodon_vote_Button);
+                //デスクトップモード利用時はマルチアカウント表示できるように
+                if (fragment != null && fragment instanceof DesktopFragment) {
+                    showMultiAccount();
+                }
             }
-        }
-
-        toot_snackbar.dismiss();
-        fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-        if (!toot_snackbar.isShown()) {
-            //アイコン変更
-            //fab.setImageDrawable(getDrawable(R.drawable.ic_arrow_downward_black_24dp));
-            toot_snackbar.show();
-
-            //ふぉーかす
-            toot_EditText.requestFocus();
-            //キーボード表示
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-            }
-        } else {
-            //クローズでソフトキーボード非表示
-            fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                if (Home.this.getCurrentFocus() != null) {
-                    imm.hideSoftInputFromWindow(Home.this.getCurrentFocus().getWindowToken(), 0);
+            if (!toot_snackbar.isShown()) {
+                toot_snackbar.show();
+                //ふぉーかす
+                toot_EditText.requestFocus();
+                //キーボード表示
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                }
+            } else {
+                toot_snackbar.dismiss();
+                //クローズでソフトキーボード非表示
+                fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    if (Home.this.getCurrentFocus() != null) {
+                        imm.hideSoftInputFromWindow(Home.this.getCurrentFocus().getWindowToken(), 0);
+                    }
                 }
             }
         }
+
     }
 }

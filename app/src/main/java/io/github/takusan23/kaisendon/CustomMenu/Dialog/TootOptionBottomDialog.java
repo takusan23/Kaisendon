@@ -27,6 +27,8 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
     private TextView account_Button;
     private TextView bookmark_Button;
     private TextView copy_TextView;
+    private TextView favourite_TextView;
+    private TextView boost_TextView;
     //BookMarkDB
     private TootBookmark_SQLite tootBookmark_sqLite;
     private SQLiteDatabase db;
@@ -84,13 +86,15 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
                 }
                 //DBに入れる
                 String json = getArguments().getString("json");
+                String instance = getArguments().getString("instance");
                 ContentValues values = new ContentValues();
                 values.put("json", json);
-                values.put("instance", CustomMenuTimeLine.getInstance());
+                values.put("instance", instance);
                 db.insert("tootbookmarkdb", null, values);
-                Toast.makeText(getContext(),getString(R.string.add_Bookmark),Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.add_Bookmark), Toast.LENGTH_SHORT).show();
                 dismiss();
             }
         });
     }
+
 }

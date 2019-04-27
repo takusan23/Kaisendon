@@ -17,6 +17,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -54,6 +55,7 @@ import io.github.takusan23.kaisendon.APIJSONParse.MastodonScheduledStatusesJSONP
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonTLAPIJSONParse;
 import io.github.takusan23.kaisendon.Activity.UserActivity;
 import io.github.takusan23.kaisendon.CustomMenu.Dialog.TootOptionBottomDialog;
+import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
 import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
 import io.github.takusan23.kaisendon.PicassoImageGetter;
 import io.github.takusan23.kaisendon.R;
@@ -181,13 +183,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         pref_setting = PreferenceManager.getDefaultSharedPreferences(viewHolder.toot_text_TextView.getContext());
-        //設定を取得
-        AccessToken = pref_setting.getString("main_token", "");
-        Instance = pref_setting.getString("main_instance", "");
         //Context
         context = viewHolder.toot_text_TextView.getContext();
 
         ArrayList<String> item = itemList.get(i);
+        AccessToken = item.get(8);
+        Instance = item.get(7);
+
 
         //パースする種類
         if (item.get(1).contains("/api/v1/scheduled_statuses")) {
@@ -210,6 +212,15 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (item.get(1).contains("/api/users/notes")) {
             isMisskeyNotes = true;
         }
+
+        //デスクトップモード
+        Fragment fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentById(R.id.container_container);
+        if (fragment instanceof DesktopFragment) {
+            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), String.valueOf(CustomMenuTimeLine.getUrl()));
+            setAccountLayout(viewHolder);
+            setDesktopTootOption(viewHolder, api, item);
+        }
+
         //TL/それ以外
         if (!isScheduled_statuses && !isFollowSuggestions && !isMisskeyFollowes && !isMastodonFollowes) {
             //レイアウト
@@ -245,7 +256,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //ブースト
                 setReBlogToot(viewHolder, api, item);
                 //クイックプロフィール
-                showMisskeyQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_ID());
+                showMisskeyQuickProfile(viewHolder.account_LinearLayout, api.getUser_ID());
                 //通知タイプ
                 showNotificationType(viewHolder, api);
                 //クライアント名のTextViewを消す
@@ -273,7 +284,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //通知タイプ
                 showNotificationType(viewHolder, api);
                 //クイックプロフィール
-                showQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_ID(), viewHolder);
+                showQuickProfile(viewHolder.account_LinearLayout, api.getUser_ID(), viewHolder);
                 //クライアント名のTextViewを消す
                 setClientTextViewRemove(viewHolder);
                 //カスタムフォント
@@ -299,6 +310,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             setAccountLayout(viewHolder);
             createAccountLinearLayout(viewHolder, api);
         }
+
 
     }
 
@@ -626,35 +638,39 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.reblog_avatar_ImageView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_reblog_avatar);
             viewHolder.reblog_user_TextView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_reblog_account);
             viewHolder.reblog_toot_text_TextView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_reblog_text);
-            //入れる
-            if (getLoadImageConnection(viewHolder)) {
-                //既定でGIFは再生しない方向で
-                if (pref_setting.getBoolean("pref_avater_gif", true)) {
-                    //GIFアニメ再生させない
-                    Glide.with(context).load(api.getBTAvatarUrlNotGif()).into(viewHolder.reblog_avatar_ImageView);
+            if (viewHolder.reblog_avatar_ImageView != null && viewHolder.reblog_user_TextView != null && viewHolder.reblog_toot_text_TextView != null && viewHolder.toot_user_TextView != null && viewHolder.toot_text_TextView != null && viewHolder.reblog_avatar_ImageView != null) {
+                //入れる
+                if (getLoadImageConnection(viewHolder)) {
+                    //既定でGIFは再生しない方向で
+                    if (pref_setting.getBoolean("pref_avater_gif", true)) {
+                        //GIFアニメ再生させない
+                        Glide.with(context).load(api.getBTAvatarUrlNotGif()).into(viewHolder.reblog_avatar_ImageView);
+                    } else {
+                        //GIFアニメを再生
+                        Glide.with(context).load(api.getBTAvatarUrl()).into(viewHolder.reblog_avatar_ImageView);
+                    }
                 } else {
-                    //GIFアニメを再生
-                    Glide.with(context).load(api.getBTAvatarUrl()).into(viewHolder.reblog_avatar_ImageView);
+                    if (viewHolder.reblog_avatar_ImageView != null) {
+                        ((LinearLayout) viewHolder.reblog_avatar_ImageView.getParent()).removeView(viewHolder.reblog_avatar_ImageView);
+                    }
                 }
-            } else {
-                ((LinearLayout) viewHolder.reblog_avatar_ImageView.getParent()).removeView(viewHolder.reblog_avatar_ImageView);
-            }
-            PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.reblog_toot_text_TextView);
-            PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.reblog_user_TextView);
-            viewHolder.reblog_user_TextView.setText(Html.fromHtml(api.getBTAccountDisplayName(), Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
-            viewHolder.reblog_toot_text_TextView.setText(Html.fromHtml(api.getBTTootText(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
-            viewHolder.reblog_user_TextView.append("@" + api.getBTAccountAcct());
-            //～～がブーストしましたを出す
-            viewHolder.toot_user_TextView.append(context.getString(R.string.reblog));
-            viewHolder.toot_text_TextView.setText("");
-            Drawable drawable = context.getDrawable(R.drawable.ic_repeat_black_24dp_2);
-            drawable.setTint(Color.parseColor("#008000"));
-            viewHolder.toot_user_TextView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
-            //クイックプロフィール
-            if (item.get(6).contains("Misskey")) {
-                showMisskeyQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID());
-            } else {
-                showQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID(), viewHolder);
+                PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.reblog_toot_text_TextView);
+                PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.reblog_user_TextView);
+                viewHolder.reblog_user_TextView.setText(Html.fromHtml(api.getBTAccountDisplayName(), Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
+                viewHolder.reblog_toot_text_TextView.setText(Html.fromHtml(api.getBTTootText(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
+                viewHolder.reblog_user_TextView.append("@" + api.getBTAccountAcct());
+                //～～がブーストしましたを出す
+                viewHolder.toot_user_TextView.append(context.getString(R.string.reblog));
+                viewHolder.toot_text_TextView.setText("");
+                Drawable drawable = context.getDrawable(R.drawable.ic_repeat_black_24dp_2);
+                drawable.setTint(Color.parseColor("#008000"));
+                viewHolder.toot_user_TextView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+                //クイックプロフィール
+                if (item.get(6).contains("Misskey")) {
+                    showMisskeyQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID());
+                } else {
+                    showQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID(), viewHolder);
+                }
             }
         }
     }
@@ -934,7 +950,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Misskey クイックプロフィール
      */
-    private void showMisskeyQuickProfile(ImageView imageView, String id) {
+    private void showMisskeyQuickProfile(View imageView, String id) {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1148,7 +1164,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * QuickProfile
      */
-    private void showQuickProfile(ImageView imageView, String id, ViewHolder viewHolder) {
+    private void showQuickProfile(View imageView, String id, ViewHolder viewHolder) {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1170,6 +1186,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
                     //APIを叩く
                     String url = "https://" + Instance + "/api/v1/accounts/" + id;
+                    System.out.println(url);
                     //作成
                     Request request = new Request.Builder()
                             .url(url)
@@ -1564,6 +1581,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             public void onClick(View v) {
                 TootOptionBottomDialog dialog = new TootOptionBottomDialog();
                 Bundle bundle = new Bundle();
+                bundle.putString("instance", Instance);
                 bundle.putString("user_id", api.getUser_ID());
                 bundle.putString("status_id", api.getToot_ID());
                 bundle.putString("status_text", viewHolder.toot_text_TextView.getText().toString());
@@ -1600,10 +1618,10 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             toot_info_LinearLayout.removeView((LinearLayout) viewHolder.toot_visibility_TextView.getParent().getParent());
             toot_info_LinearLayout.removeView((LinearLayout) viewHolder.toot_client_TextView.getParent());
         }
-        parent_LinearLayout.removeView(viewHolder.toot_reblog_LinearLayout);
-        parent_LinearLayout.removeView(viewHolder.toot_media_LinearLayout);
-        parent_LinearLayout.removeView(viewHolder.toot_card_LinearLayout);
-        parent_LinearLayout.removeView(viewHolder.action_LinearLayout);
+        //parent_LinearLayout.removeView(viewHolder.toot_reblog_LinearLayout);
+        //parent_LinearLayout.removeView(viewHolder.toot_media_LinearLayout);
+        //parent_LinearLayout.removeView(viewHolder.toot_card_LinearLayout);
+        //parent_LinearLayout.removeView(viewHolder.action_LinearLayout);
     }
 
     /**
@@ -1890,6 +1908,26 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                         });
                     }
                 }).show();
+            }
+        });
+    }
+
+
+    /**
+     * DesktopMode用TootOption
+     */
+    private void setDesktopTootOption(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item) {
+        viewHolder.toot_text_TextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TootOptionBottomDialog dialog = new TootOptionBottomDialog();
+                Bundle bundle = new Bundle();
+                bundle.putString("user_id", api.getUser_ID());
+                bundle.putString("status_id", api.getToot_ID());
+                bundle.putString("status_text", viewHolder.toot_text_TextView.getText().toString());
+                bundle.putString("json", item.get(3));
+                dialog.setArguments(bundle);
+                dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "toot_option");
             }
         });
     }

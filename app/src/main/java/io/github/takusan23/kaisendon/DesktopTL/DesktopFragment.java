@@ -99,9 +99,10 @@ public class DesktopFragment extends Fragment {
         //再生成しない？
         setRetainInstance(true);
 
-
+/*
         instance = pref_setting.getString("main_instance", "");
         access_token = pref_setting.getString("main_token", "");
+*/
         //マルチカラム
         loadCustomMenu();
         getActivity().setTitle(getString(R.string.desktop_mode_depelopment));

@@ -196,7 +196,7 @@ public class UserFollowActivity extends AppCompatActivity {
                     if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
                         position = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
                         y = recyclerView.getChildAt(0).getTop();
-                        if (recyclerViewList.size()>= 20) {
+                        if (recyclerViewList.size() >= 20) {
                             SnackberProgress.showProgressSnackber(recyclerView, getContext(), getString(R.string.loading) + "\n" + misskeyUrl);
                             scroll = true;
                             postMisskeyAPI(misskeyUrl, nextID);
@@ -224,7 +224,7 @@ public class UserFollowActivity extends AppCompatActivity {
                     if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
                         position = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
                         y = recyclerView.getChildAt(0).getTop();
-                        if (recyclerViewList.size()>= 20) {
+                        if (recyclerViewList.size() >= 20) {
                             SnackberProgress.showProgressSnackber(recyclerView, getContext(), getString(R.string.loading) + "\n" + misskeyUrl);
                             scroll = true;
                             postMastodonAPI(mastodonUrl, nextID);
@@ -415,6 +415,12 @@ public class UserFollowActivity extends AppCompatActivity {
                 Item.add("false");
                 //ふぁぼした？
                 Item.add("false");
+                //Mastodon / Misskey
+                Item.add("Mastodon");
+                //Insatnce/AccessToken
+                Item.add(Instance);
+                Item.add(AccessToken);
+
                 recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -456,6 +462,12 @@ public class UserFollowActivity extends AppCompatActivity {
                 Item.add("false");
                 //ふぁぼした？
                 Item.add("false");
+                //Mastodon / Misskey
+                Item.add("Mastodon");
+                //Insatnce/AccessToken
+                Item.add(Instance);
+                Item.add(AccessToken);
+
                 recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -497,6 +509,12 @@ public class UserFollowActivity extends AppCompatActivity {
                 Item.add("false");
                 //ふぁぼした？
                 Item.add("false");
+                //Mastodon / Misskey
+                Item.add("Misskey");
+                //Insatnce/AccessToken
+                Item.add(Instance);
+                Item.add(AccessToken);
+
                 recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -545,6 +563,12 @@ public class UserFollowActivity extends AppCompatActivity {
                 Item.add("false");
                 //ふぁぼした？
                 Item.add("false");
+                //Mastodon / Misskey
+                Item.add("Misskey");
+                //Insatnce/AccessToken
+                Item.add(Instance);
+                Item.add(AccessToken);
+
                 recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
                     @Override

@@ -229,6 +229,7 @@ public class Home extends AppCompatActivity
     //DesktomMode用Mastodon Misskey分岐
     private boolean isDesktoopMisskeyMode = false;
     private Switch misskey_switch;
+    private boolean isDesktop = false;
 
 
     @Override
@@ -315,6 +316,9 @@ public class Home extends AppCompatActivity
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.container_container, new DesktopFragment(), "desktop");
             fragmentTransaction.commit();
+            isDesktop = true;
+        } else {
+            isDesktop = false;
         }
 
 
@@ -3752,6 +3756,6 @@ public class Home extends AppCompatActivity
                 }
             }
         }
-
     }
+
 }

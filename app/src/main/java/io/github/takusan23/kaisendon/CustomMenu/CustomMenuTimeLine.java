@@ -67,6 +67,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
 import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
 import io.github.takusan23.kaisendon.ListItem;
@@ -94,8 +95,8 @@ public class CustomMenuTimeLine extends Fragment {
 
     private String misskey;
     private static String url;
-    private static String instance;
-    private static String access_token;
+    private String instance;
+    private String access_token;
     private static String dialog;
     private static String image_load;
     private static String dark_mode;
@@ -248,17 +249,22 @@ public class CustomMenuTimeLine extends Fragment {
         }
         //インスタンス、アクセストークン変更
         //Misskeyは設定しないように
-        if (!misskey_mode) {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putString("main_instance", instance);
-            editor.putString("main_token", access_token);
-            editor.apply();
+        //デスクトップモード時も設定しないように
+        if (getActivity().getSupportFragmentManager().findFragmentById(R.id.container_container) instanceof DesktopFragment) {
+
         } else {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putString("misskey_main_instance", instance);
-            editor.putString("misskey_main_token", access_token);
-            editor.putString("misskey_main_username", misskey_username);
-            editor.apply();
+            if (!misskey_mode) {
+                SharedPreferences.Editor editor = pref_setting.edit();
+                editor.putString("main_instance", instance);
+                editor.putString("main_token", access_token);
+                editor.apply();
+            } else {
+                SharedPreferences.Editor editor = pref_setting.edit();
+                editor.putString("misskey_main_instance", instance);
+                editor.putString("misskey_main_token", access_token);
+                editor.putString("misskey_main_username", misskey_username);
+                editor.apply();
+            }
         }
 
         //トゥートカウンター
@@ -545,10 +551,10 @@ public class CustomMenuTimeLine extends Fragment {
     /**
      * 変数 : url
      * これCustomMenuTimeLine単体だと動くけどDesktopModeだとおかしくなるのでこのメゾット使って
-     * */
-    private String getDesktopModeURL(){
+     */
+    private String getDesktopModeURL() {
         //最終的なURL(static使いまくったらDesktopMode実装で困った（）
-        return  "https://" + getArguments().getString("instance") + getArguments().getString("content");
+        return "https://" + getArguments().getString("instance") + getArguments().getString("content");
     }
 
 
@@ -617,7 +623,9 @@ public class CustomMenuTimeLine extends Fragment {
                                 Item.add("false");
                                 //Mastodon / Misskey
                                 Item.add("Mastodon");
-
+                                //Insatnce/AccessToken
+                                Item.add(instance);
+                                Item.add(access_token);
 
                                 //ListItem listItem = new ListItem(Item);
                                 recyclerViewList.add(Item);
@@ -1192,6 +1200,9 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add("false");
             //Mastodon / Misskey
             Item.add("Mastodon");
+            //Insatnce/AccessToken
+            Item.add(instance);
+            Item.add(access_token);
 
             if (streaming) {
                 recyclerViewList.add(0, Item);
@@ -1306,6 +1317,9 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add("false");
             //Mastodon / Misskey
             Item.add("Mastodon");
+            //Insatnce/AccessToken
+            Item.add(instance);
+            Item.add(access_token);
 
             if (streaming) {
                 recyclerViewList.add(0, Item);
@@ -1385,6 +1399,9 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add("false");
             //Mastodon / Misskey
             Item.add("Mastodon");
+            //Insatnce/AccessToken
+            Item.add(instance);
+            Item.add(access_token);
 
             recyclerViewList.add(0, Item);
 
@@ -1567,6 +1584,9 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add("");
             //Mastodon / Misskey
             Item.add("Misskey");
+            //Insatnce/AccessToken
+            Item.add(instance);
+            Item.add(access_token);
 
             recyclerViewList.add(Item);
 
@@ -1616,6 +1636,9 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add("");
             //Mastodon / Misskey
             Item.add("Misskey");
+            //Insatnce/AccessToken
+            Item.add(instance);
+            Item.add(access_token);
 
             recyclerViewList.add(Item);
 
@@ -2187,6 +2210,9 @@ public class CustomMenuTimeLine extends Fragment {
                                     //ふぁぼした？
                                     //Mastodon / Misskey
                                     Item.add("Mastodon");
+                                    //Insatnce/AccessToken
+                                    Item.add(instance);
+                                    Item.add(access_token);
 
                                     recyclerViewList.add(Item);
                                     getActivity().runOnUiThread(new Runnable() {
@@ -2270,6 +2296,9 @@ public class CustomMenuTimeLine extends Fragment {
                                 Item.add("false");
                                 //Mastodon / Misskey
                                 Item.add("Mastodon");
+                                //Insatnce/AccessToken
+                                Item.add(instance);
+                                Item.add(access_token);
 
                                 recyclerViewList.add(Item);
                                 getActivity().runOnUiThread(new Runnable() {
@@ -2393,20 +2422,7 @@ public class CustomMenuTimeLine extends Fragment {
         return mode;
     }
 
-    /**
-     * Instance
-     */
-    public static String getInstance() {
-        return instance;
-    }
 
-    public static String getAccess_token() {
-        return access_token;
-    }
-
-    public static String getUsername() {
-        return misskey_username;
-    }
 
     public static String getAccount_id() {
         return account_id;

@@ -246,18 +246,29 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             if (resultData.getData() != null) {
                 Uri selectedImage = resultData.getData();
-                //完全パス取得
-                String get_Path = getPath(selectedImage);
-                String image_Path = "file:\\\\" + get_Path;
-                //置き換え
-                String final_Path = image_Path.replaceAll("\\\\", "/");
-                image_url = final_Path;
-                //いれておく？
-                background_image_set_Button.setText(image_url);
-                //URI画像を入れる
-                Glide.with(getContext())
-                        .load(get_Path)
-                        .into(background_image_ImageView);
+                if (!Build.VERSION.CODENAME.contains("Q")) {
+                    //完全パス取得
+                    String get_Path = getPath(selectedImage);
+                    String image_Path = "file:\\\\" + get_Path;
+                    //置き換え
+                    String final_Path = image_Path.replaceAll("\\\\", "/");
+                    image_url = final_Path;
+                    //いれておく？
+                    background_image_set_Button.setText(image_url);
+                    //URI画像を入れる
+                    Glide.with(getContext())
+                            .load(get_Path)
+                            .into(background_image_ImageView);
+                } else {
+                    //Scoped StorageのせいでURL取得できなくなったのでURIで管理する
+                    image_url = selectedImage.toString();
+                    //いれておく？
+                    background_image_set_Button.setText(image_url);
+                    //URI画像を入れる
+                    Glide.with(getContext())
+                            .load(image_url)
+                            .into(background_image_ImageView);
+                }
             }
         }
         if (requestCode == 4545 && resultCode == Activity.RESULT_OK) {

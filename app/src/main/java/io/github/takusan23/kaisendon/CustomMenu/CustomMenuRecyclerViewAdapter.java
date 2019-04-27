@@ -256,7 +256,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //ブースト
                 setReBlogToot(viewHolder, api, item);
                 //クイックプロフィール
-                showMisskeyQuickProfile(viewHolder.account_LinearLayout, api.getUser_ID());
+                showMisskeyQuickProfile(viewHolder.account_LinearLayout, api.getUser_ID(), item);
                 //通知タイプ
                 showNotificationType(viewHolder, api);
                 //クライアント名のTextViewを消す
@@ -284,7 +284,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //通知タイプ
                 showNotificationType(viewHolder, api);
                 //クイックプロフィール
-                showQuickProfile(viewHolder.account_LinearLayout, api.getUser_ID(), viewHolder);
+                showQuickProfile(viewHolder.account_LinearLayout, api.getUser_ID(), viewHolder, item);
                 //クライアント名のTextViewを消す
                 setClientTextViewRemove(viewHolder);
                 //カスタムフォント
@@ -304,11 +304,11 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         } else if (isFollowSuggestions) {
             MastodonAccountJSONParse api = new MastodonAccountJSONParse(viewHolder.mainLinearLayout.getContext(), item.get(3));
             setAccountLayout(viewHolder);
-            createAccountLinearLayout(viewHolder, api);
+            createAccountLinearLayout(viewHolder, api, item);
         } else if (isMastodonFollowes || isMisskeyFollowes) {
             MastodonAccountJSONParse api = new MastodonAccountJSONParse(viewHolder.mainLinearLayout.getContext(), item.get(3));
             setAccountLayout(viewHolder);
-            createAccountLinearLayout(viewHolder, api);
+            createAccountLinearLayout(viewHolder, api, item);
         }
 
 
@@ -667,9 +667,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 viewHolder.toot_user_TextView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
                 //クイックプロフィール
                 if (item.get(6).contains("Misskey")) {
-                    showMisskeyQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID());
+                    showMisskeyQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID(), item);
                 } else {
-                    showQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID(), viewHolder);
+                    showQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID(), viewHolder, item);
                 }
             }
         }
@@ -950,7 +950,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Misskey クイックプロフィール
      */
-    private void showMisskeyQuickProfile(View imageView, String id) {
+    private void showMisskeyQuickProfile(View imageView, String id, ArrayList<String> item) {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1086,6 +1086,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                         //IDを渡す
                                         intent.putExtra("Misskey", true);
                                         intent.putExtra("Account_ID", id);
+                                        saveInstanceToken(item);
                                         context.startActivity(intent);
                                     }
                                 });
@@ -1164,7 +1165,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * QuickProfile
      */
-    private void showQuickProfile(View imageView, String id, ViewHolder viewHolder) {
+    private void showQuickProfile(View imageView, String id, ViewHolder viewHolder, ArrayList<String> item) {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1335,6 +1336,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                                             Intent intent = new Intent(context, UserActivity.class);
                                                             //IDを渡す
                                                             intent.putExtra("Account_ID", id);
+                                                            saveInstanceToken(item);
                                                             context.startActivity(intent);
                                                         }
                                                     });
@@ -1627,7 +1629,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Account Layout設定
      */
-    private void createAccountLinearLayout(ViewHolder viewHolder, MastodonAccountJSONParse api) {
+    private void createAccountLinearLayout(ViewHolder viewHolder, MastodonAccountJSONParse api, ArrayList<String> item) {
         //カスタム絵文字
         PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
         PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);
@@ -1638,7 +1640,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         //アバター画像
         loadAccountLayoutAvatarImage(api, viewHolder);
         //クイックプロフィール
-        showQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_id(), viewHolder);
+        showQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_id(), viewHolder, item);
     }
 
     /**
@@ -1931,5 +1933,23 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             }
         });
     }
+
+    /**
+     * インスタンス、アクセストークンの保存
+     */
+    private void saveInstanceToken(ArrayList<String> item) {
+        if (item.get(6).contains("Misskey")) {
+            SharedPreferences.Editor editor = pref_setting.edit();
+            editor.putString("misskey_main_instance", Instance);
+            editor.putString("misskey_main_token", AccessToken);
+            editor.apply();
+        } else {
+            SharedPreferences.Editor editor = pref_setting.edit();
+            editor.putString("main_instance", Instance);
+            editor.putString("main_token", AccessToken);
+            editor.apply();
+        }
+    }
+
 
 }

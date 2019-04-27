@@ -459,7 +459,9 @@
     <string name="tootbookmark_backup_restore_button_title">ブックマークをバックアップ、復元</string>
     <string name="app_shortcut_toot_title">AppShortcutからトゥート</string>
     <string name="privacy_policy">プライバシーポリシー</string>
-    <string name="desktop_mode_depelopment">デスクトップモード（開発中）</string>
+    <string name="desktop_mode">デスクトップモード</string>
     <string name="desktop_create_menu_message">右下のFABを押すことで投稿先をMastodon/Misskeyに切り替えるメニューが表示されます。 アカウントは投稿画面の名前欄を押すと切り替えが可能です。</string>
+    <string name="activity_pub_viewer">ActivityPub Viewer</string>
+    <string name="activity_pub_message">ActivityPubに対応したJSONファイルを以下の場所にコピーしてください。</string>
 
 </resources>

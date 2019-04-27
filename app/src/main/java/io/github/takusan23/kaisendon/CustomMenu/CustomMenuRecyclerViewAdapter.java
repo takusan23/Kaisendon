@@ -50,6 +50,7 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
+import io.github.takusan23.kaisendon.APIJSONParse.ActivityPubJSONParse;
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonAccountJSONParse;
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonScheduledStatusesJSONParse;
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonTLAPIJSONParse;
@@ -86,6 +87,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     private boolean isMisskeyNotes = false;
     private boolean isMisskeyFollowes = false;
     private boolean isMisskeyMode = false;
+    private boolean isActivityPubViewer = false;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -212,7 +214,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (item.get(1).contains("/api/users/notes")) {
             isMisskeyNotes = true;
         }
-
+        if (item.get(0).contains("ActivityPub")) {
+            isActivityPubViewer = true;
+        }
         //デスクトップモード
         Fragment fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentById(R.id.container_container);
         if (fragment instanceof DesktopFragment) {
@@ -222,7 +226,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         }
 
         //TL/それ以外
-        if (!isScheduled_statuses && !isFollowSuggestions && !isMisskeyFollowes && !isMastodonFollowes) {
+        if (!isScheduled_statuses && !isFollowSuggestions && !isMisskeyFollowes && !isMastodonFollowes && !isActivityPubViewer) {
             //レイアウト
             //JSONパース用クラス
             //System.out.println(item.get(3));
@@ -309,8 +313,12 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             MastodonAccountJSONParse api = new MastodonAccountJSONParse(viewHolder.mainLinearLayout.getContext(), item.get(3));
             setAccountLayout(viewHolder);
             createAccountLinearLayout(viewHolder, api, item);
+        } else if (isActivityPubViewer) {
+            ActivityPubJSONParse api = new ActivityPubJSONParse(item.get(3));
+            setSimpleLayout(viewHolder);
+            viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getContext(), Html.FROM_HTML_MODE_COMPACT));
+            viewHolder.toot_user_TextView.setTextSize(18);
         }
-
 
     }
 

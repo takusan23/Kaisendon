@@ -105,7 +105,7 @@ public class DesktopFragment extends Fragment {
 */
         //マルチカラム
         loadCustomMenu();
-        getActivity().setTitle(getString(R.string.desktop_mode_depelopment));
+        getActivity().setTitle(getString(R.string.desktop_mode));
 
         /*
         for (int i = 0; i < 3; i++) {

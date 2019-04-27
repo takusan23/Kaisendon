@@ -192,6 +192,9 @@ public class CustomMenuTimeLine extends Fragment {
     private Calendar calendar;
     private String desktop_url = "";
 
+    //isDesktopMode
+    private boolean isDesktopMode = false;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -251,8 +254,12 @@ public class CustomMenuTimeLine extends Fragment {
         //Misskeyは設定しないように
         //デスクトップモード時も設定しないように
         if (getActivity().getSupportFragmentManager().findFragmentById(R.id.container_container) instanceof DesktopFragment) {
-
+            //タイトル
+            isDesktopMode = true;
+            ((AppCompatActivity) getContext()).setTitle(getString(R.string.desktop_mode));
         } else {
+            //タイトル
+            ((AppCompatActivity) getContext()).setTitle(getArguments().getString("name"));
             if (!misskey_mode) {
                 SharedPreferences.Editor editor = pref_setting.edit();
                 editor.putString("main_instance", instance);
@@ -298,9 +305,6 @@ public class CustomMenuTimeLine extends Fragment {
 
         //最終的なURL
         url = "https://" + instance + url;
-
-        //タイトル
-        ((AppCompatActivity) getContext()).setTitle(getArguments().getString("name"));
 
         ArrayList<ListItem> toot_list = new ArrayList<>();
         adapter = new HomeTimeLineAdapter(getContext(), R.layout.timeline_item, toot_list);
@@ -829,11 +833,15 @@ public class CustomMenuTimeLine extends Fragment {
                                     //ドロワー
                                     setDrawerImageText(avatar, header, display_name, "@" + username + "@" + instance);
                                     //サブタイトル更新
-                                    if (getContext() != null && ((AppCompatActivity) getContext()).getSupportActionBar() != null) {
-                                        if (subtitle.length() >= 1) {
-                                            ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
-                                        } else {
-                                            ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(name + "( @" + id + " / " + instance + " )");
+                                    if (isDesktopMode) {
+                                        ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle("");
+                                    } else {
+                                        if (getContext() != null && ((AppCompatActivity) getContext()).getSupportActionBar() != null) {
+                                            if (subtitle.length() >= 1) {
+                                                ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
+                                            } else {
+                                                ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(name + "( @" + id + " / " + instance + " )");
+                                            }
                                         }
                                     }
                                 }
@@ -2421,7 +2429,6 @@ public class CustomMenuTimeLine extends Fragment {
         }
         return mode;
     }
-
 
 
     public static String getAccount_id() {

@@ -18,6 +18,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +33,7 @@ import java.util.ArrayList;
 
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuRecyclerViewAdapter;
 import io.github.takusan23.kaisendon.R;
+import io.github.takusan23.kaisendon.SnackberProgress;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -43,6 +48,7 @@ public class ActivityPubViewer extends Fragment {
     private CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter;
 
     private String path = "";
+    private String json = "";
 
 
     public ActivityPubViewer() {
@@ -77,9 +83,9 @@ public class ActivityPubViewer extends Fragment {
 
         //ぱす（Android Qから変わった
         if (!Build.VERSION.CODENAME.contains("Q")) {
-            path = Environment.getExternalStorageDirectory().getPath();
+            path = Environment.getExternalStorageDirectory().getPath() + "/activity_pub_json/outbox.json";
         } else {
-            path = "/sdcard/Android/sandbox/io.github.takusan23/kaisendon";
+            path = "/sdcard/Android/sandbox/io.github.takusan23/kaisendon/activity_pub_json/outbox.json";
         }
 
         Toast.makeText(getContext(), getString(R.string.activity_pub_message) + "\n" + path, Toast.LENGTH_LONG).show();
@@ -102,34 +108,87 @@ public class ActivityPubViewer extends Fragment {
      * outbox.jsonを読み込む？
      */
     private void loadOutBoxJSON() {
+        //くるくる
+        SnackberProgress.showProgressSnackber(recyclerView, getContext(), getString(R.string.loading));
         //ディレクトリ生成
-        String json = "";
         File file = new File(Environment.getExternalStorageDirectory().getPath() + "/activity_pub_json");
         file.mkdir();
         //ファイルかあるか
         File json_file = new File(file.getPath() + "/outbox.json");
-        if (json_file.exists()) {
-            try {
-                FileInputStream fileInputStream = new FileInputStream(json_file);
-                InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, "UTF-8");
-                BufferedReader reader = new BufferedReader(inputStreamReader);
-                String lineBuffer;
-                while ((lineBuffer = reader.readLine()) != null) {
-                    json += lineBuffer;
+        //Nexus 7 2013でクソ重かったので非同期処理
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (json_file.exists()) {
+                    try {
+                        //JSONデータ取り出し
+                        FileInputStream fileInputStream = new FileInputStream(json_file);
+                        InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, "UTF-8");
+                        BufferedReader reader = new BufferedReader(inputStreamReader);
+                        String lineBuffer;
+                        while ((lineBuffer = reader.readLine()) != null) {
+                            json += lineBuffer;
+                        }
+                        //RecyclerViewセット
+                        setRecyclerView();
+                        fileInputStream.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Toast.makeText(getContext(), getString(R.string.activity_pub_message) + "\n" + path, Toast.LENGTH_LONG).show();
                 }
-
-                fileInputStream.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-        } else {
-            Toast.makeText(getContext(), getString(R.string.activity_pub_message) + "\n" + path, Toast.LENGTH_LONG).show();
-        }
+        }).start();
+    }
 
+    /**
+     * RecyclerViewセット
+     */
+    private void setRecyclerView() {
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            JSONArray jsonArray = jsonObject.getJSONArray("orderedItems");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject toot_JsonObject = jsonArray.getJSONObject(i);
+                if (getActivity() != null && isAdded()) {
+                    //配列を作成
+                    ArrayList<String> Item = new ArrayList<>();
+                    //メモとか通知とかに
+                    Item.add("ActivityPub");
+                    //内容
+                    Item.add("");
+                    //ユーザー名
+                    Item.add("");
+                    //JSONObject
+                    Item.add(toot_JsonObject.toString());
+                    //ぶーすとした？
+                    Item.add("false");
+                    //ふぁぼした？
+                    Item.add("false");
+                    //Mastodon / Misskey
+                    Item.add("ActivityPub");
+                    //Insatnce/AccessToken
+                    Item.add("");
+                    Item.add("");
+                    recyclerViewList.add(Item);
+                }
+            }
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    customMenuRecyclerViewAdapter.notifyDataSetChanged();
+                    //くるくる終了
+                    SnackberProgress.closeProgressSnackber();
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
 }

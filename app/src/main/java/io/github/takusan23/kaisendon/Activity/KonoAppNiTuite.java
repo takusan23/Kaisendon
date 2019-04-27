@@ -40,7 +40,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
     private String release_name_4 = "いかどん";
     //private String release_ver_4 = "4.0";
     private String release_ver_4 = "4.1.0";
-    private String release_name_5 = "べーたどん";
+    private String release_name_5 = "たこどん";
     private String release_ver_5 = "5.0";
 
     @Override

@@ -63,7 +63,7 @@ public class MastodonTLAPIJSONParse {
     private ArrayList<String> votes_count;
 
     //インスタンス
-    public MastodonTLAPIJSONParse(Context context, String response_string, String mode) {
+    public MastodonTLAPIJSONParse(Context context, String response_string) {
         this.context = context;
         this.response_string = response_string;
         if (isMisskeyCheck(response_string)) {

@@ -97,6 +97,7 @@ public class CustomMenuTimeLine extends Fragment {
     private static String url;
     private String instance;
     private String access_token;
+    private String json_data;
     private static String dialog;
     private static String image_load;
     private static String dark_mode;
@@ -226,6 +227,7 @@ public class CustomMenuTimeLine extends Fragment {
         url = getArguments().getString("content");
         instance = getArguments().getString("instance");
         access_token = getArguments().getString("access_token");
+        json_data = getArguments().getString("json");
         streaming = getArguments().getString("streaming");
         subtitle = getArguments().getString("subtitle");
         dialog = getArguments().getString("dialog");
@@ -240,6 +242,7 @@ public class CustomMenuTimeLine extends Fragment {
         font = getArguments().getString("font");
         misskey_username = getArguments().getString("misskey_username");
         one_hand = getArguments().getString("one_hand");
+
         //Navication Drawer
         if (getActivity() != null) {
             NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
@@ -630,6 +633,8 @@ public class CustomMenuTimeLine extends Fragment {
                                 //Insatnce/AccessToken
                                 Item.add(instance);
                                 Item.add(access_token);
+                                //設定ファイルJSON
+                                Item.add(json_data);
 
                                 //ListItem listItem = new ListItem(Item);
                                 recyclerViewList.add(Item);
@@ -1211,6 +1216,8 @@ public class CustomMenuTimeLine extends Fragment {
             //Insatnce/AccessToken
             Item.add(instance);
             Item.add(access_token);
+            //設定ファイルJSON
+            Item.add(json_data);
 
             if (streaming) {
                 recyclerViewList.add(0, Item);
@@ -1328,6 +1335,8 @@ public class CustomMenuTimeLine extends Fragment {
             //Insatnce/AccessToken
             Item.add(instance);
             Item.add(access_token);
+            //設定ファイルJSON
+            Item.add(json_data);
 
             if (streaming) {
                 recyclerViewList.add(0, Item);
@@ -1410,6 +1419,8 @@ public class CustomMenuTimeLine extends Fragment {
             //Insatnce/AccessToken
             Item.add(instance);
             Item.add(access_token);
+            //設定ファイルJSON
+            Item.add(json_data);
 
             recyclerViewList.add(0, Item);
 
@@ -1595,6 +1606,8 @@ public class CustomMenuTimeLine extends Fragment {
             //Insatnce/AccessToken
             Item.add(instance);
             Item.add(access_token);
+            //設定ファイルJSON
+            Item.add(json_data);
 
             recyclerViewList.add(Item);
 
@@ -1647,6 +1660,8 @@ public class CustomMenuTimeLine extends Fragment {
             //Insatnce/AccessToken
             Item.add(instance);
             Item.add(access_token);
+            //設定ファイルJSON
+            Item.add(json_data);
 
             recyclerViewList.add(Item);
 
@@ -2221,6 +2236,8 @@ public class CustomMenuTimeLine extends Fragment {
                                     //Insatnce/AccessToken
                                     Item.add(instance);
                                     Item.add(access_token);
+                                    //設定ファイルJSON
+                                    Item.add(json_data);
 
                                     recyclerViewList.add(Item);
                                     getActivity().runOnUiThread(new Runnable() {
@@ -2307,6 +2324,8 @@ public class CustomMenuTimeLine extends Fragment {
                                 //Insatnce/AccessToken
                                 Item.add(instance);
                                 Item.add(access_token);
+                                //設定ファイルJSON
+                                Item.add(json_data);
 
                                 recyclerViewList.add(Item);
                                 getActivity().runOnUiThread(new Runnable() {
@@ -2438,4 +2457,6 @@ public class CustomMenuTimeLine extends Fragment {
     public static String getUrl() {
         return url;
     }
+
+
 }

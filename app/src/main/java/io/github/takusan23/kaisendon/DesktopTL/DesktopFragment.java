@@ -241,6 +241,7 @@ public class DesktopFragment extends Fragment {
                 bundle.putString("one_hand", one_hand);
                 bundle.putString("misskey_username", misskey_username);
                 bundle.putString("setting", setting);
+                bundle.putString("json",jsonObject.toString());
                 CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                 customMenuTimeLine.setArguments(bundle);
                 //置き換え

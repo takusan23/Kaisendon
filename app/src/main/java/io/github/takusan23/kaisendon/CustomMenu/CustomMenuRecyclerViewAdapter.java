@@ -3,6 +3,7 @@ package io.github.takusan23.kaisendon.CustomMenu;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -51,6 +52,7 @@ import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 import io.github.takusan23.kaisendon.APIJSONParse.ActivityPubJSONParse;
+import io.github.takusan23.kaisendon.APIJSONParse.CustomMenuJSONParse;
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonAccountJSONParse;
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonScheduledStatusesJSONParse;
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonTLAPIJSONParse;
@@ -104,6 +106,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         public LinearLayout toot_media_LinearLayout;
         public LinearLayout mainLinearLayout;
         public LinearLayout action_LinearLayout;
+        public ImageView date_icon_ImageView;
+        public ImageView client_icon_ImageView;
+        public ImageView visibility_icon_ImageView;
         //画像
         public ImageView media_ImageView_1;
         public ImageView media_ImageView_2;
@@ -147,6 +152,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             toot_visibility_TextView = itemView.findViewById(R.id.custom_menu_adapter_visibility);
             toot_media_LinearLayout = itemView.findViewById(R.id.custom_menu_adapter_mediaLinearLayout);
             action_LinearLayout = itemView.findViewById(R.id.custom_menu_adapter_notification_layout);
+            date_icon_ImageView = itemView.findViewById(R.id.date_icon_imageview);
+            visibility_icon_ImageView = itemView.findViewById(R.id.visibility_icon_imageview);
+            client_icon_ImageView = itemView.findViewById(R.id.client_icon_imageview);
             media_ImageView_1 = new ImageView(context);
             media_ImageView_2 = new ImageView(context);
             media_ImageView_3 = new ImageView(context);
@@ -191,7 +199,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         ArrayList<String> item = itemList.get(i);
         AccessToken = item.get(8);
         Instance = item.get(7);
-
+        //設定を読むやつ
+        CustomMenuJSONParse setting = new CustomMenuJSONParse(item.get(9));
 
         //パースする種類
         if (item.get(1).contains("/api/v1/scheduled_statuses")) {
@@ -220,7 +229,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         //デスクトップモード
         Fragment fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentById(R.id.container_container);
         if (fragment instanceof DesktopFragment) {
-            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), String.valueOf(CustomMenuTimeLine.getUrl()));
+            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3));
             setAccountLayout(viewHolder);
             setDesktopTootOption(viewHolder, api, item);
         }
@@ -230,7 +239,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //レイアウト
             //JSONパース用クラス
             //System.out.println(item.get(3));
-            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), String.valueOf(CustomMenuTimeLine.getUrl()));
+            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3));
             //カスタム絵文字
             PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
             PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);
@@ -246,53 +255,53 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //Misskey
             if (item.get(6).contains("Misskey")) {
                 //アバター画像
-                loadAvatarImage(api, viewHolder);
+                loadAvatarImage(api, viewHolder, setting);
                 //Misskeyリアクション
-                setMisskeyReaction(viewHolder, api, item);
+                setMisskeyReaction(viewHolder, api, item, setting);
                 //Renote
                 setRenote(viewHolder, api, item);
                 //Fav、BT済み、カウント数を出す
-                setCountAndIconColor(viewHolder, api, item);
+                setCountAndIconColor(viewHolder, api, item, setting);
                 //添付メディア
-                showMedia(viewHolder, api);
+                showMedia(viewHolder, api, setting);
                 //card
-                setCard(viewHolder, api);
+                setCard(viewHolder, api, setting);
                 //ブースト
-                setReBlogToot(viewHolder, api, item);
+                setReBlogToot(viewHolder, api, item, setting);
                 //クイックプロフィール
-                showMisskeyQuickProfile(viewHolder.account_LinearLayout, api.getUser_ID(), item);
+                showMisskeyQuickProfile(viewHolder.account_LinearLayout, api.getUser_ID(), item, setting);
                 //通知タイプ
                 showNotificationType(viewHolder, api);
                 //クライアント名のTextViewを消す
                 setClientTextViewRemove(viewHolder);
                 //カスタムフォント
-                setCustomFont(viewHolder);
+                setCustomFont(viewHolder, setting);
                 //ボタン
                 showTootOption(viewHolder, api, item);
             } else {
                 //アバター画像
-                loadAvatarImage(api, viewHolder);
+                loadAvatarImage(api, viewHolder, setting);
                 //BT、Favできるようにする
                 setStatusClick(viewHolder.toot_boost_TextView, "bt_only", api, item);
                 setStatusClick(viewHolder.toot_favourite_TextView, "fav_only", api, item);
                 //Fav+BTできるように
                 setPostBtFav(viewHolder, api, item);
                 //Fav、BT済み、カウント数を出す
-                setCountAndIconColor(viewHolder, api, item);
+                setCountAndIconColor(viewHolder, api, item, setting);
                 //添付メディア
-                showMedia(viewHolder, api);
+                showMedia(viewHolder, api, setting);
                 //card
-                setCard(viewHolder, api);
+                setCard(viewHolder, api, setting);
                 //ブースト
-                setReBlogToot(viewHolder, api, item);
+                setReBlogToot(viewHolder, api, item, setting);
                 //通知タイプ
                 showNotificationType(viewHolder, api);
                 //クイックプロフィール
-                showQuickProfile(viewHolder.account_LinearLayout, api.getUser_ID(), viewHolder, item);
+                showQuickProfile(viewHolder.account_LinearLayout, api.getUser_ID(), viewHolder, item, setting);
                 //クライアント名のTextViewを消す
                 setClientTextViewRemove(viewHolder);
                 //カスタムフォント
-                setCustomFont(viewHolder);
+                setCustomFont(viewHolder, setting);
                 //隠す
                 setSpoiler_text(viewHolder, api);
                 //ボタン
@@ -308,11 +317,11 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         } else if (isFollowSuggestions) {
             MastodonAccountJSONParse api = new MastodonAccountJSONParse(viewHolder.mainLinearLayout.getContext(), item.get(3));
             setAccountLayout(viewHolder);
-            createAccountLinearLayout(viewHolder, api, item);
+            createAccountLinearLayout(viewHolder, api, item, setting);
         } else if (isMastodonFollowes || isMisskeyFollowes) {
             MastodonAccountJSONParse api = new MastodonAccountJSONParse(viewHolder.mainLinearLayout.getContext(), item.get(3));
             setAccountLayout(viewHolder);
-            createAccountLinearLayout(viewHolder, api, item);
+            createAccountLinearLayout(viewHolder, api, item, setting);
         } else if (isActivityPubViewer) {
             ActivityPubJSONParse api = new ActivityPubJSONParse(item.get(3));
             setSimpleLayout(viewHolder);
@@ -330,7 +339,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * 画像を読み込むかどうか（Wi-Fi接続時のみとか
      */
-    private boolean getLoadImageConnection(ViewHolder viewHolder) {
+    private boolean getLoadImageConnection(ViewHolder viewHolder, CustomMenuJSONParse setting) {
         boolean mode = false;
         //画像
         ConnectivityManager connectivityManager = (ConnectivityManager) viewHolder.toot_text_TextView.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -345,7 +354,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             mode = true;
         }
         //強制表示モード
-        if (CustomMenuTimeLine.isImageShow()) {
+        if (Boolean.valueOf(setting.getImage_load())) {
             mode = true;
         }
 
@@ -356,9 +365,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * 画像表示とか
      */
-    private void loadAvatarImage(MastodonTLAPIJSONParse api, ViewHolder viewHolder) {
+    private void loadAvatarImage(MastodonTLAPIJSONParse api, ViewHolder viewHolder, CustomMenuJSONParse setting) {
         //画像
-        if (getLoadImageConnection(viewHolder)) {
+        if (getLoadImageConnection(viewHolder, setting)) {
             //既定でGIFは再生しない方向で
             if (pref_setting.getBoolean("pref_avater_gif", true)) {
                 //GIFアニメ再生させない
@@ -378,9 +387,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Account Layout 画像表示
      */
-    private void loadAccountLayoutAvatarImage(MastodonAccountJSONParse api, ViewHolder viewHolder) {
+    private void loadAccountLayoutAvatarImage(MastodonAccountJSONParse api, ViewHolder viewHolder, CustomMenuJSONParse setting) {
         //画像
-        if (getLoadImageConnection(viewHolder)) {
+        if (getLoadImageConnection(viewHolder, setting)) {
             //既定でGIFは再生しない方向で
             if (pref_setting.getBoolean("pref_avater_gif", true)) {
                 //GIFアニメ再生させない
@@ -488,16 +497,27 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Fav、BT済み、カウント数を入れる
      */
-    private void setCountAndIconColor(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item) {
+    private void setCountAndIconColor(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         viewHolder.toot_boost_TextView.setText(api.getBTCount());
         viewHolder.toot_favourite_TextView.setText(api.getFavCount());
+        Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp, null);
+        Drawable favIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp, null);
+        if (Boolean.valueOf(setting.getDark_mode())) {
+            boostIcon.setTint(Color.parseColor("#ffffff"));
+            favIcon.setTint(Color.parseColor("#ffffff"));
+            viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+            viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+            //Toot詳細も白アイコン
+            viewHolder.date_icon_ImageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.white)));
+            viewHolder.visibility_icon_ImageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.white)));
+            viewHolder.client_icon_ImageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.white)));
+        }
         //りぶろぐした、もしくは押した
         if (api.getIsBT().contains("true") || item.get(4).contains("true")) {
-            Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp_2, null);
-            boostIcon.setTint(Color.parseColor("#008000"));
-            viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+            Drawable isBoostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp_1, null);
+            isBoostIcon.setTint(Color.parseColor("#008000"));
+            viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(isBoostIcon, null, null, null);
         } else {
-            Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp, null);
             viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
         }
         //ふぁぼ
@@ -505,11 +525,10 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (item.get(6).contains("Mastodon")) {
             //ふぁぼした、もしくはふぁぼ押した
             if (api.getIsFav().contains("true") || item.get(5).contains("true")) {
-                Drawable favIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp_1, null);
-                favIcon.setTint(Color.parseColor("#ffd700"));
-                viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                Drawable isFavIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp_1, null);
+                isFavIcon.setTint(Color.parseColor("#ffd700"));
+                viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(isFavIcon, null, null, null);
             } else {
-                Drawable favIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp, null);
                 viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
             }
         } else {
@@ -520,16 +539,18 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.reaction_TextView.setTextSize(10);
             viewHolder.mainLinearLayout.addView(viewHolder.reaction_TextView, 2);
         }
+
+
     }
 
     /**
      * 画像表示
      */
-    private void showMedia(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
+    private void showMedia(ViewHolder viewHolder, MastodonTLAPIJSONParse api, CustomMenuJSONParse setting) {
         //消す
         viewHolder.toot_media_LinearLayout.removeAllViews();
         //画像を表示してもよいか？
-        if (getLoadImageConnection(viewHolder)) {
+        if (getLoadImageConnection(viewHolder, setting)) {
             if (api.getMediaList().size() == 0) {
                 //配列の要素０のときも消す
                 viewHolder.toot_media_LinearLayout.removeAllViews();
@@ -606,7 +627,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Card実装する
      */
-    private void setCard(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
+    private void setCard(ViewHolder viewHolder, MastodonTLAPIJSONParse api, CustomMenuJSONParse setting) {
         viewHolder.toot_card_LinearLayout.removeAllViews();
         if (api.getCardTitle() != null) {
             //getLayoutInflaterが使えないので
@@ -615,7 +636,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             layoutInflater.inflate(R.layout.custom_menu_recycler_adapter_card_layout, viewHolder.toot_card_LinearLayout);
             viewHolder.card_ImageView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_card_imageView);
             viewHolder.card_TextView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_card_textView);
-            if (getLoadImageConnection(viewHolder)) {
+            if (getLoadImageConnection(viewHolder, setting)) {
                 Glide.with(viewHolder.card_ImageView.getContext()).load(api.getCardImage()).into(viewHolder.card_ImageView);
             } else {
                 ((LinearLayout) viewHolder.card_ImageView.getParent()).removeView(viewHolder.card_ImageView);
@@ -635,7 +656,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Reblogに対応させる
      */
-    private void setReBlogToot(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item) {
+    private void setReBlogToot(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //null Check
         viewHolder.toot_reblog_LinearLayout.removeAllViews();
         if (api.getBTAccountID() != null) {
@@ -648,7 +669,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.reblog_toot_text_TextView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_reblog_text);
             if (viewHolder.reblog_avatar_ImageView != null && viewHolder.reblog_user_TextView != null && viewHolder.reblog_toot_text_TextView != null && viewHolder.toot_user_TextView != null && viewHolder.toot_text_TextView != null && viewHolder.reblog_avatar_ImageView != null) {
                 //入れる
-                if (getLoadImageConnection(viewHolder)) {
+                if (getLoadImageConnection(viewHolder, setting)) {
                     //既定でGIFは再生しない方向で
                     if (pref_setting.getBoolean("pref_avater_gif", true)) {
                         //GIFアニメ再生させない
@@ -675,9 +696,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 viewHolder.toot_user_TextView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
                 //クイックプロフィール
                 if (item.get(6).contains("Misskey")) {
-                    showMisskeyQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID(), item);
+                    showMisskeyQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID(), item, setting);
                 } else {
-                    showQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID(), viewHolder, item);
+                    showQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBTAccountID(), viewHolder, item, setting);
                 }
             }
         }
@@ -778,7 +799,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                 @Override
                                 public void run() {
                                     //Fav/BT Countを表示できるようにする
-                                    MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string, url);
+                                    MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string);
                                     if (endPoint.contains("reblog")) {
                                         Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
                                         Drawable boostIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
@@ -828,7 +849,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Misskey リアクション
      */
-    private void setMisskeyReaction(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item) {
+    private void setMisskeyReaction(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //アイコン変更
         viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(context.getDrawable(R.drawable.ic_add_black_24dp), null, null, null);
         viewHolder.toot_favourite_TextView.setOnClickListener(new View.OnClickListener() {
@@ -875,7 +896,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                         @Override
                         public void onClick(View v) {
                             //確認、ダイアログを出さない設定とう確認してから
-                            if (pref_setting.getBoolean("pref_nicoru_dialog", true) && !CustomMenuTimeLine.isDialogNotShow()) {
+                            if (pref_setting.getBoolean("pref_nicoru_dialog", true) && !Boolean.valueOf(setting.getDialog())) {
                                 Snackbar.make(v, context.getText(R.string.reaction_message), Snackbar.LENGTH_SHORT).setAction(context.getText(R.string.reaction_post), new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
@@ -922,7 +943,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 post_Button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (pref_setting.getBoolean("pref_nicoru_dialog", true) && !CustomMenuTimeLine.isDialogNotShow()) {
+                        if (pref_setting.getBoolean("pref_nicoru_dialog", true) && !Boolean.valueOf(setting.getDialog())) {
                             Snackbar.make(v, context.getText(R.string.reaction_message), Snackbar.LENGTH_SHORT).setAction(context.getText(R.string.reaction_post), new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
@@ -958,7 +979,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Misskey クイックプロフィール
      */
-    private void showMisskeyQuickProfile(View imageView, String id, ArrayList<String> item) {
+    private void showMisskeyQuickProfile(View imageView, String id, ArrayList<String> item, CustomMenuJSONParse setting) {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1030,7 +1051,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                 Boolean isFollowing = jsonObject.getBoolean("isFollowing");
                                 Boolean isFollowed = jsonObject.getBoolean("isFollowed");
                                 //カスタム絵文字適用
-                                if (pref_setting.getBoolean("pref_custom_emoji", true) || CustomMenuTimeLine.isUseCustomEmoji()) {
+                                if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(setting.getCustom_emoji())) {
                                     //他のところでは一旦配列に入れてるけど今回はここでしか使ってないから省くね
                                     JSONArray emojis = jsonObject.getJSONArray("emojis");
                                     for (int i = 0; i < emojis.length(); i++) {
@@ -1173,12 +1194,12 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * QuickProfile
      */
-    private void showQuickProfile(View imageView, String id, ViewHolder viewHolder, ArrayList<String> item) {
+    private void showQuickProfile(View imageView, String id, ViewHolder viewHolder, ArrayList<String> item, CustomMenuJSONParse setting) {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //設定・カスタムメニュー
-                if (pref_setting.getBoolean("pref_quick_profile", false) || CustomMenuTimeLine.isQuickProfile()) {
+                if (pref_setting.getBoolean("pref_quick_profile", false) || Boolean.valueOf(setting.getQuick_profile())) {
                     //読み込み中お知らせ
                     Snackbar snackbar = Snackbar.make(v, context.getString(R.string.loading_user_info) + "\r\n /api/v1/accounts/" + id, Snackbar.LENGTH_INDEFINITE);
                     ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
@@ -1222,8 +1243,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                 String follower = jsonObject.getString("followers_count");
 
                                 //カスタム絵文字適用
-                                if (pref_setting.getBoolean("pref_custom_emoji", true) || CustomMenuTimeLine.isUseCustomEmoji()) {
-                                    if (getLoadImageConnection(viewHolder)) {
+                                if (pref_setting.getBoolean("pref_custom_emoji", true) || Boolean.valueOf(setting.getQuick_profile())) {
+                                    if (getLoadImageConnection(viewHolder, setting)) {
                                         //他のところでは一旦配列に入れてるけど今回はここでしか使ってないから省くね
                                         JSONArray emojis = jsonObject.getJSONArray("emojis");
                                         for (int i = 0; i < emojis.length(); i++) {
@@ -1534,8 +1555,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * カスタムフォントを利用する
      */
-    private void setCustomFont(ViewHolder viewHolder) {
-        if (CustomMenuTimeLine.isCustomFont()) {
+    private void setCustomFont(ViewHolder viewHolder, CustomMenuJSONParse setting) {
+        if (Boolean.valueOf(setting.getFont())) {
             viewHolder.toot_user_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
             viewHolder.toot_createAt_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
             viewHolder.toot_visibility_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
@@ -1637,7 +1658,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Account Layout設定
      */
-    private void createAccountLinearLayout(ViewHolder viewHolder, MastodonAccountJSONParse api, ArrayList<String> item) {
+    private void createAccountLinearLayout(ViewHolder viewHolder, MastodonAccountJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //カスタム絵文字
         PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
         PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);
@@ -1646,9 +1667,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         viewHolder.toot_user_TextView.setText(Html.fromHtml(api.getDisplay_name(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
         viewHolder.toot_user_TextView.append("@" + api.getAcct());
         //アバター画像
-        loadAccountLayoutAvatarImage(api, viewHolder);
+        loadAccountLayoutAvatarImage(api, viewHolder, setting);
         //クイックプロフィール
-        showQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_id(), viewHolder, item);
+        showQuickProfile(viewHolder.toot_avatar_ImageView, api.getUser_id(), viewHolder, item, setting);
     }
 
     /**

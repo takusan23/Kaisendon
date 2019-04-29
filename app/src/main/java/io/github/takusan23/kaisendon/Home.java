@@ -3277,6 +3277,7 @@ public class Home extends AppCompatActivity
         String one_hand = "";
         String misskey_username = "";
         String setting = "";
+        String json = "";
 
         cursor.moveToFirst();
 
@@ -3284,6 +3285,7 @@ public class Home extends AppCompatActivity
         if (search != null) {
             try {
                 JSONObject jsonObject = new JSONObject(cursor.getString(1));
+                json = jsonObject.toString();
                 name = jsonObject.getString("name");
                 content = jsonObject.getString("content");
                 instance = jsonObject.getString("instance");
@@ -3329,6 +3331,7 @@ public class Home extends AppCompatActivity
                 bundle.putString("one_hand", one_hand);
                 bundle.putString("misskey_username", misskey_username);
                 bundle.putString("setting", setting);
+                bundle.putString("json",json);
                 CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                 customMenuTimeLine.setArguments(bundle);
                 //名前控える
@@ -3344,6 +3347,7 @@ public class Home extends AppCompatActivity
             for (int i = 0; i < cursor.getCount(); i++) {
                 try {
                     JSONObject jsonObject = new JSONObject(cursor.getString(1));
+                    json = jsonObject.toString();
                     name = jsonObject.getString("name");
                     content = jsonObject.getString("content");
                     instance = jsonObject.getString("instance");
@@ -3366,7 +3370,6 @@ public class Home extends AppCompatActivity
                     misskey = jsonObject.getString("misskey");
                     misskey_username = jsonObject.getString("misskey_username");
                     setting = jsonObject.getString("setting");
-
                     //メニュー追加
                     String finalName = name;
                     String finalContent = content;
@@ -3390,6 +3393,7 @@ public class Home extends AppCompatActivity
                     String finalSetting = setting;
                     String finalMisskey = misskey;
                     String finalMisskey_username = misskey_username;
+                    String finalJson = json;
                     navigationView.getMenu().add(name).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
@@ -3418,6 +3422,7 @@ public class Home extends AppCompatActivity
                             bundle.putString("one_hand", finalOne_hand);
                             bundle.putString("misskey_username", finalMisskey_username);
                             bundle.putString("setting", finalSetting);
+                            bundle.putString("json", finalJson);
                             CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                             customMenuTimeLine.setArguments(bundle);
                             //名前控える
@@ -3455,13 +3460,14 @@ public class Home extends AppCompatActivity
                     String finalSetting = setting;
                     String finalMisskey = misskey;
                     String finalMisskey_username = misskey_username;
+                    String finalJson = json;
                     navigationView.getMenu().add(name).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
                             //Fragment切り替え
                             //受け渡す
                             Bundle bundle = new Bundle();
-                            bundle.putString("name", finalMisskey);
+                            bundle.putString("misskey", finalMisskey);
                             bundle.putString("name", finalName);
                             bundle.putString("content", finalContent);
                             bundle.putString("instance", finalInstance);
@@ -3483,6 +3489,7 @@ public class Home extends AppCompatActivity
                             bundle.putString("one_hand", finalOne_hand);
                             bundle.putString("misskey_username", finalMisskey_username);
                             bundle.putString("setting", finalSetting);
+                            bundle.putString("json",finalJson);
                             CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                             customMenuTimeLine.setArguments(bundle);
                             //名前控える

@@ -420,6 +420,8 @@ public class UserFollowActivity extends AppCompatActivity {
                 //Insatnce/AccessToken
                 Item.add(Instance);
                 Item.add(AccessToken);
+                //設定ファイルJSON
+                Item.add("");
 
                 recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
@@ -467,6 +469,8 @@ public class UserFollowActivity extends AppCompatActivity {
                 //Insatnce/AccessToken
                 Item.add(Instance);
                 Item.add(AccessToken);
+                //設定ファイルJSON
+                Item.add("");
 
                 recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
@@ -514,6 +518,8 @@ public class UserFollowActivity extends AppCompatActivity {
                 //Insatnce/AccessToken
                 Item.add(Instance);
                 Item.add(AccessToken);
+                //設定ファイルJSON
+                Item.add("");
 
                 recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
@@ -568,6 +574,8 @@ public class UserFollowActivity extends AppCompatActivity {
                 //Insatnce/AccessToken
                 Item.add(Instance);
                 Item.add(AccessToken);
+                //設定ファイルJSON
+                Item.add("");
 
                 recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {

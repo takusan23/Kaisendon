@@ -140,7 +140,12 @@ public class ActivityPubViewer extends Fragment {
                         e.printStackTrace();
                     }
                 } else {
-                    Toast.makeText(getContext(), getString(R.string.activity_pub_message) + "\n" + path, Toast.LENGTH_LONG).show();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), getString(R.string.activity_pub_message) + "\n" + path, Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
             }
         }).start();
@@ -173,6 +178,7 @@ public class ActivityPubViewer extends Fragment {
                     //Mastodon / Misskey
                     Item.add("ActivityPub");
                     //Insatnce/AccessToken
+                    Item.add("");
                     Item.add("");
                     Item.add("");
                     recyclerViewList.add(Item);

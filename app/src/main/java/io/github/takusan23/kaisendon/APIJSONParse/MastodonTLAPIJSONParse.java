@@ -10,7 +10,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
 
 public class MastodonTLAPIJSONParse {
@@ -63,24 +62,24 @@ public class MastodonTLAPIJSONParse {
     private ArrayList<String> votes_count;
 
     //インスタンス
-    public MastodonTLAPIJSONParse(Context context, String response_string) {
+    public MastodonTLAPIJSONParse(Context context, String response_string, CustomMenuJSONParse setting) {
         this.context = context;
         this.response_string = response_string;
         if (isMisskeyCheck(response_string)) {
-            setMisskeyParse(response_string);
+            setMisskeyParse(response_string, setting);
         } else {
-            setMastodonTLParse(response_string);
+            setMastodonTLParse(response_string, setting);
         }
     }
 
     //createAtがあるとMisskey、ないとMastodonって分けるコード
     //ちなみにMastodonはcreated_at
-    private boolean isMisskeyCheck(String response_string){
+    private boolean isMisskeyCheck(String response_string) {
         boolean isCheck = false;
         try {
             JSONObject jsonObject = new JSONObject(response_string);
-            if (!jsonObject.isNull("createdAt")){
-                isCheck=true;
+            if (!jsonObject.isNull("createdAt")) {
+                isCheck = true;
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -243,7 +242,7 @@ public class MastodonTLAPIJSONParse {
     }
 
     //JSONパース
-    private void setMastodonTLParse(String response_string) {
+    private void setMastodonTLParse(String response_string, CustomMenuJSONParse setting) {
         try {
             mediaList = new ArrayList<>();
             JSONObject toot_JsonObject = new JSONObject(response_string);
@@ -427,7 +426,7 @@ public class MastodonTLAPIJSONParse {
     /**
      * Misskey Parse
      */
-    private void setMisskeyParse(String response_string) {
+    private void setMisskeyParse(String response_string, CustomMenuJSONParse setting) {
         try {
             mediaList = new ArrayList<>();
             JSONObject note_JsonObject = new JSONObject(response_string);
@@ -490,7 +489,7 @@ public class MastodonTLAPIJSONParse {
                 BTCount = note_JsonObject.getString("renoteCount");
                 isFav = note_JsonObject.getString("myReaction");
                 //絵文字
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || Boolean.valueOf(CustomMenuTimeLine.isUseCustomEmoji())) {
+                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) ||  Boolean.valueOf(setting.getCustom_emoji())) {
                     JSONArray emoji = note_JsonObject.getJSONArray("emojis");
                     for (int e = 0; e < emoji.length(); e++) {
                         JSONObject emoji_jsonObject = emoji.getJSONObject(e);

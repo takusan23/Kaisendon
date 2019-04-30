@@ -7,8 +7,11 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -41,12 +44,21 @@ public class KonoAppNiTuite extends AppCompatActivity {
     //private String release_ver_4 = "4.0";
     private String release_ver_4 = "4.1.0";
     private String release_name_5 = "たこどん";
-    private String release_ver_5 = "5.0";
+    //private String release_ver_5 = "5.0";
+    private String release_ver_5 = "5.1.0";
+
+    private TextView version_TextView;
+    private SharedPreferences pref_setting;
+    private LinearLayout main_LinearLayout;
+    private BottomNavigationView bottomNavigationView;
+
+    private boolean chrome_custom_tabs;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
 
         //ダークテーマに切り替える機能
         //setContentViewより前に実装する必要あり？
@@ -63,7 +75,45 @@ public class KonoAppNiTuite extends AppCompatActivity {
         }
         setContentView(R.layout.activity_kono_app_ni_tuite);
 
-        boolean chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
+        setTitle(R.string.konoappnituite);
+
+        version_TextView = findViewById(R.id.version_textview);
+        main_LinearLayout = findViewById(R.id.kono_app_nituite_main_linearLayout);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
+
+
+        version_TextView.setText(getString(R.string.version) + " " + release_ver_5 + "\r\n" + release_name_5);
+
+        /**
+         * ナビゲーション
+         * */
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch (menuItem.getItemId()) {
+                    case R.id.version:
+                        //消す
+                        main_LinearLayout.removeView(main_LinearLayout.getChildAt(1));
+                        break;
+                    case R.id.producer:
+                        //消す
+                        main_LinearLayout.removeView(main_LinearLayout.getChildAt(1));
+                        setProducerProfile();
+                        break;
+                    case R.id.document:
+                        //消す
+                        main_LinearLayout.removeView(main_LinearLayout.getChildAt(1));
+                        setDocument();
+                        break;
+                }
+                return true;
+            }
+        });
+
+
+/*
+
 
         TextView KonoAppTextView = findViewById(R.id.konoAppTextview);
         TextView KonoAppTextView_2 = findViewById(R.id.konoAppTextview_2);
@@ -237,6 +287,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
         });
 
 
+*/
 /*
         //うらわざ？
         titleLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
@@ -256,7 +307,8 @@ public class KonoAppNiTuite extends AppCompatActivity {
             }
 
         });
-*/
+*//*
+
 
 
         document_button.setOnClickListener(new View.OnClickListener() {
@@ -277,6 +329,180 @@ public class KonoAppNiTuite extends AppCompatActivity {
                 }
             }
         });
+*/
+    }
 
+    /**
+     * 製作者取得
+     */
+    private void setProducerProfile() {
+        //レイアウト
+        LinearLayout linearLayout = new LinearLayout(this);
+        getLayoutInflater().inflate(R.layout.kono_app_nituite_producer_layout, linearLayout);
+        main_LinearLayout.addView(linearLayout);
+
+        //製作者を埋める
+        String url = "https://best-friends.chat/api/v1/accounts/20498";
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+
+        OkHttpClient client_1 = new OkHttpClient();
+        client_1.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string = response.body().string();
+
+                try {
+                    JSONObject jsonObject = new JSONObject(response_string);
+
+                    String display_name = jsonObject.getString("display_name");
+                    String acct = jsonObject.getString("acct");
+                    String avatar = jsonObject.getString("avatar");
+                    String userURL = jsonObject.getString("url");
+                    String account_id = jsonObject.getString("id");
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ImageView avatar_ImageView = linearLayout.findViewById(R.id.producer_avataer_imageView);
+                            TextView textView = linearLayout.findViewById(R.id.producer_name_textView);
+                            textView.setText(display_name + "\n" + acct);
+                            Glide.with(KonoAppNiTuite.this).load(avatar).into(avatar_ImageView);
+                            //プロフィールへ
+                            Button open_app = linearLayout.findViewById(R.id.producer_open_app);
+                            Button open_browser = linearLayout.findViewById(R.id.producer_open_browser);
+                            Button open_twitter = linearLayout.findViewById(R.id.producer_twitter);
+                            //ブラウザで起動
+                            open_browser.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if (chrome_custom_tabs) {
+                                        Bitmap back_icon = BitmapFactory.decodeResource(KonoAppNiTuite.this.getResources(), R.drawable.ic_action_arrow_back);
+                                        String custom = CustomTabsHelper.getPackageNameToUse(KonoAppNiTuite.this);
+                                        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                                        CustomTabsIntent customTabsIntent = builder.build();
+                                        customTabsIntent.intent.setPackage(custom);
+                                        customTabsIntent.launchUrl(KonoAppNiTuite.this, Uri.parse(userURL));
+                                    } else {
+                                        Uri uri = Uri.parse(userURL);
+                                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                                        startActivity(intent);
+                                    }
+                                }
+                            });
+                            //アプリ内で起動
+                            open_app.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent(KonoAppNiTuite.this, UserActivity.class);
+                                    //IDを渡す
+                                    intent.putExtra("Account_ID", account_id);
+                                    startActivity(intent);
+                                }
+                            });
+                            //一応青い鳥も
+                            open_twitter.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String twitterUrl = "https://twitter.com/takusan__23";
+                                    if (chrome_custom_tabs) {
+                                        Bitmap back_icon = BitmapFactory.decodeResource(KonoAppNiTuite.this.getResources(), R.drawable.ic_action_arrow_back);
+                                        String custom = CustomTabsHelper.getPackageNameToUse(KonoAppNiTuite.this);
+                                        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                                        CustomTabsIntent customTabsIntent = builder.build();
+                                        customTabsIntent.intent.setPackage(custom);
+                                        customTabsIntent.launchUrl(KonoAppNiTuite.this, Uri.parse(twitterUrl));
+                                    } else {
+                                        Uri uri = Uri.parse(twitterUrl);
+                                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                                        startActivity(intent);
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /**
+     * ドキュメント
+     */
+    private void setDocument() {
+        //レイアウト
+        LinearLayout linearLayout = new LinearLayout(this);
+        getLayoutInflater().inflate(R.layout.kono_app_nituite_document_layout, linearLayout);
+        main_LinearLayout.addView(linearLayout);
+        Button android = linearLayout.findViewById(R.id.document_android);
+        Button wear = linearLayout.findViewById(R.id.document_wear);
+        Button source_code = linearLayout.findViewById(R.id.source_code);
+        android.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String documentUrl = "https://github.com/takusan23/Kaisendon/wiki";
+                if (chrome_custom_tabs) {
+                    Bitmap back_icon = BitmapFactory.decodeResource(KonoAppNiTuite.this.getResources(), R.drawable.ic_action_arrow_back);
+                    String custom = CustomTabsHelper.getPackageNameToUse(KonoAppNiTuite.this);
+                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                    CustomTabsIntent customTabsIntent = builder.build();
+                    customTabsIntent.intent.setPackage(custom);
+                    customTabsIntent.launchUrl(KonoAppNiTuite.this, Uri.parse(documentUrl));
+                } else {
+                    Uri uri = Uri.parse(documentUrl);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
+            }
+        });
+        wear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String githubUrl = "https://github.com/takusan23/KaisendonWear/wiki";
+                if (chrome_custom_tabs) {
+                    Bitmap back_icon = BitmapFactory.decodeResource(KonoAppNiTuite.this.getResources(), R.drawable.ic_action_arrow_back);
+                    String custom = CustomTabsHelper.getPackageNameToUse(KonoAppNiTuite.this);
+                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                    CustomTabsIntent customTabsIntent = builder.build();
+                    customTabsIntent.intent.setPackage(custom);
+                    customTabsIntent.launchUrl(KonoAppNiTuite.this, Uri.parse(githubUrl));
+                } else {
+                    Uri uri = Uri.parse(githubUrl);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
+            }
+        });
+        source_code.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String githubUrl = "https://github.com/takusan23/Kaisendon";
+                if (chrome_custom_tabs) {
+                    Bitmap back_icon = BitmapFactory.decodeResource(KonoAppNiTuite.this.getResources(), R.drawable.ic_action_arrow_back);
+                    String custom = CustomTabsHelper.getPackageNameToUse(KonoAppNiTuite.this);
+                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true);
+                    CustomTabsIntent customTabsIntent = builder.build();
+                    customTabsIntent.intent.setPackage(custom);
+                    customTabsIntent.launchUrl(KonoAppNiTuite.this, Uri.parse(githubUrl));
+                } else {
+                    Uri uri = Uri.parse(githubUrl);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
+
+            }
+        });
     }
 }

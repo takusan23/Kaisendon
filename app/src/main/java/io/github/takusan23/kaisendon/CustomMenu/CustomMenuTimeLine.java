@@ -98,20 +98,20 @@ public class CustomMenuTimeLine extends Fragment {
     private String instance;
     private String access_token;
     private String json_data;
-    private static String dialog;
-    private static String image_load;
-    private static String dark_mode;
-    private static String setting;
-    private static String streaming;
-    private static String subtitle;
-    private static String image_url;
-    private static String background_transparency;
-    private static String quick_profile;
-    private static String toot_counter;
-    private static String custom_emoji;
-    private static String gif;
-    private static String font;
-    private static String one_hand;
+    private  String dialog;
+    private  String image_load;
+    private  String dark_mode;
+    private  String setting;
+    private  String streaming;
+    private  String subtitle;
+    private  String image_url;
+    private  String background_transparency;
+    private  String quick_profile;
+    private  String toot_counter;
+    private  String custom_emoji;
+    private  String gif;
+    private  String font;
+    private  String one_hand;
 
     private Boolean background_screen_fit;
     private boolean dark_theme = false;
@@ -598,7 +598,7 @@ public class CustomMenuTimeLine extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getContext(), R.string.error, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -679,7 +679,7 @@ public class CustomMenuTimeLine extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getContext(), R.string.error + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -1028,7 +1028,7 @@ public class CustomMenuTimeLine extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getContext(), R.string.error, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -1086,7 +1086,7 @@ public class CustomMenuTimeLine extends Fragment {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(getContext(), R.string.error + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -2109,7 +2109,7 @@ public class CustomMenuTimeLine extends Fragment {
                         String display_name = account.getString("display_name");
                         String acct = account.getString("acct");
                         //カスタム絵文字
-                        if (isUseCustomEmoji()) {
+                        if (Boolean.valueOf(custom_emoji)) {
                             JSONArray emojis = account.getJSONArray("emojis");
                             for (int e = 0; e < emojis.length(); e++) {
                                 JSONObject emoji = emojis.getJSONObject(e);
@@ -2394,48 +2394,6 @@ public class CustomMenuTimeLine extends Fragment {
      */
     public static boolean isUseCustomMenu() {
         return true;
-    }
-
-    /**
-     * ダイアログが出ない
-     */
-    public static boolean isDialogNotShow() {
-        return Boolean.valueOf(dialog);
-    }
-
-    /**
-     * 画像を強制表示させるかどうか
-     */
-    public static boolean isImageShow() {
-        return Boolean.valueOf(image_load);
-    }
-
-    /**
-     * カスタム絵文字を読み込むか（既定有効
-     */
-    public static boolean isUseCustomEmoji() {
-        return Boolean.valueOf(custom_emoji);
-    }
-
-    /**
-     * クイックプロフィール
-     */
-    public static boolean isQuickProfile() {
-        return Boolean.valueOf(quick_profile);
-    }
-
-    /**
-     * フォント変更機能
-     */
-    public static boolean isCustomFont() {
-        boolean mode = false;
-        File file = new File(font);
-        if (file.exists()) {
-            mode = true;
-        } else {
-            mode = false;
-        }
-        return mode;
     }
 
     /**

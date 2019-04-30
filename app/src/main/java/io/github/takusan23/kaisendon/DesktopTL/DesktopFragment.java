@@ -11,7 +11,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,24 +19,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
-import io.github.takusan23.kaisendon.CustomMenu.CustomMenuRecyclerViewAdapter;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.kaisendon.R;
-import io.github.takusan23.kaisendon.SnackberProgress;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 
 /**
@@ -74,7 +61,7 @@ public class DesktopFragment extends Fragment {
         isDesktopFragment = true;
 
         //投稿に関しての注意書き
-        Toast.makeText(getContext(),getString(R.string.desktop_create_menu_message),Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), getString(R.string.desktop_create_menu_message), Toast.LENGTH_LONG).show();
 
         if (helper == null) {
             helper = new CustomMenuSQLiteHelper(getContext());
@@ -89,11 +76,15 @@ public class DesktopFragment extends Fragment {
         point = new Point();
         display.getSize(point);
         config = getResources().getConfiguration();
+        //縦、横
+        int vertical = Integer.valueOf(pref_setting.getString("desktop_mode_vertical_number", "2"));
+        int horizontal = Integer.valueOf(pref_setting.getString("desktop_mode_horizontal_number", "3"));
+
         //縦→２、横→３
         if (config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            x = point.x / 3;
+            x = point.x / horizontal;
         } else {
-            x = point.x / 2;
+            x = point.x / vertical;
         }
 
         //再生成しない？
@@ -241,7 +232,7 @@ public class DesktopFragment extends Fragment {
                 bundle.putString("one_hand", one_hand);
                 bundle.putString("misskey_username", misskey_username);
                 bundle.putString("setting", setting);
-                bundle.putString("json",jsonObject.toString());
+                bundle.putString("json", jsonObject.toString());
                 CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                 customMenuTimeLine.setArguments(bundle);
                 //置き換え
@@ -257,91 +248,4 @@ public class DesktopFragment extends Fragment {
         cursor.close();
     }
 
-
-    /**
-     * TL読み込み
-     */
-    private void loadTimeline(String url, ArrayList<ArrayList> recyclerViewList, CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter, RecyclerView recyclerView) {
-        //パラメータを設定
-        HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
-        builder.addQueryParameter("limit", "40");
-        builder.addQueryParameter("access_token", access_token);
-        String max_id_final_url = builder.build().toString();
-
-        //作成
-        Request request = new Request.Builder()
-                .url(max_id_final_url)
-                .get()
-                .build();
-
-        //GETリクエスト
-        OkHttpClient client = new OkHttpClient();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getContext(), R.string.error, Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                //成功時
-                if (response.isSuccessful()) {
-                    String response_string = response.body().string();
-                    JSONArray jsonArray = null;
-                    try {
-                        jsonArray = new JSONArray(response_string);
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject toot_jsonObject = jsonArray.getJSONObject(i);
-
-                            if (getActivity() != null && isAdded()) {
-
-                                //配列を作成
-                                ArrayList<String> Item = new ArrayList<>();
-                                //メモとか通知とかに
-                                Item.add("CustomMenu Local");
-                                //内容
-                                Item.add("");
-                                //ユーザー名
-                                Item.add("");
-                                //JSONObject
-                                Item.add(toot_jsonObject.toString());
-                                //ぶーすとした？
-                                Item.add("false");
-                                //ふぁぼした？
-                                Item.add("false");
-
-                                //ListItem listItem = new ListItem(Item);
-                                recyclerViewList.add(Item);
-
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        RecyclerView.LayoutManager recyclerViewLayoutManager = recyclerView.getLayoutManager();
-                                        //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                                        recyclerView.setAdapter(customMenuRecyclerViewAdapter);
-                                        SnackberProgress.closeProgressSnackber();
-                                    }
-                                });
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    //失敗時
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getContext(), R.string.error + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            }
-        });
-    }
 }

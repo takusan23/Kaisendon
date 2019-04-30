@@ -2978,78 +2978,83 @@ public class Home extends AppCompatActivity
         requestBody.setType(MultipartBody.FORM);
         //requestBody.addFormDataPart("file", file_post.getName(), RequestBody.create(MediaType.parse("image/" + file_extn_post), file_post));
         requestBody.addFormDataPart("access_token", AccessToken);
-        //Android Qで動かないのでUriからBitmap変換してそれをバイトに変換してPOSTしてます
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-            byte[] imageBytes = baos.toByteArray();
-            String file_name = getFileNameUri(uri);
-            String extn = file_name.substring(file_name.lastIndexOf(".") + 1);
-            requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn), imageBytes));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         //くるくる
         SnackberProgress.showProgressSnackber(toot_EditText, Home.this, getString(R.string.loading) + "\n" + url);
-
-        //じゅんび
-        Request request = new Request.Builder()
-                .url(url)
-                .post(requestBody.build())
-                .build();
-        //画像Upload
-        OkHttpClient okHttpClient = new OkHttpClient();
-        //POST実行
-        okHttpClient.newCall(request).enqueue(new Callback() {
+        //Android Qで動かないのでUriからBitmap変換してそれをバイトに変換してPOSTしてます
+        //重いから非同期処理
+        new Thread(new Runnable() {
             @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                //失敗
-                e.printStackTrace();
-                runOnUiThread(new Runnable() {
+            public void run() {
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                    byte[] imageBytes = baos.toByteArray();
+                    String file_name = getFileNameUri(uri);
+                    String extn = file_name.substring(file_name.lastIndexOf(".") + 1);
+                    requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn), imageBytes));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                //じゅんび
+                Request request = new Request.Builder()
+                        .url(url)
+                        .post(requestBody.build())
+                        .build();
+                //画像Upload
+                OkHttpClient okHttpClient = new OkHttpClient();
+                //POST実行
+                okHttpClient.newCall(request).enqueue(new Callback() {
                     @Override
-                    public void run() {
-                        Toast.makeText(Home.this, getString(R.string.error), Toast.LENGTH_SHORT).show();
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        //失敗
+                        e.printStackTrace();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(Home.this, getString(R.string.error), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                        String response_string = response.body().string();
+                        //System.out.println("画像POST : " + response_string);
+                        if (!response.isSuccessful()) {
+                            //失敗
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(Home.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        } else {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response_string);
+                                String media_id_long = jsonObject.getString("id");
+                                //配列に格納
+                                post_media_id.add(media_id_long);
+                                //確認SnackBer
+                                //数確認
+                                if (media_uri_list.size() == post_media_id.size()) {
+                                    View view = findViewById(R.id.container_public);
+                                    Snackbar.make(view, R.string.note_create_message, Snackbar.LENGTH_INDEFINITE).setAction(R.string.toot_text, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            mastodonStatusesPOST();
+                                        }
+                                    }).show();
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                 });
             }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                String response_string = response.body().string();
-                //System.out.println("画像POST : " + response_string);
-                if (!response.isSuccessful()) {
-                    //失敗
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(Home.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                } else {
-                    try {
-                        JSONObject jsonObject = new JSONObject(response_string);
-                        String media_id_long = jsonObject.getString("id");
-                        //配列に格納
-                        post_media_id.add(media_id_long);
-                        //確認SnackBer
-                        //数確認
-                        if (media_uri_list.size() == post_media_id.size()) {
-                            View view = findViewById(R.id.container_public);
-                            Snackbar.make(view, R.string.note_create_message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mastodonStatusesPOST();
-                                }
-                            }).show();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
+        }).start();
     }
 
     /**

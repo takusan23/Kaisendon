@@ -84,7 +84,7 @@ public class Bookmark_Frament extends Fragment {
             //配列を作成
             ArrayList<String> Item = new ArrayList<>();
             //メモとか通知とかに
-            Item.add("CustomMenu Local");
+            Item.add("BookMark");
             //内容
             Item.add("");
             //ユーザー名
@@ -95,6 +95,13 @@ public class Bookmark_Frament extends Fragment {
             Item.add("false");
             //ふぁぼした？
             Item.add("false");
+            //Mastodon / Misskey
+            Item.add("Mastodon");
+            //あと適当
+            Item.add("");
+            Item.add("");
+            Item.add("");
+
             recyclerViewList.add(Item);
             //つぎ
             cursor.moveToNext();
@@ -107,8 +114,8 @@ public class Bookmark_Frament extends Fragment {
 
     /**
      * ブックマーク　バックアップ・復元
-     * */
-    private void setBookmarkBackupRestore(){
+     */
+    private void setBookmarkBackupRestore() {
         backup_restore_Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

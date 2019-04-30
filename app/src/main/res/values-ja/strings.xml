@@ -463,5 +463,12 @@
     <string name="desktop_create_menu_message">右下のFABを押すことで投稿先をMastodon/Misskeyに切り替えるメニューが表示されます。 アカウントは投稿画面の名前欄を押すと切り替えが可能です。</string>
     <string name="activity_pub_viewer">ActivityPub Viewer</string>
     <string name="activity_pub_message">ActivityPubに対応したJSONファイルを以下の場所にコピーしてください。</string>
+    <string name="open_app">アプリで開く</string>
+    <string name="open_browser">ブラウザで開く</string>
+    <string name="document_sourcecode">ドキュメント / コード</string>
+    <string name="desktop_mode_horizontal_number">横の表示数</string>
+    <string name="desktop_mode_vertical_number">縦の表示数</string>
+    <string name="desktop_mode_setting">デスクトップモードの設定</string>
+    <string name="desktop_mode_display_description">表示数を設定できます。既定は縦2で横3です。</string>
 
 </resources>

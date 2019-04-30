@@ -7,6 +7,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
@@ -21,6 +22,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.Gravity;
@@ -42,6 +44,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -90,6 +93,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     private boolean isMisskeyFollowes = false;
     private boolean isMisskeyMode = false;
     private boolean isActivityPubViewer = false;
+    private ArrayList<String> type_face_String;
+    private ArrayList<Typeface> type_face_list;
+
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -229,7 +235,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         //デスクトップモード
         Fragment fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentById(R.id.container_container);
         if (fragment instanceof DesktopFragment) {
-            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3));
+            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting);
             setAccountLayout(viewHolder);
             setDesktopTootOption(viewHolder, api, item);
         }
@@ -239,7 +245,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //レイアウト
             //JSONパース用クラス
             //System.out.println(item.get(3));
-            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3));
+            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting);
             //カスタム絵文字
             PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
             PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);
@@ -275,17 +281,22 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //クライアント名のTextViewを消す
                 setClientTextViewRemove(viewHolder);
                 //カスタムフォント
+                setTypeFace(setting);
                 setCustomFont(viewHolder, setting);
                 //ボタン
                 showTootOption(viewHolder, api, item);
+                //透明度
+                setTransparency(viewHolder, setting);
+                //フォント
+                setFontSetting(viewHolder);
             } else {
                 //アバター画像
                 loadAvatarImage(api, viewHolder, setting);
                 //BT、Favできるようにする
-                setStatusClick(viewHolder.toot_boost_TextView, "bt_only", api, item);
-                setStatusClick(viewHolder.toot_favourite_TextView, "fav_only", api, item);
+                setStatusClick(viewHolder.toot_boost_TextView, "bt_only", api, item, setting);
+                setStatusClick(viewHolder.toot_favourite_TextView, "fav_only", api, item, setting);
                 //Fav+BTできるように
-                setPostBtFav(viewHolder, api, item);
+                setPostBtFav(viewHolder, api, item, setting);
                 //Fav、BT済み、カウント数を出す
                 setCountAndIconColor(viewHolder, api, item, setting);
                 //添付メディア
@@ -301,6 +312,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //クライアント名のTextViewを消す
                 setClientTextViewRemove(viewHolder);
                 //カスタムフォント
+                setTypeFace(setting);
                 setCustomFont(viewHolder, setting);
                 //隠す
                 setSpoiler_text(viewHolder, api);
@@ -308,6 +320,10 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 showTootOption(viewHolder, api, item);
                 //投票
                 showVoteLayout(viewHolder, api);
+                //透明度
+                setTransparency(viewHolder, setting);
+                //フォント
+                setFontSetting(viewHolder);
             }
         } else if (isScheduled_statuses) {
             MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
@@ -411,7 +427,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      *
      * @param type favかbtか
      */
-    private void setStatusClick(TextView textView, String type, MastodonTLAPIJSONParse api, ArrayList<String> item) {
+    private void setStatusClick(TextView textView, String type, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //クリックイベント
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -451,13 +467,20 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //SnackBer生成
                 String finalApiUrl = apiUrl;
                 String finalButton = button;
-                Snackbar.make(v, message, Snackbar.LENGTH_LONG).setAction(button, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //実行
-                        TootAction(api.getToot_ID(), finalApiUrl, textView, api, item);
-                    }
-                }).show();
+                //ダイアログ非表示
+                if (Boolean.valueOf(setting.getDialog())) {
+                    //実行
+                    TootAction(api.getToot_ID(), finalApiUrl, textView, api, item, setting);
+                } else {
+                    Snackbar.make(v, message, Snackbar.LENGTH_LONG).setAction(button, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //実行
+                            TootAction(api.getToot_ID(), finalApiUrl, textView, api, item, setting);
+                        }
+                    }).show();
+                }
+
             }
         });
     }
@@ -465,7 +488,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * Favourite and Boost
      */
-    private void setPostBtFav(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item) {
+    private void setPostBtFav(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //Favourite+Boost
         viewHolder.toot_favourite_TextView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -479,15 +502,22 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //SnackBer生成
                 String finalApiUrl = apiUrl;
                 String finalButton = button;
-                Snackbar.make(v, message, Snackbar.LENGTH_LONG).setAction(button, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //実行
-                        //Fab+BTモード以外
-                        TootAction(api.getToot_ID(), "favourite", viewHolder.toot_favourite_TextView, api, item);
-                        TootAction(api.getToot_ID(), "reblog", viewHolder.toot_favourite_TextView, api, item);
-                    }
-                }).show();
+                if (Boolean.valueOf(setting.getDialog())) {
+                    //実行
+                    //Fab+BTモード以外
+                    TootAction(api.getToot_ID(), "favourite", viewHolder.toot_favourite_TextView, api, item, setting);
+                    TootAction(api.getToot_ID(), "reblog", viewHolder.toot_favourite_TextView, api, item, setting);
+                } else {
+                    Snackbar.make(v, message, Snackbar.LENGTH_LONG).setAction(button, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //実行
+                            //Fab+BTモード以外
+                            TootAction(api.getToot_ID(), "favourite", viewHolder.toot_favourite_TextView, api, item, setting);
+                            TootAction(api.getToot_ID(), "reblog", viewHolder.toot_favourite_TextView, api, item, setting);
+                        }
+                    }).show();
+                }
                 //OnClickListener呼ばれないようにする
                 return true;
             }
@@ -753,7 +783,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * BT,FavのAPI
      */
-    private void TootAction(String id, String endPoint, TextView textView, MastodonTLAPIJSONParse api, ArrayList<String> item) {
+    private void TootAction(String id, String endPoint, TextView textView, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -799,7 +829,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                 @Override
                                 public void run() {
                                     //Fav/BT Countを表示できるようにする
-                                    MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string);
+                                    MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string, setting);
                                     if (endPoint.contains("reblog")) {
                                         Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
                                         Drawable boostIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
@@ -1556,15 +1586,19 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      * カスタムフォントを利用する
      */
     private void setCustomFont(ViewHolder viewHolder, CustomMenuJSONParse setting) {
-        if (Boolean.valueOf(setting.getFont())) {
-            viewHolder.toot_user_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
-            viewHolder.toot_createAt_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
-            viewHolder.toot_visibility_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
-            viewHolder.toot_text_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
-            viewHolder.toot_boost_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
-            viewHolder.toot_favourite_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+        File file = new File(setting.getFont());
+        if (file.exists()) {
+            //配列の場所特定
+            int position = type_face_String.indexOf(setting.getFont());
+            Typeface typeface = type_face_list.get(position);
+            viewHolder.toot_user_TextView.setTypeface(typeface);
+            viewHolder.toot_createAt_TextView.setTypeface(typeface);
+            viewHolder.toot_visibility_TextView.setTypeface(typeface);
+            viewHolder.toot_text_TextView.setTypeface(typeface);
+            viewHolder.toot_boost_TextView.setTypeface(typeface);
+            viewHolder.toot_favourite_TextView.setTypeface(typeface);
             if (!viewHolder.toot_client_TextView.getText().toString().equals("")) {
-                viewHolder.toot_client_TextView.setTypeface(CustomMenuTimeLine.getFont_Typeface());
+                viewHolder.toot_client_TextView.setTypeface(typeface);
             }
         }
     }
@@ -1715,7 +1749,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Snackbar.make(viewHolder.mainLinearLayout, context.getString(R.string.vote_post_message), Snackbar.LENGTH_LONG).setAction(context.getText(R.string.vote_ok), new View.OnClickListener() {
+                Snackbar.make(viewHolder.mainLinearLayout, context.getString(R.string.vote_post_message) + " : " + choices, Snackbar.LENGTH_LONG).setAction(context.getText(R.string.vote_ok), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         String url = "https://" + Instance + "/api/v1/polls/" + api.getVote_id() + "/votes";
@@ -1724,6 +1758,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                         JSONArray jsonArray = new JSONArray();
                         jsonArray.put(choices);
                         try {
+                            jsonObject.put("access_token", AccessToken);
                             jsonObject.put("choices", jsonArray);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -1749,6 +1784,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
                             @Override
                             public void onResponse(Call call, Response response) throws IOException {
+                                String response_strging = response.body().string();
                                 if (!response.isSuccessful()) {
                                     //失敗時
                                     viewHolder.mainLinearLayout.post(new Runnable() {
@@ -1943,6 +1979,23 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         });
     }
 
+    /**
+     * とうめいどせってい
+     */
+    private void setTransparency(ViewHolder viewHolder, CustomMenuJSONParse setting) {
+        //CardView取得
+        CardView cardView = (CardView) viewHolder.mainLinearLayout.getParent();
+        //透明度
+        //背景画像設定時のみ
+        if (setting.getImage_url().length() != 0) {
+            if (Boolean.valueOf(setting.getDark_mode())) {
+                cardView.setBackgroundColor(Color.parseColor("#" + setting.getBackground_transparency() + "000000"));
+            } else {
+                cardView.setBackgroundColor(Color.parseColor("#" + setting.getBackground_transparency() + "ffffff"));
+            }
+        }
+    }
+
 
     /**
      * DesktopMode用TootOption
@@ -1977,6 +2030,38 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             editor.putString("main_instance", Instance);
             editor.putString("main_token", AccessToken);
             editor.apply();
+        }
+    }
+
+    /**
+     * 文字サイズ
+     */
+    private void setFontSetting(ViewHolder viewHolder) {
+        viewHolder.toot_user_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_user", "10")));
+        viewHolder.toot_createAt_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_client", "10")));
+        viewHolder.toot_visibility_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_client", "10")));
+        viewHolder.toot_text_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_timeline", "10")));
+        viewHolder.toot_boost_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_button", "10")));
+        viewHolder.toot_favourite_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_button", "10")));
+        if (!viewHolder.toot_client_TextView.getText().toString().equals("")) {
+            viewHolder.toot_client_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_button", "10")));
+        }
+    }
+
+    /**
+     * フォント？
+     */
+    private void setTypeFace(CustomMenuJSONParse setting) {
+        type_face_list = new ArrayList<>();
+        type_face_String = new ArrayList<>();
+        //配列になかったら生成
+        File file = new File(setting.getFont());
+        if (file.exists()) {
+            if (type_face_String.indexOf(setting.getFont()) == -1) {
+                Typeface font_Typeface = Typeface.createFromFile(setting.getFont());
+                type_face_list.add(font_Typeface);
+                type_face_String.add(setting.getFont());
+            }
         }
     }
 

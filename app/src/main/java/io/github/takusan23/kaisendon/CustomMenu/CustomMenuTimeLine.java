@@ -1227,7 +1227,23 @@ public class CustomMenuTimeLine extends Fragment {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ///customMenuRecyclerViewAdapter.notifyItemChanged(0,recyclerViewList.size());
+
+                    //カウンター
+                    if (Boolean.valueOf(toot_counter)) {
+                        if (count_text != null) {
+                            //含んでいるか
+                            try {
+                                if (toot_jsonObject.getString("content").contains(count_text)) {
+                                    String count_template = " : ";
+                                    akeome_count++;
+                                    countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
                     if (((LinearLayoutManager) recyclerViewLayoutManager) != null) {
                         // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
                         int pos = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstVisibleItemPosition();
@@ -1288,17 +1304,6 @@ public class CustomMenuTimeLine extends Fragment {
                         SnackberProgress.closeProgressSnackber();
                         listView.setSelectionFromTop(position, y);
                         scroll = false;
-                    }
-                    //カウンター
-                    if (Boolean.valueOf(toot_counter)) {
-                        if (count_text != null) {
-                            //含んでいるか
-                            if (finalToot_text.contains(count_text)) {
-                                String count_template = " : ";
-                                akeome_count++;
-                                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
-                            }
-                        }
                     }
 */
                 }

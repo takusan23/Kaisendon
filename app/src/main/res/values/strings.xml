@@ -567,5 +567,12 @@
     <string name="desktop_create_menu_message">By pressing the lower right FAB, a menu to switch the posting destination to Mastodon / Misskey is displayed. The account can be switched by pressing the name field on the posting screen.</string>
     <string name="activity_pub_viewer">ActivityPub Viewer</string>
     <string name="activity_pub_message">Please copy the JSON file corresponding to ActivityPub to the following location.</string>
+    <string name="open_app">Open in app</string>
+    <string name="open_browser">Open in browser</string>
+    <string name="document_sourcecode">Document / Code</string>
+    <string name="desktop_mode_setting">Desktop mode settings</string>
+    <string name="desktop_mode_vertical_number">Vertical display number</string>
+    <string name="desktop_mode_horizontal_number">Horizontal display number</string>
+    <string name="desktop_mode_display_description">You can set the number of displays. The default is 2 vertical and 3 horizontal.</string>
 
 </resources>

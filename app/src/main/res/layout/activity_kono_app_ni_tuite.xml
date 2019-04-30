@@ -1,248 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
     android:orientation="vertical"
     tools:context=".Activity.KonoAppNiTuite">
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="25dp" />
-
-    <android.support.v7.widget.CardView
+    <LinearLayout
+        android:id="@+id/kono_app_nituite_main_linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:cardUseCompatPadding="true">
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/konoApp_title_linearlayout"
+        <android.support.v7.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:padding="10dp"
+            app:cardCornerRadius="10dp"
+            app:cardUseCompatPadding="true">
 
-            <ImageView
-                android:id="@+id/imageView2"
+            <LinearLayout
+                android:id="@+id/konoApp_title_linearlayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@mipmap/ic_launcher_round" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="3"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/konoAppTextview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/app_name"
-                    android:textSize="24sp" />
-
-                <TextView
-                    android:id="@+id/konoAppTextview_2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="18sp" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:layout_weight="1" />
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:cardCornerRadius="10dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/producer"
-                android:textSize="18sp" />
-
-            <LinearLayout
-                android:id="@+id/linearlayout_producer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/konoAppImageview_producer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:id="@+id/konoAppTextview_producer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="18sp" />
-
-                <ImageView
-                    android:id="@+id/konoAppIcon_producer_AppLunch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    app:srcCompat="@drawable/ic_android_black_24dp" />
-
-                <ImageView
-                    android:id="@+id/konoAppIcon_producer_Browser"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    app:srcCompat="@drawable/ic_open_in_browser_black_24dp" />
-            </LinearLayout>
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:layout_weight="1" />
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:cardCornerRadius="10dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/githubButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="GitHub" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:layout_weight="1" />
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:cardCornerRadius="10dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:gravity="center"
-                android:text="@string/contact_producer" />
+                android:orientation="vertical"
+                android:padding="10dp">
 
-            <Button
-                android:id="@+id/mastodon_contact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/mastodon" />
-
-            <Button
-                android:id="@+id/twitter_contact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/twitter" />
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:layout_weight="1" />
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:cardCornerRadius="10dp">
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/wiki"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/document_title" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-
-                <Button
-                    android:id="@+id/wiki_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                <ImageView
+                    android:id="@+id/producer_avataer_imageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_weight="1"
-                    android:gravity="center" />
+                    app:srcCompat="@mipmap/ic_launcher_round" />
 
-                <Button
-                    android:id="@+id/wear_document_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="@string/wear_document" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/producer_name_textView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="@string/app_name"
+                        android:textSize="24sp" />
+
+                    <TextView
+                        android:id="@+id/version_textview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="18sp" />
+
+                </LinearLayout>
 
             </LinearLayout>
-        </LinearLayout>
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
 
-    </android.support.v7.widget.CardView>
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:menu="@menu/kono_app_ni_tuite" />
 
 
-</LinearLayout>
+</FrameLayout>

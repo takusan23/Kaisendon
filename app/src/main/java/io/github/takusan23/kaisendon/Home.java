@@ -2836,7 +2836,7 @@ public class Home extends AppCompatActivity
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String response_string = response.body().string();
-                //System.out.println(response_string);
+                System.out.println(response_string);
                 if (!response.isSuccessful()) {
                     //失敗
                     runOnUiThread(new Runnable() {
@@ -3106,17 +3106,16 @@ public class Home extends AppCompatActivity
             if (vote_2.getText().toString().contains("")) {
                 jsonArray.put(vote_2.getText().toString());
             }
-            if (vote_3.getText().toString().contains("")) {
+            if (vote_3.getText().toString() != null) {
                 jsonArray.put(vote_3.getText().toString());
             }
-            if (vote_4.getText().toString().contains("")) {
+            if (vote_4.getText().toString() != null) {
                 jsonArray.put(vote_4.getText().toString());
             }
             object.put("options", jsonArray);
             object.put("expires_in", vote_time.getText().toString());
             object.put("multiple", vote_multi_Switch.isChecked());
             //object.put("hide_totals", vote_hide_Switch.isChecked());
-            System.out.println(object.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }

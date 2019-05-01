@@ -1831,7 +1831,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         delete_TextView.setCompoundDrawablesWithIntrinsicBounds(context.getDrawable(R.drawable.ic_alarm_off_black_24dp), null, null, null);
         delete_TextView.setPadding(viewHolder.toot_text_TextView.getPaddingLeft(), 10, viewHolder.toot_text_TextView.getPaddingRight(), 10);
         delete_TextView.setText(context.getString(R.string.delete_ok));
-        delete_TextView.setPadding(0, 10, 0, 0);
+        delete_TextView.setPadding(viewHolder.toot_text_TextView.getPaddingLeft(), 10, 10, 10);
         parent_LinearLayout.addView(delete_TextView);
         //API叩く
         delete_TextView.setOnClickListener(new View.OnClickListener() {

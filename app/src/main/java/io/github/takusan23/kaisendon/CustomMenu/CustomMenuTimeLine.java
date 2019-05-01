@@ -2258,6 +2258,7 @@ public class CustomMenuTimeLine extends Fragment {
                                     //ぶーすとした？
                                     Item.add("false");
                                     //ふぁぼした？
+                                    Item.add("false");
                                     //Mastodon / Misskey
                                     Item.add("Mastodon");
                                     //Insatnce/AccessToken

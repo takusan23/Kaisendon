@@ -776,6 +776,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             case "reaction":
                 type = context.getString(R.string.reaction_ok);
                 break;
+            case "poll":
+                type = context.getString(R.string.notification_poll);
+                break;
         }
         return type;
     }
@@ -1713,7 +1716,6 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         viewHolder.vote_LinearLayout.removeAllViews();
         //投票があるか
         if (api.isVote()) {
-            System.out.println(api.getVotes_title().size());
             viewHolder.vote_1.setText(api.getVotes_title().get(0) + " (" + api.getVotes_count().get(0) + ")");
             viewHolder.vote_2.setText(api.getVotes_title().get(1) + " (" + api.getVotes_count().get(1) + ")");
             viewHolder.vote_1.setBackground(context.getDrawable(R.drawable.button_style_white));

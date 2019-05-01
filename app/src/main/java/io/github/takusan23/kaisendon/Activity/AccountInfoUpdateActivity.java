@@ -3,14 +3,13 @@ package io.github.takusan23.kaisendon.Activity;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -37,11 +36,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
 import io.github.takusan23.kaisendon.CustomMenu.Dialog.CalenderDialog;
-import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.kaisendon.Preference_ApplicationContext;
 import io.github.takusan23.kaisendon.R;
 import io.github.takusan23.kaisendon.SnackberProgress;
@@ -102,6 +101,9 @@ public class AccountInfoUpdateActivity extends AppCompatActivity {
     private String misskey_avatar_id;
     private String misskey_banner_id;
 
+    private Uri avatar_Uri;
+    private Uri header_Uri;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,7 +125,7 @@ public class AccountInfoUpdateActivity extends AppCompatActivity {
         }
 
 
-        if (CustomMenuTimeLine.isMisskeyMode()) {
+        if (getIntent().getBooleanExtra("Misskey", false)) {
             setContentView(R.layout.misskey_account_update_layout);
         } else {
             setContentView(R.layout.activity_account_info_update);
@@ -160,7 +162,7 @@ public class AccountInfoUpdateActivity extends AppCompatActivity {
         snackbar[0].show();
 
         //Misskey
-        if (CustomMenuTimeLine.isMisskeyMode()) {
+        if (getIntent().getBooleanExtra("Misskey", false)) {
 
             displayname_edittext = findViewById(R.id.account_update_display_name_edittext);
             note_edittext = findViewById(R.id.account_update_note_name_edittext);
@@ -191,9 +193,9 @@ public class AccountInfoUpdateActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     CalenderDialog calenderDialog = new CalenderDialog();
                     Bundle bundle = new Bundle();
-                    bundle.putString("type","birthday");
+                    bundle.putString("type", "birthday");
                     calenderDialog.setArguments(bundle);
-                    calenderDialog.show(getSupportFragmentManager(),"calender_dialog");
+                    calenderDialog.show(getSupportFragmentManager(), "calender_dialog");
                 }
             });
 
@@ -265,6 +267,23 @@ public class AccountInfoUpdateActivity extends AppCompatActivity {
 
             //タイトル
             setTitle(R.string.update_userinfo_title);
+
+            //画像のアップロード
+            //権限があるか確認
+            avatar_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clickMediaSelect();
+                    avatar = true;
+                }
+            });
+            header_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clickMediaSelect();
+                    header = true;
+                }
+            });
 
 
             //編集前の内容にする！！
@@ -454,34 +473,27 @@ public class AccountInfoUpdateActivity extends AppCompatActivity {
             if (resultCode == Activity.RESULT_OK) {
                 Uri selectedImage = data.getData();
 
-                String filePath = getPath(selectedImage);
+                String filePath = getFileNameUri(selectedImage);
                 String file_extn = filePath.substring(filePath.lastIndexOf(".") + 1);
-                File file = new File(filePath);
-                String finalPath = "file:\\\\" + filePath;
-
-                //image_name_tv.setText(filePath);
-
                 if (file_extn.equals("img") || file_extn.equals("jpg") || file_extn.equals("jpeg") || file_extn.equals("gif") || file_extn.equals("png")) {
-                    //System.out.println("パス : " + finalPath.replaceAll("\\\\", "/"));
-                    //System.out.println("拡張子 : " + file_extn);
-                    //System.out.println("ファイル名 : " + file.getName());
                     if (avatar) {
                         avater_image_imageview.setImageURI(selectedImage);
-                        avatar_file = file;
-                        avatar_post_name = file.getName();
+                        avatar_Uri = selectedImage;
+                        avatar_post_name = getFileNameUri(selectedImage);
                         avatar_extn = file_extn;
                         //Misskey POST
-                        if (CustomMenuTimeLine.isMisskeyMode()) {
-                            postMisskeyPhotoPOST(avatar_extn, avatar_file, false);
+                        if (getIntent().getBooleanExtra("Misskey", false)) {
+                            postMisskeyPhotoPOST(avatar_extn, selectedImage, false);
                         }
                     } else {
                         header_image_imageview.setImageURI(selectedImage);
-                        header_file = file;
-                        header_post_name = file.getName();
+                        header_Uri = selectedImage;
+                        //header_file = file;
+                        header_post_name = getFileNameUri(selectedImage);
                         header_extn = file_extn;
                         //Misskey POST
-                        if (CustomMenuTimeLine.isMisskeyMode()) {
-                            postMisskeyPhotoPOST(header_extn, header_file, true);
+                        if (getIntent().getBooleanExtra("Misskey", false)) {
+                            postMisskeyPhotoPOST(header_extn, selectedImage, true);
                         }
                     }
                 }
@@ -490,6 +502,23 @@ public class AccountInfoUpdateActivity extends AppCompatActivity {
         header = false;
         avatar = false;
     }
+
+
+    /**
+     * Uri→FileName
+     */
+    private String getFileNameUri(Uri uri) {
+        String file_name = null;
+        String[] projection = {MediaStore.MediaColumns.DISPLAY_NAME};
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                file_name = cursor.getString(0);
+            }
+        }
+        return file_name;
+    }
+
 
     /**
      * Misskeyアカウント情報
@@ -679,17 +708,27 @@ public class AccountInfoUpdateActivity extends AppCompatActivity {
      *
      * @param banner avatarUrlはfalse、bannerはtrue
      */
-    private void postMisskeyPhotoPOST(String file_extn_post, File file_post, boolean banner) {
+    private void postMisskeyPhotoPOST(String file_extn_post, Uri uri, boolean banner) {
         String instance = pref_setting.getString("misskey_main_instance", "");
         String token = pref_setting.getString("misskey_main_token", "");
         String username = pref_setting.getString("misskey_main_username", "");
         String url = "https://" + instance + "/api/drive/files/create";
+        //Uri → Bitmap → Byte
+        Bitmap bitmap = null;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(getImageType(file_extn_post), 100, baos);
+        byte[] imageBytes = baos.toByteArray();
         //くるくる
         SnackberProgress.showProgressSnackber(displayname_edittext, AccountInfoUpdateActivity.this, getString(R.string.loading) + "\n" + url);
         //ぱらめーたー
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("file", file_post.getName(), RequestBody.create(MediaType.parse("image/" + file_extn_post), file_post))
+                .addFormDataPart("file", getFileNameUri(uri), RequestBody.create(MediaType.parse("image/" + file_extn_post), imageBytes))
                 .addFormDataPart("i", token)
                 .addFormDataPart("force", "true")
                 .build();
@@ -773,7 +812,6 @@ public class AccountInfoUpdateActivity extends AppCompatActivity {
                     .setNegativeButton(getString(R.string.cancel), null)
                     .show();
         } else {
-
             Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
             photoPickerIntent.setType("image/*");
             startActivityForResult(photoPickerIntent, 1);
@@ -793,103 +831,131 @@ public class AccountInfoUpdateActivity extends AppCompatActivity {
         cursor.moveToFirst();
         String imagePath = cursor.getString(column_index);
         cursor.close();
-        //Android Q から追加された Scoped Storage に一時的に対応
-        //なにそれ→アプリごとにストレージサンドボックスが作られて、今まであったWRITE_EXTERNAL_STORAGEなしで扱える他
-        //他のアプリからはアクセスできないようになってる。
-        //<I>いやでも今までのfile://スキーマ変換が使えないのはクソクソクソでは</I>
-        //今までのやつをAndroid Qで動かすと
-        //Q /mnt/content/media ～
-        //Pie /storage/emulated/0 ～
-        //もう一回かけてようやくfile://スキーマのリンク取れた
-        //Android Q
-        if (Build.VERSION.CODENAME.equals("Q")) {
-            // /mnt/content/が邪魔なので取って、そこにcontent://スキーマをつける
-            String content_text = imagePath.replace("/mnt/content/", "content://");
-            //もう一回目ゾッと呼ぶので制御用にtrue
-            imagePath = getPathAndroidQ(AccountInfoUpdateActivity.this, Uri.parse(content_text));
-        }
-        System.out.println(imagePath);
         return imagePath;
     }
 
-    public static String getPathAndroidQ(Context context, Uri contentUri) {
-        Cursor cursor = null;
-        String[] proj = {MediaStore.Images.Media.DATA};
-        cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        String path = cursor.getString(column_index);
-        cursor.close();
-        return path;
+
+    /**
+     * PNG / JPEG
+     */
+    private Bitmap.CompressFormat getImageType(String extn) {
+        Bitmap.CompressFormat format = Bitmap.CompressFormat.PNG;
+        switch (extn) {
+            case "jpg":
+                format = Bitmap.CompressFormat.JPEG;
+                break;
+            case "jpeg":
+                format = Bitmap.CompressFormat.JPEG;
+                break;
+            case "png":
+                format = Bitmap.CompressFormat.PNG;
+                break;
+        }
+        return format;
     }
 
+
     public void uploadProfile() {
-        //編集前の内容にする！！
-        //パラメータを設定
-        String url = "https://" + Instance + "/api/v1/accounts/update_credentials/?access_token=" + AccessToken;
-        HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
-        String final_url = builder.build().toString();
-
-        MultipartBody.Builder form = new MultipartBody.Builder();
-        form.addFormDataPart("display_name", displayname_edittext.getText().toString());
-        form.addFormDataPart("note", note_edittext.getText().toString());
-
-        if (fields_attributes_1_edittext_name.getText().toString() != null && fields_attributes_1_edittext_value.getText().toString() != null) {
-            form.addFormDataPart("fields_attributes[0][name]", fields_attributes_1_edittext_name.getText().toString());
-            form.addFormDataPart("fields_attributes[0][value]", fields_attributes_1_edittext_value.getText().toString());
-        }
-        if (fields_attributes_2_edittext_name.getText().toString() != null && fields_attributes_2_edittext_value.getText().toString() != null) {
-            form.addFormDataPart("fields_attributes[1][name]", fields_attributes_2_edittext_name.getText().toString());
-            form.addFormDataPart("fields_attributes[1][value]", fields_attributes_2_edittext_value.getText().toString());
-        }
-        if (fields_attributes_3_edittext_name.getText().toString() != null && fields_attributes_3_edittext_value.getText().toString() != null) {
-            form.addFormDataPart("fields_attributes[2][name]", fields_attributes_3_edittext_name.getText().toString());
-            form.addFormDataPart("fields_attributes[2][value]", fields_attributes_3_edittext_value.getText().toString());
-        }
-        if (fields_attributes_4_edittext_name.getText().toString() != null && fields_attributes_4_edittext_value.getText().toString() != null) {
-            form.addFormDataPart("fields_attributes[3][name]", fields_attributes_4_edittext_name.getText().toString());
-            form.addFormDataPart("fields_attributes[3][value]", fields_attributes_4_edittext_value.getText().toString());
-        }
-
-        //画像を投げる
-        if (avatar_file != null && avatar_post_name != null && avatar_extn != null) {
-            form.addFormDataPart("avatar", avatar_file.getName(), RequestBody.create(MediaType.parse("image/" + avatar_extn), avatar_file));
-        }
-        if (header_file != null && header_post_name != null && header_extn != null) {
-            form.addFormDataPart("header", header_file.getName(), RequestBody.create(MediaType.parse("image/" + header_extn), header_file));
-        }
-
-        //ぱらめーたー
-        RequestBody requestBody = form.build();
-
-        //作成
-        Request request = new Request.Builder()
-                .url(final_url)
-                .patch(requestBody)
-                .build();
-
-        //GETリクエスト
-        OkHttpClient client = new OkHttpClient();
-        client.newCall(request).enqueue(new Callback() {
-
+        //非同期処理
+        new Thread(new Runnable() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void run() {
+                //編集前の内容にする！！
+                //パラメータを設定
+                String url = "https://" + Instance + "/api/v1/accounts/update_credentials/?access_token=" + AccessToken;
+                HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
+                String final_url = builder.build().toString();
 
-            }
+                MultipartBody.Builder form = new MultipartBody.Builder();
+                form.setType(MultipartBody.FORM);
+                form.addFormDataPart("display_name", displayname_edittext.getText().toString());
+                form.addFormDataPart("note", note_edittext.getText().toString());
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(AccountInfoUpdateActivity.this, R.string.successful, Toast.LENGTH_SHORT).show();
-                            snackbar_loading.dismiss();
-                        }
-                    });
+                if (fields_attributes_1_edittext_name.getText().toString() != null && fields_attributes_1_edittext_value.getText().toString() != null) {
+                    form.addFormDataPart("fields_attributes[0][name]", fields_attributes_1_edittext_name.getText().toString());
+                    form.addFormDataPart("fields_attributes[0][value]", fields_attributes_1_edittext_value.getText().toString());
                 }
+                if (fields_attributes_2_edittext_name.getText().toString() != null && fields_attributes_2_edittext_value.getText().toString() != null) {
+                    form.addFormDataPart("fields_attributes[1][name]", fields_attributes_2_edittext_name.getText().toString());
+                    form.addFormDataPart("fields_attributes[1][value]", fields_attributes_2_edittext_value.getText().toString());
+                }
+                if (fields_attributes_3_edittext_name.getText().toString() != null && fields_attributes_3_edittext_value.getText().toString() != null) {
+                    form.addFormDataPart("fields_attributes[2][name]", fields_attributes_3_edittext_name.getText().toString());
+                    form.addFormDataPart("fields_attributes[2][value]", fields_attributes_3_edittext_value.getText().toString());
+                }
+                if (fields_attributes_4_edittext_name.getText().toString() != null && fields_attributes_4_edittext_value.getText().toString() != null) {
+                    form.addFormDataPart("fields_attributes[3][name]", fields_attributes_4_edittext_name.getText().toString());
+                    form.addFormDataPart("fields_attributes[3][value]", fields_attributes_4_edittext_value.getText().toString());
+                }
+
+                //画像を投げる
+                try {
+                    if (avatar_Uri != null) {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), avatar_Uri);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        bitmap.compress(getImageType(avatar_extn), 100, baos);
+                        byte[] imageBytes = baos.toByteArray();
+                        form.addFormDataPart("avatar", getFileNameUri(avatar_Uri), RequestBody.create(MediaType.parse("image/" + avatar_extn), imageBytes));
+                    }
+                    if (header_Uri != null) {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), header_Uri);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        bitmap.compress(getImageType(header_extn), 100, baos);
+                        byte[] imageBytes = baos.toByteArray();
+                        form.addFormDataPart("header", getFileNameUri(header_Uri), RequestBody.create(MediaType.parse("image/" + header_extn), imageBytes));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                //ぱらめーたー
+                RequestBody requestBody = form.build();
+
+                //作成
+                Request request = new Request.Builder()
+                        .url(final_url)
+                        .patch(requestBody)
+                        .build();
+
+                //GETリクエスト
+                OkHttpClient client = new OkHttpClient();
+                client.newCall(request).enqueue(new Callback() {
+
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(AccountInfoUpdateActivity.this, getString(R.string.error), Toast.LENGTH_SHORT).show();
+                                snackbar_loading.dismiss();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (response.isSuccessful()) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(AccountInfoUpdateActivity.this, getString(R.string.successful), Toast.LENGTH_SHORT).show();
+                                    snackbar_loading.dismiss();
+                                }
+                            });
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(AccountInfoUpdateActivity.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                                    snackbar_loading.dismiss();
+                                }
+                            });
+                        }
+                    }
+                });
             }
-        });
+        }).start();
 
     }
 

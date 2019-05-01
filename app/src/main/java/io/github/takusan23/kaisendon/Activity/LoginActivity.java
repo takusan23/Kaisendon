@@ -613,10 +613,10 @@ public class LoginActivity extends AppCompatActivity {
     private void getMisskeyApp() {
         //SnackberProgress
         String test = instance_name_EditText.getText().toString();
-        System.out.println("テキストボックス:" + test);
+        //System.out.println("テキストボックス:" + test);
         if (test != null) {
             String url = "https://" + test + "/api/app/create/";
-            System.out.println("りんく:" + url);
+            //System.out.println("りんく:" + url);
             SnackberProgress.showProgressSnackber(instance_name_EditText, LoginActivity.this, getString(R.string.loading) + "\n" + url);
 
             //アクセストークン取得の前準備
@@ -666,7 +666,7 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     String response_string = response.body().string();
-                    System.out.println(response_string);
+                    //System.out.println(response_string);
                     if (!response.isSuccessful()) {
                         //失敗
                         runOnUiThread(new Runnable() {
@@ -875,7 +875,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                System.out.println(response.body().string());
+                //System.out.println(response.body().string());
             }
         });
     }

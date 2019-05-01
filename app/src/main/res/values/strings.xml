@@ -574,5 +574,6 @@
     <string name="desktop_mode_vertical_number">Vertical display number</string>
     <string name="desktop_mode_horizontal_number">Horizontal display number</string>
     <string name="desktop_mode_display_description">You can set the number of displays. The default is 2 vertical and 3 horizontal.</string>
+    <string name="notification_poll">Result of voting</string>
 
 </resources>

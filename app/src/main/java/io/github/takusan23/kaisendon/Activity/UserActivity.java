@@ -208,7 +208,7 @@ public class UserActivity extends AppCompatActivity {
 
         //アカウント情報読み込み
         //Misskeyと分ける
-        if (CustomMenuTimeLine.isMisskeyMode()) {
+        if (getIntent().getBooleanExtra("Misskey", false)) {
             loadMisskeyAccount();
         } else {
             loadAccount();
@@ -469,7 +469,7 @@ public class UserActivity extends AppCompatActivity {
                                 try {
                                     if (jsonObject.getBoolean("isFollowing")) {
                                         followButton.setText(getResources().getString(R.string.following));
-                                        followButton.setPadding(10,10,10,10);
+                                        followButton.setPadding(10, 10, 10, 10);
                                         followButton.setTextColor(Color.parseColor("#2196f3"));
                                         Drawable favIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_done_black_24dp, null);
                                         favIcon.setTint(Color.parseColor("#2196f3"));
@@ -530,9 +530,9 @@ public class UserActivity extends AppCompatActivity {
 
 
         ImageView avatarImageView = new ImageView(UserActivity.this);
-        avatarImageView.setPadding(10,10,10,10);
+        avatarImageView.setPadding(10, 10, 10, 10);
         TextView display_name_TextView = new TextView(UserActivity.this);
-        display_name_TextView.setPadding(10,10,10,10);
+        display_name_TextView.setPadding(10, 10, 10, 10);
         FrameLayout frameLayout = new FrameLayout(UserActivity.this);
         //真ん中
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -564,6 +564,7 @@ public class UserActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(UserActivity.this, AccountInfoUpdateActivity.class);
+                    intent.putExtra("Misskey",getIntent().getBooleanExtra("Misskey",false));
                     startActivity(intent);
                 }
             });
@@ -666,7 +667,7 @@ public class UserActivity extends AppCompatActivity {
         //nico_url Button
         if (nico_url != null) {
             Button nicoButton = new Button(UserActivity.this);
-            nicoButton.setPadding(10,10,10,10);
+            nicoButton.setPadding(10, 10, 10, 10);
             nicoButton.setText("niconico");
             nicoButton.setBackground(getDrawable(R.drawable.button_style));
             nicoButton.setTextColor(Color.parseColor("#000000"));
@@ -989,7 +990,7 @@ public class UserActivity extends AppCompatActivity {
         TextView textView = (TextView) top_linearLayout.findViewById(R.id.cardview_textview);
         //名前とか
         textView.setText(getString(R.string.follow) + "/" + getString(R.string.follower));
-        textView.setPadding(10,10,10,10);
+        textView.setPadding(10, 10, 10, 10);
         textView.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_person_black_24dp), null, null, null);
         //ここについか
         LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
@@ -999,7 +1000,7 @@ public class UserActivity extends AppCompatActivity {
         //forで回すか
         for (int i = 0; i < 3; i++) {
             TextView menuTextView = new TextView(UserActivity.this);
-            menuTextView.setPadding(10,10,10,10);
+            menuTextView.setPadding(10, 10, 10, 10);
             menuTextView.setText(menuList[i]);
             menuTextView.setTextSize(24);
             menuTextView.setCompoundDrawablesWithIntrinsicBounds(drawableList[i], null, null, null);
@@ -1028,14 +1029,14 @@ public class UserActivity extends AppCompatActivity {
         TextView textView = (TextView) top_linearLayout.findViewById(R.id.cardview_textview);
         //名前とか
         textView.setText(getString(R.string.note));
-        textView.setPadding(10,10,10,10);
+        textView.setPadding(10, 10, 10, 10);
         textView.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_create_black_24dp_black), null, null, null);
         //ここについか
         LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
         //note
         TextView noteTextView = new TextView(UserActivity.this);
         PicassoImageGetter imageGetter = new PicassoImageGetter(noteTextView);
-        noteTextView.setPadding(10,10,10,10);
+        noteTextView.setPadding(10, 10, 10, 10);
         noteTextView.setAutoLinkMask(Linkify.WEB_URLS);
         noteTextView.setText(Html.fromHtml(profile, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
         main_LinearLayout.addView(noteTextView);
@@ -1051,14 +1052,14 @@ public class UserActivity extends AppCompatActivity {
         CardView cardView = (CardView) top_linearLayout.findViewById(R.id.cardview);
         TextView textView = (TextView) top_linearLayout.findViewById(R.id.cardview_textview);
         //名前とか
-        textView.setPadding(10,10,10,10);
+        textView.setPadding(10, 10, 10, 10);
         textView.setText(getString(R.string.create_at_date));
         textView.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_date_range_black_24dp), null, null, null);
         //ここについか
         LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
         TextView dateTextView = new TextView(UserActivity.this);
         dateTextView.setText(dateFormat(create_at));
-        dateTextView.setPadding(10,10,10,10);
+        dateTextView.setPadding(10, 10, 10, 10);
         dateTextView.setTextSize(18);
 
         main_LinearLayout.addView(dateTextView);
@@ -1141,9 +1142,9 @@ public class UserActivity extends AppCompatActivity {
                 TextView nameTextView = new TextView(UserActivity.this);
                 TextView valueTextView = new TextView(UserActivity.this);
                 TextView created_atTextView = new TextView(UserActivity.this);
-                nameTextView.setPadding(10,10,10,10);
-                valueTextView.setPadding(10,10,10,10);
-                created_atTextView.setPadding(10,10,10,10);
+                nameTextView.setPadding(10, 10, 10, 10);
+                valueTextView.setPadding(10, 10, 10, 10);
+                created_atTextView.setPadding(10, 10, 10, 10);
                 nameTextView.setTextSize(18);
                 valueTextView.setTextSize(18);
                 valueTextView.setAutoLinkMask(Linkify.WEB_URLS);

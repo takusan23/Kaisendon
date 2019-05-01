@@ -470,5 +470,6 @@
     <string name="desktop_mode_vertical_number">縦の表示数</string>
     <string name="desktop_mode_setting">デスクトップモードの設定</string>
     <string name="desktop_mode_display_description">表示数を設定できます。既定は縦2で横3です。</string>
+    <string name="notification_poll">投票の結果</string>
 
 </resources>

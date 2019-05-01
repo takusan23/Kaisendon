@@ -2898,12 +2898,12 @@ public class Home extends AppCompatActivity
         requestBody.addFormDataPart("force", "true");
         //Android Qで動かないのでUriからBitmap変換してそれをバイトに変換してPOSTしてます
         try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-            byte[] imageBytes = baos.toByteArray();
             String file_name = getFileNameUri(uri);
             String extn = file_name.substring(file_name.lastIndexOf(".") + 1);
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(getImageType(extn), 100, baos);
+            byte[] imageBytes = baos.toByteArray();
             requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn), imageBytes));
         } catch (IOException e) {
             e.printStackTrace();
@@ -2968,6 +2968,25 @@ public class Home extends AppCompatActivity
     }
 
     /**
+     * PNG / JPEG
+     */
+    private Bitmap.CompressFormat getImageType(String extn) {
+        Bitmap.CompressFormat format = Bitmap.CompressFormat.PNG;
+        switch (extn) {
+            case "jpg":
+                format = Bitmap.CompressFormat.JPEG;
+                break;
+            case "jpeg":
+                format = Bitmap.CompressFormat.JPEG;
+                break;
+            case "png":
+                format = Bitmap.CompressFormat.PNG;
+                break;
+        }
+        return format;
+    }
+
+    /**
      * Mastodon 画像POST
      */
     private void uploadMastodonPhoto(Uri uri) {
@@ -2986,12 +3005,12 @@ public class Home extends AppCompatActivity
             @Override
             public void run() {
                 try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                    byte[] imageBytes = baos.toByteArray();
                     String file_name = getFileNameUri(uri);
                     String extn = file_name.substring(file_name.lastIndexOf(".") + 1);
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bitmap.compress(getImageType(extn), 100, baos);
+                    byte[] imageBytes = baos.toByteArray();
                     requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn), imageBytes));
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -3336,7 +3355,7 @@ public class Home extends AppCompatActivity
                 bundle.putString("one_hand", one_hand);
                 bundle.putString("misskey_username", misskey_username);
                 bundle.putString("setting", setting);
-                bundle.putString("json",json);
+                bundle.putString("json", json);
                 CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                 customMenuTimeLine.setArguments(bundle);
                 //名前控える
@@ -3494,7 +3513,7 @@ public class Home extends AppCompatActivity
                             bundle.putString("one_hand", finalOne_hand);
                             bundle.putString("misskey_username", finalMisskey_username);
                             bundle.putString("setting", finalSetting);
-                            bundle.putString("json",finalJson);
+                            bundle.putString("json", finalJson);
                             CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                             customMenuTimeLine.setArguments(bundle);
                             //名前控える

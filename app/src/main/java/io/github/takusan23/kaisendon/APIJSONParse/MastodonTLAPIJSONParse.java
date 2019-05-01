@@ -60,6 +60,9 @@ public class MastodonTLAPIJSONParse {
     private String total_votes_count;
     private ArrayList<String> votes_title;
     private ArrayList<String> votes_count;
+    private String note;
+    private String follow_count;
+    private String follower_count;
 
     //インスタンス
     public MastodonTLAPIJSONParse(Context context, String response_string, CustomMenuJSONParse setting) {
@@ -241,6 +244,18 @@ public class MastodonTLAPIJSONParse {
         return isVote;
     }
 
+    public String getNote() {
+        return note;
+    }
+
+    public String getFollow_count() {
+        return follow_count;
+    }
+
+    public String getFollower_count() {
+        return follower_count;
+    }
+
     //JSONパース
     private void setMastodonTLParse(String response_string, CustomMenuJSONParse setting) {
         try {
@@ -262,6 +277,9 @@ public class MastodonTLAPIJSONParse {
                 avatarUrl = account_JsonObject.getString("avatar");
                 avatarUrlNotGIF = account_JsonObject.getString("avatar_static");
                 user_ID = account_JsonObject.getString("id");
+                note = account_JsonObject.getString("note");
+                follow_count = account_JsonObject.getString("following_count");
+                follower_count = account_JsonObject.getString("followers_count");
                 //Local、その他同じクライアントのユーザー
                 if (!toot_JsonObject.isNull("application")) {
                     client = toot_JsonObject.getJSONObject("application").getString("name");
@@ -371,12 +389,17 @@ public class MastodonTLAPIJSONParse {
                 avatarUrl = account_JsonObject.getString("avatar");
                 avatarUrlNotGIF = account_JsonObject.getString("avatar_static");
                 user_ID = account_JsonObject.getString("id");
+                note = account_JsonObject.getString("note");
+                follow_count = account_JsonObject.getString("following_count");
+                follower_count = account_JsonObject.getString("followers_count");
+
                 //Status
                 toot_text = "";
                 //createdAt = "";
                 url = "";
                 visibility = "";
                 toot_ID = "";
+
                 //返信しかこれない
                 if (!toot_JsonObject.isNull("status")) {
                     JSONObject status_JsonObject = toot_JsonObject.getJSONObject("status");
@@ -402,6 +425,24 @@ public class MastodonTLAPIJSONParse {
                             toot_text = toot_text.replace(":" + emoji_name + ":", custom_emoji_src);
                         }
                     }
+
+                    //投票
+                    if (!status_JsonObject.isNull("poll")) {
+                        isVote = true;
+                        votes_title = new ArrayList<>();
+                        votes_count = new ArrayList<>();
+                        JSONObject vote = status_JsonObject.getJSONObject("poll");
+                        JSONArray options = vote.getJSONArray("options");
+                        vote_id = vote.getString("id");
+                        total_votes_count = vote.getString("votes_count");
+                        vote_expires_at = vote.getString("expires_at");
+                        for (int i = 0; i < options.length(); i++) {
+                            JSONObject option = options.getJSONObject(i);
+                            votes_title.add(option.getString("title"));
+                            votes_count.add(option.getString("votes_count"));
+                        }
+                    }
+
                 }
 
                 //絵文字
@@ -489,7 +530,7 @@ public class MastodonTLAPIJSONParse {
                 BTCount = note_JsonObject.getString("renoteCount");
                 isFav = note_JsonObject.getString("myReaction");
                 //絵文字
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) ||  Boolean.valueOf(setting.getCustom_emoji())) {
+                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || Boolean.valueOf(setting.getCustom_emoji())) {
                     JSONArray emoji = note_JsonObject.getJSONArray("emojis");
                     for (int e = 0; e < emoji.length(); e++) {
                         JSONObject emoji_jsonObject = emoji.getJSONObject(e);

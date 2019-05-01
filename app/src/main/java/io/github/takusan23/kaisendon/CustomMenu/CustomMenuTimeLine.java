@@ -98,20 +98,20 @@ public class CustomMenuTimeLine extends Fragment {
     private String instance;
     private String access_token;
     private String json_data;
-    private  String dialog;
-    private  String image_load;
-    private  String dark_mode;
-    private  String setting;
-    private  String streaming;
-    private  String subtitle;
-    private  String image_url;
-    private  String background_transparency;
-    private  String quick_profile;
-    private  String toot_counter;
-    private  String custom_emoji;
-    private  String gif;
-    private  String font;
-    private  String one_hand;
+    private String dialog;
+    private String image_load;
+    private String dark_mode;
+    private String setting;
+    private String streaming;
+    private String subtitle;
+    private String image_url;
+    private String background_transparency;
+    private String quick_profile;
+    private String toot_counter;
+    private String custom_emoji;
+    private String gif;
+    private String font;
+    private String one_hand;
 
     private Boolean background_screen_fit;
     private boolean dark_theme = false;
@@ -140,6 +140,7 @@ public class CustomMenuTimeLine extends Fragment {
     private boolean bt_filter = true;
     private boolean mention_filter = true;
     private boolean follow_filter = true;
+    private boolean vote_filter = true;
 
     private MastodonClient client;
 
@@ -958,6 +959,11 @@ public class CustomMenuTimeLine extends Fragment {
                                     notificationJSONPase(toot_text_account, toot_text_jsonObject, type, true);
                                 }
                             }
+                            if (vote_filter) {
+                                if (type.contains("poll")) {
+                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type, true);
+                                }
+                            }
                         } else if (finalDirect) {
                             //DM
                             JSONObject jsonObject = new JSONObject(message);
@@ -1067,6 +1073,11 @@ public class CustomMenuTimeLine extends Fragment {
                                     notificationJSONPase(toot_text_account, toot_text_jsonObject, type, false);
                                 }
                             }
+                            if (vote_filter) {
+                                if (type.contains("poll")) {
+                                    notificationJSONPase(toot_text_account, toot_text_jsonObject, type, false);
+                                }
+                            }
                         }
                         //最後のIDを更新する
                         JSONObject last_toot_text = jsonArray.getJSONObject(29);
@@ -1109,15 +1120,17 @@ public class CustomMenuTimeLine extends Fragment {
             Drawable icon[] = {getContext().getDrawable(R.drawable.ic_star_black_24dp),
                     getContext().getDrawable(R.drawable.ic_repeat_black_24dp),
                     getContext().getDrawable(R.drawable.ic_announcement_black_24dp),
-                    getContext().getDrawable(R.drawable.ic_person_add_black_24dp)};
-            String tag[] = {"fav_filter", "bt_filter", "mention_filter", "follow_filter"};
+                    getContext().getDrawable(R.drawable.ic_person_add_black_24dp),
+                    getContext().getDrawable(R.drawable.ic_move_to_inbox_black_24dp)
+            };
+            String tag[] = {"fav_filter", "bt_filter", "mention_filter", "follow_filter", "vote_filter"};
             //背景
             String background = "ffffff";
             if (Boolean.valueOf(dark_mode)) {
                 background = "000000";
             }
 
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 5; i++) {
                 Switch sw = new Switch(getContext());
                 sw.setCompoundDrawablesWithIntrinsicBounds(icon[i], null, null, null);
                 sw.setTag(tag[i]);
@@ -1134,9 +1147,9 @@ public class CustomMenuTimeLine extends Fragment {
                             notificationFilterBoolean(tag[finalI], false);
                         }
                         //通知更新
-                        adapter.clear();
+                        recyclerViewList.clear();
                         SnackberProgress.showProgressSnackber(sw, getContext(), getString(R.string.loading) + "\n" + getArguments().getString("content"));
-                        if (misskey_mode) {
+                        if (Boolean.valueOf(misskey)) {
                             loadMisskeyTimeline(null, true);
                         } else {
                             loadNotification("");
@@ -1144,7 +1157,7 @@ public class CustomMenuTimeLine extends Fragment {
                     }
                 });
             }
-            //メインLinearLayoutに追加
+            //ついか
             linearLayout.addView(notificationLinearLayout, 0);
         }
     }
@@ -1169,6 +1182,9 @@ public class CustomMenuTimeLine extends Fragment {
                 case "follow_filter":
                     follow_filter = true;
                     break;
+                case "vote_filter":
+                    vote_filter = true;
+                    break;
             }
         } else {
             switch (type) {
@@ -1183,6 +1199,9 @@ public class CustomMenuTimeLine extends Fragment {
                     break;
                 case "follow_filter":
                     follow_filter = false;
+                    break;
+                case "vote_filter":
+                    vote_filter = false;
                     break;
             }
         }
@@ -1512,6 +1531,9 @@ public class CustomMenuTimeLine extends Fragment {
                 }
                 if (follow_filter) {
                     filter.put("follow");
+                }
+                if (vote_filter) {
+                    filter.put("poll_vote");
                 }
                 jsonObject.put("includeTypes", filter);
             }

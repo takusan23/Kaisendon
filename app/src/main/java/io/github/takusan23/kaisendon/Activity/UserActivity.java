@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
@@ -22,12 +24,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.text.util.Linkify;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -81,6 +83,7 @@ public class UserActivity extends AppCompatActivity {
 
     private String display_name = null;
     private String user_account_id = null;
+    private String userId = null;
     private String avater_url = null;
     private String header_url = null;
     private String profile = null;
@@ -261,6 +264,7 @@ public class UserActivity extends AppCompatActivity {
                     header_url = jsonObject.getString("header");
                     create_at = jsonObject.getString("created_at");
                     remote = jsonObject.getString("acct");
+                    userId = jsonObject.getString("id");
 
                     follow = jsonObject.getInt("following_count");
                     follower = jsonObject.getInt("followers_count");
@@ -520,6 +524,7 @@ public class UserActivity extends AppCompatActivity {
         display_name_avatar_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         display_name_avatar_LinearLayout.setBackground(getDrawable(R.drawable.button_style_white));
 
+
         Drawable title_icon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_create_black_24dp_black, null);
         title_icon.setBounds(0, 0, title_icon.getIntrinsicWidth(), title_icon.getIntrinsicHeight());
         //ImageViewとか
@@ -544,6 +549,7 @@ public class UserActivity extends AppCompatActivity {
         PicassoImageGetter imageGetter = new PicassoImageGetter(display_name_TextView);
         display_name_TextView.setText(Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
         display_name_TextView.append("\n@" + remote);
+        display_name_TextView.append(" / " + userId);
         display_name_TextView.setTextColor(Color.parseColor("#000000"));
         display_name_TextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         display_name_TextView.setGravity(Gravity.CENTER);
@@ -564,7 +570,7 @@ public class UserActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(UserActivity.this, AccountInfoUpdateActivity.class);
-                    intent.putExtra("Misskey",getIntent().getBooleanExtra("Misskey",false));
+                    intent.putExtra("Misskey", getIntent().getBooleanExtra("Misskey", false));
                     startActivity(intent);
                 }
             });
@@ -1183,15 +1189,16 @@ public class UserActivity extends AppCompatActivity {
     private void headerImageSize() {
         //背景のImageViewの大きさを変更する
         //なんかボタンのテキストが改行されて二行になると下に白あまりができるので
-        display_name_avatar_LinearLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                headerImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                headerImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, display_name_avatar_LinearLayout.getHeight()));
-                headerImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                headerImageView.invalidate();
-            }
-        });
+        //高さ調整で使う
+        Display display = getWindowManager().getDefaultDisplay();
+        Point point = new Point();
+        display.getSize(point);
+        Configuration config = getResources().getConfiguration();
+        //headerImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        headerImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, point.y/4));
+        headerImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        headerImageView.invalidate();
+        Glide.with(this).load(header_url).into(headerImageView);
     }
 
 

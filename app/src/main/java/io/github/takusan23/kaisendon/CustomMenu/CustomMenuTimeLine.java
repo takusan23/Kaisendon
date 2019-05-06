@@ -749,7 +749,7 @@ public class CustomMenuTimeLine extends Fragment {
                             }
                         }
                         String finalName = name;
-/*
+
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
@@ -765,7 +765,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 }
                             });
                         }
-*/
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

@@ -445,7 +445,7 @@ public class Home extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showTootShortcut(false);
+                showTootShortcut();
             }
         });
 
@@ -479,7 +479,7 @@ public class Home extends AppCompatActivity
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                showTootShortcut(false);
+                                showTootShortcut();
                                 timer.cancel();
                             }
                         });
@@ -499,7 +499,7 @@ public class Home extends AppCompatActivity
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            showTootShortcut(false);
+                            showTootShortcut();
                             timer.cancel();
                         }
                     });
@@ -2836,7 +2836,7 @@ public class Home extends AppCompatActivity
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String response_string = response.body().string();
-                System.out.println(response_string);
+                //System.out.println(response_string);
                 if (!response.isSuccessful()) {
                     //失敗
                     runOnUiThread(new Runnable() {
@@ -3100,10 +3100,10 @@ public class Home extends AppCompatActivity
         try {
             //配列
             JSONArray jsonArray = new JSONArray();
-            if (vote_1.getText().toString().contains("")) {
+            if (vote_1.getText().toString() != null) {
                 jsonArray.put(vote_1.getText().toString());
             }
-            if (vote_2.getText().toString().contains("")) {
+            if (vote_2.getText().toString() != null) {
                 jsonArray.put(vote_2.getText().toString());
             }
             if (vote_3.getText().toString() != null) {
@@ -3642,7 +3642,7 @@ public class Home extends AppCompatActivity
     /**
      * TootShortcutShow
      */
-    private void showTootShortcut(boolean isMisskeyMode) {
+    private void showTootShortcut() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container_container);
         if (fragment != null && fragment instanceof DesktopFragment) {
             //DesktopModeはPopupMenuからMastodon/Misskeyを選ぶ
@@ -3746,17 +3746,14 @@ public class Home extends AppCompatActivity
         } else {
             //ユーザー情報を取得
             //MisskeyモードでMisskeyアカウントが登録されれいるときのみ表示
-            if (isMisskeyMode && !pref_setting.getString("misskey_instance_list", "").equals("")) {
+            //避けたかったけどどうしてもisMisskeyMode()必要だから使う
+            if (CustomMenuTimeLine.isMisskeyMode() && !pref_setting.getString("misskey_instance_list", "").equals("")) {
                 getMisskeyAccount();
                 setMisskeyVisibilityMenu(toot_area_Button);
                 toot_Button_LinearLayout.removeView(misskey_drive_Button);
                 toot_Button_LinearLayout.removeView(mastodon_time_post_Button);
                 toot_Button_LinearLayout.removeView(mastodon_vote_Button);
                 toot_Button_LinearLayout.addView(misskey_drive_Button);
-                //デスクトップモード利用時はマルチアカウント表示できるように
-                if (fragment != null && fragment instanceof DesktopFragment) {
-                    showMisskeyMultiAccount();
-                }
             } else {
                 getAccount();
                 setMastodonVisibilityMenu(toot_area_Button);
@@ -3765,10 +3762,6 @@ public class Home extends AppCompatActivity
                 toot_Button_LinearLayout.removeView(mastodon_vote_Button);
                 toot_Button_LinearLayout.addView(mastodon_time_post_Button);
                 toot_Button_LinearLayout.addView(mastodon_vote_Button);
-                //デスクトップモード利用時はマルチアカウント表示できるように
-                if (fragment != null && fragment instanceof DesktopFragment) {
-                    showMultiAccount();
-                }
             }
             if (!toot_snackbar.isShown()) {
                 toot_snackbar.show();

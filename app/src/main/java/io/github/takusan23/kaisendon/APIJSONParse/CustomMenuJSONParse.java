@@ -26,6 +26,8 @@ public class CustomMenuJSONParse {
     String one_hand = "";
     String misskey_username = "";
     String setting = "";
+    String no_fav_icon = "";
+    String yes_fav_icon = "";
 
     public CustomMenuJSONParse(String json_data) {
         json_parse(json_data);
@@ -56,6 +58,13 @@ public class CustomMenuJSONParse {
             misskey = jsonObject.getString("misskey");
             misskey_username = jsonObject.getString("misskey_username");
             setting = jsonObject.getString("setting");
+            //試験的
+            if (!jsonObject.isNull("no_fav_icon")) {
+                no_fav_icon = jsonObject.getString("no_fav_icon");
+            }
+            if (!jsonObject.isNull("yes_fav_icon")) {
+                yes_fav_icon = jsonObject.getString("yes_fav_icon");
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -147,5 +156,13 @@ public class CustomMenuJSONParse {
 
     public String getSetting() {
         return setting;
+    }
+
+    public String getNo_fav_icon() {
+        return no_fav_icon;
+    }
+
+    public String getYes_fav_icon() {
+        return yes_fav_icon;
     }
 }

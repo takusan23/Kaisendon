@@ -90,6 +90,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Timer;
@@ -1186,7 +1187,6 @@ public class Home extends AppCompatActivity
                                     }).show();
                                 }
                             }
-
                         }
                     });
                 }
@@ -2898,13 +2898,17 @@ public class Home extends AppCompatActivity
         requestBody.addFormDataPart("force", "true");
         //Android Qで動かないのでUriからBitmap変換してそれをバイトに変換してPOSTしてます
         try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+            int len = 0;
+            while ((len = inputStream.read(buffer)) != -1) {
+                byteBuffer.write(buffer, 0, len);
+            }
             String file_name = getFileNameUri(uri);
-            String extn = file_name.substring(file_name.lastIndexOf(".") + 1);
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(getImageType(extn), 100, baos);
-            byte[] imageBytes = baos.toByteArray();
-            requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn), imageBytes));
+            String extn = getContentResolver().getType(uri);
+            requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn), byteBuffer.toByteArray()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -2999,19 +3003,23 @@ public class Home extends AppCompatActivity
         requestBody.addFormDataPart("access_token", AccessToken);
         //くるくる
         SnackberProgress.showProgressSnackber(toot_EditText, Home.this, getString(R.string.loading) + "\n" + url);
-        //Android Qで動かないのでUriからBitmap変換してそれをバイトに変換してPOSTしてます
+        //Android Qで動かないのでUriからバイトに変換してPOSTしてます
         //重いから非同期処理
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    InputStream inputStream = getContentResolver().openInputStream(uri);
+                    ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+                    int bufferSize = 1024;
+                    byte[] buffer = new byte[bufferSize];
+                    int len = 0;
+                    while ((len = inputStream.read(buffer)) != -1) {
+                        byteBuffer.write(buffer, 0, len);
+                    }
                     String file_name = getFileNameUri(uri);
-                    String extn = file_name.substring(file_name.lastIndexOf(".") + 1);
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    bitmap.compress(getImageType(extn), 100, baos);
-                    byte[] imageBytes = baos.toByteArray();
-                    requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn), imageBytes));
+                    String extn = getContentResolver().getType(uri);
+                    requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn), byteBuffer.toByteArray()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -3300,6 +3308,8 @@ public class Home extends AppCompatActivity
         String one_hand = "";
         String misskey_username = "";
         String setting = "";
+        String no_fav_icon = "";
+        String yes_fav_icon = "";
         String json = "";
 
         cursor.moveToFirst();
@@ -3330,6 +3340,8 @@ public class Home extends AppCompatActivity
                 one_hand = jsonObject.getString("one_hand");
                 misskey = jsonObject.getString("misskey");
                 misskey_username = jsonObject.getString("misskey_username");
+//                no_fav_icon = jsonObject.getString("no_fav_icon");
+//                yes_fav_icon = jsonObject.getString("yes_fav_icon");
                 setting = jsonObject.getString("setting");
                 Bundle bundle = new Bundle();
                 bundle.putString("misskey", misskey);
@@ -3354,6 +3366,8 @@ public class Home extends AppCompatActivity
                 bundle.putString("one_hand", one_hand);
                 bundle.putString("misskey_username", misskey_username);
                 bundle.putString("setting", setting);
+                bundle.putString("no_fav_icon", no_fav_icon);
+                bundle.putString("yes_fav_icon", yes_fav_icon);
                 bundle.putString("json", json);
                 CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                 customMenuTimeLine.setArguments(bundle);
@@ -3392,6 +3406,8 @@ public class Home extends AppCompatActivity
                     one_hand = jsonObject.getString("one_hand");
                     misskey = jsonObject.getString("misskey");
                     misskey_username = jsonObject.getString("misskey_username");
+//                    no_fav_icon = jsonObject.getString("no_fav_icon");
+//                    yes_fav_icon = jsonObject.getString("yes_fav_icon");
                     setting = jsonObject.getString("setting");
                     //メニュー追加
                     String finalName = name;
@@ -3417,6 +3433,8 @@ public class Home extends AppCompatActivity
                     String finalMisskey = misskey;
                     String finalMisskey_username = misskey_username;
                     String finalJson = json;
+                    String finalNo_fav_icon = no_fav_icon;
+                    String finalYes_fav_icon = yes_fav_icon;
                     navigationView.getMenu().add(name).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
@@ -3445,6 +3463,8 @@ public class Home extends AppCompatActivity
                             bundle.putString("one_hand", finalOne_hand);
                             bundle.putString("misskey_username", finalMisskey_username);
                             bundle.putString("setting", finalSetting);
+                            bundle.putString("no_fav_icon", finalNo_fav_icon);
+                            bundle.putString("yes_fav_icon", finalYes_fav_icon);
                             bundle.putString("json", finalJson);
                             CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                             customMenuTimeLine.setArguments(bundle);
@@ -3484,6 +3504,8 @@ public class Home extends AppCompatActivity
                     String finalMisskey = misskey;
                     String finalMisskey_username = misskey_username;
                     String finalJson = json;
+                    String finalNo_fav_icon = no_fav_icon;
+                    String finalYes_fav_icon = yes_fav_icon;
                     navigationView.getMenu().add(name).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
@@ -3512,6 +3534,8 @@ public class Home extends AppCompatActivity
                             bundle.putString("one_hand", finalOne_hand);
                             bundle.putString("misskey_username", finalMisskey_username);
                             bundle.putString("setting", finalSetting);
+                            bundle.putString("no_fav_icon", finalNo_fav_icon);
+                            bundle.putString("yes_fav_icon", finalYes_fav_icon);
                             bundle.putString("json", finalJson);
                             CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                             customMenuTimeLine.setArguments(bundle);

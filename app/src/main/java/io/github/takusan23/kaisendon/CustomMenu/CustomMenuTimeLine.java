@@ -194,6 +194,10 @@ public class CustomMenuTimeLine extends Fragment {
     private Calendar calendar;
     private String desktop_url = "";
 
+    private String no_fav_icon = "";
+    private String yes_fav_icon = "";
+
+
     //isDesktopMode
     private boolean isDesktopMode = false;
 
@@ -243,6 +247,8 @@ public class CustomMenuTimeLine extends Fragment {
         font = getArguments().getString("font");
         misskey_username = getArguments().getString("misskey_username");
         one_hand = getArguments().getString("one_hand");
+        no_fav_icon = getArguments().getString("no_fav_icon");
+        yes_fav_icon = getArguments().getString("yes_fav_icon");
 
         //Navication Drawer
         if (getActivity() != null) {

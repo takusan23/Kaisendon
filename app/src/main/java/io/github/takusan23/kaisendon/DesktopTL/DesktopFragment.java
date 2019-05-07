@@ -184,6 +184,8 @@ public class DesktopFragment extends Fragment {
             String font = "";
             String one_hand = "";
             String misskey_username = "";
+            String no_fav_icon = "";
+            String yes_fav_icon = "";
             String setting = "";
             try {
                 JSONObject jsonObject = new JSONObject(cursor.getString(1));
@@ -208,6 +210,8 @@ public class DesktopFragment extends Fragment {
                 one_hand = jsonObject.getString("one_hand");
                 misskey = jsonObject.getString("misskey");
                 misskey_username = jsonObject.getString("misskey_username");
+                no_fav_icon = jsonObject.getString("no_fav_icon");
+                yes_fav_icon = jsonObject.getString("yes_fav_icon");
                 setting = jsonObject.getString("setting");
                 Bundle bundle = new Bundle();
                 bundle.putString("misskey", misskey);
@@ -233,6 +237,8 @@ public class DesktopFragment extends Fragment {
                 bundle.putString("misskey_username", misskey_username);
                 bundle.putString("setting", setting);
                 bundle.putString("json", jsonObject.toString());
+//                bundle.putString("no_fav_icon", no_fav_icon);
+//                bundle.putString("yes_fav_icon", yes_fav_icon);
                 CustomMenuTimeLine customMenuTimeLine = new CustomMenuTimeLine();
                 customMenuTimeLine.setArguments(bundle);
                 //置き換え

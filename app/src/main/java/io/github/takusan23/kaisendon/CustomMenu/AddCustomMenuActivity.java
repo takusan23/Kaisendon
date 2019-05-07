@@ -63,6 +63,10 @@ import okhttp3.Response;
 import static io.github.takusan23.kaisendon.Preference_ApplicationContext.getContext;
 
 public class AddCustomMenuActivity extends AppCompatActivity {
+    private int noFavCode = 2525;
+    private int yesFavCode = 25;
+
+
     private MenuBuilder account_menuBuilder;
     private MenuPopupHelper account_optionsMenu;
     private CustomMenuSQLiteHelper helper;
@@ -94,6 +98,13 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     private TextView font_TextView;
     private FloatingActionButton fab;
 
+    private ImageView no_favourite_ImageView;
+    private Button no_favourite_Button;
+    private Button no_favourite_Delete_Button;
+    private ImageView yes_favourite_ImageView;
+    private Button yes_favourite_Button;
+    private Button yes_favourite_Delete_Button;
+
     private SharedPreferences pref_setting;
 
     private Typeface typeface;
@@ -108,6 +119,9 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     private String font_path = "";
     //misskey
     private String misskey_username = "";
+    //お気に入りボタン
+    private String no_fav_icon_path;
+    private String yes_fav_icon_path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +155,12 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         font_reset_Button = findViewById(R.id.custom_menu_font_reset);
         one_hand_Switch = findViewById(R.id.custom_menu_one_hand);
         misskey_Switch = findViewById(R.id.misskey_switch);
-
+        no_favourite_Button = findViewById(R.id.no_favouriteButton);
+        no_favourite_ImageView = findViewById(R.id.no_favourite_imageview);
+        no_favourite_Delete_Button = findViewById(R.id.no_favouriteDeleteButton);
+        yes_favourite_Button = findViewById(R.id.yes_favouriteButton);
+        yes_favourite_ImageView = findViewById(R.id.yes_favourite_imageview);
+        yes_favourite_Delete_Button = findViewById(R.id.yes_favouriteDeleteButton);
         //クイックプロフィール、カスタム絵文字を既定で有効
         quickprofile_Switch.setChecked(true);
         custom_emoji_Switch.setChecked(true);
@@ -236,6 +255,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         background_setting();
         //フォント
         font_setting();
+        //お気に入りボタン
+        favButtonSetting();
     }
 
     /**
@@ -292,6 +313,120 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             font_TextView.setTypeface(typeface);
             font_Button.setText(font_path);
         }
+        //お気に入りボタン変更
+        if (resultData.getData() != null) {
+            Uri get_Path = resultData.getData();
+            String image_Path = "file:\\\\" + get_Path;
+            //置き換え
+            String final_Path = image_Path.replaceAll("\\\\", "/");
+            //image_url = final_Path;
+            if (requestCode == noFavCode && resultCode == Activity.RESULT_OK) {
+                no_favourite_Button.setText(final_Path);
+                no_fav_icon_path = final_Path;
+                //URI画像を入れる
+                Glide.with(getContext())
+                        .load(get_Path)
+                        .into(no_favourite_ImageView);
+                System.out.println(final_Path);
+            } else if (requestCode == yesFavCode && resultCode == Activity.RESULT_OK) {
+                yes_favourite_Button.setText(final_Path);
+                yes_fav_icon_path = final_Path;
+                //URI画像を入れる
+                Glide.with(getContext())
+                        .load(get_Path)
+                        .into(yes_favourite_ImageView);
+                System.out.println(final_Path);
+            }
+
+        }
+    }
+
+    /**
+     * ふぁぼボタン変更
+     */
+    private void favButtonSetting() {
+        //画像選択画面に飛ばす
+        no_favourite_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //ストレージ読み込みの権限があるか確認
+                //許可してないときは許可を求める
+                if (ContextCompat.checkSelfPermission(AddCustomMenuActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    new AlertDialog.Builder(AddCustomMenuActivity.this)
+                            .setTitle(getString(R.string.permission_dialog_titile))
+                            .setMessage(getString(R.string.permission_dialog_message))
+                            .setPositiveButton(getString(R.string.permission_ok), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //権限をリクエストする
+                                    ActivityCompat.requestPermissions(AddCustomMenuActivity.this,
+                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                            1000);
+                                }
+                            })
+                            .setNegativeButton(getString(R.string.cancel), null)
+                            .show();
+                } else {
+                    //画像選択
+                    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                    photoPickerIntent.setType("image/*");
+                    startActivityForResult(photoPickerIntent, noFavCode);
+                    //onActivityResultで処理
+                }
+            }
+        });
+        //画像選択画面に飛ばす
+        yes_favourite_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //ストレージ読み込みの権限があるか確認
+                //許可してないときは許可を求める
+                if (ContextCompat.checkSelfPermission(AddCustomMenuActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    new AlertDialog.Builder(AddCustomMenuActivity.this)
+                            .setTitle(getString(R.string.permission_dialog_titile))
+                            .setMessage(getString(R.string.permission_dialog_message))
+                            .setPositiveButton(getString(R.string.permission_ok), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //権限をリクエストする
+                                    ActivityCompat.requestPermissions(AddCustomMenuActivity.this,
+                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                            1000);
+                                }
+                            })
+                            .setNegativeButton(getString(R.string.cancel), null)
+                            .show();
+                } else {
+                    //画像選択
+                    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                    photoPickerIntent.setType("image/*");
+                    startActivityForResult(photoPickerIntent, yesFavCode);
+                    //onActivityResultで処理
+                }
+            }
+        });
+        //リセットボタン
+        no_favourite_Delete_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //リンクをリセット
+                no_fav_icon_path = "";
+                //URI画像を入れる
+                Glide.with(getContext()).load("").into(no_favourite_ImageView);
+                no_favourite_Button.setText(R.string.custom_setting_background_image);
+            }
+        });
+        //リセットボタン
+        yes_favourite_Delete_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //リンクをリセット
+                yes_fav_icon_path = "";
+                //URI画像を入れる
+                Glide.with(getContext()).load("").into(yes_favourite_ImageView);
+                yes_favourite_Button.setText(R.string.custom_setting_background_image);
+            }
+        });
     }
 
     /**
@@ -467,6 +602,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             jsonObject.put("font", String.valueOf(font_path));
             jsonObject.put("one_hand", String.valueOf(one_hand_Switch.isChecked()));
             jsonObject.put("misskey_username", misskey_username);
+            jsonObject.put("no_fav_icon", no_fav_icon_path);
+            jsonObject.put("yes_fav_icon", yes_fav_icon_path);
             jsonObject.put("setting", "");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -506,6 +643,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             jsonObject.put("font", String.valueOf(font_path));
             jsonObject.put("one_hand", String.valueOf(one_hand_Switch.isChecked()));
             jsonObject.put("misskey_username", misskey_username);
+            jsonObject.put("no_fav_icon", no_fav_icon_path);
+            jsonObject.put("yes_fav_icon", yes_fav_icon_path);
             jsonObject.put("setting", "");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -559,6 +698,10 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 one_hand_Switch.setChecked(Boolean.valueOf(jsonObject.getString("one_hand")));
                 font_Button.setText(jsonObject.getString("font"));
                 font_path = jsonObject.getString("font");
+                no_fav_icon_path = jsonObject.getString("no_fav_icon");
+                yes_fav_icon_path = jsonObject.getString("yes_fav_icon");
+                Glide.with(getContext()).load(no_fav_icon_path).into(no_favourite_ImageView);
+                Glide.with(getContext()).load(yes_fav_icon_path).into(yes_favourite_ImageView);
                 File file = new File(font_path);
                 misskey_username = jsonObject.getString("misskey_username");
                 if (file.exists()) {

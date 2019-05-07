@@ -324,6 +324,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 setTransparency(viewHolder, setting);
                 //フォント
                 setFontSetting(viewHolder);
+                //ふぁぼぼたんのかすたまいず
+                setCustomizeFavIcon(viewHolder, setting);
             }
         } else if (isScheduled_statuses) {
             MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
@@ -2065,6 +2067,23 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 type_face_String.add(setting.getFont());
             }
         }
+    }
+
+    /**
+     * ふぁぼぼたｎ
+     */
+    private void setCustomizeFavIcon(ViewHolder viewHolder, CustomMenuJSONParse setting) {
+/*
+        if (!setting.getNo_fav_icon().equals("")) {
+            Drawable bitmap = Drawable.createFromPath(setting.getNo_fav_icon());
+            viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(bitmap, null, null, null);
+        }
+        if (!setting.getYes_fav_icon().equals("")) {
+            Drawable bitmap = Drawable.createFromPath(setting.getNo_fav_icon());
+            viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(bitmap, null, null, null);
+        }
+*/
+
     }
 
 

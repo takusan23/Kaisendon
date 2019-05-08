@@ -55,11 +55,13 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
 import android.view.Display;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -96,7 +98,6 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import io.github.takusan23.kaisendon.APIJSONParse.CustomMenuJSONParse;
 import io.github.takusan23.kaisendon.Activity.KonoAppNiTuite;
 import io.github.takusan23.kaisendon.Activity.LoginActivity;
 import io.github.takusan23.kaisendon.Activity.UserActivity;
@@ -166,6 +167,7 @@ public class Home extends AppCompatActivity
 
     Toolbar toolbar;
     NavigationView navigationView;
+    DrawerLayout drawer;
 
     Snackbar toot_snackbar;
     Snackbar newNote_Snackbar;
@@ -234,6 +236,15 @@ public class Home extends AppCompatActivity
     private Switch misskey_switch;
     private boolean isDesktop = false;
 
+    // X軸最低スワイプ距離
+    private static final int SWIPE_MIN_DISTANCE = 50;
+    // X軸最低スワイプスピード
+    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+    // Y軸の移動距離　これ以上なら横移動を判定しない
+    private static final int SWIPE_MAX_OFF_PATH = 250;
+
+    // タッチイベントを処理するためのインタフェース
+    private GestureDetector gestureDetector;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -524,7 +535,7 @@ public class Home extends AppCompatActivity
 */
 
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -535,7 +546,6 @@ public class Home extends AppCompatActivity
 
         String finalInstance = Instance;
         String finalAccessToken = AccessToken;
-
 
         //どろわーのイメージとか文字とか
         //LinearLayout linearLayout = (LinearLayout) findViewById(R.id.nav_header_home_linearlayout);
@@ -3810,5 +3820,8 @@ public class Home extends AppCompatActivity
             }
         }
     }
+
+
+
 
 }

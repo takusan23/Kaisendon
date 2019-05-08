@@ -18,6 +18,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
@@ -26,6 +27,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -368,6 +370,9 @@ public class CustomMenuTimeLine extends Fragment {
         customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
         recyclerView.setAdapter(customMenuRecyclerViewAdapter);
         recyclerViewLayoutManager = recyclerView.getLayoutManager();
+
+
+        addNavigationOpen();
 
         //TL読み込み
         //APIがTL取得のみに
@@ -2450,5 +2455,41 @@ public class CustomMenuTimeLine extends Fragment {
         return url;
     }
 
+
+    /**
+     * Android 10の新しいジェスチャーで戻るジェスチャーとドロワー開くジェスチャーをかぶらないようにする
+     * 端からスワイプ以外でも動作するようにする
+     */
+    private void addNavigationOpen() {
+        //すたーと
+        final float[] start = {0};
+        final float[] end = {0};
+        recyclerView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        start[0] = event.getX();
+                        //System.out.println("start : " + start[0]);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        end[0] = event.getX();
+                        //System.out.println("end : " + end[0]);
+                        //両方揃ったら比較開始
+                        if (start[0] != end[0]) {
+                            //なんとなく200以上の誤差がないとうごかないように
+                            if (end[0] - start[0] > 200) {
+                                //ドロワー開く。getActivity()あってよかた
+                                DrawerLayout drawer = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
+                                drawer.openDrawer(Gravity.LEFT);
+                            }
+                        }
+                        break;
+                }
+
+                return true;
+            }
+        });
+    }
 
 }

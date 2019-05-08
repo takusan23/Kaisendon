@@ -26,8 +26,8 @@ public class CustomMenuJSONParse {
     String one_hand = "";
     String misskey_username = "";
     String setting = "";
-    String no_fav_icon = "";
-    String yes_fav_icon = "";
+    private String no_fav_icon = null;
+    private String yes_fav_icon = null;
 
     public CustomMenuJSONParse(String json_data) {
         json_parse(json_data);

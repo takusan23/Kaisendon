@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
@@ -16,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
@@ -45,7 +48,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -95,6 +100,11 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     private boolean isActivityPubViewer = false;
     private ArrayList<String> type_face_String;
     private ArrayList<Typeface> type_face_list;
+    //アイコンの配列
+    private ArrayList<String> no_fav_icon_String;
+    private ArrayList<Drawable> no_fav_icon_list;
+    private ArrayList<String> yes_fav_icon_String;
+    private ArrayList<Drawable> yes_fav_icon_list;
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -325,7 +335,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //フォント
                 setFontSetting(viewHolder);
                 //ふぁぼぼたんのかすたまいず
-                setCustomizeFavIcon(viewHolder, setting);
+                setCustomizeFavIcon(viewHolder,api, setting);
             }
         } else if (isScheduled_statuses) {
             MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
@@ -835,41 +845,45 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                 public void run() {
                                     //Fav/BT Countを表示できるようにする
                                     MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string, setting);
-                                    if (endPoint.contains("reblog")) {
-                                        Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
-                                        Drawable boostIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
-                                        boostIcon.setTint(Color.parseColor("#008000"));
-                                        textView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
-                                        textView.setText(api.getBTCount());
-                                        //BTしたぜ！
-                                        item.set(4, "true");
-                                    }
-                                    if (endPoint.contains("favourite")) {
-                                        Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.favourite_add) + " : " + id, Toast.LENGTH_SHORT).show();
-                                        Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
-                                        favIcon.setTint(Color.parseColor("#ffd700"));
-                                        textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
-                                        textView.setText(api.getFavCount());
-                                        //Favしたぜ！
-                                        item.set(5, "true");
-                                    }
-                                    if (endPoint.contains("unfavourite")) {
-                                        Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.delete_fav_toast) + " : " + id, Toast.LENGTH_SHORT).show();
-                                        Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
-                                        favIcon.setTint(Color.parseColor("#000000"));
-                                        textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
-                                        textView.setText(api.getFavCount());
-                                        //Favしたぜ！
-                                        item.set(5, "false");
-                                    }
-                                    if (endPoint.contains("unreblog")) {
-                                        Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.delete_bt_toast) + " : " + id, Toast.LENGTH_SHORT).show();
-                                        Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
-                                        favIcon.setTint(Color.parseColor("#000000"));
-                                        textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
-                                        textView.setText(api.getBTCount());
-                                        //BTしたぜ！
-                                        item.set(4, "false");
+                                    if(setting.getYes_fav_icon()!=null&&setting.getNo_fav_icon()!=null){
+                                        //setCustomizeFavIcon();
+                                    }else {
+                                        if (endPoint.contains("reblog")) {
+                                            Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
+                                            Drawable boostIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                                            boostIcon.setTint(Color.parseColor("#008000"));
+                                            textView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+                                            textView.setText(api.getBTCount());
+                                            //BTしたぜ！
+                                            item.set(4, "true");
+                                        }
+                                        if (endPoint.contains("favourite")) {
+                                            Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.favourite_add) + " : " + id, Toast.LENGTH_SHORT).show();
+                                            Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                                            favIcon.setTint(Color.parseColor("#ffd700"));
+                                            textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                                            textView.setText(api.getFavCount());
+                                            //Favしたぜ！
+                                            item.set(5, "true");
+                                        }
+                                        if (endPoint.contains("unfavourite")) {
+                                            Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.delete_fav_toast) + " : " + id, Toast.LENGTH_SHORT).show();
+                                            Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                                            favIcon.setTint(Color.parseColor("#000000"));
+                                            textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                                            textView.setText(api.getFavCount());
+                                            //Favしたぜ！
+                                            item.set(5, "false");
+                                        }
+                                        if (endPoint.contains("unreblog")) {
+                                            Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.delete_bt_toast) + " : " + id, Toast.LENGTH_SHORT).show();
+                                            Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                                            favIcon.setTint(Color.parseColor("#000000"));
+                                            textView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+                                            textView.setText(api.getBTCount());
+                                            //BTしたぜ！
+                                            item.set(4, "false");
+                                        }
                                     }
                                 }
                             });
@@ -2072,18 +2086,58 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * ふぁぼぼたｎ
      */
-    private void setCustomizeFavIcon(ViewHolder viewHolder, CustomMenuJSONParse setting) {
-/*
-        if (!setting.getNo_fav_icon().equals("")) {
-            Drawable bitmap = Drawable.createFromPath(setting.getNo_fav_icon());
-            viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(bitmap, null, null, null);
+    private void setCustomizeFavIcon(ViewHolder viewHolder, MastodonTLAPIJSONParse api, CustomMenuJSONParse setting) {
+        //System.out.println(Uri.parse(setting.getNo_fav_icon()));
+        //初期化
+        if (no_fav_icon_list == null) {
+            no_fav_icon_String = new ArrayList<>();
+            no_fav_icon_list = new ArrayList<>();
+            yes_fav_icon_String = new ArrayList<>();
+            yes_fav_icon_list = new ArrayList<>();
         }
-        if (!setting.getYes_fav_icon().equals("")) {
-            Drawable bitmap = Drawable.createFromPath(setting.getNo_fav_icon());
-            viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(bitmap, null, null, null);
+        //設定値が存在しなければ利用しない
+        if (setting.getNo_fav_icon() != null && setting.getYes_fav_icon() != null) {
+            //Fav/BT Check
+            if (Boolean.valueOf(api.getIsFav())) {
+                if (yes_fav_icon_String.indexOf(setting.getYes_fav_icon()) == -1) {
+                    //ないときは配列に入れる準備
+                    Bitmap bitmap = null;
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.parse(setting.getYes_fav_icon()));
+                        BitmapDrawable resizeDrawable = new BitmapDrawable(context.getResources(), Bitmap.createScaledBitmap(bitmap, 50, 50, true));
+                        viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(resizeDrawable, null, null, null);
+                        yes_fav_icon_String.add(setting.getNo_fav_icon());
+                        yes_fav_icon_list.add(resizeDrawable);
+                    } catch (SecurityException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    //あるときは配列から持ってくる
+                    viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(yes_fav_icon_list.get(yes_fav_icon_String.indexOf(setting.getNo_fav_icon())), null, null, null);
+                }
+            } else {
+                if (no_fav_icon_String.indexOf(setting.getNo_fav_icon()) == -1) {
+                    //ないときは配列に入れる準備
+                    Bitmap bitmap = null;
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.parse(setting.getNo_fav_icon()));
+                        BitmapDrawable resizeDrawable = new BitmapDrawable(context.getResources(), Bitmap.createScaledBitmap(bitmap, 50, 50, true));
+                        viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(resizeDrawable, null, null, null);
+                        no_fav_icon_String.add(setting.getNo_fav_icon());
+                        no_fav_icon_list.add(resizeDrawable);
+                    } catch (SecurityException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    //あるときは配列から持ってくる
+                    viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(no_fav_icon_list.get(no_fav_icon_String.indexOf(setting.getNo_fav_icon())), null, null, null);
+                }
+            }
         }
-*/
-
     }
 
 

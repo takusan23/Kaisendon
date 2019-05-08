@@ -96,6 +96,7 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import io.github.takusan23.kaisendon.APIJSONParse.CustomMenuJSONParse;
 import io.github.takusan23.kaisendon.Activity.KonoAppNiTuite;
 import io.github.takusan23.kaisendon.Activity.LoginActivity;
 import io.github.takusan23.kaisendon.Activity.UserActivity;

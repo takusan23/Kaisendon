@@ -316,26 +316,24 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         //お気に入りボタン変更
         if (resultData.getData() != null) {
             Uri get_Path = resultData.getData();
-            String image_Path = "file:\\\\" + get_Path;
+            //String image_Path = "file:\\\\" + get_Path;
             //置き換え
-            String final_Path = image_Path.replaceAll("\\\\", "/");
+            //String final_Path = image_Path.replaceAll("\\\\", "/");
             //image_url = final_Path;
             if (requestCode == noFavCode && resultCode == Activity.RESULT_OK) {
-                no_favourite_Button.setText(final_Path);
-                no_fav_icon_path = final_Path;
+                no_favourite_Button.setText(get_Path.toString());
+                no_fav_icon_path = get_Path.toString();
                 //URI画像を入れる
                 Glide.with(getContext())
                         .load(get_Path)
                         .into(no_favourite_ImageView);
-                System.out.println(final_Path);
             } else if (requestCode == yesFavCode && resultCode == Activity.RESULT_OK) {
-                yes_favourite_Button.setText(final_Path);
-                yes_fav_icon_path = final_Path;
+                yes_favourite_Button.setText(get_Path.toString());
+                yes_fav_icon_path = get_Path.toString();
                 //URI画像を入れる
                 Glide.with(getContext())
                         .load(get_Path)
                         .into(yes_favourite_ImageView);
-                System.out.println(final_Path);
             }
 
         }

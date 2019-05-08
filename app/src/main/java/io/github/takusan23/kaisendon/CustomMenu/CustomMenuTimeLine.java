@@ -2477,8 +2477,8 @@ public class CustomMenuTimeLine extends Fragment {
                         //System.out.println("end : " + end[0]);
                         //両方揃ったら比較開始
                         if (start[0] != end[0]) {
-                            //なんとなく200以上の誤差がないとうごかないように
-                            if (end[0] - start[0] > 200) {
+                            //なんとなく400以上の誤差がないとうごかないように
+                            if (end[0] - start[0] > 400) {
                                 //ドロワー開く。getActivity()あってよかた
                                 DrawerLayout drawer = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
                                 drawer.openDrawer(Gravity.LEFT);
@@ -2487,7 +2487,7 @@ public class CustomMenuTimeLine extends Fragment {
                         break;
                 }
 
-                return true;
+                return false;
             }
         });
     }

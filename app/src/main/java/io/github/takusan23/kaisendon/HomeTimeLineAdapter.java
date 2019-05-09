@@ -1558,7 +1558,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             holder.bookmark_button.setText("");
         }
 
-        //ダークモード、OLEDモード時にアイコンが見えない問題
+        //Fダークモード、OLEDモード時にアイコンが見えない問題
         //どちらかが有効の場合
         //↑これ廃止ね。代わりに利用中のテーマを取得して変更する仕様にするからよろー
         //Theme比較わからんから変わりにToolberの背景が黒だったら動くように

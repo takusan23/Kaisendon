@@ -90,7 +90,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/button_style_white"
+                    android:background="@drawable/button_style"
                     android:text="@string/custom_menu_load" />
             </LinearLayout>
 
@@ -109,7 +109,7 @@
                     android:id="@+id/custom_menu_account"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_style_white"
+                    android:background="@drawable/button_style"
                     android:text="@string/custom_menu_account" />
             </LinearLayout>
 
@@ -176,7 +176,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@drawable/button_style_white"
+                            android:background="@drawable/button_style"
                             android:text="@string/custom_setting_background_image" />
 
                         <Button
@@ -184,7 +184,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="@drawable/button_style_white"
+                            android:background="@drawable/button_style"
                             android:text="@string/custom_setting_background_image_reset" />
                     </LinearLayout>
 
@@ -264,14 +264,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:background="@drawable/button_style_white" />
+                        android:background="@drawable/button_style" />
 
                     <Button
                         android:id="@+id/custom_menu_font_reset"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:background="@drawable/button_style_white"
+                        android:background="@drawable/button_style"
                         android:text="@string/custom_setting_font_reset" />
 
                 </LinearLayout>
@@ -472,7 +472,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/button_style_white"
+                    android:background="@drawable/button_style"
                     android:text="お気に入り前ボタンカスタマイズ" />
 
                 <Button
@@ -480,7 +480,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/button_style_white"
+                    android:background="@drawable/button_style"
                     android:text="リセット" />
             </LinearLayout>
 
@@ -500,7 +500,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/button_style_white"
+                    android:background="@drawable/button_style"
                     android:text="お気に入り後ボタンカスタマイズ" />
 
                 <Button
@@ -508,7 +508,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/button_style_white"
+                    android:background="@drawable/button_style"
                     android:text="リセット" />
             </LinearLayout>
 

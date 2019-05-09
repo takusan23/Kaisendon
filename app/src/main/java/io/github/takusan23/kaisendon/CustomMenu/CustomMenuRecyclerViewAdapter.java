@@ -298,7 +298,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //フォント
                 setFontSetting(viewHolder);
                 //ダークモード
-                setThemeIconColor(viewHolder);
+                setThemeIconColor(viewHolder, api);
             } else {
                 //アバター画像
                 loadAvatarImage(api, viewHolder, setting);
@@ -337,26 +337,34 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //ふぁぼぼたんのかすたまいず
                 //setCustomizeFavIcon(viewHolder,api, setting);
                 //ダークモード
-                setThemeIconColor(viewHolder);
+                setThemeIconColor(viewHolder, api);
             }
         } else if (isScheduled_statuses) {
             MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
             //時間指定投稿（予約投稿）ようレイアウト
             setSimpleLayout(viewHolder);
             setScheduled_statuses_layout(viewHolder, api);
+            //ダークモード
+            setThemeIconColor(viewHolder, null);
         } else if (isFollowSuggestions) {
             MastodonAccountJSONParse api = new MastodonAccountJSONParse(viewHolder.mainLinearLayout.getContext(), item.get(3));
             setAccountLayout(viewHolder);
             createAccountLinearLayout(viewHolder, api, item, setting);
+            //ダークモード
+            setThemeIconColor(viewHolder, null);
         } else if (isMastodonFollowes || isMisskeyFollowes) {
             MastodonAccountJSONParse api = new MastodonAccountJSONParse(viewHolder.mainLinearLayout.getContext(), item.get(3));
             setAccountLayout(viewHolder);
             createAccountLinearLayout(viewHolder, api, item, setting);
+            //ダークモード
+            setThemeIconColor(viewHolder, null);
         } else if (isActivityPubViewer) {
             ActivityPubJSONParse api = new ActivityPubJSONParse(item.get(3));
             setSimpleLayout(viewHolder);
             viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getContext(), Html.FROM_HTML_MODE_COMPACT));
             viewHolder.toot_user_TextView.setTextSize(18);
+            //ダークモード
+            setThemeIconColor(viewHolder, null);
         }
 
     }
@@ -847,9 +855,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                 public void run() {
                                     //Fav/BT Countを表示できるようにする
                                     MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string, setting);
-                                    if(setting.getYes_fav_icon()!=null&&setting.getNo_fav_icon()!=null){
+                                    if (setting.getYes_fav_icon() != null && setting.getNo_fav_icon() != null) {
                                         //setCustomizeFavIcon();
-                                    }else {
+                                    } else {
                                         if (endPoint.contains("reblog")) {
                                             Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
                                             Drawable boostIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
@@ -1637,7 +1645,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //ボタン追加
                 viewHolder.mainLinearLayout.removeView(viewHolder.spoiler_text_Button);
                 viewHolder.spoiler_text_Button.setText(context.getString(R.string.show));
-                viewHolder.spoiler_text_Button.setBackground(context.getDrawable(R.drawable.button_style_white));
+                viewHolder.spoiler_text_Button.setBackground(context.getDrawable(R.drawable.button_style));
                 viewHolder.spoiler_text_Button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 viewHolder.mainLinearLayout.addView(viewHolder.spoiler_text_Button, 2);
                 //クリックイベント
@@ -1736,8 +1744,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (api.isVote()) {
             viewHolder.vote_1.setText(api.getVotes_title().get(0) + " (" + api.getVotes_count().get(0) + ")");
             viewHolder.vote_2.setText(api.getVotes_title().get(1) + " (" + api.getVotes_count().get(1) + ")");
-            viewHolder.vote_1.setBackground(context.getDrawable(R.drawable.button_style_white));
-            viewHolder.vote_2.setBackground(context.getDrawable(R.drawable.button_style_white));
+            viewHolder.vote_1.setBackground(context.getDrawable(R.drawable.button_style));
+            viewHolder.vote_2.setBackground(context.getDrawable(R.drawable.button_style));
             viewHolder.vote_LinearLayout.addView(viewHolder.vote_1);
             viewHolder.vote_LinearLayout.addView(viewHolder.vote_2);
             postVote(viewHolder, api, "0", viewHolder.vote_1);
@@ -1745,13 +1753,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
             if (api.getVotes_title().size() > 2) {
                 viewHolder.vote_3.setText(api.getVotes_title().get(2) + " (" + api.getVotes_count().get(2) + ")");
-                viewHolder.vote_3.setBackground(context.getDrawable(R.drawable.button_style_white));
+                viewHolder.vote_3.setBackground(context.getDrawable(R.drawable.button_style));
                 viewHolder.vote_LinearLayout.addView(viewHolder.vote_3);
                 postVote(viewHolder, api, "2", viewHolder.vote_3);
             }
             if (api.getVotes_title().size() > 3) {
                 viewHolder.vote_4.setText(api.getVotes_title().get(3) + " (" + api.getVotes_count().get(3) + ")");
-                viewHolder.vote_4.setBackground(context.getDrawable(R.drawable.button_style_white));
+                viewHolder.vote_4.setBackground(context.getDrawable(R.drawable.button_style));
                 viewHolder.vote_LinearLayout.addView(viewHolder.vote_4);
                 postVote(viewHolder, api, "3", viewHolder.vote_4);
             }
@@ -2143,23 +2151,39 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     }
 
     //ダークモード時はアイコンをすぺるま
-    private void setThemeIconColor(ViewHolder viewHolder){
+    private void setThemeIconColor(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
         //OLED
         //ダークモード処理
         Configuration conf = context.getResources().getConfiguration();
         int currecntNightMode = conf.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        switch (currecntNightMode) {
-            case Configuration.UI_MODE_NIGHT_NO:
-                viewHolder.toot_favourite_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black,context.getTheme()));
-                viewHolder.toot_boost_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black,context.getTheme()));
-                viewHolder.toot_bookmark_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black,context.getTheme()));
-                break;
-            case Configuration.UI_MODE_NIGHT_YES:
-                viewHolder.toot_favourite_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white,context.getTheme()));
-                viewHolder.toot_boost_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white,context.getTheme()));
-                viewHolder.toot_bookmark_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white,context.getTheme()));
-                break;
+        //Avatarのときは無効にする
+        viewHolder.toot_avatar_ImageView.setImageTintList(null);
+        if (viewHolder.reblog_avatar_ImageView != null) {
+            viewHolder.reblog_avatar_ImageView.setImageTintList(null);
         }
+/*
+        if (api != null && Boolean.valueOf(api.getIsFav())) {
+            viewHolder.toot_favourite_TextView.setCompoundDrawableTintList(null);
+            viewHolder.toot_favourite_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(R.color.fav, context.getTheme()));
+        } else if (api != null && Boolean.valueOf(api.getIsBT())) {
+            viewHolder.toot_boost_TextView.setCompoundDrawableTintList(null);
+            viewHolder.toot_boost_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(R.color.bt, context.getTheme()));
+        } else {
+
+            switch (currecntNightMode) {
+                case Configuration.UI_MODE_NIGHT_NO:
+                    viewHolder.toot_favourite_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
+                    viewHolder.toot_boost_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
+                    viewHolder.toot_bookmark_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
+                    break;
+                case Configuration.UI_MODE_NIGHT_YES:
+                    viewHolder.toot_favourite_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white, context.getTheme()));
+                    viewHolder.toot_boost_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white, context.getTheme()));
+                    viewHolder.toot_bookmark_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white, context.getTheme()));
+                    break;
+            }
+           }
+*/
 
     }
 

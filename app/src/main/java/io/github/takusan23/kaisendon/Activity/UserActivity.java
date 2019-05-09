@@ -56,6 +56,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
+import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.PicassoImageGetter;
 import io.github.takusan23.kaisendon.Preference_ApplicationContext;
 import io.github.takusan23.kaisendon.R;
@@ -125,6 +126,7 @@ public class UserActivity extends AppCompatActivity {
     private LinearLayout display_name_avatar_LinearLayout;
     private SimpleDateFormat simpleDateFormat;
     private SimpleDateFormat japanDateFormat;
+    private DarkModeSupport darkModeSupport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,24 +135,8 @@ public class UserActivity extends AppCompatActivity {
         pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
 
         //ダークテーマに切り替える機能
-        //setContentViewより前に実装する必要あり？
-        boolean dark_mode = pref_setting.getBoolean("pref_dark_theme", false);
-        if (dark_mode) {
-            setTheme(R.style.Theme_AppCompat_DayNight);
-        } else {
-            //ドロイド君かわいい
-        }
-
-        //OLEDように真っ暗のテーマも使えるように
-        //この画面用にNoActionBerなダークテーマを指定している
-        boolean oled_mode = pref_setting.getBoolean("pref_oled_mode", false);
-        if (oled_mode) {
-            setTheme(R.style.OLED_Theme);
-        } else {
-            //なにもない
-        }
-
-
+        darkModeSupport = new DarkModeSupport(this);
+        darkModeSupport.setActivityTheme(this);
         setContentView(R.layout.activity_user);
 
         final android.os.Handler handler_1 = new android.os.Handler();
@@ -726,6 +712,7 @@ public class UserActivity extends AppCompatActivity {
                 user_activity_LinearLayout.addView(fieldsLinearLayout);
             }
         }
+
         //snackbar.dismiss();
 
     }
@@ -988,6 +975,7 @@ public class UserActivity extends AppCompatActivity {
         textView.setText(getString(R.string.follow) + "/" + getString(R.string.follower));
         textView.setPadding(10, 10, 10, 10);
         textView.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_person_black_24dp), null, null, null);
+
         //ここについか
         LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
         //めにゅー
@@ -996,6 +984,7 @@ public class UserActivity extends AppCompatActivity {
         //forで回すか
         for (int i = 0; i < 3; i++) {
             TextView menuTextView = new TextView(UserActivity.this);
+            menuTextView.setCompoundDrawableTintList(getResources().getColorStateList(android.R.color.white, getTheme()));
             menuTextView.setPadding(10, 10, 10, 10);
             menuTextView.setText(menuList[i]);
             menuTextView.setTextSize(24);
@@ -1012,6 +1001,7 @@ public class UserActivity extends AppCompatActivity {
                 }
             });
         }
+        //ダークモード
         return top_linearLayout;
     }
 
@@ -1101,6 +1091,7 @@ public class UserActivity extends AppCompatActivity {
         TextView textView = (TextView) top_linearLayout.findViewById(R.id.cardview_textview);
         //名前とか
         textView.setText(getString(R.string.fields_attributes));
+        darkModeSupport.setTextViewThemeColor(textView);
         textView.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_playlist_add_black_24dp), null, null, null);
         //ここについか
         LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);
@@ -1185,7 +1176,7 @@ public class UserActivity extends AppCompatActivity {
         display.getSize(point);
         Configuration config = getResources().getConfiguration();
         //headerImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-        headerImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, point.y/4));
+        headerImageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, point.y / 4));
         headerImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         headerImageView.invalidate();
     }
@@ -1252,7 +1243,6 @@ public class UserActivity extends AppCompatActivity {
             //fields
             //fields Cardのところに書く
         }
-
     }
 
 }

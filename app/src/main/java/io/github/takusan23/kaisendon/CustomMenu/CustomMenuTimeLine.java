@@ -22,7 +22,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -255,6 +254,8 @@ public class CustomMenuTimeLine extends Fragment {
             header_imageView = navHeaderView.findViewById(R.id.drawer_header);
             user_account_textView = navHeaderView.findViewById(R.id.drawer_account);
             user_id_textView = navHeaderView.findViewById(R.id.drawer_id);
+            avater_imageView.setImageTintList(null);
+            header_imageView.setImageTintList(null);
         }
         //インスタンス、アクセストークン変更
         //Misskeyは設定しないように

@@ -26,6 +26,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.Preference_ApplicationContext;
 import io.github.takusan23.kaisendon.R;
 import okhttp3.Call;
@@ -51,6 +52,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
     private SharedPreferences pref_setting;
     private LinearLayout main_LinearLayout;
     private BottomNavigationView bottomNavigationView;
+    private ImageView iconImageView;
 
     private boolean chrome_custom_tabs;
 
@@ -61,18 +63,9 @@ public class KonoAppNiTuite extends AppCompatActivity {
         pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
 
         //ダークテーマに切り替える機能
-        //setContentViewより前に実装する必要あり？
-        boolean dark_mode = pref_setting.getBoolean("pref_dark_theme", false);
-        if (dark_mode) {
-            setTheme(R.style.Theme_AppCompat_DayNight);
-        }
+        DarkModeSupport darkModeSupport = new DarkModeSupport(this);
+        darkModeSupport.setActivityTheme(this);
 
-        //OLEDように真っ暗のテーマも使えるように
-        //この画面用にNoActionBerなダークテーマを指定している
-        boolean oled_mode = pref_setting.getBoolean("pref_oled_mode", false);
-        if (oled_mode) {
-            setTheme(R.style.OLED_Theme_Home);
-        }
         setContentView(R.layout.activity_kono_app_ni_tuite);
 
         setTitle(R.string.konoappnituite);
@@ -81,7 +74,8 @@ public class KonoAppNiTuite extends AppCompatActivity {
         main_LinearLayout = findViewById(R.id.kono_app_nituite_main_linearLayout);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         chrome_custom_tabs = pref_setting.getBoolean("pref_chrome_custom_tabs", true);
-
+        iconImageView = findViewById(R.id.producer_avataer_imageView);
+        iconImageView.setImageTintList(null);
 
         version_TextView.setText(getString(R.string.version) + " " + release_ver_5 + "\r\n" + release_name_5);
 

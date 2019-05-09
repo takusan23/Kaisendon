@@ -31,6 +31,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
+import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.Preference_ApplicationContext;
 import io.github.takusan23.kaisendon.R;
@@ -86,22 +87,8 @@ public class LoginActivity extends AppCompatActivity {
         editor = pref_setting.edit();
 
         //ダークテーマに切り替える機能
-        //setContentViewより前に実装する必要あり？
-        boolean dark_mode = pref_setting.getBoolean("pref_dark_theme", false);
-        if (dark_mode) {
-            //setTheme(R.style.Theme_AppCompat_DayNight_DarkActionBar);
-        } else {
-            //ドロイド君かわいい
-        }
-
-        //OLEDように真っ暗のテーマも使えるように
-        boolean oled_mode = pref_setting.getBoolean("pref_oled_mode", false);
-        if (oled_mode) {
-            // setTheme(R.style.OLED_Theme);
-        } else {
-            //なにもない
-        }
-
+        DarkModeSupport darkModeSupport = new DarkModeSupport(this);
+        darkModeSupport.setActivityTheme(this);
         setContentView(R.layout.activity_login);
 
         //ログイン画面再構築

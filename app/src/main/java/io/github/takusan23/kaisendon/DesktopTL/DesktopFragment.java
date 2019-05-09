@@ -210,8 +210,6 @@ public class DesktopFragment extends Fragment {
                 one_hand = jsonObject.getString("one_hand");
                 misskey = jsonObject.getString("misskey");
                 misskey_username = jsonObject.getString("misskey_username");
-                no_fav_icon = jsonObject.getString("no_fav_icon");
-                yes_fav_icon = jsonObject.getString("yes_fav_icon");
                 setting = jsonObject.getString("setting");
                 Bundle bundle = new Bundle();
                 bundle.putString("misskey", misskey);

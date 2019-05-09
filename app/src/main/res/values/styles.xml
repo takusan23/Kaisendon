@@ -1,11 +1,12 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="toolbarStyle">@style/toolber_color</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -18,6 +19,11 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <!--あくしょんばー-->
+    <style name="toolber_color" parent="@style/Widget.AppCompat.Toolbar">
+        <item name="titleTextColor">#ffffff</item>
+    </style>
+
     <!--ダークテーマ　ホーム以外-->
 
     <style name="OLED_Theme" parent="Theme.AppCompat">
@@ -27,10 +33,11 @@
         <item name="android:tint">#ffffff</item>
     </style>
 
-    <!--ホーム用　ダークテーマ-->
 
-    <style name="OLED_Theme_Home" parent="Theme.AppCompat.NoActionBar">
+    <style name="OLED.ActionBer" parent="Theme.AppCompat">
         <item name="android:colorBackground">@color/background_material_dark</item>
+        <item name="android:tint">#ffffff</item>
+        <item name="actionBarPopupTheme">@style/AppTheme</item>
     </style>
 
     <!--ダークテーマ　ステータスバーを透明に-->

@@ -50,6 +50,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.R;
 import okhttp3.Call;
@@ -126,6 +127,10 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //ダークモード設定
+        DarkModeSupport darkModeSupport = new DarkModeSupport(this);
+        darkModeSupport.setActivityTheme(this);
         setContentView(R.layout.activity_add_custom_menu);
         pref_setting = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -164,6 +169,17 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         //クイックプロフィール、カスタム絵文字を既定で有効
         quickprofile_Switch.setChecked(true);
         custom_emoji_Switch.setChecked(true);
+
+        //てーま
+        darkModeSupport.setSwitchThemeColor(dialog_Switch);
+        darkModeSupport.setSwitchThemeColor(image_Switch);
+        darkModeSupport.setSwitchThemeColor(dark_Switch);
+        darkModeSupport.setSwitchThemeColor(streaming_Switch);
+        darkModeSupport.setSwitchThemeColor(quickprofile_Switch);
+        darkModeSupport.setSwitchThemeColor(tootcounter_Switch);
+        darkModeSupport.setSwitchThemeColor(custom_emoji_Switch);
+        darkModeSupport.setSwitchThemeColor(one_hand_Switch);
+        darkModeSupport.setSwitchThemeColor(gif_Switch);
 
         //SQLite
         if (helper == null) {

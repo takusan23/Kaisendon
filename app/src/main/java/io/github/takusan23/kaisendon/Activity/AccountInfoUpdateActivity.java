@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 
 import io.github.takusan23.kaisendon.CustomMenu.Dialog.CalenderDialog;
+import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.Preference_ApplicationContext;
 import io.github.takusan23.kaisendon.R;
 import io.github.takusan23.kaisendon.SnackberProgress;
@@ -110,31 +111,14 @@ public class AccountInfoUpdateActivity extends AppCompatActivity {
         pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
 
         //ダークテーマに切り替える機能
-        //setContentViewより前に実装する必要あり？
-        boolean dark_mode = pref_setting.getBoolean("pref_dark_theme", false);
-        if (dark_mode) {
-            setTheme(R.style.Theme_AppCompat_DayNight);
-        }
-
-
-        //OLEDように真っ暗のテーマも使えるように
-        //この画面用にNoActionBerなダークテーマを指定している
-        boolean oled_mode = pref_setting.getBoolean("pref_oled_mode", false);
-        if (oled_mode) {
-            setTheme(R.style.OLED_Theme_Home);
-        }
-
+        DarkModeSupport darkModeSupport = new DarkModeSupport(this);
+        darkModeSupport.setActivityTheme(this);
 
         if (getIntent().getBooleanExtra("Misskey", false)) {
             setContentView(R.layout.misskey_account_update_layout);
         } else {
             setContentView(R.layout.activity_account_info_update);
         }
-/*
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-*/
-
 
         boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
         if (accessToken_boomelan) {

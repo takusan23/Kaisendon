@@ -112,7 +112,7 @@
             android:id="@+id/login_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_style_white"
+            android:background="@drawable/button_style"
             android:drawableStart="@drawable/ic_open_in_browser_black_24dp"
             android:text="@string/login_button" />
     </LinearLayout>

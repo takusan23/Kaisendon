@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -21,6 +22,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -206,15 +208,7 @@ public class CustomMenuTimeLine extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        //OLED
-        if (Boolean.valueOf(getArguments().getString("dark_mode"))) {
-            //フォントのため
-            getActivity().setTheme(R.style.OLED_Theme);
-        } else {
-            //フォントのため
-            getActivity().setTheme(R.style.AppTheme);
-        }
+        //ダークモードを有効にするか
         return inflater.inflate(R.layout.fragment_custom_menu_time_line, container, false);
     }
 
@@ -303,17 +297,42 @@ public class CustomMenuTimeLine extends Fragment {
             background_transparency = "";
         }
 
+        //OLED
+        //ダークモード処理
+        Configuration conf = getResources().getConfiguration();
+        int currecntNightMode = conf.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (currecntNightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "ffffff"));
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:
+                linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "000000"));
+                break;
+        }
+
+/*
+        //OLED
+        if (AppCompatDelegate.getDefaultNightMode()==AppCompatDelegate.MODE_NIGHT_YES){
+            linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "000000"));
+        }else{
+            linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "ffffff"));
+        }
+*/
+
+
+/*
         //OLEDは背景を黒にする
         if (Boolean.valueOf(getArguments().getString("dark_mode"))) {
             linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "000000"));
-            ((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#000000"));
+            //((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#000000"));
             dark_theme = true;
         } else {
             //黒にしなくていい
             linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "ffffff"));
             //てーま
-            ((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#2196f3"));
+            //((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#2196f3"));
         }
+*/
 
         //最終的なURL
         url = "https://" + instance + url;
@@ -1933,8 +1952,8 @@ public class CustomMenuTimeLine extends Fragment {
             notification_WebSocketClient.close();
         }
         //OLEDとかかかわらず戻す
-        getActivity().setTheme(R.style.AppTheme);
-        ((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#2196f3"));
+        //getActivity().setTheme(R.style.AppTheme);
+        //((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#2196f3"));
     }
 
     /**

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -296,6 +297,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 setTransparency(viewHolder, setting);
                 //フォント
                 setFontSetting(viewHolder);
+                //ダークモード
+                setThemeIconColor(viewHolder);
             } else {
                 //アバター画像
                 loadAvatarImage(api, viewHolder, setting);
@@ -333,6 +336,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 setFontSetting(viewHolder);
                 //ふぁぼぼたんのかすたまいず
                 //setCustomizeFavIcon(viewHolder,api, setting);
+                //ダークモード
+                setThemeIconColor(viewHolder);
             }
         } else if (isScheduled_statuses) {
             MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
@@ -2137,5 +2142,25 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         }
     }
 
+    //ダークモード時はアイコンをすぺるま
+    private void setThemeIconColor(ViewHolder viewHolder){
+        //OLED
+        //ダークモード処理
+        Configuration conf = context.getResources().getConfiguration();
+        int currecntNightMode = conf.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (currecntNightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                viewHolder.toot_favourite_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black,context.getTheme()));
+                viewHolder.toot_boost_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black,context.getTheme()));
+                viewHolder.toot_bookmark_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black,context.getTheme()));
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:
+                viewHolder.toot_favourite_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white,context.getTheme()));
+                viewHolder.toot_boost_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white,context.getTheme()));
+                viewHolder.toot_bookmark_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white,context.getTheme()));
+                break;
+        }
+
+    }
 
 }

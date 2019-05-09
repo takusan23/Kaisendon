@@ -15,6 +15,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
@@ -48,6 +49,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.Toolbar;
@@ -268,23 +270,23 @@ public class Home extends AppCompatActivity
         boolean setting_avater_gif = pref_setting.getBoolean("pref_avater_gif", false);
 
 
-        //ダークテーマに切り替える機能
-        //setContentViewより前に実装する必要あり？
-        boolean dark_mode = pref_setting.getBoolean("pref_dark_theme", false);
-        if (dark_mode) {
-            setTheme(R.style.DayNightNoActionBarClearStatusBer);
-        } else {
-            //ドロイド君かわいい
+
+
+        //ダークモード処理
+        Configuration conf = getResources().getConfiguration();
+        int currecntNightMode = conf.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (currecntNightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                setTheme(R.style.AppTheme_NoActionBar);
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:
+                 setTheme(R.style.OLED_Theme);
+                break;
         }
 
-        //OLEDように真っ暗のテーマも使えるように
-        //この画面用にNoActionBerなダークテーマを指定している
-        boolean oled_mode = pref_setting.getBoolean("pref_oled_mode", false);
-        if (oled_mode) {
-            setTheme(R.style.OLED_Theme_Home);
-        } else {
-            //なにもない
-        }
+
+
+        //setTheme(R.style.AppTheme_NoActionBar);
 
 
         setContentView(R.layout.activity_home);
@@ -3820,8 +3822,6 @@ public class Home extends AppCompatActivity
             }
         }
     }
-
-
 
 
 }

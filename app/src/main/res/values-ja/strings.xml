@@ -471,5 +471,10 @@
     <string name="desktop_mode_setting">デスクトップモードの設定</string>
     <string name="desktop_mode_display_description">表示数を設定できます。既定は縦2で横3です。</string>
     <string name="notification_poll">投票の結果</string>
+    <string name="floating_tl">フローリングタイムライン</string>
+    <string name="floating_tl_description">他アプリ起動中でもタイムラインを見ることができます。</string>
+    <string name="floating_tl_error_os">この機能を使うためにはAndroidバージョン10以降を搭載している必要があります。</string>
+    <string name="darkmode_error_os">このメニューはAndroid 9以前を搭載する端末向け設定です。 Android 10以降の場合は本体の設定からダークモードを有効にすることで自動的に有効になります。</string>
+    <string name="darkmode">ダークモード</string>
 
 </resources>

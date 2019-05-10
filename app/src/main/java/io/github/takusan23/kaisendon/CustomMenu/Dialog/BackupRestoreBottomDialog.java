@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
+import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.R;
 
@@ -41,8 +43,10 @@ public class BackupRestoreBottomDialog extends BottomSheetDialogFragment {
         backup_Button = view.findViewById(R.id.backup_restore_backup_Button);
         restore_Button = view.findViewById(R.id.backup_restore_restore_Button);
         path_TextView = view.findViewById(R.id.backup_restore_path_textView);
-
-
+        DarkModeSupport darkModeSupport = new DarkModeSupport(getContext());
+        darkModeSupport.setBackgroundDarkMode((LinearLayout) backup_Button.getParent().getParent());
+        darkModeSupport.setTextViewThemeColor(restore_Button);
+        darkModeSupport.setTextViewThemeColor(backup_Button);
         backup_Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

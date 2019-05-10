@@ -37,7 +37,6 @@
     <style name="OLED.ActionBer" parent="Theme.AppCompat">
         <item name="android:colorBackground">@color/background_material_dark</item>
         <item name="android:tint">#ffffff</item>
-        <item name="actionBarPopupTheme">@style/AppTheme</item>
     </style>
 
     <!--ダークテーマ　ステータスバーを透明に-->

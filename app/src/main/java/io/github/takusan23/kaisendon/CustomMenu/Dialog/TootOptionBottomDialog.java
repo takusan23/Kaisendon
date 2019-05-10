@@ -45,6 +45,11 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
         account_Button = view.findViewById(R.id.toot_option_account_button);
         bookmark_Button = view.findViewById(R.id.toot_option_bookmark_button);
         copy_TextView = view.findViewById(R.id.toot_option_copy_button);
+//        DarkModeSupport darkModeSupport = new DarkModeSupport(getContext());
+//        darkModeSupport.setLayoutAllThemeColor((LinearLayout) bookmark_Button.getParent().getParent());
+//        darkModeSupport.setTextViewThemeColor(account_Button);
+//        darkModeSupport.setTextViewThemeColor(bookmark_Button);
+//        darkModeSupport.setTextViewThemeColor(copy_TextView);
         //クリック
         account_Button.setOnClickListener(new View.OnClickListener() {
             @Override

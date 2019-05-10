@@ -4,9 +4,9 @@ android {
     defaultConfig {
         applicationId 'io.github.takusan23.kaisendon'
         minSdkVersion 24
-        targetSdkVersion "Q"
-        versionCode 21
-        versionName "5.1.4"
+        targetSdkVersion 28
+        versionCode 22
+        versionName "6.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true

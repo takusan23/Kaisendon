@@ -47,6 +47,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
@@ -106,8 +107,11 @@ import io.github.takusan23.kaisendon.Activity.UserActivity;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSettingFragment;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
+import io.github.takusan23.kaisendon.CustomMenu.Dialog.BackupRestoreBottomDialog;
 import io.github.takusan23.kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog;
+import io.github.takusan23.kaisendon.CustomMenu.Dialog.TLQuickSettingsBottomFragment;
 import io.github.takusan23.kaisendon.CustomMenu.DirectMessage_Fragment;
+import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
 import io.github.takusan23.kaisendon.FloatingTL.FloatingTL;
 import io.github.takusan23.kaisendon.Fragment.AccountListFragment;
@@ -274,6 +278,8 @@ public class Home extends AppCompatActivity
         //ダークモード処理
         Configuration conf = getResources().getConfiguration();
         int currecntNightMode = conf.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        DarkModeSupport darkModeSupport = new DarkModeSupport(this);
+        currecntNightMode = darkModeSupport.setIsDarkModeSelf(currecntNightMode);
         switch (currecntNightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
                 setTheme(R.style.AppTheme_NoActionBar);
@@ -334,6 +340,7 @@ public class Home extends AppCompatActivity
         } else {
             isDesktop = false;
         }
+
 
 
 
@@ -1098,6 +1105,7 @@ public class Home extends AppCompatActivity
             //常時点灯しない
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
+
     }
 
     //画像POST
@@ -1423,6 +1431,28 @@ public class Home extends AppCompatActivity
                     FloatingTL floatingTL = new FloatingTL(this, fragment.getArguments().getString("json"));
                     floatingTL.setNotification();
                 }
+                break;
+            case R.id.home_menu_quick_setting:
+                //TLQuickSettingsBottomFragment dialogFragment = new TLQuickSettingsBottomFragment();
+                //dialogFragment.show(getSupportFragmentManager(), "quick_setting");
+                break;
+            case R.id.home_menu_dark:
+                //これはAndroid Qを搭載しない端末向け設定
+                if (Build.VERSION.SDK_INT <= 28 && !Build.VERSION.CODENAME.equals("Q")) {
+                    SharedPreferences.Editor editor = pref_setting.edit();
+                    if (pref_setting.getBoolean("darkmode", false)) {
+                        editor.putBoolean("darkmode", false);
+                        editor.apply();
+                    } else {
+                        editor.putBoolean("darkmode", true);
+                        editor.apply();
+                    }
+                    //Activity再起動
+                    startActivity(new Intent(this, Home.class));
+                } else {
+                    Toast.makeText(this, getString(R.string.darkmode_error_os), Toast.LENGTH_SHORT).show();
+                }
+
                 break;
         }
         if (id == R.id.action_settings) {

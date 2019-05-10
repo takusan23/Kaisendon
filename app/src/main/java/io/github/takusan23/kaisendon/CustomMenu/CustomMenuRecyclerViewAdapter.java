@@ -64,6 +64,7 @@ import io.github.takusan23.kaisendon.APIJSONParse.MastodonScheduledStatusesJSONP
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonTLAPIJSONParse;
 import io.github.takusan23.kaisendon.Activity.UserActivity;
 import io.github.takusan23.kaisendon.CustomMenu.Dialog.TootOptionBottomDialog;
+import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
 import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
 import io.github.takusan23.kaisendon.PicassoImageGetter;
@@ -2156,6 +2157,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         //ダークモード処理
         Configuration conf = context.getResources().getConfiguration();
         int currecntNightMode = conf.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        DarkModeSupport darkModeSupport = new DarkModeSupport(context);
+        currecntNightMode = darkModeSupport.setIsDarkModeSelf(currecntNightMode);
         //Avatarのときは無効にする
         viewHolder.toot_avatar_ImageView.setImageTintList(null);
         if (viewHolder.reblog_avatar_ImageView != null) {

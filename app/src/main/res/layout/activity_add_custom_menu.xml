@@ -335,6 +335,7 @@
                     android:id="@+id/custom_menu_darkmode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:enabled="false"
                     android:text="@string/custom_menu_darkmode" />
             </LinearLayout>
 
@@ -442,75 +443,77 @@
                     android:text="@string/custom_menu_gif_load" />
             </LinearLayout>
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="10dp" />
+            <!--
+                        <Space
+                            android:layout_width="match_parent"
+                            android:layout_height="10dp" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="ブースト、ふぁぼボタンをカスタマイズする" />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="ブースト、ふぁぼボタンをカスタマイズする" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="お気に入りボタン" />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="お気に入りボタン" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
 
-                <ImageView
-                    android:id="@+id/no_favourite_imageview"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                            <ImageView
+                                android:id="@+id/no_favourite_imageview"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1" />
 
-                <Button
-                    android:id="@+id/no_favouriteButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/button_style"
-                    android:text="お気に入り前ボタンカスタマイズ" />
+                            <Button
+                                android:id="@+id/no_favouriteButton"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:background="@drawable/button_style"
+                                android:text="お気に入り前ボタンカスタマイズ" />
 
-                <Button
-                    android:id="@+id/no_favouriteDeleteButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/button_style"
-                    android:text="リセット" />
-            </LinearLayout>
+                            <Button
+                                android:id="@+id/no_favouriteDeleteButton"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:background="@drawable/button_style"
+                                android:text="リセット" />
+                        </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
 
-                <ImageView
-                    android:id="@+id/yes_favourite_imageview"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                            <ImageView
+                                android:id="@+id/yes_favourite_imageview"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1" />
 
-                <Button
-                    android:id="@+id/yes_favouriteButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/button_style"
-                    android:text="お気に入り後ボタンカスタマイズ" />
+                            <Button
+                                android:id="@+id/yes_favouriteButton"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:background="@drawable/button_style"
+                                android:text="お気に入り後ボタンカスタマイズ" />
 
-                <Button
-                    android:id="@+id/yes_favouriteDeleteButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/button_style"
-                    android:text="リセット" />
-            </LinearLayout>
+                            <Button
+                                android:id="@+id/yes_favouriteDeleteButton"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:background="@drawable/button_style"
+                                android:text="リセット" />
+                        </LinearLayout>
+            -->
 
         </LinearLayout>
     </ScrollView>

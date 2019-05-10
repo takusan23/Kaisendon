@@ -1,14 +1,11 @@
 package io.github.takusan23.kaisendon.FloatingTL;
 
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -20,7 +17,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
-import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.R;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -116,56 +112,15 @@ public class FloatingTLActivity extends AppCompatActivity {
         postImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view,getString(R.string.note_create_message),Snackbar.LENGTH_LONG).setAction(getString(R.string.toot_text), new View.OnClickListener() {
+                Snackbar.make(view, getString(R.string.note_create_message), Snackbar.LENGTH_LONG).setAction(getString(R.string.toot_text), new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String AccessToken = null;
-                        String Instance = null;
                         try {
-                            AccessToken = jsonObject.getString("access_token");
-                            Instance = jsonObject.getString("instance");
-                            String url = "https://" + Instance + "/api/v1/statuses/?access_token=" + AccessToken;
-                            JSONObject postJsonObject = new JSONObject();
-                            postJsonObject.put("status", editText.getText().toString());
-                            RequestBody requestBody_json = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), postJsonObject.toString());
-                            Request request = new Request.Builder()
-                                    .url(url)
-                                    .post(requestBody_json)
-                                    .build();
-                            //POST
-                            OkHttpClient client = new OkHttpClient();
-                            client.newCall(request).enqueue(new Callback() {
-                                @Override
-                                public void onFailure(Call call, IOException e) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                public void onResponse(Call call, Response response) throws IOException {
-                                    if (!response.isSuccessful()) {
-                                        //失敗
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(FloatingTLActivity.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    } else {
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(FloatingTLActivity.this, getString(R.string.toot_ok), Toast.LENGTH_SHORT).show();
-                                                editText.setText("");
-                                            }
-                                        });
-                                    }
-                                }
-                            });
+                            if (Boolean.valueOf(jsonObject.getString("misskey"))) {
+                                misskeyStatusPOST();
+                            } else {
+                                mastodonStatusPOST();
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -174,4 +129,117 @@ public class FloatingTLActivity extends AppCompatActivity {
             }
         });
     }
+
+    /*Misskey*/
+    private void misskeyStatusPOST() {
+        try {
+            String token = jsonObject.getString("access_token");
+            String instance = jsonObject.getString("instance");
+            String url = "https://" + instance + "/api/notes/create";
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("i", token);
+                jsonObject.put("text", editText.getText().toString());
+                jsonObject.put("viaMobile", true);//スマホからなので一応
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            RequestBody requestBody_json = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(requestBody_json)
+                    .build();
+            //POST
+            OkHttpClient client = new OkHttpClient();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        //失敗
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(FloatingTLActivity.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(FloatingTLActivity.this, getString(R.string.toot_ok), Toast.LENGTH_SHORT).show();
+                                editText.setText("");
+                            }
+                        });
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*MastodonStatusPOST*/
+    private void mastodonStatusPOST() {
+        String AccessToken = null;
+        String Instance = null;
+        try {
+            AccessToken = jsonObject.getString("access_token");
+            Instance = jsonObject.getString("instance");
+            String url = "https://" + Instance + "/api/v1/statuses/?access_token=" + AccessToken;
+            JSONObject postJsonObject = new JSONObject();
+            postJsonObject.put("status", editText.getText().toString());
+            RequestBody requestBody_json = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), postJsonObject.toString());
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(requestBody_json)
+                    .build();
+            //POST
+            OkHttpClient client = new OkHttpClient();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        //失敗
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(FloatingTLActivity.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(FloatingTLActivity.this, getString(R.string.toot_ok), Toast.LENGTH_SHORT).show();
+                                editText.setText("");
+                            }
+                        });
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -99,12 +99,14 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     private TextView font_TextView;
     private FloatingActionButton fab;
 
+/*
     private ImageView no_favourite_ImageView;
     private Button no_favourite_Button;
     private Button no_favourite_Delete_Button;
     private ImageView yes_favourite_ImageView;
     private Button yes_favourite_Button;
     private Button yes_favourite_Delete_Button;
+*/
 
     private SharedPreferences pref_setting;
 
@@ -160,12 +162,14 @@ public class AddCustomMenuActivity extends AppCompatActivity {
         font_reset_Button = findViewById(R.id.custom_menu_font_reset);
         one_hand_Switch = findViewById(R.id.custom_menu_one_hand);
         misskey_Switch = findViewById(R.id.misskey_switch);
+/*
         no_favourite_Button = findViewById(R.id.no_favouriteButton);
         no_favourite_ImageView = findViewById(R.id.no_favourite_imageview);
         no_favourite_Delete_Button = findViewById(R.id.no_favouriteDeleteButton);
         yes_favourite_Button = findViewById(R.id.yes_favouriteButton);
         yes_favourite_ImageView = findViewById(R.id.yes_favourite_imageview);
         yes_favourite_Delete_Button = findViewById(R.id.yes_favouriteDeleteButton);
+*/
         //クイックプロフィール、カスタム絵文字を既定で有効
         quickprofile_Switch.setChecked(true);
         custom_emoji_Switch.setChecked(true);
@@ -329,6 +333,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
             font_TextView.setTypeface(typeface);
             font_Button.setText(font_path);
         }
+/*
         //お気に入りボタン変更
         if (resultData.getData() != null) {
             Uri get_Path = resultData.getData();
@@ -351,8 +356,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                         .load(get_Path)
                         .into(yes_favourite_ImageView);
             }
-
         }
+*/
     }
 
     /**
@@ -360,7 +365,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
      */
     private void favButtonSetting() {
         //画像選択画面に飛ばす
-        no_favourite_Button.setOnClickListener(new View.OnClickListener() {
+ /*
+       no_favourite_Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //ストレージ読み込みの権限があるか確認
@@ -441,6 +447,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 yes_favourite_Button.setText(R.string.custom_setting_background_image);
             }
         });
+*/
     }
 
     /**
@@ -714,8 +721,10 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 font_path = jsonObject.getString("font");
                 no_fav_icon_path = jsonObject.getString("no_fav_icon");
                 yes_fav_icon_path = jsonObject.getString("yes_fav_icon");
+/*
                 Glide.with(getContext()).load(no_fav_icon_path).into(no_favourite_ImageView);
                 Glide.with(getContext()).load(yes_fav_icon_path).into(yes_favourite_ImageView);
+*/
                 File file = new File(font_path);
                 misskey_username = jsonObject.getString("misskey_username");
                 if (file.exists()) {

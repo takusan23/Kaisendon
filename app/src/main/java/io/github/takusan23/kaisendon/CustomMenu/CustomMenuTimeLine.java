@@ -70,6 +70,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
 import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
@@ -304,6 +305,8 @@ public class CustomMenuTimeLine extends Fragment {
         //ダークモード処理
         Configuration conf = getResources().getConfiguration();
         int currecntNightMode = conf.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        DarkModeSupport darkModeSupport = new DarkModeSupport(getContext());
+        currecntNightMode = darkModeSupport.setIsDarkModeSelf(currecntNightMode);
         switch (currecntNightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
                 linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "ffffff"));

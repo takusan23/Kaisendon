@@ -109,6 +109,7 @@ import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog;
 import io.github.takusan23.kaisendon.CustomMenu.DirectMessage_Fragment;
 import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
+import io.github.takusan23.kaisendon.FloatingTL.FloatingTL;
 import io.github.takusan23.kaisendon.Fragment.AccountListFragment;
 import io.github.takusan23.kaisendon.Fragment.ActivityPubViewer;
 import io.github.takusan23.kaisendon.Fragment.Bookmark_Frament;
@@ -270,8 +271,6 @@ public class Home extends AppCompatActivity
         boolean setting_avater_gif = pref_setting.getBoolean("pref_avater_gif", false);
 
 
-
-
         //ダークモード処理
         Configuration conf = getResources().getConfiguration();
         int currecntNightMode = conf.uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -280,10 +279,9 @@ public class Home extends AppCompatActivity
                 setTheme(R.style.AppTheme_NoActionBar);
                 break;
             case Configuration.UI_MODE_NIGHT_YES:
-                 setTheme(R.style.OLED_Theme);
+                setTheme(R.style.OLED_Theme);
                 break;
         }
-
 
 
         //setTheme(R.style.AppTheme_NoActionBar);
@@ -1418,6 +1416,14 @@ public class Home extends AppCompatActivity
                 break;
             case R.id.home_menu_old_drawer:
                 navigationView.inflateMenu(R.menu.activity_home_drawer);
+                break;
+            case R.id.home_menu_flowlt:
+                Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container_container);
+                if (fragment != null && fragment instanceof CustomMenuTimeLine) {
+                    FloatingTL floatingTL = new FloatingTL(this, fragment.getArguments().getString("json"));
+                    floatingTL.setNotification();
+                }
+                break;
         }
         if (id == R.id.action_settings) {
             return true;

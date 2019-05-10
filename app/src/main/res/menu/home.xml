@@ -95,6 +95,12 @@
                 app:showAsAction="never" />
         </menu>
     </item>
+    <item
+        android:id="@+id/home_menu_flowlt"
+        android:icon="@drawable/ic_flip_to_front_black_24dp"
+        android:orderInCategory="100"
+        android:title="FloatingTL"
+        app:showAsAction="never" />
 </menu>
 
 

@@ -3,6 +3,8 @@ package io.github.takusan23.kaisendon.DarkMode;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -50,7 +52,7 @@ public class DarkModeSupport {
                 textView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
                 break;
             case Configuration.UI_MODE_NIGHT_YES:
-                textView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
+                textView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white, context.getTheme()));
                 break;
         }
     }
@@ -62,7 +64,7 @@ public class DarkModeSupport {
                 sw.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
                 break;
             case Configuration.UI_MODE_NIGHT_YES:
-                sw.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
+                sw.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white, context.getTheme()));
                 break;
         }
     }
@@ -75,6 +77,21 @@ public class DarkModeSupport {
                 setTextViewThemeColor((TextView) layout.getChildAt(i));
             }
         }
+    }
+
+    /*Drawableに染色する*/
+    private Drawable setDrawableColor(Drawable drawable) {
+        switch (nightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                drawable.setTint(Color.parseColor("#ffffff"));
+                ;
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:
+                drawable.setTint(Color.parseColor("#000000"));
+                ;
+                break;
+        }
+        return drawable;
     }
 
 }

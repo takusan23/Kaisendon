@@ -2161,30 +2161,30 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (viewHolder.reblog_avatar_ImageView != null) {
             viewHolder.reblog_avatar_ImageView.setImageTintList(null);
         }
-/*
-        if (api != null && Boolean.valueOf(api.getIsFav())) {
-            viewHolder.toot_favourite_TextView.setCompoundDrawableTintList(null);
-            viewHolder.toot_favourite_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(R.color.fav, context.getTheme()));
-        } else if (api != null && Boolean.valueOf(api.getIsBT())) {
-            viewHolder.toot_boost_TextView.setCompoundDrawableTintList(null);
-            viewHolder.toot_boost_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(R.color.bt, context.getTheme()));
-        } else {
 
+        Drawable isBoostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp, null);
+        Drawable isFavIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp, null);
+
+        if (api != null && Boolean.valueOf(api.getIsBT())) {
+            isBoostIcon.setTint(Color.parseColor("#008000"));
+        } else if (api != null && Boolean.valueOf(api.getIsFav())) {
+            isFavIcon.setTint(Color.parseColor("#ffd700"));
+        } else {
             switch (currecntNightMode) {
                 case Configuration.UI_MODE_NIGHT_NO:
-                    viewHolder.toot_favourite_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
-                    viewHolder.toot_boost_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
+                    isBoostIcon.setTint(Color.parseColor("#000000"));
+                    isFavIcon.setTint(Color.parseColor("#000000"));
                     viewHolder.toot_bookmark_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
                     break;
                 case Configuration.UI_MODE_NIGHT_YES:
-                    viewHolder.toot_favourite_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white, context.getTheme()));
-                    viewHolder.toot_boost_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white, context.getTheme()));
+                    isBoostIcon.setTint(Color.parseColor("#ffffff"));
+                    isFavIcon.setTint(Color.parseColor("#ffffff"));
                     viewHolder.toot_bookmark_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white, context.getTheme()));
                     break;
             }
-           }
-*/
-
+        }
+        viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(isFavIcon, null, null, null);
+        viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(isBoostIcon, null, null, null);
     }
 
 }

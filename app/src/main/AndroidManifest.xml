@@ -22,6 +22,12 @@
         <activity
             android:name=".CustomMenu.AddCustomMenuActivity"
             android:parentActivityName=".Home" />
+        <activity android:name=".FloatingTL.FloatingTLActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="Floating TL"
+            android:allowEmbedded="true"
+            android:documentLaunchMode="always"
+            android:resizeableActivity="true" />
         <activity
             android:name=".Activity.WearTootShortcutListActivity"
             android:parentActivityName=".Home" />

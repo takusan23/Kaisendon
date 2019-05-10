@@ -248,14 +248,16 @@ public class CustomMenuTimeLine extends Fragment {
         //Navication Drawer
         if (getActivity() != null) {
             NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
-            //どろわーのイメージとか文字とか
-            View navHeaderView = navigationView.getHeaderView(0);
-            avater_imageView = navHeaderView.findViewById(R.id.icon_image);
-            header_imageView = navHeaderView.findViewById(R.id.drawer_header);
-            user_account_textView = navHeaderView.findViewById(R.id.drawer_account);
-            user_id_textView = navHeaderView.findViewById(R.id.drawer_id);
-            avater_imageView.setImageTintList(null);
-            header_imageView.setImageTintList(null);
+            if (navigationView!=null){
+                //どろわーのイメージとか文字とか
+                View navHeaderView = navigationView.getHeaderView(0);
+                avater_imageView = navHeaderView.findViewById(R.id.icon_image);
+                header_imageView = navHeaderView.findViewById(R.id.drawer_header);
+                user_account_textView = navHeaderView.findViewById(R.id.drawer_account);
+                user_id_textView = navHeaderView.findViewById(R.id.drawer_id);
+                avater_imageView.setImageTintList(null);
+                header_imageView.setImageTintList(null);
+            }
         }
         //インスタンス、アクセストークン変更
         //Misskeyは設定しないように
@@ -358,13 +360,17 @@ public class CustomMenuTimeLine extends Fragment {
 
         //ToolBerをクリックしたら一番上に移動するようにする
         if (pref_setting.getBoolean("pref_listview_top", true)) {
-            ((Home) getActivity()).getToolBer().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //これ一番上に移動するやつ
-                    recyclerView.smoothScrollToPosition(0);
-                }
-            });
+            try{
+                ((Home) getActivity()).getToolBer().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //これ一番上に移動するやつ
+                        recyclerView.smoothScrollToPosition(0);
+                    }
+                });
+            }catch (ClassCastException e){
+                e.printStackTrace();
+            }
         }
 
         //トゥートカウンター
@@ -2074,7 +2080,7 @@ public class CustomMenuTimeLine extends Fragment {
      */
     private void setDrawerImageText(String avatarUrl, String headerUri, String display_name, String username) {
         //Wi-Fi接続状況確認
-        if (getContext() != null) {
+        if (getContext() != null && user_account_textView!=null) {
             ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
             //一応Nullチェック
@@ -2501,7 +2507,9 @@ public class CustomMenuTimeLine extends Fragment {
                             if (end[0] - start[0] > 400) {
                                 //ドロワー開く。getActivity()あってよかた
                                 DrawerLayout drawer = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
-                                drawer.openDrawer(Gravity.LEFT);
+                                if (drawer!=null){
+                                    drawer.openDrawer(Gravity.LEFT);
+                                }
                             }
                         }
                         break;

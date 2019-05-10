@@ -1,12 +1,11 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorPrimaryDark</item>
-        <item name="toolbarStyle">@style/toolber_color</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -35,7 +34,7 @@
 
 
     <style name="OLED.ActionBer" parent="Theme.AppCompat">
-        <item name="android:colorBackground">@color/background_material_dark</item>
+        <item name="android:colorBackground">#000000</item>
         <item name="android:tint">#ffffff</item>
     </style>
 

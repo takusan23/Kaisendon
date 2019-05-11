@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/home_menu_reload_menu"
+        android:icon="@drawable/ic_refresh_black_24dp"
+        android:orderInCategory="100"
+        android:title="@string/custom_menu_reload"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/home_menu_wear"
+        android:icon="@drawable/ic_watch_black_24dp"
+        android:orderInCategory="100"
+        android:title="@string/kaisendon_wear"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/home_menu_activity_pub_viewer"
+        android:icon="@drawable/ic_insert_drive_file_black_24dp"
+        android:orderInCategory="100"
+        android:title="@string/activity_pub_viewer"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/home_menu_sonota"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:orderInCategory="100"
+        android:title="@string/setting"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@+id/home_menu_setting"
+                android:title="@string/setting"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/home_menu_license"
+                android:title="@string/license"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/home_menu_thisapp"
+                android:title="@string/konoappnituite"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/home_menu_privacy-policy"
+                android:title="@string/privacy_policy"
+                app:showAsAction="never" />
+        </menu>
+    </item>
+
+</menu>

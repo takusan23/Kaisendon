@@ -580,5 +580,6 @@
     <string name="floating_tl_error_os">You need to have Android version 10 or later to use this function.</string>
     <string name="darkmode_error_os">This menu is for handsets running Android 9 or earlier. In case of Android 10 or later, it is automatically enabled by enabling the dark mode from the setting of the main unit.</string>
     <string name="darkmode">DarkMode</string>
+    <string name="sonota">Other</string>
 
 </resources>

@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/tl_qs_account"
+        android:icon="@drawable/ic_person_black_24dp"
+        android:title="@string/account" />
+    <item
+        android:id="@+id/tl_qs_bookmark"
+        android:icon="@drawable/ic_book_black_24dp"
+        android:title="@string/bookmark" />
+    <item
+        android:id="@+id/tl_qs_desktop_mode"
+        android:icon="@drawable/ic_view_column_black_24dp"
+        android:title="@string/desktop_mode" />
+    <item
+        android:id="@+id/tl_qs_floating_tl"
+        android:icon="@drawable/ic_flip_to_front_black_24dp"
+        android:title="@string/floating_tl" />
+    <item
+        android:id="@+id/tl_qs_sonota"
+        android:icon="@drawable/ic_menu_black_24dp"
+        android:title="@string/sonota" />
+
+</menu>

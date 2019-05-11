@@ -70,6 +70,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import io.github.takusan23.kaisendon.CustomMenu.Dialog.TLQuickSettingsBottomFragment;
 import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
 import io.github.takusan23.kaisendon.Home;
@@ -204,6 +205,8 @@ public class CustomMenuTimeLine extends Fragment {
 
     //isDesktopMode
     private boolean isDesktopMode = false;
+
+    private TLQuickSettingsBottomFragment tlQuickSettingsBottomFragment;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -375,6 +378,14 @@ public class CustomMenuTimeLine extends Fragment {
                 e.printStackTrace();
             }
         }
+
+        //TLQuickSettings
+        try{
+            tlQuickSettingsBottomFragment = ((Home)getActivity()).getTLQuickSettingsBottomFragment();
+        }catch (ClassCastException e){
+            e.printStackTrace();
+        }
+
 
         //トゥートカウンター
         if (Boolean.valueOf(toot_counter)) {

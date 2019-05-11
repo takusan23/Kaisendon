@@ -47,10 +47,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.Toolbar;
@@ -58,13 +56,11 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
 import android.view.Display;
-import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -104,10 +100,10 @@ import java.util.TimerTask;
 import io.github.takusan23.kaisendon.Activity.KonoAppNiTuite;
 import io.github.takusan23.kaisendon.Activity.LoginActivity;
 import io.github.takusan23.kaisendon.Activity.UserActivity;
+import io.github.takusan23.kaisendon.CustomMenu.CustomMenuLoadSupport;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSettingFragment;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
-import io.github.takusan23.kaisendon.CustomMenu.Dialog.BackupRestoreBottomDialog;
 import io.github.takusan23.kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog;
 import io.github.takusan23.kaisendon.CustomMenu.Dialog.TLQuickSettingsBottomFragment;
 import io.github.takusan23.kaisendon.CustomMenu.DirectMessage_Fragment;
@@ -243,15 +239,9 @@ public class Home extends AppCompatActivity
     private Switch misskey_switch;
     private boolean isDesktop = false;
 
-    // X軸最低スワイプ距離
-    private static final int SWIPE_MIN_DISTANCE = 50;
-    // X軸最低スワイプスピード
-    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-    // Y軸の移動距離　これ以上なら横移動を判定しない
-    private static final int SWIPE_MAX_OFF_PATH = 250;
+    private TLQuickSettingsBottomFragment dialogFragment;
 
-    // タッチイベントを処理するためのインタフェース
-    private GestureDetector gestureDetector;
+    private CustomMenuLoadSupport customMenuLoadSupport;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -289,13 +279,11 @@ public class Home extends AppCompatActivity
                 break;
         }
 
-
-        //setTheme(R.style.AppTheme_NoActionBar);
-
-
         setContentView(R.layout.activity_home);
 
         navigationView = findViewById(R.id.nav_view);
+
+        customMenuLoadSupport = new CustomMenuLoadSupport(this, navigationView);
 
         //ログイン情報があるか
         //アクセストークンがない場合はログイン画面へ飛ばす
@@ -321,10 +309,10 @@ public class Home extends AppCompatActivity
         //メニュー入れ替え
         navigationView.getMenu().clear();
         navigationView.inflateMenu(R.menu.custom_menu);
-        loadCustomMenu(null);
+        customMenuLoadSupport.loadCustomMenu(null);
         if (lastName != null) {
             try {
-                loadCustomMenu(lastName);
+                customMenuLoadSupport.loadCustomMenu(lastName);
             } catch (CursorIndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
@@ -341,6 +329,7 @@ public class Home extends AppCompatActivity
             isDesktop = false;
         }
 
+        dialogFragment = new TLQuickSettingsBottomFragment();
 
 
 
@@ -418,7 +407,7 @@ public class Home extends AppCompatActivity
             //メニュー入れ替え
             navigationView.getMenu().clear();
             navigationView.inflateMenu(R.menu.custom_menu);
-            loadCustomMenu(null);
+            customMenuLoadSupport.loadCustomMenu(null);
         }
 
         //ネットワークが切り替わったらトースト表示
@@ -1420,7 +1409,7 @@ public class Home extends AppCompatActivity
                 //再読み込み
                 navigationView.getMenu().clear();
                 navigationView.inflateMenu(R.menu.custom_menu);
-                loadCustomMenu(null);
+                customMenuLoadSupport.loadCustomMenu(null);
                 break;
             case R.id.home_menu_old_drawer:
                 navigationView.inflateMenu(R.menu.activity_home_drawer);
@@ -1433,8 +1422,10 @@ public class Home extends AppCompatActivity
                 }
                 break;
             case R.id.home_menu_quick_setting:
-                //TLQuickSettingsBottomFragment dialogFragment = new TLQuickSettingsBottomFragment();
-                //dialogFragment.show(getSupportFragmentManager(), "quick_setting");
+                Bundle bundle = new Bundle();
+                bundle.putString("account_id", account_id);
+                dialogFragment.setArguments(bundle);
+                dialogFragment.show(getSupportFragmentManager(), "quick_setting");
                 break;
             case R.id.home_menu_dark:
                 //これはAndroid Qを搭載しない端末向け設定
@@ -1452,7 +1443,6 @@ public class Home extends AppCompatActivity
                 } else {
                     Toast.makeText(this, getString(R.string.darkmode_error_os), Toast.LENGTH_SHORT).show();
                 }
-
                 break;
         }
         if (id == R.id.action_settings) {
@@ -1481,6 +1471,10 @@ public class Home extends AppCompatActivity
         }
     }
 
+    /*クイック設定を返すやつ*/
+    public TLQuickSettingsBottomFragment getTLQuickSettingsBottomFragment() {
+        return dialogFragment;
+    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -1668,7 +1662,7 @@ public class Home extends AppCompatActivity
                 //メニュー切り替え
                 navigationView.inflateMenu(R.menu.custom_menu);
                 //適用処理
-                loadCustomMenu(null);
+                customMenuLoadSupport.loadCustomMenu(null);
             }
             editor.apply();
         } else if (id == R.id.custom_menu_setting_menu) {

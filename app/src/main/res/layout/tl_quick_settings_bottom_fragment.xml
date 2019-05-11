@@ -36,36 +36,23 @@
             android:layout_width="match_parent"
             android:layout_height="10dp" />
 
-        <LinearLayout
-            android:id="@+id/tl_qs_flotingtl"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@drawable/button_style"
-            android:orientation="horizontal"
-            android:padding="10dp">
-
-            <ImageView
-                android:id="@+id/imageView11"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                app:srcCompat="@drawable/ic_flip_to_front_black_24dp" />
-
-            <TextView
-                android:id="@+id/button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:text="@string/floating_tl" />
-
-        </LinearLayout>
 
         <Switch
             android:id="@+id/tl_qs_tts_switch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:text="タイムライン読み上げ" />
+            android:text="@string/speech_timeline" />
 
     </LinearLayout>
+
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/tl_qs_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:itemBackground="@color/white"
+        app:itemIconTint="@color/colorAccent"
+        app:itemTextColor="@color/colorAccent"
+        app:menu="@menu/tl_qs_nemu" />
 
 </LinearLayout>

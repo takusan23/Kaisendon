@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+<!--
     <item
         android:icon="@drawable/ic_sentiment_neutral_black_24dp"
         android:orderInCategory="100"
@@ -109,13 +110,16 @@
                 app:showAsAction="never" />
         </menu>
     </item>
+-->
 
     <!--クイック設定-->
+<!--
     <item
         android:id="@+id/home_menu_quick_setting"
-        android:icon="@drawable/ic_check_box_white_24dp"
+        android:icon="@drawable/tl_quick_setting_icon"
         android:title="@string/quick_setting"
         app:showAsAction="ifRoom" />
+-->
 
 
 </menu>

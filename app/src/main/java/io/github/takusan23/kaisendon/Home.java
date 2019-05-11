@@ -24,6 +24,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
@@ -109,9 +110,6 @@ import io.github.takusan23.kaisendon.CustomMenu.Dialog.TLQuickSettingsBottomFrag
 import io.github.takusan23.kaisendon.CustomMenu.DirectMessage_Fragment;
 import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
-import io.github.takusan23.kaisendon.FloatingTL.FloatingTL;
-import io.github.takusan23.kaisendon.Fragment.AccountListFragment;
-import io.github.takusan23.kaisendon.Fragment.ActivityPubViewer;
 import io.github.takusan23.kaisendon.Fragment.Bookmark_Frament;
 import io.github.takusan23.kaisendon.Fragment.CustomStreamingFragment;
 import io.github.takusan23.kaisendon.Fragment.Favourites_List_Fragment;
@@ -672,6 +670,8 @@ public class Home extends AppCompatActivity
             });
         }
 
+        /*クイック設定*/
+        setTimelinQuickSettings();
 
 /*
         //ローカルタイムライントースト
@@ -1352,9 +1352,18 @@ public class Home extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+/*
         //noinspection SimplifiableIfStatement
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        switch (id) {
+        if (id == R.id.home_menu_quick_setting) {
+            Bundle bundle = new Bundle();
+            bundle.putString("account_id", account_id);
+            dialogFragment.setArguments(bundle);
+            dialogFragment.show(getSupportFragmentManager(), "quick_setting");
+        }
+*/
+
+/*
             case R.id.home_menu_login:
                 Intent login = new Intent(this, LoginActivity.class);
                 startActivity(login);
@@ -1448,6 +1457,7 @@ public class Home extends AppCompatActivity
         if (id == R.id.action_settings) {
             return true;
         }
+*/
 
         return super.onOptionsItemSelected(item);
     }
@@ -2314,7 +2324,7 @@ public class Home extends AppCompatActivity
                                 snackberAccountAvaterImageView.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
                             }
                             //Wi-Fi
-                            if (setting_avater_wifi) {
+                            if (setting_avater_wifi && networkCapabilities != null) {
                                 if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                                     if (setting_avater_gif) {
                                         //GIFアニメ再生させない
@@ -3498,5 +3508,28 @@ public class Home extends AppCompatActivity
         }
     }
 
+    /*タイムラインクイック設定ボタン生成*/
+    private void setTimelinQuickSettings() {
+        ImageView qs = new ImageView(this);
+        qs.setImageResource(R.drawable.tl_quick_setting_icon);
+        qs.setPadding(50, 10, 50, 10);
+        qs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!dialogFragment.isAdded()) {
+                    Drawable drawable = qs.getDrawable();
+                    if (drawable instanceof Animatable) {
+                        ((Animatable) drawable).start();
+                    }
+                    Bundle bundle = new Bundle();
+                    bundle.putString("account_id", account_id);
+                    dialogFragment.setArguments(bundle);
+                    dialogFragment.show(getSupportFragmentManager(), "quick_setting");
+                }
+            }
+        });
+        //追加されてなければ追加
+        toolbar.addView(qs);
+    }
 
 }

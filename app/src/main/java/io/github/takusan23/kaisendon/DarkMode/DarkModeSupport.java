@@ -3,11 +3,14 @@ package io.github.takusan23.kaisendon.DarkMode;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.preference.PreferenceManager;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -76,9 +79,11 @@ public class DarkModeSupport {
         setDarkmode();
         switch (nightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
+                textView.setTextColor(context.getColor(android.R.color.black));
                 textView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
                 break;
             case Configuration.UI_MODE_NIGHT_YES:
+                textView.setTextColor(context.getColor(android.R.color.white));
                 textView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white, context.getTheme()));
                 break;
         }
@@ -109,13 +114,38 @@ public class DarkModeSupport {
         }
     }
 
+    //すいっち
+    public void setViewThemeColor(View v) {
+        switch (nightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                v.setBackgroundColor(context.getResources().getColor(android.R.color.white, context.getTheme()));
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:
+                v.setBackgroundColor(context.getResources().getColor(android.R.color.black, context.getTheme()));
+                break;
+        }
+    }
+
+
     //Linearlayoutから子View全取得してTextViewなら染色を行う
     public void setLayoutAllThemeColor(LinearLayout layout) {
+        setBackgroundDarkMode(layout);
         for (int i = 0; i < layout.getChildCount(); i++) {
-            System.out.println(layout.getChildCount());
+            //System.out.println(layout.getChildCount());
+            //setViewThemeColor(layout.getChildAt(i));
+            if (layout.getChildAt(i) instanceof LinearLayout) {
+                setLayoutAllThemeColor((LinearLayout) layout.getChildAt(i));
+            }
             if (layout.getChildAt(i) instanceof TextView) {
                 setTextViewThemeColor((TextView) layout.getChildAt(i));
             }
+            if (layout.getChildAt(i) instanceof Switch) {
+                setSwitchThemeColor((Switch) layout.getChildAt(i));
+            }
+            if (layout.getChildAt(i) instanceof BottomNavigationView) {
+                setBottomNavigationBerThemeColor((BottomNavigationView) layout.getChildAt(i));
+            }
+
         }
     }
 
@@ -124,14 +154,28 @@ public class DarkModeSupport {
         switch (nightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
                 drawable.setTint(Color.parseColor("#ffffff"));
-                ;
                 break;
             case Configuration.UI_MODE_NIGHT_YES:
                 drawable.setTint(Color.parseColor("#000000"));
-                ;
                 break;
         }
         return drawable;
+    }
+
+    /*BottomNavigationBer*/
+    private void setBottomNavigationBerThemeColor(BottomNavigationView view) {
+        switch (nightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                view.setItemBackgroundResource(R.color.white);
+                view.setItemTextColor(ColorStateList.valueOf(context.getResources().getColor(R.color.colorAccent, null)));
+                view.setItemIconTintList(ColorStateList.valueOf(context.getResources().getColor(R.color.colorAccent, null)));
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:
+                view.setItemBackgroundResource(R.color.black);
+                view.setItemTextColor(ColorStateList.valueOf(context.getResources().getColor(R.color.white, null)));
+                view.setItemIconTintList(null);
+                break;
+        }
     }
 
 }

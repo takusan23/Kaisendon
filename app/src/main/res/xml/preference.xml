@@ -182,38 +182,18 @@
     </PreferenceCategory>
 
 
-    <!--
-
-        &lt;!&ndash;Text To Speech 設定&ndash;&gt;
         <PreferenceCategory
             android:key="preference_setting"
             android:title="@string/speech_timeline_setting">
 
-            <CheckBoxPreference
-                android:defaultValue="false"
-                android:key="pref_speech"
-                android:summary="@string/speech_timeline_message"
-                android:title="@string/speech_timeline" />
-
-            <ListPreference
-                android:defaultValue="Home"
-                android:dependency="pref_speech"
-                android:entries="@array/notification_timeline_list"
-                android:entryValues="@array/notification_timeline_values"
-                android:key="pref_speech_timeline_type"
-                android:summary="@string/speech_timeline_type_message"
-                android:title="@string/speech_timeline_type_title" />
-
             <EditTextPreference
                 android:defaultValue="1.0f"
-                android:dependency="pref_speech"
                 android:key="pref_speech_rate"
                 android:summary="@string/speech_timeline_rate_message"
                 android:title="@string/speech_timeline_rate_title" />
 
             <CheckBoxPreference
                 android:defaultValue="true"
-                android:dependency="pref_speech"
                 android:key="pref_speech_url"
                 android:summary="@string/setting_url_speech_message"
                 android:title="@string/setting_url_speech_title" />
@@ -221,7 +201,7 @@
 
         </PreferenceCategory>
 
-    -->
+
 
     <!--ダイアログを出すかどうか-->
     <!--

@@ -3,12 +3,16 @@ package io.github.takusan23.kaisendon.CustomMenu.Dialog;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,7 +30,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONException;
@@ -39,6 +46,7 @@ import io.github.takusan23.kaisendon.CustomMenu.AddCustomMenuActivity;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuLoadSupport;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
+import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
 import io.github.takusan23.kaisendon.FloatingTL.FloatingTL;
 import io.github.takusan23.kaisendon.Fragment.AccountListFragment;
@@ -56,12 +64,14 @@ public class TLQuickSettingsBottomFragment extends BottomSheetDialogFragment {
 
     private BottomNavigationView bottomNavigationView;
     private Switch tts_Switch;
-    private FragmentTransaction transaction;
+    //private FragmentTransaction transaction;
     private SharedPreferences pref_setting;
     private NavigationView navigationView;
     private CustomMenuSQLiteHelper helper;
     private SQLiteDatabase db;
     private CustomMenuLoadSupport customMenuLoadSupport;
+    private LinearLayout switch_LinearLayout;
+    private DarkModeSupport darkModeSupport;
 
     @Nullable
     @Override
@@ -71,13 +81,17 @@ public class TLQuickSettingsBottomFragment extends BottomSheetDialogFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
         pref_setting = PreferenceManager.getDefaultSharedPreferences(getContext());
         bottomNavigationView = view.findViewById(R.id.tl_qs_menu);
         tts_Switch = view.findViewById(R.id.tl_qs_tts_switch);
-        transaction = getActivity().getSupportFragmentManager().beginTransaction();
         navigationView = getActivity().findViewById(R.id.nav_view);
-        customMenuLoadSupport = new CustomMenuLoadSupport(getContext(),navigationView);
+        customMenuLoadSupport = new CustomMenuLoadSupport(getContext(), navigationView);
+        switch_LinearLayout = view.findViewById(R.id.tl_qs_switch_linearlayout);
+        darkModeSupport = new DarkModeSupport(getContext());
+        darkModeSupport.setLayoutAllThemeColor(view.findViewById(R.id.tl_qs_main_linearlayout));
         setClickEvent();
+        setDarkmodeSwitch();
     }
 
     private void setClickEvent() {
@@ -110,7 +124,11 @@ public class TLQuickSettingsBottomFragment extends BottomSheetDialogFragment {
 
     /*読み上げするかを返す*/
     public boolean getTimelineTTS() {
-        return tts_Switch.isChecked();
+        boolean is = false;
+        if (tts_Switch != null && tts_Switch.isChecked()) {
+            is = true;
+        }
+        return is;
     }
 
     /*Floating TL*/
@@ -126,12 +144,14 @@ public class TLQuickSettingsBottomFragment extends BottomSheetDialogFragment {
 
     /*デスクトップモード*/
     private void setDesktopMode() {
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.container_container, new DesktopFragment(), "desktop");
         transaction.commit();
     }
 
     /*ぶっくまーく*/
     private void setBookmark() {
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.container_container, new Bookmark_Frament());
         transaction.commit();
     }
@@ -157,6 +177,7 @@ public class TLQuickSettingsBottomFragment extends BottomSheetDialogFragment {
                         startActivity(login);
                         break;
                     case R.id.home_menu_account_list:
+                        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
                         transaction.replace(R.id.container_container, new AccountListFragment());
                         transaction.commit();
                         break;
@@ -197,6 +218,7 @@ public class TLQuickSettingsBottomFragment extends BottomSheetDialogFragment {
         menuBuilder.setCallback(new MenuBuilder.Callback() {
             @Override
             public boolean onMenuItemSelected(MenuBuilder menuBuilder, MenuItem menuItem) {
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
                 switch (menuItem.getItemId()) {
                     case R.id.home_menu_activity_pub_viewer:
                         transaction.replace(R.id.container_container, new ActivityPubViewer());
@@ -254,6 +276,30 @@ public class TLQuickSettingsBottomFragment extends BottomSheetDialogFragment {
             Uri uri = Uri.parse(githubUrl);
             Intent browser = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(browser);
+        }
+    }
+
+    /*Android Pie以前ユーザー用にダークモードスイッチを用意する*/
+    private void setDarkmodeSwitch() {
+        if (!Build.VERSION.CODENAME.equals("Q")){
+            Switch sw = new Switch(getContext());
+            darkModeSupport.setSwitchThemeColor(sw);
+            sw.setText(getText(R.string.darkmode));
+            sw.setChecked(pref_setting.getBoolean("darkmode", false));
+            SharedPreferences.Editor editor = pref_setting.edit();
+            sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (b) {
+                        editor.putBoolean("darkmode", true);
+                    } else {
+                        editor.putBoolean("darkmode", false);
+                    }
+                    getContext().startActivity(new Intent(getContext(),Home.class));
+                    editor.apply();
+                }
+            });
+            switch_LinearLayout.addView(sw);
         }
     }
 }

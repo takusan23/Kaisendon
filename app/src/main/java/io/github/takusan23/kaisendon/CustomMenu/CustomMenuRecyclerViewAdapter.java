@@ -1276,7 +1276,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
                     //APIを叩く
                     String url = "https://" + Instance + "/api/v1/accounts/" + id;
-                    System.out.println(url);
+                    //System.out.println(url);
                     //作成
                     Request request = new Request.Builder()
                             .url(url)

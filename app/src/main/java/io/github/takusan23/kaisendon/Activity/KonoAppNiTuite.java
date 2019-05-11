@@ -48,7 +48,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
     //private String release_ver_5 = "5.0";
     private String release_ver_5 = "5.1.4";
     private String release_name_6 = "べーたどん";
-    private String release_ver_6 = "6 Beta 1";
+    private String release_ver_6 = "6 Beta 2";
 
     private TextView version_TextView;
     private SharedPreferences pref_setting;

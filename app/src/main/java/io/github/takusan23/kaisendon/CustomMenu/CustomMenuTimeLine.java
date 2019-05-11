@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -70,6 +71,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import io.github.takusan23.kaisendon.APIJSONParse.CustomMenuJSONParse;
+import io.github.takusan23.kaisendon.APIJSONParse.MastodonTLAPIJSONParse;
 import io.github.takusan23.kaisendon.CustomMenu.Dialog.TLQuickSettingsBottomFragment;
 import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
@@ -202,10 +205,12 @@ public class CustomMenuTimeLine extends Fragment {
     private String no_fav_icon = "";
     private String yes_fav_icon = "";
 
-
+    private DarkModeSupport darkModeSupport;
     //isDesktopMode
     private boolean isDesktopMode = false;
-
+    //TTS
+    private TextToSpeech tts;
+    //クイック設定
     private TLQuickSettingsBottomFragment tlQuickSettingsBottomFragment;
 
     @Override
@@ -252,7 +257,7 @@ public class CustomMenuTimeLine extends Fragment {
         //Navication Drawer
         if (getActivity() != null) {
             NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
-            if (navigationView!=null){
+            if (navigationView != null) {
                 //どろわーのイメージとか文字とか
                 View navHeaderView = navigationView.getHeaderView(0);
                 avater_imageView = navHeaderView.findViewById(R.id.icon_image);
@@ -308,7 +313,7 @@ public class CustomMenuTimeLine extends Fragment {
         //ダークモード処理
         Configuration conf = getResources().getConfiguration();
         int currecntNightMode = conf.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        DarkModeSupport darkModeSupport = new DarkModeSupport(getContext());
+        darkModeSupport = new DarkModeSupport(getContext());
         currecntNightMode = darkModeSupport.setIsDarkModeSelf(currecntNightMode);
         switch (currecntNightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
@@ -366,7 +371,7 @@ public class CustomMenuTimeLine extends Fragment {
 
         //ToolBerをクリックしたら一番上に移動するようにする
         if (pref_setting.getBoolean("pref_listview_top", true)) {
-            try{
+            try {
                 ((Home) getActivity()).getToolBer().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -374,15 +379,15 @@ public class CustomMenuTimeLine extends Fragment {
                         recyclerView.smoothScrollToPosition(0);
                     }
                 });
-            }catch (ClassCastException e){
+            } catch (ClassCastException e) {
                 e.printStackTrace();
             }
         }
 
         //TLQuickSettings
-        try{
-            tlQuickSettingsBottomFragment = ((Home)getActivity()).getTLQuickSettingsBottomFragment();
-        }catch (ClassCastException e){
+        try {
+            tlQuickSettingsBottomFragment = ((Home) getActivity()).getTLQuickSettingsBottomFragment();
+        } catch (ClassCastException e) {
             e.printStackTrace();
         }
 
@@ -1183,6 +1188,7 @@ public class CustomMenuTimeLine extends Fragment {
 
             for (int i = 0; i < 5; i++) {
                 Switch sw = new Switch(getContext());
+                darkModeSupport.setSwitchThemeColor(sw);
                 sw.setCompoundDrawablesWithIntrinsicBounds(icon[i], null, null, null);
                 sw.setTag(tag[i]);
                 sw.setChecked(true);
@@ -1342,40 +1348,38 @@ public class CustomMenuTimeLine extends Fragment {
                             ((LinearLayoutManager) recyclerViewLayoutManager).scrollToPositionWithOffset(pos + 1, top);
                         }
                     }
-
-/*
-                    if (streaming) {
-                        adapter.insert(listItem, 0);
-                        // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
-                        int pos = listView.getFirstVisiblePosition();
-                        int top = 0;
-                        if (listView.getChildCount() > 0) {
-                            top = listView.getChildAt(0).getTop();
-                        }
-                        listView.setAdapter(adapter);
-                        // 要素追加前の状態になるようセットする
-                        adapter.notifyDataSetChanged();
-                        //一番上なら追いかける
-                        if (pos == 0) {
-                            listView.post(new Runnable() {
+                    /*TTS*/
+                    if (tlQuickSettingsBottomFragment != null && tlQuickSettingsBottomFragment.getTimelineTTS()) {
+                        //インスタンス生成
+                        if (tts == null) {
+                            tts = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
                                 @Override
-                                public void run() {
-                                    listView.smoothScrollToPosition(0);
+                                public void onInit(int i) {
+                                    //初期化
+                                    if (i == TextToSpeech.SUCCESS) {
+                                        Toast.makeText(getContext(), getString(R.string.text_to_speech_preparation), Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             });
                         } else {
-                            listView.setSelectionFromTop(pos + 1, top);
+                            tts.setSpeechRate(Float.valueOf(pref_setting.getString("pref_speech_rate", "1.0f")));
+                            CustomMenuJSONParse setting = new CustomMenuJSONParse(json_data);
+                            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(getContext(), toot_jsonObject.toString(), setting);
+                            //正規表現でURL消す
+                            String text = Html.fromHtml(api.getToot_text(), Html.FROM_HTML_MODE_COMPACT).toString();
+                            if (pref_setting.getBoolean("pref_speech_url", true)) {
+                                text = text.replaceAll("(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+", "URL省略");
+                            }
+                            tts.speak(text, TextToSpeech.QUEUE_ADD, null, "tts");
                         }
                     } else {
-                        adapter.add(listItem);
-                        adapter.notifyDataSetChanged();
-                        listView.setAdapter(adapter);
-                        //くるくる終了
-                        SnackberProgress.closeProgressSnackber();
-                        listView.setSelectionFromTop(position, y);
-                        scroll = false;
+                        if (tts != null) {
+                            tts.stop();
+                            tts.shutdown();
+                        }
                     }
-*/
                 }
             });
         }
@@ -1972,6 +1976,9 @@ public class CustomMenuTimeLine extends Fragment {
         if (notification_WebSocketClient != null) {
             notification_WebSocketClient.close();
         }
+        if (tts != null) {
+            tts.shutdown();
+        }
         //OLEDとかかかわらず戻す
         //getActivity().setTheme(R.style.AppTheme);
         //((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#2196f3"));
@@ -2094,7 +2101,7 @@ public class CustomMenuTimeLine extends Fragment {
      */
     private void setDrawerImageText(String avatarUrl, String headerUri, String display_name, String username) {
         //Wi-Fi接続状況確認
-        if (getContext() != null && user_account_textView!=null) {
+        if (getContext() != null && user_account_textView != null) {
             ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
             //一応Nullチェック
@@ -2504,24 +2511,29 @@ public class CustomMenuTimeLine extends Fragment {
         //すたーと
         final float[] start = {0};
         final float[] end = {0};
+        final float[] y_start = {0};
+        final float[] y_end = {0};
         recyclerView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         start[0] = event.getX();
-                        //System.out.println("start : " + start[0]);
+                        y_start[0] = event.getY();
+                        //System.out.println("start : " + y_start[0]);
                         break;
                     case MotionEvent.ACTION_UP:
                         end[0] = event.getX();
-                        //System.out.println("end : " + end[0]);
+                        y_end[0] = event.getY();
+                        //System.out.println("end : " + y_end[0]);
+                        //System.out.println("final : " + (y_start[0] - y_end[0]));
                         //両方揃ったら比較開始
                         if (start[0] != end[0]) {
-                            //なんとなく400以上の誤差がないとうごかないように
-                            if (end[0] - start[0] > 400) {
+                            //なんとなく400以上の誤差がないとうごかないように　と　縦スクロールが大きいと動作しないようにする（100から-100までのみ）
+                            if (end[0] - start[0] > 400 && y_start[0] - y_end[0] < 100 && y_start[0] - y_end[0] > -100) {
                                 //ドロワー開く。getActivity()あってよかた
                                 DrawerLayout drawer = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
-                                if (drawer!=null){
+                                if (drawer != null) {
                                     drawer.openDrawer(Gravity.LEFT);
                                 }
                             }

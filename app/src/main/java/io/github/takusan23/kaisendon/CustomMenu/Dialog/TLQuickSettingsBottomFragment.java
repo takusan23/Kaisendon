@@ -3,14 +3,9 @@ package io.github.takusan23.kaisendon.CustomMenu.Dialog;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
-import android.content.res.Configuration;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +15,7 @@ import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.preference.PreferenceManager;
@@ -31,18 +27,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Switch;
-import android.widget.TextView;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import io.github.takusan23.kaisendon.Activity.KonoAppNiTuite;
 import io.github.takusan23.kaisendon.Activity.LoginActivity;
 import io.github.takusan23.kaisendon.Activity.UserActivity;
-import io.github.takusan23.kaisendon.CustomMenu.AddCustomMenuActivity;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuLoadSupport;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
@@ -58,12 +51,11 @@ import io.github.takusan23.kaisendon.Fragment.WearFragment;
 import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.R;
 
-import static io.github.takusan23.kaisendon.Preference_ApplicationContext.getContext;
-
 public class TLQuickSettingsBottomFragment extends BottomSheetDialogFragment {
 
     private BottomNavigationView bottomNavigationView;
     private Switch tts_Switch;
+    private EditText color_EditText;
     //private FragmentTransaction transaction;
     private SharedPreferences pref_setting;
     private NavigationView navigationView;
@@ -71,6 +63,7 @@ public class TLQuickSettingsBottomFragment extends BottomSheetDialogFragment {
     private SQLiteDatabase db;
     private CustomMenuLoadSupport customMenuLoadSupport;
     private LinearLayout switch_LinearLayout;
+    private TextInputLayout textInputLayout;
     private DarkModeSupport darkModeSupport;
 
     @Nullable
@@ -85,6 +78,7 @@ public class TLQuickSettingsBottomFragment extends BottomSheetDialogFragment {
         pref_setting = PreferenceManager.getDefaultSharedPreferences(getContext());
         bottomNavigationView = view.findViewById(R.id.tl_qs_menu);
         tts_Switch = view.findViewById(R.id.tl_qs_tts_switch);
+        color_EditText = view.findViewById(R.id.tl_qs_color_edittext);
         navigationView = getActivity().findViewById(R.id.nav_view);
         customMenuLoadSupport = new CustomMenuLoadSupport(getContext(), navigationView);
         switch_LinearLayout = view.findViewById(R.id.tl_qs_switch_linearlayout);
@@ -129,6 +123,15 @@ public class TLQuickSettingsBottomFragment extends BottomSheetDialogFragment {
             is = true;
         }
         return is;
+    }
+
+    /*ハイライトする文字を返す*/
+    public String getHighlightText() {
+        String text = "";
+        if (color_EditText != null) {
+            text = color_EditText.getText().toString();
+        }
+        return text;
     }
 
     /*Floating TL*/
@@ -281,7 +284,7 @@ public class TLQuickSettingsBottomFragment extends BottomSheetDialogFragment {
 
     /*Android Pie以前ユーザー用にダークモードスイッチを用意する*/
     private void setDarkmodeSwitch() {
-        if (!Build.VERSION.CODENAME.equals("Q")){
+        if (!Build.VERSION.CODENAME.equals("Q")) {
             Switch sw = new Switch(getContext());
             darkModeSupport.setSwitchThemeColor(sw);
             sw.setText(getText(R.string.darkmode));
@@ -295,7 +298,7 @@ public class TLQuickSettingsBottomFragment extends BottomSheetDialogFragment {
                     } else {
                         editor.putBoolean("darkmode", false);
                     }
-                    getContext().startActivity(new Intent(getContext(),Home.class));
+                    getContext().startActivity(new Intent(getContext(), Home.class));
                     editor.apply();
                 }
             });

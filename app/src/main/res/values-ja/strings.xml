@@ -477,5 +477,6 @@
     <string name="darkmode_error_os">このメニューはAndroid 9以前を搭載する端末向け設定です。 Android 10以降の場合は本体の設定からダークモードを有効にすることで自動的に有効になります。</string>
     <string name="darkmode">ダークモード</string>
     <string name="sonota">その他</string>
+    <string name="color_text">文字に色を付ける</string>
 
 </resources>

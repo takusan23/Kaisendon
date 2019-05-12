@@ -66,6 +66,7 @@ import io.github.takusan23.kaisendon.Activity.UserActivity;
 import io.github.takusan23.kaisendon.CustomMenu.Dialog.TootOptionBottomDialog;
 import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
+import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.HomeTimeLineAdapter;
 import io.github.takusan23.kaisendon.PicassoImageGetter;
 import io.github.takusan23.kaisendon.R;
@@ -339,6 +340,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //setCustomizeFavIcon(viewHolder,api, setting);
                 //ダークモード
                 setThemeIconColor(viewHolder, api);
+                //ハイライト
+                setTootHighlight(viewHolder, api);
             }
         } else if (isScheduled_statuses) {
             MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
@@ -2188,6 +2191,21 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         }
         viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(isFavIcon, null, null, null);
         viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(isBoostIcon, null, null, null);
+    }
+
+    /*ハイライト*/
+    private void setTootHighlight(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
+        try {
+            String highlight = ((Home) context).getTLQuickSettingsBottomFragment().getHighlightText();
+            if (!highlight.equals("")){
+                String text = api.getToot_text();
+                text = text.replace(highlight, "<font color=\"red\">" + highlight + "</font>");
+                PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
+                viewHolder.toot_text_TextView.setText(Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
+            }
+        } catch (ClassCastException e) {
+            e.fillInStackTrace();
+        }
     }
 
 }

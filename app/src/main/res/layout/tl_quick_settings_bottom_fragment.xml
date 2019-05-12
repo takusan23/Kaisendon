@@ -38,6 +38,20 @@
 
 
         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/tl_qs_color_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/colorAccent"
+                android:hint="@string/color_text" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/tl_qs_switch_linearlayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

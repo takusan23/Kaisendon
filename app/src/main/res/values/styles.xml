@@ -6,7 +6,6 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorPrimaryDark</item>
-        <item name="android:textColorHint">#000000</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -31,18 +30,6 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:tint">#ffffff</item>
-        <item name="android:textColorHint">#ffffff</item>
-    </style>
-
-    <style name="MyTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="android:textColorHint">@color/colorPrimary</item>
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">16dp</item>
-        <item name="boxStrokeColor">@color/colorAccent</item>
-    </style>
-
-    <style name="MyTextInputEditText" parent="ThemeOverlay.MaterialComponents.TextInputEditText.OutlinedBox.Dense">
-        <item name="android:textColor">@android:color/black</item>
     </style>
 
     <style name="OLED.ActionBer" parent="Theme.AppCompat">
@@ -64,4 +51,13 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowNoTitle">true</item>
     </style>
+
+
+    <style name="EditTextHint" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:textColorHint">@color/white</item>
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorControlActivated">@color/white</item>
+        <item name="colorControlHighlight">@color/white</item>
+    </style>
+
 </resources>

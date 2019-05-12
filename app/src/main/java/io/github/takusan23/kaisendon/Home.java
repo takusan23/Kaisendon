@@ -106,6 +106,7 @@ import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSQLiteHelper;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuSettingFragment;
 import io.github.takusan23.kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog;
+import io.github.takusan23.kaisendon.CustomMenu.Dialog.TLQuickSettingSnackber;
 import io.github.takusan23.kaisendon.CustomMenu.Dialog.TLQuickSettingsBottomFragment;
 import io.github.takusan23.kaisendon.CustomMenu.DirectMessage_Fragment;
 import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
@@ -238,6 +239,7 @@ public class Home extends AppCompatActivity
     private boolean isDesktop = false;
 
     private TLQuickSettingsBottomFragment dialogFragment;
+    private TLQuickSettingSnackber tlQuickSettingSnackber;
 
     private CustomMenuLoadSupport customMenuLoadSupport;
 
@@ -328,7 +330,6 @@ public class Home extends AppCompatActivity
         }
 
         dialogFragment = new TLQuickSettingsBottomFragment();
-
 
 
 
@@ -672,6 +673,7 @@ public class Home extends AppCompatActivity
 
         /*クイック設定*/
         setTimelinQuickSettings();
+        tlQuickSettingSnackber = new TLQuickSettingSnackber(Home.this, navigationView);
 
 /*
         //ローカルタイムライントースト
@@ -1482,8 +1484,8 @@ public class Home extends AppCompatActivity
     }
 
     /*クイック設定を返すやつ*/
-    public TLQuickSettingsBottomFragment getTLQuickSettingsBottomFragment() {
-        return dialogFragment;
+    public TLQuickSettingSnackber getTlQuickSettingSnackber() {
+        return tlQuickSettingSnackber;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -3516,15 +3518,18 @@ public class Home extends AppCompatActivity
         qs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!dialogFragment.isAdded()) {
-                    Drawable drawable = qs.getDrawable();
-                    if (drawable instanceof Animatable) {
-                        ((Animatable) drawable).start();
-                    }
-                    Bundle bundle = new Bundle();
-                    bundle.putString("account_id", account_id);
-                    dialogFragment.setArguments(bundle);
-                    dialogFragment.show(getSupportFragmentManager(), "quick_setting");
+                Drawable drawable = qs.getDrawable();
+                if (drawable instanceof Animatable) {
+                    ((Animatable) drawable).start();
+                    ((Animatable) drawable).start();
+                }
+                ArrayList<String> list = new ArrayList<>();
+                list.add(account_id);
+                tlQuickSettingSnackber.setList(list);
+                if (tlQuickSettingSnackber.getSnackbar().isShown()) {
+                    tlQuickSettingSnackber.dismissSnackBer();
+                } else {
+                    tlQuickSettingSnackber.showSnackBer();
                 }
             }
         });

@@ -10,7 +10,8 @@
         android:id="@+id/name_TextInputLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:theme="@style/EditTextHint">
 
         <EditText
             android:id="@+id/name_editText"

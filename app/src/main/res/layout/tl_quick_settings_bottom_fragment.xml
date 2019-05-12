@@ -18,6 +18,7 @@
             android:orientation="horizontal">
 
             <ImageView
+                android:tint="@color/white"
                 android:id="@+id/imageView2"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -27,9 +28,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
+                android:gravity="left"
                 android:padding="10dp"
-                android:text="@string/quick_setting" />
+                android:text="@string/quick_setting"
+                android:textColor="@color/white" />
         </LinearLayout>
 
         <Space
@@ -38,16 +40,27 @@
 
 
         <LinearLayout
+            android:id="@+id/tl_qs_color_edittext_linearlayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/tl_qs_color_edittext"
+
+            <android.support.design.widget.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:theme="@style/EditTextHint"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:backgroundTint="@color/colorAccent"
-                android:hint="@string/color_text" />
+                android:layout_height="wrap_content"
+                android:hint="@string/color_text"
+                android:textColorHint="@color/white">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/tl_qs_color_edittext"
+                    android:layout_width="match_parent"
+                    android:textColor="@color/white"
+                    android:layout_height="match_parent" />
+
+            </android.support.design.widget.TextInputLayout>
 
         </LinearLayout>
 
@@ -62,7 +75,8 @@
                 android:id="@+id/tl_qs_tts_switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/speech_timeline" />
+                android:text="@string/speech_timeline"
+                android:textColor="@color/white" />
 
         </LinearLayout>
 
@@ -72,7 +86,6 @@
         android:id="@+id/tl_qs_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:itemBackground="@color/white"
         app:itemIconTint="@color/colorAccent"
         app:itemTextColor="@color/colorAccent"
         app:menu="@menu/tl_qs_nemu" />

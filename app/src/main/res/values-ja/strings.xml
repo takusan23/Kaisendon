@@ -478,5 +478,6 @@
     <string name="darkmode">ダークモード</string>
     <string name="sonota">その他</string>
     <string name="color_text">文字に色を付ける</string>
+    <string name="floating_tl_error_custom_tl">フローリングタイムラインを利用するにはカスタムメニューを開いてる必要があります。</string>
 
 </resources>

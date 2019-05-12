@@ -984,7 +984,7 @@ public class UserActivity extends AppCompatActivity {
         //forで回すか
         for (int i = 0; i < 3; i++) {
             TextView menuTextView = new TextView(UserActivity.this);
-            menuTextView.setCompoundDrawableTintList(getResources().getColorStateList(android.R.color.white, getTheme()));
+            //menuTextView.setCompoundDrawableTintList(getResources().getColorStateList(android.R.color.white, getTheme()));
             menuTextView.setPadding(10, 10, 10, 10);
             menuTextView.setText(menuList[i]);
             menuTextView.setTextSize(24);
@@ -1091,7 +1091,7 @@ public class UserActivity extends AppCompatActivity {
         TextView textView = (TextView) top_linearLayout.findViewById(R.id.cardview_textview);
         //名前とか
         textView.setText(getString(R.string.fields_attributes));
-        darkModeSupport.setTextViewThemeColor(textView);
+        //darkModeSupport.setTextViewThemeColor(textView);
         textView.setCompoundDrawablesWithIntrinsicBounds(getDrawable(R.drawable.ic_playlist_add_black_24dp), null, null, null);
         //ここについか
         LinearLayout main_LinearLayout = top_linearLayout.findViewById(R.id.cardview_lineaLayout_main);

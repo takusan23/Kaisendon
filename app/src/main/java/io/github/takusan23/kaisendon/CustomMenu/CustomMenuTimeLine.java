@@ -73,7 +73,7 @@ import java.util.TimeZone;
 
 import io.github.takusan23.kaisendon.APIJSONParse.CustomMenuJSONParse;
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonTLAPIJSONParse;
-import io.github.takusan23.kaisendon.CustomMenu.Dialog.TLQuickSettingsBottomFragment;
+import io.github.takusan23.kaisendon.CustomMenu.Dialog.TLQuickSettingSnackber;
 import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.kaisendon.DesktopTL.DesktopFragment;
 import io.github.takusan23.kaisendon.Home;
@@ -211,7 +211,7 @@ public class CustomMenuTimeLine extends Fragment {
     //TTS
     private TextToSpeech tts;
     //クイック設定
-    private TLQuickSettingsBottomFragment tlQuickSettingsBottomFragment;
+    private TLQuickSettingSnackber tlQuickSettingSnackber;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -385,12 +385,9 @@ public class CustomMenuTimeLine extends Fragment {
         }
 
         //TLQuickSettings
-        try {
-            tlQuickSettingsBottomFragment = ((Home) getActivity()).getTLQuickSettingsBottomFragment();
-        } catch (ClassCastException e) {
-            e.printStackTrace();
+        if (getActivity() instanceof Home){
+            tlQuickSettingSnackber = ((Home) getActivity()).getTlQuickSettingSnackber();
         }
-
 
         //トゥートカウンター
         if (Boolean.valueOf(toot_counter)) {
@@ -1349,7 +1346,7 @@ public class CustomMenuTimeLine extends Fragment {
                         }
                     }
                     /*TTS*/
-                    if (tlQuickSettingsBottomFragment != null && tlQuickSettingsBottomFragment.getTimelineTTS()) {
+                    if (tlQuickSettingSnackber != null && tlQuickSettingSnackber.getTimelineTTS()) {
                         //インスタンス生成
                         if (tts == null) {
                             tts = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {

@@ -259,8 +259,16 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //カスタム絵文字
             PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
             PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);
+            //色を変える機能
+            String text = api.getToot_text();
+            if (context instanceof Home) {
+                String highlight = ((Home) context).getTlQuickSettingSnackber().getHighlightText();
+                if (!highlight.equals("")) {
+                    text = text.replace(highlight, "<font color=\"red\">" + highlight + "</font>");
+                }
+            }
             //SetText
-            viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getToot_text(), Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
+            viewHolder.toot_text_TextView.setText(Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
             viewHolder.toot_user_TextView.setText(Html.fromHtml(api.getDisplay_name(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
             viewHolder.toot_user_TextView.append("@" + api.getAcct());
             viewHolder.toot_createAt_TextView.setText(getCreatedAtFormat(api.getCreatedAt()));
@@ -741,8 +749,16 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 }
                 PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.reblog_toot_text_TextView);
                 PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.reblog_user_TextView);
+                //色を変える機能
+                String text = api.getToot_text();
+                if (context instanceof Home) {
+                    String highlight = ((Home) context).getTlQuickSettingSnackber().getHighlightText();
+                    if (!highlight.equals("")) {
+                        text = text.replace(highlight, "<font color=\"red\">" + highlight + "</font>");
+                    }
+                }
                 viewHolder.reblog_user_TextView.setText(Html.fromHtml(api.getBTAccountDisplayName(), Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
-                viewHolder.reblog_toot_text_TextView.setText(Html.fromHtml(api.getBTTootText(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
+                viewHolder.reblog_toot_text_TextView.setText(Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
                 viewHolder.reblog_user_TextView.append("@" + api.getBTAccountAcct());
                 //～～がブーストしましたを出す
                 viewHolder.toot_user_TextView.append(context.getString(R.string.reblog));
@@ -2193,19 +2209,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(isBoostIcon, null, null, null);
     }
 
-    /*ハイライト*/
+    /*文字色を変える*/
     private void setTootHighlight(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
-        try {
-            String highlight = ((Home) context).getTLQuickSettingsBottomFragment().getHighlightText();
-            if (!highlight.equals("")){
-                String text = api.getToot_text();
-                text = text.replace(highlight, "<font color=\"red\">" + highlight + "</font>");
-                PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
-                viewHolder.toot_text_TextView.setText(Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
-            }
-        } catch (ClassCastException e) {
-            e.fillInStackTrace();
-        }
     }
 
 }

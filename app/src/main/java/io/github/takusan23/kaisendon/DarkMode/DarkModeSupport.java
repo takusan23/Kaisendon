@@ -9,10 +9,12 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.preference.PreferenceManager;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -35,13 +37,15 @@ public class DarkModeSupport {
     /*背景ダークモード*/
     public void setBackgroundDarkMode(LinearLayout linearLayout) {
         setDarkmode();
-        switch (nightMode) {
-            case Configuration.UI_MODE_NIGHT_NO:
-                linearLayout.setBackgroundColor(context.getResources().getColor(android.R.color.white, context.getTheme()));
-                break;
-            case Configuration.UI_MODE_NIGHT_YES:
-                linearLayout.setBackgroundColor(context.getResources().getColor(android.R.color.black, context.getTheme()));
-                break;
+        if (linearLayout instanceof LinearLayout){
+            switch (nightMode) {
+                case Configuration.UI_MODE_NIGHT_NO:
+                    linearLayout.setBackgroundColor(context.getResources().getColor(android.R.color.white, context.getTheme()));
+                    break;
+                case Configuration.UI_MODE_NIGHT_YES:
+                    linearLayout.setBackgroundColor(context.getResources().getColor(android.R.color.black, context.getTheme()));
+                    break;
+            }
         }
     }
 
@@ -151,7 +155,7 @@ public class DarkModeSupport {
                 setBottomNavigationBerThemeColor((BottomNavigationView) layout.getChildAt(i));
             }
             if (layout.getChildAt(i) instanceof TextInputLayout) {
-                setTextInputLayoutThemeColor((TextInputLayout) layout.getChildAt(i));
+                //setTextInputLayoutThemeColor((TextInputLayout) layout.getChildAt(i));
             }
 
         }
@@ -171,19 +175,24 @@ public class DarkModeSupport {
     }
 
     /*BottomNavigationBer*/
-    private void setBottomNavigationBerThemeColor(BottomNavigationView view) {
+    public void setBottomNavigationBerThemeColor(BottomNavigationView view) {
         switch (nightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
-                view.setItemBackgroundResource(R.color.white);
+                //view.setItemBackgroundResource(R.color.white);
                 view.setItemTextColor(ColorStateList.valueOf(context.getResources().getColor(R.color.colorAccent, null)));
                 view.setItemIconTintList(ColorStateList.valueOf(context.getResources().getColor(R.color.colorAccent, null)));
                 break;
             case Configuration.UI_MODE_NIGHT_YES:
-                view.setItemBackgroundResource(R.color.black);
+                //view.setItemBackgroundResource(R.color.black);
                 view.setItemTextColor(ColorStateList.valueOf(context.getResources().getColor(R.color.white, null)));
                 view.setItemIconTintList(null);
                 break;
         }
+    }
+
+    /*Snackberの色*/
+    public void setSnackBerThemeColor(Snackbar snackbar){
+        snackbar.getView().getRootView().setBackgroundColor(context.getColor(R.color.black));
     }
 
 
@@ -208,11 +217,23 @@ public class DarkModeSupport {
         switch (nightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
                 view.setHintTextColor(context.getResources().getColor(android.R.color.darker_gray, context.getTheme()));
-                view.setBackgroundTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
+                //view.setBackgroundTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
                 break;
             case Configuration.UI_MODE_NIGHT_YES:
                 view.setHintTextColor(context.getResources().getColor(android.R.color.darker_gray, context.getTheme()));
                 view.setBackgroundTintList(context.getResources().getColorStateList(android.R.color.white, context.getTheme()));
+                break;
+        }
+    }
+
+    /*ImageView*/
+    public void setImageViewThemeColor(ImageView view){
+        switch (nightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                view.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.black)));
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:
+                view.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.white)));
                 break;
         }
     }

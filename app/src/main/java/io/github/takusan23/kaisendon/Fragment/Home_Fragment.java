@@ -11,9 +11,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -33,22 +33,16 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.Handler;
-import com.sys1yagi.mastodon4j.api.Pageable;
-import com.sys1yagi.mastodon4j.api.Range;
 import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
 import com.sys1yagi.mastodon4j.api.entity.Card;
 import com.sys1yagi.mastodon4j.api.entity.Emoji;
 import com.sys1yagi.mastodon4j.api.entity.Notification;
-import com.sys1yagi.mastodon4j.api.entity.Status;
 import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Statuses;
 import com.sys1yagi.mastodon4j.api.method.Streaming;
-import com.sys1yagi.mastodon4j.api.method.Timelines;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -56,11 +50,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -220,9 +212,9 @@ public class Home_Fragment extends Fragment {
 */
 
         Snackbar snackbar = Snackbar.make(view, getString(R.string.loading_home) + "\r\n /api/v1/timelines/home", Snackbar.LENGTH_INDEFINITE);
-        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
-        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
         snackBer_textView.setMaxLines(2);
         //複数行対応させたおかげでずれたので修正
         ProgressBar progressBar = new ProgressBar(getContext());
@@ -633,9 +625,9 @@ public class Home_Fragment extends Fragment {
             //ストリーミング前のトゥート取得
             //SnackBer表示
             Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_home) + "\r\n /api/v1/timelines/home \r\nmax_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
-            ViewGroup maxid_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+            ViewGroup maxid_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(R.id.snackbar_text).getParent();
             //SnackBerを複数行対応させる
-            TextView maxid_textView = (TextView) maxid_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+            TextView maxid_textView = (TextView) maxid_viewGrop.findViewById(R.id.snackbar_text);
             maxid_textView.setMaxLines(4);
             //複数行対応させたおかげでずれたので修正
             ProgressBar maxid_progressBar = new ProgressBar(getContext());
@@ -1578,9 +1570,9 @@ public class Home_Fragment extends Fragment {
 
                             //SnackBer表示
                             Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_home) + "\r\n /api/v1/timelines/home \r\n max_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
-                            ViewGroup snackBer_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                            ViewGroup snackBer_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(R.id.snackbar_text).getParent();
                             //SnackBerを複数行対応させる
-                            TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+                            TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
                             snackBer_textView.setMaxLines(3);
                             //複数行対応させたおかげでずれたので修正
                             ProgressBar progressBar = new ProgressBar(getContext());

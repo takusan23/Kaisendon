@@ -7,10 +7,14 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.annotation.NonNull;
+import androidx.browser.customtabs.CustomTabsIntent;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -28,7 +32,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
-import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.Preference_ApplicationContext;
 import io.github.takusan23.kaisendon.R;
 import okhttp3.Call;
@@ -36,6 +39,7 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import ru.noties.markwon.Markwon;
 
 public class KonoAppNiTuite extends AppCompatActivity {
 
@@ -510,7 +514,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
     }
 
     /*変更点を表示する機能*/
-    private void setReleaseNote(){
+    private void setReleaseNote() {
         //レイアウト
         LinearLayout linearLayout = new LinearLayout(this);
         getLayoutInflater().inflate(R.layout.kono_app_nituite_release_note_layout, linearLayout);
@@ -538,8 +542,8 @@ public class KonoAppNiTuite extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String response_string= response.body().string();
-                if (!response.isSuccessful()){
+                String response_string = response.body().string();
+                if (!response.isSuccessful()) {
                     //失敗
                     runOnUiThread(new Runnable() {
                         @Override
@@ -547,11 +551,13 @@ public class KonoAppNiTuite extends AppCompatActivity {
                             Toast.makeText(KonoAppNiTuite.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                         }
                     });
-                }else{
+                } else {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            textView.setText(response_string);
+                            //Markdownのライブラリ入れた
+                            Markwon markwon = Markwon.create(KonoAppNiTuite.this);
+                            markwon.setMarkdown(textView, response_string);
                         }
                     });
                 }

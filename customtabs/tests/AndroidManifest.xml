@@ -14,10 +14,10 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.customtabs">
+          package="androidx.browser.customtabs">
     <uses-sdk android:minSdkVersion="16"/>
     <application>
-        <activity android:name="android.support.customtabs.TestActivity">
+        <activity android:name="androidx.browser.customtabs.TestActivity">
             <!-- A browsable intent filter is required for the TrustedWebActivityService. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -29,10 +29,10 @@
             </intent-filter>
         </activity>
 
-        <service android:name="android.support.customtabs.PostMessageService"/>
-        <service android:name="android.support.customtabs.TestCustomTabsService"/>
+        <service android:name="androidx.browser.customtabs.PostMessageService"/>
+        <service android:name="androidx.browser.customtabs.TestCustomTabsService"/>
 
-        <service android:name="android.support.customtabs.trusted.TestTrustedWebActivityService">
+        <service android:name="androidx.browser.customtabs.trusted.TestTrustedWebActivityService">
             <intent-filter>
                 <action android:name="android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE"/>
                 <category android:name="android.intent.category.DEFAULT"/>

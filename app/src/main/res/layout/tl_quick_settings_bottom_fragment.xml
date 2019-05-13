@@ -46,7 +46,7 @@
             android:orientation="vertical">
 
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:theme="@style/EditTextHint"
                 android:layout_width="match_parent"
@@ -54,13 +54,13 @@
                 android:hint="@string/color_text"
                 android:textColorHint="@color/white">
 
-                <android.support.design.widget.TextInputEditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tl_qs_color_edittext"
                     android:layout_width="match_parent"
                     android:textColor="@color/white"
                     android:layout_height="match_parent" />
 
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 
@@ -82,7 +82,7 @@
 
     </LinearLayout>
 
-    <android.support.design.widget.BottomNavigationView
+    <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/tl_qs_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

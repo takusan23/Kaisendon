@@ -21,15 +21,15 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputLayout;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AppCompatActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.view.menu.MenuPopupHelper;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -415,7 +415,7 @@ public class TootSnackberActivity extends AppCompatActivity {
         View view = findViewById(R.id.toot_snackber_coordinator);
         toot_snackbar = Snackbar.make(view, "", Snackbar.LENGTH_INDEFINITE);
         //Snackber生成
-        ViewGroup snackBer_viewGrop = (ViewGroup) toot_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+        ViewGroup snackBer_viewGrop = (ViewGroup) toot_snackbar.getView().findViewById(R.id.snackbar_text).getParent();
         LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         progressBer_layoutParams.gravity = Gravity.CENTER;
         //LinearLayout動的に生成

@@ -2,15 +2,14 @@ package io.github.takusan23.kaisendon.Fragment;
 
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -118,9 +117,9 @@ public class Follow_Suggestions_Fragment extends Fragment {
         //くるくる
         //ProgressDialog API 26から非推奨に
         Snackbar snackbar = Snackbar.make(view, getString(R.string.loading_suggestions)+"\r\n /api/v1/suggestions", Snackbar.LENGTH_INDEFINITE);
-        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
-        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
         snackBer_textView.setMaxLines(2);
         //複数行対応させたおかげでずれたので修正
         ProgressBar progressBar = new ProgressBar(getContext());

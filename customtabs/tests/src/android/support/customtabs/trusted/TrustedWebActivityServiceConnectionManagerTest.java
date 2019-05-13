@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package android.support.customtabs.trusted;
+package androidx.browser.customtabs.trusted;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.RemoteException;
-import android.support.annotation.Nullable;
-import android.support.customtabs.PollingCheck;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.annotation.Nullable;
+import androidx.browser.customtabs.PollingCheck;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import junit.framework.Assert;
 

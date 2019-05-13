@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.design.widget.Snackbar;
+import com.google.android.material.snackbar.Snackbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -19,7 +19,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-import io.github.takusan23.kaisendon.Zyanken.Zyanken;
 import io.github.takusan23.kaisendon.Zyanken.ZyankenMenu;
 import okhttp3.Call;
 import okhttp3.Callback;

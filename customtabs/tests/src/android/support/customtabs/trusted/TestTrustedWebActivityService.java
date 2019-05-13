@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.customtabs.trusted;
+package androidx.browser.customtabs.trusted;
 
 import android.app.Notification;
 import android.service.notification.StatusBarNotification;

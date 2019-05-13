@@ -7,9 +7,9 @@
     android:layout_height="match_parent"
     tools:context=".Activity.KonoAppNiTuite">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:layout_gravity="center"
         android:padding="10dp"
         app:cardCornerRadius="10dp"
@@ -17,20 +17,13 @@
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent" >
 
             <LinearLayout
-                android:id="@+id/konoApp_title_linearlayout"
+                android:padding="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="10dp">
-
-
-                <!--説明欄-->
-
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/release_note_textView"
@@ -40,7 +33,7 @@
             </LinearLayout>
         </ScrollView>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
 
 </LinearLayout>

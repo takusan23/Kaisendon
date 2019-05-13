@@ -17,11 +17,11 @@ import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
+import androidx.browser.customtabs.CustomTabsIntent;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import android.text.Html;
 import android.text.util.Linkify;
 import android.view.Display;
@@ -201,9 +201,9 @@ public class UserActivity extends AppCompatActivity {
     private void loadAccount() {
         View view = findViewById(android.R.id.content);
         Snackbar snackbar = Snackbar.make(view, getString(R.string.loading_user_info) + "\r\n /api/v1/accounts", Snackbar.LENGTH_INDEFINITE);
-        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
-        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
         snackBer_textView.setMaxLines(2);
         //複数行対応させたおかげでずれたので修正
         ProgressBar progressBar = new ProgressBar(UserActivity.this);
@@ -318,9 +318,9 @@ public class UserActivity extends AppCompatActivity {
         //読み込み中お知らせ
         View view = findViewById(android.R.id.content);
         Snackbar snackbar = Snackbar.make(view, getString(R.string.loading_user_info) + "\r\n" + url, Snackbar.LENGTH_INDEFINITE);
-        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
-        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
         snackBer_textView.setMaxLines(2);
         //複数行対応させたおかげでずれたので修正
         ProgressBar progressBar = new ProgressBar(UserActivity.this);

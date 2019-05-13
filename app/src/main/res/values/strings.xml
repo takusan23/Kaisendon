@@ -583,5 +583,6 @@
     <string name="sonota">Other</string>
     <string name="color_text">Color letters</string>
     <string name="floating_tl_error_custom_tl">You need to have a custom menu open to use the flooring timeline.</string>
+    <string name="release_note">Release Note</string>
 
 </resources>

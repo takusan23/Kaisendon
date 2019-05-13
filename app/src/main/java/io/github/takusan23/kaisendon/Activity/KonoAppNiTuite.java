@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -27,6 +28,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import io.github.takusan23.kaisendon.DarkMode.DarkModeSupport;
+import io.github.takusan23.kaisendon.Home;
 import io.github.takusan23.kaisendon.Preference_ApplicationContext;
 import io.github.takusan23.kaisendon.R;
 import okhttp3.Call;
@@ -48,7 +50,7 @@ public class KonoAppNiTuite extends AppCompatActivity {
     //private String release_ver_5 = "5.0";
     private String release_ver_5 = "5.1.4";
     private String release_name_6 = "べーたどん";
-    private String release_ver_6 = "6 Beta 2";
+    private String release_ver_6 = "6 Beta 3";
 
     private TextView version_TextView;
     private SharedPreferences pref_setting;
@@ -101,6 +103,11 @@ public class KonoAppNiTuite extends AppCompatActivity {
                         //消す
                         main_LinearLayout.removeView(main_LinearLayout.getChildAt(1));
                         setDocument();
+                        break;
+                    case R.id.release_note:
+                        //消す
+                        main_LinearLayout.removeView(main_LinearLayout.getChildAt(1));
+                        setReleaseNote();
                         break;
                 }
                 return true;
@@ -501,4 +508,58 @@ public class KonoAppNiTuite extends AppCompatActivity {
             }
         });
     }
+
+    /*変更点を表示する機能*/
+    private void setReleaseNote(){
+        //レイアウト
+        LinearLayout linearLayout = new LinearLayout(this);
+        getLayoutInflater().inflate(R.layout.kono_app_nituite_release_note_layout, linearLayout);
+        main_LinearLayout.addView(linearLayout);
+        TextView textView = main_LinearLayout.findViewById(R.id.release_note_textView);
+        //取得
+        String url = "https://raw.githubusercontent.com/wiki/takusan23/Kaisendon/Ver%205.0%E3%81%AE%E5%A4%89%E6%9B%B4%E7%82%B9.md";
+        //作成
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+        //GETリクエスト
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(KonoAppNiTuite.this, R.string.error, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String response_string= response.body().string();
+                if (!response.isSuccessful()){
+                    //失敗
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(KonoAppNiTuite.this, getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }else{
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textView.setText(response_string);
+                        }
+                    });
+                }
+            }
+        });
+
+
+        textView.setText("");
+    }
+
 }

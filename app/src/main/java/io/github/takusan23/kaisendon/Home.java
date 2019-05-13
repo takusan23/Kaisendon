@@ -471,11 +471,11 @@ public class Home extends AppCompatActivity
                 CharSequence title = extras.getCharSequence(Intent.EXTRA_SUBJECT);
                 //EXTRA TEXTにタイトルが含まれているかもしれない？
                 //含まれているときは消す
-                text = text.toString().replace(title, "");
-                if (title != null) {
-                    toot_EditText.append(title);
-                }
-                if (text != null) {
+                if (text!=null && title!=null){
+                    text = text.toString().replace(title, "");
+                    if (title != null) {
+                        toot_EditText.append(title);
+                    }
                     toot_EditText.append("\n");
                     toot_EditText.append(text);
                 }

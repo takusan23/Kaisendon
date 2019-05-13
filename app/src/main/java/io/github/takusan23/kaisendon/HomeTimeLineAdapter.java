@@ -27,17 +27,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.design.widget.Snackbar;
-import android.support.text.emoji.EmojiCompat;
-import android.support.text.emoji.bundled.BundledEmojiCompatConfig;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.view.menu.MenuPopupHelper;
+import androidx.browser.customtabs.CustomTabsIntent;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.emoji.text.EmojiCompat;
+import androidx.emoji.bundled.BundledEmojiCompatConfig;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
@@ -2394,9 +2394,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
     private void quickProfileSnackber(View v, String accountID) {
         //読み込み中お知らせ
         Snackbar snackbar = Snackbar.make(v, getContext().getString(R.string.loading_user_info) + "\r\n /api/v1/accounts/" + accountID, Snackbar.LENGTH_INDEFINITE);
-        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
-        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
         snackBer_textView.setMaxLines(2);
         //複数行対応させたおかげでずれたので修正
         ProgressBar progressBar = new ProgressBar(getContext());
@@ -2517,11 +2517,11 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                                     @Override
                                     public void run() {
                                         Snackbar snackbar = Snackbar.make(v, "", Snackbar.LENGTH_SHORT);
-                                        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                                        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
                                         LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                                         progressBer_layoutParams.gravity = Gravity.CENTER;
                                         //SnackBerを複数行対応させる
-                                        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+                                        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
                                         snackBer_textView.setMaxLines(Integer.MAX_VALUE);
                                         //てきすと
                                         //snackBer_textView.setText(Html.fromHtml(profile_note,Html.FROM_HTML_MODE_COMPACT));
@@ -2642,9 +2642,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         String url = "https://" + instance + "/api/users/show";
         //読み込み中お知らせ
         Snackbar snackbar = Snackbar.make(v, getContext().getString(R.string.loading_user_info) + "\r\n" + url, Snackbar.LENGTH_INDEFINITE);
-        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
-        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
         snackBer_textView.setMaxLines(2);
         //複数行対応させたおかげでずれたので修正
         ProgressBar progressBar = new ProgressBar(getContext());
@@ -2730,11 +2730,11 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                             follow_back = getContext().getString(R.string.follow_back);
                         }
                         Snackbar snackbar = Snackbar.make(v, "", Snackbar.LENGTH_SHORT);
-                        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
                         LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                         progressBer_layoutParams.gravity = Gravity.CENTER;
                         //SnackBerを複数行対応させる
-                        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+                        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
                         snackBer_textView.setMaxLines(Integer.MAX_VALUE);
                         //てきすと
                         //snackBer_textView.setText(Html.fromHtml(profile_note,Html.FROM_HTML_MODE_COMPACT));
@@ -2849,9 +2849,9 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
             @Override
             public void run() {
                 Snackbar snackbar = Snackbar.make(holder.nicoru_button, "", Snackbar.LENGTH_INDEFINITE);
-                ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
                 //TextViewを非表示にする
-                TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+                TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
                 snackBer_textView.setVisibility(View.INVISIBLE);
 
                 //Linearlayout

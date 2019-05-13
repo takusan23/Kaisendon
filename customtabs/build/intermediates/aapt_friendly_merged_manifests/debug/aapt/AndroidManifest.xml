@@ -15,14 +15,14 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="android.support.customtabs" >
+    package="androidx.browser.customtabs" >
 
     <uses-sdk android:minSdkVersion="16" />
 
     <application>
         <provider
-            android:name="android.support.customtabs.browseractions.BrowserServiceFileProvider"
-            android:authorities="android.support.customtabs.image_provider"
+            android:name="androidx.browser.customtabs.browseractions.BrowserServiceFileProvider"
+            android:authorities="androidx.browser.customtabs.image_provider"
             android:exported="false"
             android:grantUriPermissions="true" >
             <meta-data

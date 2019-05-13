@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.customtabs.browseractions;
+package androidx.browser.customtabs.browseractions;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -22,10 +22,11 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 
 /**
  * The dialog class showing the context menu and ensures proper animation is played upon calling
@@ -38,7 +39,7 @@ class BrowserActionsFallbackMenuDialog extends Dialog {
     private final View mContentView;
 
     BrowserActionsFallbackMenuDialog(Context context, View contentView) {
-        super(context, android.support.v7.appcompat.R.style.Theme_AppCompat_Light_Dialog);
+        super(context, androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog);
         mContentView = contentView;
     }
 

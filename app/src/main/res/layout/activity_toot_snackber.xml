@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/toot_snackber_coordinator"
@@ -9,7 +9,7 @@
     android:windowSoftInputMode="adjustResize"
     tools:context=".Activity.TootSnackberActivity">
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/toot_snackber_fab"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,4 +18,4 @@
         app:backgroundTint="@android:color/holo_blue_dark"
         app:srcCompat="@drawable/ic_arrow_downward_black_24dp" />
 
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

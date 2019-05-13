@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package android.support.customtabs;
+package androidx.browser.customtabs;
 
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.support.customtabs.ICustomTabsService;
 
 /**
  * Abstract {@link ServiceConnection} to use while binding to a {@link CustomTabsService}. Any

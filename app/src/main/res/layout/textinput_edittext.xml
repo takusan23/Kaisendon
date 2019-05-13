@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".Fragment.SearchFragment">
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/name_TextInputLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
@@ -21,7 +21,7 @@
             android:importantForAutofill="no"
             android:inputType="textMultiLine"
             android:singleLine="true" />
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
 
 </LinearLayout>

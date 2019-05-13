@@ -1,9 +1,9 @@
 package io.github.takusan23.kaisendon.Fragment;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
+
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 
 import io.github.takusan23.kaisendon.R;
 

@@ -6,9 +6,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +29,6 @@ import com.sys1yagi.mastodon4j.api.Range;
 import com.sys1yagi.mastodon4j.api.entity.Attachment;
 import com.sys1yagi.mastodon4j.api.entity.Card;
 import com.sys1yagi.mastodon4j.api.entity.Emoji;
-import com.sys1yagi.mastodon4j.api.entity.Status;
 import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Favourites;
 import com.sys1yagi.mastodon4j.api.method.Statuses;
@@ -38,12 +37,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -170,9 +164,9 @@ public class Favourites_List_Fragment extends Fragment {
         //くるくる
         //ProgressDialog API 26から非推奨に
         Snackbar snackbar = Snackbar.make(view, nicoru_favourite + "リストを取得中 \r\n /api/v1/favourites", Snackbar.LENGTH_INDEFINITE);
-        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
-        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
         snackBer_textView.setMaxLines(2);
         //複数行対応させたおかげでずれたので修正
         ProgressBar progressBar = new ProgressBar(getContext());
@@ -556,9 +550,9 @@ public class Favourites_List_Fragment extends Fragment {
 
                             //SnackBer表示
                             Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_favoutite_list) + "\r\n /api/v1/timelines/favourites \r\n max_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
-                            ViewGroup snackBer_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                            ViewGroup snackBer_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(R.id.snackbar_text).getParent();
                             //SnackBerを複数行対応させる
-                            TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+                            TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
                             snackBer_textView.setMaxLines(3);
                             //複数行対応させたおかげでずれたので修正
                             ProgressBar progressBar = new ProgressBar(getContext());

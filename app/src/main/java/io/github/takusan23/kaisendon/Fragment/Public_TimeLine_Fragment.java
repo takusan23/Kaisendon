@@ -1,30 +1,26 @@
 package io.github.takusan23.kaisendon.Fragment;
 
-import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.Editable;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.webkit.WebView;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -53,7 +49,6 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -73,11 +68,9 @@ import io.github.takusan23.kaisendon.Preference_ApplicationContext;
 import io.github.takusan23.kaisendon.R;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class Public_TimeLine_Fragment extends Fragment {
@@ -216,9 +209,9 @@ public class Public_TimeLine_Fragment extends Fragment {
         //くるくる
         //ProgressDialog API 26から非推奨に
         Snackbar snackbar = Snackbar.make(view, getString(R.string.loading_public_timeline) + "\r\n /api/v1/streaming/public/local", Snackbar.LENGTH_INDEFINITE);
-        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
-        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
         snackBer_textView.setMaxLines(2);
         //複数行対応させたおかげでずれたので修正
         ProgressBar progressBar = new ProgressBar(getContext());
@@ -637,9 +630,9 @@ public class Public_TimeLine_Fragment extends Fragment {
             //ストリーミング前のトゥート取得
             //SnackBer表示
             Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_public_timeline) + "\r\n /api/v1/timelines/public \r\nmax_id=" + max_id + "\r\n" + "local=true", Snackbar.LENGTH_INDEFINITE);
-            ViewGroup maxid_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+            ViewGroup maxid_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(R.id.snackbar_text).getParent();
             //SnackBerを複数行対応させる
-            TextView maxid_textView = (TextView) maxid_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+            TextView maxid_textView = (TextView) maxid_viewGrop.findViewById(R.id.snackbar_text);
             maxid_textView.setMaxLines(4);
             //複数行対応させたおかげでずれたので修正
             ProgressBar maxid_progressBar = new ProgressBar(getContext());
@@ -1447,9 +1440,9 @@ public class Public_TimeLine_Fragment extends Fragment {
 
                             //SnackBer表示
                             Snackbar maxid_snackbar = Snackbar.make(view, getString(R.string.loading_public_timeline) + "\r\n /api/v1/timelines/home \r\n max_id=" + max_id, Snackbar.LENGTH_INDEFINITE);
-                            ViewGroup snackBer_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                            ViewGroup snackBer_viewGrop = (ViewGroup) maxid_snackbar.getView().findViewById(R.id.snackbar_text).getParent();
                             //SnackBerを複数行対応させる
-                            TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+                            TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
                             snackBer_textView.setMaxLines(3);
                             //複数行対応させたおかげでずれたので修正
                             ProgressBar progressBar = new ProgressBar(getContext());

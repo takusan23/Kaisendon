@@ -16,9 +16,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -85,7 +85,7 @@ public class NewAppWidget extends AppWidgetProvider {
                 Intent notification_localtimeline_toot = new Intent(ctx, NewAppWidget.class);
                 PendingIntent notification_localtimeline_pendingIntent = PendingIntent.getBroadcast(ctx, 1, notification_localtimeline_toot, PendingIntent.FLAG_UPDATE_CURRENT);
                 //トゥート
-                android.support.v4.app.RemoteInput remoteInput = new android.support.v4.app.RemoteInput.Builder("Toot_Text")
+                androidx.core.app.RemoteInput remoteInput = new androidx.core.app.RemoteInput.Builder("Toot_Text")
                         .setLabel(ctx.getString(R.string.imananisiteru))
                         .build();
 
@@ -112,7 +112,7 @@ public class NewAppWidget extends AppWidgetProvider {
                 Intent notification_localtimeline_toot = new Intent(ctx, NewAppWidget.class);
                 PendingIntent notification_localtimeline_pendingIntent = PendingIntent.getBroadcast(ctx, 1, notification_localtimeline_toot, PendingIntent.FLAG_UPDATE_CURRENT);
                 //トゥート
-                android.support.v4.app.RemoteInput remoteInput = new android.support.v4.app.RemoteInput.Builder("Toot_Text")
+                androidx.core.app.RemoteInput remoteInput = new androidx.core.app.RemoteInput.Builder("Toot_Text")
                         .setLabel(ctx.getString(R.string.imananisiteru))
                         .build();
 

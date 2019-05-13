@@ -22,9 +22,9 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.Settings;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -940,9 +940,9 @@ public class TootActivity extends AppCompatActivity {
                                 //くるくる
 
                                 Snackbar snackbar = Snackbar.make(view, getString(R.string.upload_image) + "\r\n /api/v1/media", Snackbar.LENGTH_INDEFINITE);
-                                ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                                ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
                                 //SnackBerを複数行対応させる
-                                TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(android.support.design.R.id.snackbar_text);
+                                TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
                                 snackBer_textView.setMaxLines(2);
                                 //複数行対応させたおかげでずれたので修正
                                 ProgressBar progressBar = new ProgressBar(TootActivity.this);
@@ -1004,9 +1004,9 @@ public class TootActivity extends AppCompatActivity {
 
                                 //くるくる
                                 Snackbar snackbar_status = Snackbar.make(view, "トゥート！ \r\n/api/v1/statuses", Snackbar.LENGTH_INDEFINITE);
-                                ViewGroup snackBer_viewGrop_status = (ViewGroup) snackbar_status.getView().findViewById(android.support.design.R.id.snackbar_text).getParent();
+                                ViewGroup snackBer_viewGrop_status = (ViewGroup) snackbar_status.getView().findViewById(R.id.snackbar_text).getParent();
                                 //SnackBerを複数行対応させる
-                                TextView snackBer_textView_status = (TextView) snackBer_viewGrop_status.findViewById(android.support.design.R.id.snackbar_text);
+                                TextView snackBer_textView_status = (TextView) snackBer_viewGrop_status.findViewById(R.id.snackbar_text);
                                 snackBer_textView_status.setMaxLines(2);
                                 //複数行対応させたおかげでずれたので修正
                                 ProgressBar progressBar_status = new ProgressBar(TootActivity.this);

@@ -15,21 +15,23 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="android.support.customtabs.test" >
+    package="androidx.browser.customtabs.test" >
 
     <uses-sdk
         android:minSdkVersion="16"
         android:targetSdkVersion="16" />
 
     <instrumentation
-        android:name="android.support.test.runner.AndroidJUnitRunner"
+        android:name="androidx.test.runner.AndroidJUnitRunner"
         android:functionalTest="false"
         android:handleProfiling="false"
-        android:label="Tests for android.support.customtabs.test"
-        android:targetPackage="android.support.customtabs.test" />
+        android:label="Tests for androidx.browser.customtabs.test"
+        android:targetPackage="androidx.browser.customtabs.test" />
 
-    <application android:debuggable="true" >
-        <activity android:name="android.support.customtabs.TestActivity" >
+    <application
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:debuggable="true" >
+        <activity android:name="androidx.browser.customtabs.TestActivity" >
 
             <!-- A browsable intent filter is required for the TrustedWebActivityService. -->
             <intent-filter>
@@ -45,9 +47,9 @@
             </intent-filter>
         </activity>
 
-        <service android:name="android.support.customtabs.PostMessageService" />
-        <service android:name="android.support.customtabs.TestCustomTabsService" />
-        <service android:name="android.support.customtabs.trusted.TestTrustedWebActivityService" >
+        <service android:name="androidx.browser.customtabs.PostMessageService" />
+        <service android:name="androidx.browser.customtabs.TestCustomTabsService" />
+        <service android:name="androidx.browser.customtabs.trusted.TestTrustedWebActivityService" >
             <intent-filter>
                 <action android:name="android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE" />
 
@@ -58,8 +60,8 @@
         <uses-library android:name="android.test.runner" />
 
         <provider
-            android:name="android.support.customtabs.browseractions.BrowserServiceFileProvider"
-            android:authorities="android.support.customtabs.image_provider"
+            android:name="androidx.browser.customtabs.browseractions.BrowserServiceFileProvider"
+            android:authorities="androidx.browser.customtabs.image_provider"
             android:exported="false"
             android:grantUriPermissions="true" >
             <meta-data

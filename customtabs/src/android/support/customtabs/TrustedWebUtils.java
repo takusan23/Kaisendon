@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package android.support.customtabs;
+package androidx.browser.customtabs;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.BundleCompat;
+import androidx.annotation.NonNull;
+import androidx.core.app.BundleCompat;
 
 /**
  * Class for utilities and convenience calls for opening a qualifying web page as a

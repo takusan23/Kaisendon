@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.customtabs;
+package androidx.browser.customtabs;
 
 import android.app.Activity;
 import android.os.Bundle;

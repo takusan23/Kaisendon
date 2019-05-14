@@ -11,7 +11,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -35,24 +34,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
-import androidx.annotation.NonNull;
-import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.menu.MenuBuilder;
-import androidx.appcompat.view.menu.MenuPopupHelper;
-import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
@@ -80,8 +61,27 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
+import androidx.appcompat.widget.Toolbar;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
 import com.squareup.picasso.Picasso;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
@@ -411,6 +411,8 @@ public class Home extends AppCompatActivity
 
         //ネットワークが切り替わったらトースト表示
         if (pref_setting.getBoolean("pref_networkchange", false)) {
+            /*API 28で以下のコードは廃止されて動かないのでこれからはフラグメントの方に書きます*/
+/*
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 networkChangeBroadcast = new BroadcastReceiver() {
                     @Override
@@ -437,6 +439,7 @@ public class Home extends AppCompatActivity
                 };
                 registerReceiver(networkChangeBroadcast, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
             }
+*/
         }
 
 
@@ -471,12 +474,12 @@ public class Home extends AppCompatActivity
                 CharSequence title = extras.getCharSequence(Intent.EXTRA_SUBJECT);
                 //EXTRA TEXTにタイトルが含まれているかもしれない？
                 //含まれているときは消す
-                if (text!=null && title!=null){
-                    text = text.toString().replace(title, "");
+                if (text != null) {
                     if (title != null) {
+                        text = text.toString().replace(title, "");
                         toot_EditText.append(title);
+                        toot_EditText.append("\n");
                     }
-                    toot_EditText.append("\n");
                     toot_EditText.append(text);
                 }
                 //0.5秒後に起動するように
@@ -3536,5 +3539,4 @@ public class Home extends AppCompatActivity
         //追加されてなければ追加
         toolbar.addView(qs);
     }
-
 }

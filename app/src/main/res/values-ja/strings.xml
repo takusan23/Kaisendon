@@ -177,7 +177,7 @@
     <string name="multi_account_text">アカウントを削除する場合は長押ししてください。</string>
     <string name="setting_networkchange">ネットワーク変更を通知する</string>
     <string name="setting_networkchange_info">ネットワーク変更時にSnackBarで通知します。通信量を抑えたい方にどうぞ。</string>
-    <string name="network_change">ネットワークが変更されました</string>
+    <string name="network_change">ネットワークが変更されました。ストリーミングへ再接続します。</string>
     <string name="ReStart">アプリの再起動</string>
     <string name="setting_timeFormat_check_info">時刻表記を自分色に染めたい方はどうぞ。</string>
     <string name="setting_timeFormat_check">時刻表記をカスタマイズする</string>

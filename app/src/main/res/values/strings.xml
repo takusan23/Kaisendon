@@ -279,7 +279,7 @@
     <string name="multi_account_text">Please press and hold to delete account.</string>
     <string name="setting_networkchange_info">Notify by SnackBar when changing the network.</string>
     <string name="setting_networkchange">Notify network change</string>
-    <string name="network_change">Network changed</string>
+    <string name="network_change">Network has changed. Reconnect to streaming</string>
     <string name="ReStart">Restart the application</string>
     <string name="setting_timeFormat_check_info">You can customize time notation.</string>
     <string name="setting_timeFormat_check">Customize time notation</string>

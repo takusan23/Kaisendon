@@ -11,21 +11,14 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
-import androidx.annotation.NonNull;
-import com.google.android.material.navigation.NavigationView;
-import androidx.fragment.app.Fragment;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -41,8 +34,19 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.Shutdownable;
@@ -70,6 +74,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.github.takusan23.kaisendon.APIJSONParse.CustomMenuJSONParse;
 import io.github.takusan23.kaisendon.APIJSONParse.MastodonTLAPIJSONParse;
@@ -159,6 +165,9 @@ public class CustomMenuTimeLine extends Fragment {
 
     private CustomMenuSQLiteHelper helper = null;
     private SQLiteDatabase db = null;
+
+    //最初だけ通知しない
+    private int network_count = 0;
 
 
     //WebSocket
@@ -324,30 +333,6 @@ public class CustomMenuTimeLine extends Fragment {
                 break;
         }
 
-/*
-        //OLED
-        if (AppCompatDelegate.getDefaultNightMode()==AppCompatDelegate.MODE_NIGHT_YES){
-            linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "000000"));
-        }else{
-            linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "ffffff"));
-        }
-*/
-
-
-/*
-        //OLEDは背景を黒にする
-        if (Boolean.valueOf(getArguments().getString("dark_mode"))) {
-            linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "000000"));
-            //((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#000000"));
-            dark_theme = true;
-        } else {
-            //黒にしなくていい
-            linearLayout.setBackgroundColor(Color.parseColor("#" + background_transparency + "ffffff"));
-            //てーま
-            //((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#2196f3"));
-        }
-*/
-
         //最終的なURL
         url = "https://" + instance + url;
 
@@ -385,7 +370,7 @@ public class CustomMenuTimeLine extends Fragment {
         }
 
         //TLQuickSettings
-        if (getActivity() instanceof Home){
+        if (getActivity() instanceof Home) {
             tlQuickSettingSnackber = ((Home) getActivity()).getTlQuickSettingSnackber();
         }
 
@@ -607,6 +592,10 @@ public class CustomMenuTimeLine extends Fragment {
             //フォロー推奨ユーザーを読み込む
             loadFollowSuggestions(view);
         }
+
+        //ネットワーク変更を検知する
+        //setNetworkChangeCallback();
+
     }
 
     /**
@@ -2543,4 +2532,46 @@ public class CustomMenuTimeLine extends Fragment {
         });
     }
 
+    /*ネットワークの変更を検知する*/
+    private void setNetworkChangeCallback() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkRequest.Builder builder = new NetworkRequest.Builder();
+        //
+        builder.addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        builder.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
+        builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
+        connectivityManager.registerNetworkCallback(builder.build(), new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onCapabilitiesChanged(Network network, NetworkCapabilities networkCapabilities) {
+                Snackbar.make(recyclerView, R.string.network_change, Snackbar.LENGTH_SHORT).show();
+                //5秒後にストリーミングAPIに再接続する
+                Timer timer = new Timer();
+                TimerTask timerTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (webSocketClient != null) {
+                            webSocketClient.close();
+                            //通知以外
+                            if (!url.contains("/api/v1/notifications")) {
+                                loadTimeline("");
+                                //ストリーミング
+                                useStreamingAPI(false);
+                            } else {
+                                notificationLayout();
+                                //普通にAPI叩く
+                                loadNotification("");
+                                //ストリーミング
+                                useStreamingAPI(true);
+                            }
+                        }
+                        if (notification_WebSocketClient != null) {
+                            notification_WebSocketClient.close();
+                            setStreamingNotification();
+                        }
+                    }
+                };
+                timer.schedule(timerTask, 5000);
+            }
+        });
+    }
 }

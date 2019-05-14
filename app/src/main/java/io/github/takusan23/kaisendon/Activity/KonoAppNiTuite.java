@@ -7,14 +7,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-
-import androidx.annotation.NonNull;
-import androidx.browser.customtabs.CustomTabsIntent;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -23,7 +15,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsIntent;
+
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONException;

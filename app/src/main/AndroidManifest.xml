@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.github.takusan23.kaisendon">
+    package="io.github.takusan23.Kaisendon">
 
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".Preference_ApplicationContext"
+        android:name="io.github.takusan23.Kaisendon.Preference_ApplicationContext"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -20,28 +20,28 @@
         android:forceDarkAllowed="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".CustomMenu.AddCustomMenuActivity"
-            android:parentActivityName=".Home" />
-        <activity android:name=".FloatingTL.FloatingTLActivity"
+            android:name="io.github.takusan23.Kaisendon.CustomMenu.AddCustomMenuActivity"
+            android:parentActivityName="io.github.takusan23.Kaisendon.Home" />
+        <activity android:name="io.github.takusan23.Kaisendon.FloatingTL.FloatingTLActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:label="Floating TL"
             android:allowEmbedded="true"
             android:documentLaunchMode="always"
             android:resizeableActivity="true" />
         <activity
-            android:name=".Activity.WearTootShortcutListActivity"
-            android:parentActivityName=".Home" />
+            android:name="io.github.takusan23.Kaisendon.Activity.WearTootShortcutListActivity"
+            android:parentActivityName="io.github.takusan23.Kaisendon.Home" />
         <activity
-            android:name=".Zyanken.ZyankenSetup"
-            android:parentActivityName=".Zyanken.ZyankenMenu" />
+            android:name="io.github.takusan23.Kaisendon.Zyanken.ZyankenSetup"
+            android:parentActivityName="io.github.takusan23.Kaisendon.Zyanken.ZyankenMenu" />
         <activity
-            android:name=".Zyanken.ZyankenMenu"
-            android:parentActivityName=".Home" />
+            android:name="io.github.takusan23.Kaisendon.Zyanken.ZyankenMenu"
+            android:parentActivityName="io.github.takusan23.Kaisendon.Home" />
         <activity
-            android:name=".Zyanken.Zyanken"
-            android:parentActivityName=".Zyanken.ZyankenMenu" />
+            android:name="io.github.takusan23.Kaisendon.Zyanken.Zyanken"
+            android:parentActivityName="io.github.takusan23.Kaisendon.Zyanken.ZyankenMenu" />
         <activity
-            android:name=".Home"
+            android:name="io.github.takusan23.Kaisendon.Home"
             android:configChanges="orientation"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
@@ -65,11 +65,11 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity> <!-- 明示的ブロードキャストする時 -->
-        <receiver android:name=".BroadcastRecever_Notification_Button" />
-        <receiver android:name=".BroadcastReciver_Widget_ToastTimeline" />
-        <receiver android:name=".BroadcastReceiver_Notification_Timeline" /> <!-- なうぷれいんぐのサービス登録 -->
+        <receiver android:name="io.github.takusan23.Kaisendon.BroadcastRecever_Notification_Button" />
+        <receiver android:name="io.github.takusan23.Kaisendon.BroadcastReciver_Widget_ToastTimeline" />
+        <receiver android:name="io.github.takusan23.Kaisendon.BroadcastReceiver_Notification_Timeline" /> <!-- なうぷれいんぐのサービス登録 -->
         <service
-            android:name=".Kaisendon_NowPlaying_Service"
+            android:name="io.github.takusan23.Kaisendon.Kaisendon_NowPlaying_Service"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
@@ -77,13 +77,13 @@
         </service>
         <!-- トゥート画面 -->
         <activity
-            android:name=".Activity.TootSnackberActivity"
+            android:name="io.github.takusan23.Kaisendon.Activity.TootSnackberActivity"
             android:theme="@style/Theme.TranslucentBackground">
         </activity>
         <activity
-            android:name=".Activity.LoginActivity"
+            android:name="io.github.takusan23.Kaisendon.Activity.LoginActivity"
             android:label="@string/login_nemu"
-            android:parentActivityName=".Home">
+            android:parentActivityName="io.github.takusan23.Kaisendon.Home">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -97,12 +97,12 @@
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Home" />
+                android:value="io.github.takusan23.Kaisendon.Home" />
         </activity>
         <activity
-            android:name=".Activity.TootActivity"
+            android:name="io.github.takusan23.Kaisendon.Activity.TootActivity"
             android:label="@string/toot"
-            android:parentActivityName=".Home">
+            android:parentActivityName="io.github.takusan23.Kaisendon.Home">
 
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <!--
@@ -120,61 +120,61 @@
             -->
         </activity>
         <activity
-            android:name=".PublicTimeLine"
+            android:name="io.github.takusan23.Kaisendon.PublicTimeLine"
             android:configChanges="orientation|screenSize"
             android:label="@string/public_time_line"
-            android:parentActivityName=".Home">
+            android:parentActivityName="io.github.takusan23.Kaisendon.Home">
 
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Home" />
+                android:value="io.github.takusan23.Kaisendon.Home" />
         </activity>
         <activity
-            android:name=".Activity.SettingsActivity"
+            android:name="io.github.takusan23.Kaisendon.Activity.SettingsActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/setting"
-            android:parentActivityName=".Home">
+            android:parentActivityName="io.github.takusan23.Kaisendon.Home">
 
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Home" />
+                android:value="io.github.takusan23.Kaisendon.Home" />
         </activity>
         <activity
-            android:name=".Activity.NotificationsActivity"
+            android:name="io.github.takusan23.Kaisendon.Activity.NotificationsActivity"
             android:label="@string/notifications"
-            android:parentActivityName=".Home">
+            android:parentActivityName="io.github.takusan23.Kaisendon.Home">
 
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Home" />
+                android:value="io.github.takusan23.Kaisendon.Home" />
         </activity>
-        <activity android:name=".Activity.UserActivity" />
+        <activity android:name="io.github.takusan23.Kaisendon.Activity.UserActivity" />
         <activity
-            android:name=".Activity.AccountActivity"
+            android:name="io.github.takusan23.Kaisendon.Activity.AccountActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/public_time_line"
-            android:parentActivityName=".Home">
+            android:parentActivityName="io.github.takusan23.Kaisendon.Home">
 
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Home" />
+                android:value="io.github.takusan23.Kaisendon.Home" />
         </activity>
         <activity
-            android:name=".Activity.UserFollowActivity"
+            android:name="io.github.takusan23.Kaisendon.Activity.UserFollowActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/user"
-            android:parentActivityName=".Home">
+            android:parentActivityName="io.github.takusan23.Kaisendon.Home">
 
             <!-- The meta-data tag is required if you support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Home" />
+                android:value="io.github.takusan23.Kaisendon.Home" />
         </activity>
-        <activity android:name=".Activity.MultiPainActivity" />
+        <activity android:name="io.github.takusan23.Kaisendon.Activity.MultiPainActivity" />
         <!--
                 <activity
                     android:name=".ScrollingUser"
@@ -185,7 +185,7 @@
                         android:value=".Home" />
                 </activity>
         -->
-        <receiver android:name=".NewAppWidget">
+        <receiver android:name="io.github.takusan23.Kaisendon.NewAppWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <!-- クリックした際のアクションを設定しておく -->
@@ -198,17 +198,17 @@
         </receiver>
 
         <service
-            android:name=".WidgetService"
+            android:name="io.github.takusan23.Kaisendon.WidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 
         <activity
-            android:name=".Activity.AccountInfoUpdateActivity"
+            android:name="io.github.takusan23.Kaisendon.Activity.AccountInfoUpdateActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_account_info_update"
-            android:parentActivityName=".Activity.UserActivity" />
+            android:parentActivityName="io.github.takusan23.Kaisendon.Activity.UserActivity" />
         <activity
-            android:name=".Activity.KonoAppNiTuite"
-            android:parentActivityName=".Home" />
+            android:name="io.github.takusan23.Kaisendon.Activity.KonoAppNiTuite"
+            android:parentActivityName="io.github.takusan23.Kaisendon.Home" />
     </application>
 
 </manifest>

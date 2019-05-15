@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 'android-Q'
     defaultConfig {
-        applicationId 'io.github.takusan23.kaisendon'
+        applicationId 'io.github.takusan23.Kaisendon'
         minSdkVersion 24
         targetSdkVersion 28
         versionCode 24

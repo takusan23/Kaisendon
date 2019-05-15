@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
     <header
-        android:fragment="io.github.takusan23.kaisendon.Fragment.SettingFragment"
+        android:fragment="io.github.takusan23.Kaisendon.Fragment.SettingFragment"
         android:title="@string/setting"
         android:summary="@string/app_name" />
 </preference-headers>

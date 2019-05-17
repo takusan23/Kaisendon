@@ -34,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -130,6 +131,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         public ImageView media_ImageView_2;
         public ImageView media_ImageView_3;
         public ImageView media_ImageView_4;
+        public ImageButton show_ImageButton;
         //card
         public LinearLayout toot_card_LinearLayout;
         public TextView card_TextView;
@@ -175,6 +177,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             media_ImageView_2 = new ImageView(context);
             media_ImageView_3 = new ImageView(context);
             media_ImageView_4 = new ImageView(context);
+            show_ImageButton = new ImageButton(context);
             toot_card_LinearLayout = itemView.findViewById(R.id.custom_menu_adapter_cardLinearLayout);
             card_TextView = itemView.findViewById(R.id.custom_menu_adapter_card_textView);
             card_ImageView = itemView.findViewById(R.id.custom_menu_adapter_card_imageView);
@@ -630,6 +633,30 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             }
             if (api.getMediaList().size() >= 4) {
                 setGlide(viewHolder.media_ImageView_4, viewHolder, api.getMediaList().get(3));
+            }
+        }else{
+            //表示ボタン
+            if (api.getMediaList().size() != 0) {
+                //配列の要素０のときは使わない
+                viewHolder.toot_media_LinearLayout.addView(viewHolder.show_ImageButton);
+                viewHolder.show_ImageButton.setImageDrawable(context.getDrawable(R.drawable.ic_image_black_24dp));
+                viewHolder.show_ImageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (api.getMediaList().size() >= 1) {
+                            setGlide(viewHolder.media_ImageView_1, viewHolder, api.getMediaList().get(0));
+                        }
+                        if (api.getMediaList().size() >= 2) {
+                            setGlide(viewHolder.media_ImageView_2, viewHolder, api.getMediaList().get(1));
+                        }
+                        if (api.getMediaList().size() >= 3) {
+                            setGlide(viewHolder.media_ImageView_3, viewHolder, api.getMediaList().get(2));
+                        }
+                        if (api.getMediaList().size() >= 4) {
+                            setGlide(viewHolder.media_ImageView_4, viewHolder, api.getMediaList().get(3));
+                        }
+                    }
+                });
             }
         }
     }
@@ -1697,6 +1724,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 Bundle bundle = new Bundle();
                 bundle.putString("instance", Instance);
                 bundle.putString("user_id", api.getUser_ID());
+                bundle.putString("user_name", api.getAcct());
                 bundle.putString("status_id", api.getToot_ID());
                 bundle.putString("status_text", viewHolder.toot_text_TextView.getText().toString());
                 bundle.putString("json", item.get(3));

@@ -472,6 +472,8 @@ public class Home extends AppCompatActivity
                 CharSequence text = extras.getCharSequence(Intent.EXTRA_TEXT);
                 //タイトル
                 CharSequence title = extras.getCharSequence(Intent.EXTRA_SUBJECT);
+                //画像URI
+                Uri uri = extras.getParcelable(Intent.EXTRA_STREAM);
                 //EXTRA TEXTにタイトルが含まれているかもしれない？
                 //含まれているときは消す
                 if (text != null) {
@@ -481,6 +483,11 @@ public class Home extends AppCompatActivity
                         toot_EditText.append("\n");
                     }
                     toot_EditText.append(text);
+                }
+                //画像
+                if (uri != null) {
+                    media_uri_list.add(uri);
+                    ImageViewClick();
                 }
                 //0.5秒後に起動するように
                 Timer timer = new Timer(false);
@@ -1159,6 +1166,7 @@ public class Home extends AppCompatActivity
                                     imm.hideSoftInputFromWindow(Home.this.getCurrentFocus().getWindowToken(), 0);
                                 }
                             }
+/*
                             //通常POST・画像つきPOST
                             if (!media_uri_list.isEmpty()) {
                                 //配列からUriを取り出す
@@ -1200,6 +1208,7 @@ public class Home extends AppCompatActivity
                                     }).show();
                                 }
                             }
+*/
                         }
                     });
                 }
@@ -1927,6 +1936,17 @@ public class Home extends AppCompatActivity
                             }
                         }
                     }).show();
+                } else {
+                    //画像投稿する
+                    for (int i = 0; i < media_uri_list.size(); i++) {
+                        //ひつようなやつ
+                        Uri uri = media_uri_list.get(i);
+                        if (CustomMenuTimeLine.isMisskeyMode()) {
+                            uploadDrivePhoto(uri);
+                        } else {
+                            uploadMastodonPhoto(uri);
+                        }
+                    }
                 }
             }
         });

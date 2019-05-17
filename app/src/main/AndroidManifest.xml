@@ -13,21 +13,22 @@
     <application
         android:name="io.github.takusan23.Kaisendon.Preference_ApplicationContext"
         android:allowBackup="true"
+        android:forceDarkAllowed="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:forceDarkAllowed="true"
         android:theme="@style/AppTheme">
         <activity
             android:name="io.github.takusan23.Kaisendon.CustomMenu.AddCustomMenuActivity"
             android:parentActivityName="io.github.takusan23.Kaisendon.Home" />
-        <activity android:name="io.github.takusan23.Kaisendon.FloatingTL.FloatingTLActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:label="Floating TL"
+        <activity
+            android:name="io.github.takusan23.Kaisendon.FloatingTL.FloatingTLActivity"
             android:allowEmbedded="true"
             android:documentLaunchMode="always"
-            android:resizeableActivity="true" />
+            android:label="Floating TL"
+            android:resizeableActivity="true"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="io.github.takusan23.Kaisendon.Activity.WearTootShortcutListActivity"
             android:parentActivityName="io.github.takusan23.Kaisendon.Home" />
@@ -58,6 +59,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data android:mimeType="text/*" />
+                <data android:mimeType="image/*" />
+
             </intent-filter>
 
 
@@ -78,8 +81,7 @@
         <!-- トゥート画面 -->
         <activity
             android:name="io.github.takusan23.Kaisendon.Activity.TootSnackberActivity"
-            android:theme="@style/Theme.TranslucentBackground">
-        </activity>
+            android:theme="@style/Theme.TranslucentBackground"></activity>
         <activity
             android:name="io.github.takusan23.Kaisendon.Activity.LoginActivity"
             android:label="@string/login_nemu"

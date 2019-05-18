@@ -3,13 +3,14 @@ package io.github.takusan23.Kaisendon.Fragment;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,6 +102,9 @@ public class Bookmark_Frament extends Fragment {
             Item.add("");
             Item.add("");
             Item.add("");
+            //画像表示、こんてんとわーにんぐ
+            Item.add("false");
+            Item.add("false");
 
             recyclerViewList.add(Item);
             //つぎ

@@ -19,14 +19,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import androidx.annotation.NonNull;
-import androidx.browser.customtabs.CustomTabsIntent;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.fragment.app.Fragment;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -41,7 +33,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONArray;
@@ -126,12 +127,14 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         public ImageView date_icon_ImageView;
         public ImageView client_icon_ImageView;
         public ImageView visibility_icon_ImageView;
+        public ImageButton spoiler_text_ImageButton;
         //画像
         public ImageView media_ImageView_1;
         public ImageView media_ImageView_2;
         public ImageView media_ImageView_3;
         public ImageView media_ImageView_4;
         public ImageButton show_ImageButton;
+        public LinearLayout option_LinearLayout;
         //card
         public LinearLayout toot_card_LinearLayout;
         public TextView card_TextView;
@@ -173,11 +176,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             date_icon_ImageView = itemView.findViewById(R.id.date_icon_imageview);
             visibility_icon_ImageView = itemView.findViewById(R.id.visibility_icon_imageview);
             client_icon_ImageView = itemView.findViewById(R.id.client_icon_imageview);
+            spoiler_text_ImageButton = new ImageButton(context);
             media_ImageView_1 = new ImageView(context);
             media_ImageView_2 = new ImageView(context);
             media_ImageView_3 = new ImageView(context);
             media_ImageView_4 = new ImageView(context);
             show_ImageButton = new ImageButton(context);
+            option_LinearLayout = itemView.findViewById(R.id.custom_menu_adapter_optionLinearLayout);
             toot_card_LinearLayout = itemView.findViewById(R.id.custom_menu_adapter_cardLinearLayout);
             card_TextView = itemView.findViewById(R.id.custom_menu_adapter_card_textView);
             card_ImageView = itemView.findViewById(R.id.custom_menu_adapter_card_imageView);
@@ -290,7 +295,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //Fav、BT済み、カウント数を出す
                 setCountAndIconColor(viewHolder, api, item, setting);
                 //添付メディア
-                showMedia(viewHolder, api, setting);
+                showMedia(viewHolder, api, setting, item);
                 //card
                 setCard(viewHolder, api, setting);
                 //ブースト
@@ -312,6 +317,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 setFontSetting(viewHolder);
                 //ダークモード
                 setThemeIconColor(viewHolder, api);
+                //警告文
+                setContentWarning(viewHolder, api, item);
             } else {
                 //アバター画像
                 loadAvatarImage(api, viewHolder, setting);
@@ -323,7 +330,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //Fav、BT済み、カウント数を出す
                 setCountAndIconColor(viewHolder, api, item, setting);
                 //添付メディア
-                showMedia(viewHolder, api, setting);
+                showMedia(viewHolder, api, setting, item);
                 //card
                 setCard(viewHolder, api, setting);
                 //ブースト
@@ -351,8 +358,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //setCustomizeFavIcon(viewHolder,api, setting);
                 //ダークモード
                 setThemeIconColor(viewHolder, api);
-                //ハイライト
-                setTootHighlight(viewHolder, api);
+                //警告文
+                setContentWarning(viewHolder, api, item);
             }
         } else if (isScheduled_statuses) {
             MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
@@ -613,9 +620,10 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * 画像表示
      */
-    private void showMedia(ViewHolder viewHolder, MastodonTLAPIJSONParse api, CustomMenuJSONParse setting) {
+    private void showMedia(ViewHolder viewHolder, MastodonTLAPIJSONParse api, CustomMenuJSONParse setting, ArrayList<String> item) {
         //消す
         viewHolder.toot_media_LinearLayout.removeAllViews();
+        viewHolder.option_LinearLayout.removeView(viewHolder.show_ImageButton);
         //画像を表示してもよいか？
         if (getLoadImageConnection(viewHolder, setting)) {
             if (api.getMediaList().size() == 0) {
@@ -634,29 +642,51 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             if (api.getMediaList().size() >= 4) {
                 setGlide(viewHolder.media_ImageView_4, viewHolder, api.getMediaList().get(3));
             }
-        }else{
+        } else {
             //表示ボタン
             if (api.getMediaList().size() != 0) {
-                //配列の要素０のときは使わない
-                viewHolder.toot_media_LinearLayout.addView(viewHolder.show_ImageButton);
-                viewHolder.show_ImageButton.setImageDrawable(context.getDrawable(R.drawable.ic_image_black_24dp));
-                viewHolder.show_ImageButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (api.getMediaList().size() >= 1) {
-                            setGlide(viewHolder.media_ImageView_1, viewHolder, api.getMediaList().get(0));
-                        }
-                        if (api.getMediaList().size() >= 2) {
-                            setGlide(viewHolder.media_ImageView_2, viewHolder, api.getMediaList().get(1));
-                        }
-                        if (api.getMediaList().size() >= 3) {
-                            setGlide(viewHolder.media_ImageView_3, viewHolder, api.getMediaList().get(2));
-                        }
-                        if (api.getMediaList().size() >= 4) {
-                            setGlide(viewHolder.media_ImageView_4, viewHolder, api.getMediaList().get(3));
-                        }
+                //表示済み
+                if (Boolean.valueOf(item.get(10))) {
+                    if (api.getMediaList().size() >= 1) {
+                        setGlide(viewHolder.media_ImageView_1, viewHolder, api.getMediaList().get(0));
                     }
-                });
+                    if (api.getMediaList().size() >= 2) {
+                        setGlide(viewHolder.media_ImageView_2, viewHolder, api.getMediaList().get(1));
+                    }
+                    if (api.getMediaList().size() >= 3) {
+                        setGlide(viewHolder.media_ImageView_3, viewHolder, api.getMediaList().get(2));
+                    }
+                    if (api.getMediaList().size() >= 4) {
+                        setGlide(viewHolder.media_ImageView_4, viewHolder, api.getMediaList().get(3));
+                    }
+                } else {
+                    //配列の要素０のときは使わない
+                    viewHolder.option_LinearLayout.addView(viewHolder.show_ImageButton);
+                    viewHolder.show_ImageButton.setBackgroundColor(Color.parseColor("#00000000"));
+                    viewHolder.show_ImageButton.setPadding(10, 10, 10, 10);
+                    viewHolder.show_ImageButton.setImageDrawable(context.getDrawable(R.drawable.ic_image_black_24dp));
+                    viewHolder.show_ImageButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            //次から読み込めるようにtrueを入れとく
+                            item.set(10, "true");
+                            viewHolder.option_LinearLayout.removeView(viewHolder.show_ImageButton);
+                            if (api.getMediaList().size() >= 1) {
+                                setGlide(viewHolder.media_ImageView_1, viewHolder, api.getMediaList().get(0));
+                            }
+                            if (api.getMediaList().size() >= 2) {
+                                setGlide(viewHolder.media_ImageView_2, viewHolder, api.getMediaList().get(1));
+                            }
+                            if (api.getMediaList().size() >= 3) {
+                                setGlide(viewHolder.media_ImageView_3, viewHolder, api.getMediaList().get(2));
+                            }
+                            if (api.getMediaList().size() >= 4) {
+                                setGlide(viewHolder.media_ImageView_4, viewHolder, api.getMediaList().get(3));
+                            }
+                        }
+                    });
+                }
+
             }
         }
     }
@@ -777,7 +807,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.reblog_toot_text_TextView);
                 PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.reblog_user_TextView);
                 //色を変える機能
-                String text = api.getToot_text();
+                String text = api.getBTTootText();
                 if (context instanceof Home) {
                     String highlight = ((Home) context).getTlQuickSettingSnackber().getHighlightText();
                     if (!highlight.equals("")) {
@@ -2237,8 +2267,39 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(isBoostIcon, null, null, null);
     }
 
-    /*文字色を変える*/
-    private void setTootHighlight(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
+    /*こんてんとわーにんぐ 11*/
+    private void setContentWarning(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item) {
+        //あった場合h
+        if (!api.getSpoiler_text().equals("")) {
+            //警告文に置き換える
+            viewHolder.toot_text_TextView.setText(api.getSpoiler_text() + "\n");
+            //表示ボタン追加
+            viewHolder.option_LinearLayout.addView(viewHolder.spoiler_text_ImageButton);
+            viewHolder.spoiler_text_ImageButton.setImageDrawable(context.getDrawable(R.drawable.ic_warning_black_24dp));
+            viewHolder.spoiler_text_ImageButton.setBackgroundColor(Color.parseColor("#00000000"));
+            viewHolder.spoiler_text_ImageButton.setPadding(10, 10, 10, 10);
+            viewHolder.spoiler_text_ImageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //カスタム絵文字
+                    PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
+                    //色を変える機能
+                    String text = api.getToot_text();
+                    if (context instanceof Home) {
+                        String highlight = ((Home) context).getTlQuickSettingSnackber().getHighlightText();
+                        if (!highlight.equals("")) {
+                            text = text.replace(highlight, "<font color=\"red\">" + highlight + "</font>");
+                        }
+                    }
+                    if (!Boolean.valueOf(item.get(11))) {
+                        item.set(11, "true");
+                        viewHolder.toot_text_TextView.append(Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
+                    } else {
+                        item.set(11, "false");
+                        viewHolder.toot_text_TextView.setText(api.getSpoiler_text() + "\n");
+                    }
+                }
+            });
+        }
     }
-
 }

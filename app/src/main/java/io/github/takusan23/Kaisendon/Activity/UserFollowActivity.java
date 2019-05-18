@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
-import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -413,6 +415,9 @@ public class UserFollowActivity extends AppCompatActivity {
                 Item.add(AccessToken);
                 //設定ファイルJSON
                 Item.add("");
+                //画像表示、こんてんとわーにんぐ
+                Item.add("false");
+                Item.add("false");
 
                 recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
@@ -462,6 +467,9 @@ public class UserFollowActivity extends AppCompatActivity {
                 Item.add(AccessToken);
                 //設定ファイルJSON
                 Item.add("");
+                //画像表示、こんてんとわーにんぐ
+                Item.add("false");
+                Item.add("false");
 
                 recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
@@ -511,6 +519,9 @@ public class UserFollowActivity extends AppCompatActivity {
                 Item.add(AccessToken);
                 //設定ファイルJSON
                 Item.add("");
+                //画像表示、こんてんとわーにんぐ
+                Item.add("false");
+                Item.add("false");
 
                 recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {
@@ -567,6 +578,9 @@ public class UserFollowActivity extends AppCompatActivity {
                 Item.add(AccessToken);
                 //設定ファイルJSON
                 Item.add("");
+                //画像表示、こんてんとわーにんぐ
+                Item.add("false");
+                Item.add("false");
 
                 recyclerViewList.add(Item);
                 runOnUiThread(new Runnable() {

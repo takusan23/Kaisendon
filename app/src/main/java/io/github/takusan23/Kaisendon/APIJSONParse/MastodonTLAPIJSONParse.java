@@ -26,6 +26,7 @@ public class MastodonTLAPIJSONParse {
     private String toot_text;
     private String display_name;
     private String acct;
+    private String spoiler_text;
     private String avatarUrl;
     private String avatarUrlNotGIF;
     private String toot_ID;
@@ -53,7 +54,6 @@ public class MastodonTLAPIJSONParse {
     private String notification_ID;
     private String notification_Type;
     private String reaction_Type = "";
-    private String spoiler_text;
     private boolean isVote = false;
     private String vote_id;
     private String vote_expires_at;

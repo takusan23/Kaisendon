@@ -19,11 +19,13 @@
             android:summary="@string/setting_drawer_avater_header_hidden_info"
             android:title="@string/setting_drawer_avater_header_hidden" />
 
+<!--
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_toot_media"
             android:summary="@string/setting_toot_media_hidden_info"
             android:title="@string/setting_toot_media_hidden" />
+-->
 
         <CheckBoxPreference
             android:defaultValue="true"

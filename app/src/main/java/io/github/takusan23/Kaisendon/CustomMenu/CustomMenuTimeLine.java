@@ -678,6 +678,9 @@ public class CustomMenuTimeLine extends Fragment {
                                 Item.add(access_token);
                                 //設定ファイルJSON
                                 Item.add(json_data);
+                                //画像表示、こんてんとわーにんぐ
+                                Item.add("false");
+                                Item.add("false");
 
                                 //ListItem listItem = new ListItem(Item);
                                 recyclerViewList.add(Item);
@@ -1402,6 +1405,9 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add(access_token);
             //設定ファイルJSON
             Item.add(json_data);
+            //画像表示、こんてんとわーにんぐ
+            Item.add("false");
+            Item.add("false");
 
             if (streaming) {
                 recyclerViewList.add(0, Item);
@@ -1486,6 +1492,9 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add(access_token);
             //設定ファイルJSON
             Item.add(json_data);
+            //画像表示、こんてんとわーにんぐ
+            Item.add("false");
+            Item.add("false");
 
             recyclerViewList.add(0, Item);
 
@@ -1676,6 +1685,9 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add(access_token);
             //設定ファイルJSON
             Item.add(json_data);
+            //画像表示、こんてんとわーにんぐ
+            Item.add("false");
+            Item.add("false");
 
             recyclerViewList.add(Item);
 
@@ -1730,6 +1742,9 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add(access_token);
             //設定ファイルJSON
             Item.add(json_data);
+            //画像表示、こんてんとわーにんぐ
+            Item.add("false");
+            Item.add("false");
 
             recyclerViewList.add(Item);
 
@@ -2310,6 +2325,9 @@ public class CustomMenuTimeLine extends Fragment {
                                     Item.add(access_token);
                                     //設定ファイルJSON
                                     Item.add(json_data);
+                                    //画像表示、こんてんとわーにんぐ
+                                    Item.add("false");
+                                    Item.add("false");
 
                                     recyclerViewList.add(Item);
                                     getActivity().runOnUiThread(new Runnable() {
@@ -2398,6 +2416,9 @@ public class CustomMenuTimeLine extends Fragment {
                                 Item.add(access_token);
                                 //設定ファイルJSON
                                 Item.add(json_data);
+                                //画像表示、こんてんとわーにんぐ
+                                Item.add("false");
+                                Item.add("false");
 
                                 recyclerViewList.add(Item);
                                 getActivity().runOnUiThread(new Runnable() {

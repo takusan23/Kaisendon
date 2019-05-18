@@ -186,6 +186,10 @@ public class ActivityPubViewer extends Fragment {
                     Item.add("");
                     Item.add("");
                     Item.add("");
+                    //画像表示、こんてんとわーにんぐ
+                    Item.add("false");
+                    Item.add("false");
+
                     recyclerViewList.add(Item);
                 }
             }

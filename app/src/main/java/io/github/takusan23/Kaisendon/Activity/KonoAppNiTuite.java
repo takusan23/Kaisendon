@@ -560,9 +560,6 @@ public class KonoAppNiTuite extends AppCompatActivity {
                 }
             }
         });
-
-
-        textView.setText("");
     }
 
 }

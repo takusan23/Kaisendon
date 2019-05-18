@@ -115,8 +115,8 @@
             <TextView
                 android:id="@+id/custom_menu_adapter_text"
                 android:layout_width="match_parent"
-                android:autoLink="web"
                 android:layout_height="wrap_content"
+                android:autoLink="web"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:textSize="10sp" />
@@ -130,6 +130,13 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"></LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/custom_menu_adapter_optionLinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"></LinearLayout>
 
             <LinearLayout
                 android:id="@+id/custom_menu_adapter_mediaLinearLayout"

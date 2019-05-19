@@ -1283,6 +1283,9 @@ public class CustomMenuTimeLine extends Fragment {
             Item.add(access_token);
             //設定ファイルJSON
             Item.add(json_data);
+            //画像表示、こんてんとわーにんぐ
+            Item.add("false");
+            Item.add("false");
 
             if (streaming) {
                 recyclerViewList.add(0, Item);

@@ -2269,8 +2269,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
     /*こんてんとわーにんぐ 11*/
     private void setContentWarning(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item) {
+        viewHolder.option_LinearLayout.removeView(viewHolder.spoiler_text_ImageButton);
         //あった場合h
-        if (!api.getSpoiler_text().equals("")) {
+        if (api.getSpoiler_text() != null && !api.getSpoiler_text().equals("")) {
             //警告文に置き換える
             viewHolder.toot_text_TextView.setText(api.getSpoiler_text() + "\n");
             //表示ボタン追加

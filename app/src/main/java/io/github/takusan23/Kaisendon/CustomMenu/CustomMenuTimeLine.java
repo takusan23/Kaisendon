@@ -397,8 +397,6 @@ public class CustomMenuTimeLine extends Fragment {
         customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
         recyclerView.setAdapter(customMenuRecyclerViewAdapter);
         recyclerViewLayoutManager = recyclerView.getLayoutManager();
-
-
         addNavigationOpen();
 
         //TL読み込み

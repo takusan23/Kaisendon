@@ -127,6 +127,8 @@ import io.github.takusan23.Kaisendon.Fragment.Notification_Fragment;
 import io.github.takusan23.Kaisendon.Fragment.Public_TimeLine_Fragment;
 import io.github.takusan23.Kaisendon.Fragment.SettingFragment;
 import io.github.takusan23.Kaisendon.Fragment.WearFragment;
+import io.github.takusan23.Kaisendon.Omake.LunchBonus;
+import io.github.takusan23.Kaisendon.Omake.ShinchokuLayout;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -152,6 +154,7 @@ public class Home extends AppCompatActivity
     String user_id = null;
     String user_avater = null;
     String user_header = null;
+    String toot_count = "0";
 
     String account_id;
     private ProgressDialog dialog;
@@ -243,6 +246,9 @@ public class Home extends AppCompatActivity
 
     private CustomMenuLoadSupport customMenuLoadSupport;
 
+    //裏機能？
+    ShinchokuLayout shinchokuLayout;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -282,8 +288,13 @@ public class Home extends AppCompatActivity
         setContentView(R.layout.activity_home);
 
         navigationView = findViewById(R.id.nav_view);
-
         customMenuLoadSupport = new CustomMenuLoadSupport(this, navigationView);
+
+        //進捗
+        shinchokuLayout = new ShinchokuLayout(this);
+        //アプリ起動カウント
+        LunchBonus lunchBonus = new LunchBonus(this);
+
 
         //ログイン情報があるか
         //アクセストークンがない場合はログイン画面へ飛ばす
@@ -464,7 +475,7 @@ public class Home extends AppCompatActivity
         //共有を受け取る
         Intent intent = getIntent();
         String action_string = intent.getAction();
-        System.out.println(action_string);
+        //System.out.println(action_string);
         if (Intent.ACTION_SEND.equals(action_string)) {
             Bundle extras = intent.getExtras();
             if (extras != null) {
@@ -592,7 +603,9 @@ public class Home extends AppCompatActivity
                             user_avater = jsonObject.getString("avatar");
                             user_header = jsonObject.getString("header");
                             account_id = jsonObject.getString("id");
-
+                            toot_count = jsonObject.getString("statuses_count");
+                            //裏機能？
+                            shinchokuLayout.setStatusProgress(toot_count);
                             //カスタム絵文字適用
                             if (emojis_show) {
                                 //他のところでは一旦配列に入れてるけど今回はここでしか使ってないから省くね
@@ -635,6 +648,7 @@ public class Home extends AppCompatActivity
                                     }
                                     //Wi-Fi
                                     if (setting_avater_wifi) {
+                                        assert networkCapabilities != null;
                                         if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                                             if (setting_avater_gif) {
                                                 //GIFアニメ再生させない
@@ -1123,7 +1137,7 @@ public class Home extends AppCompatActivity
         if (requestCode == 1)
             if (resultCode == Activity.RESULT_OK) {
                 Uri selectedImage = data.getData();
-                System.out.println("値 : " + String.valueOf(resultCode) + " / " + data.getData());
+                //System.out.println("値 : " + String.valueOf(resultCode) + " / " + data.getData());
 
                 //ファイルパスとか
                 String filePath = getPath(selectedImage);
@@ -1245,7 +1259,7 @@ public class Home extends AppCompatActivity
             //実機で確認できず
             //imagePath = getPathAndroidQ(Home.this, Uri.parse(content_text));
         }
-        System.out.println(imagePath);
+        //System.out.println(imagePath);
         return imagePath;
     }
 
@@ -2168,11 +2182,13 @@ public class Home extends AppCompatActivity
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 //コマンド実行メゾット？
                 //CommandCode.commandSet(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/sushi", "command_sushi");
-                CommandCode.commandSet(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/friends.nico", "pref_friends_nico_mode");
+                //CommandCode.commandSet(Home.this, toot_EditText, toot_LinearLayout, command_Button, "/friends.nico", "pref_friends_nico_mode");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/rate-limit", "rate-limit");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-home", "home");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-local", "local");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/じゃんけん", "じゃんけん");
+                CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/progress", "progress");
+                CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/lunch_bonus", "lunch_bonus");
                 //カウント
                 tootTextCount = toot_EditText.getText().toString().length();
                 //投稿ボタンの文字
@@ -2222,6 +2238,7 @@ public class Home extends AppCompatActivity
         //カスタムメニュー時は無効（）
 
         //LinearLayoutに入れる
+        account_LinearLayout.setPadding(10, 10, 10, 10);
         account_LinearLayout.addView(snackberAccountAvaterImageView);
         account_LinearLayout.addView(snackberAccount_TextView);
 
@@ -2239,6 +2256,12 @@ public class Home extends AppCompatActivity
         snackber_LinearLayout.addView(toot_Button_LinearLayout);
         snackber_LinearLayout.addView(media_LinearLayout);
         snackber_LinearLayout.addView(toot_LinearLayout);
+
+        if (pref_setting.getBoolean("progress_mode", false)) {
+            LinearLayout linearLayout = shinchokuLayout.getLayout();
+            snackber_LinearLayout.addView(linearLayout, 1);
+        }
+
         //ボタン追加
         toot_Button_LinearLayout.addView(add_image_Button);
         toot_Button_LinearLayout.addView(toot_area_Button);
@@ -2800,7 +2823,7 @@ public class Home extends AppCompatActivity
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String response_string = response.body().string();
-                System.out.println(response_string);
+                //System.out.println(response_string);
                 if (!response.isSuccessful()) {
                     //失敗
                     runOnUiThread(new Runnable() {
@@ -3559,4 +3582,6 @@ public class Home extends AppCompatActivity
         //追加されてなければ追加
         toolbar.addView(qs);
     }
+
+
 }

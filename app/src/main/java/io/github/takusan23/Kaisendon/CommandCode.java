@@ -5,13 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import com.google.android.material.snackbar.Snackbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,6 +31,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class CommandCode {
+
 
     //コマンドをここに書いていくと思うよ
 
@@ -113,7 +115,6 @@ public class CommandCode {
                                     imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
                                 }
                             }
-
                             //レートリミット
                             if (commandType.contains("rate-limit")) {
                                 getMyRateLimit(context, editText);
@@ -130,6 +131,15 @@ public class CommandCode {
                             if (commandType.contains("local")) {
                                 favCommand("local");
                             }
+                            //進捗機能
+                            if (commandType.contains("progress")) {
+                                saveSharedPreference(context, editText, "progress_mode");
+                            }
+                            //起動カウント
+                            if (commandType.contains("lunch_bonus")) {
+                                saveSharedPreference(context, editText, "lunch_bonus_mode");
+                            }
+
                         }
                     }).show();
                 }
@@ -138,6 +148,19 @@ public class CommandCode {
         } else {
             //toot_LinearLayout.removeView(command_Button);
         }
+    }
+
+    /*保存*/
+    public static void saveSharedPreference(Context context, EditText editText, String name) {
+        SharedPreferences pref_setting = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = pref_setting.edit();
+        if (!pref_setting.getBoolean(name, false)) {
+            editor.putBoolean(name, true);
+        } else {
+            editor.putBoolean(name, false);
+        }
+        editor.apply();
+        editText.setText("");
     }
 
     //れーとりみっとかくにん
@@ -192,7 +215,6 @@ public class CommandCode {
 
     //ふぁぼる
     private static void favCommand(String timeline) {
-        System.out.println("あれ？");
         SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
         String AccessToken, instance;
         boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);

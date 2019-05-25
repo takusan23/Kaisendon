@@ -60,4 +60,8 @@
         <item name="colorControlHighlight">@color/white</item>
     </style>
 
+    <style name="CustomSnackbarMessage" parent="TextAppearance.Design.Snackbar.Message">
+        <item name="android:textColor">#f0f0f0</item>
+    </style>
+
 </resources>

@@ -11,6 +11,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,17 +25,11 @@ import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 
-import io.github.takusan23.Kaisendon.Activity.KonoAppNiTuite;
 import io.github.takusan23.Kaisendon.Activity.UserActivity;
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine;
+import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.Kaisendon.R;
 import io.github.takusan23.Kaisendon.TootBookmark_SQLite;
 
@@ -57,6 +57,8 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        DarkModeSupport darkModeSupport = new DarkModeSupport(getContext());
+        darkModeSupport.setLayoutAllThemeColor((LinearLayout) view);
         pref_setting = PreferenceManager.getDefaultSharedPreferences(getContext());
         account_Button = view.findViewById(R.id.toot_option_account_button);
         bookmark_Button = view.findViewById(R.id.toot_option_bookmark_button);

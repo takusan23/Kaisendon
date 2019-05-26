@@ -8,16 +8,18 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.preference.PreferenceManager;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import androidx.preference.PreferenceManager;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
 
 import io.github.takusan23.Kaisendon.R;
 
@@ -37,7 +39,7 @@ public class DarkModeSupport {
     /*背景ダークモード*/
     public void setBackgroundDarkMode(LinearLayout linearLayout) {
         setDarkmode();
-        if (linearLayout instanceof LinearLayout){
+        if (linearLayout instanceof LinearLayout) {
             switch (nightMode) {
                 case Configuration.UI_MODE_NIGHT_NO:
                     linearLayout.setBackgroundColor(context.getResources().getColor(android.R.color.white, context.getTheme()));
@@ -85,7 +87,7 @@ public class DarkModeSupport {
         setDarkmode();
         switch (nightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
-                textView.setTextColor(context.getColor(android.R.color.black));
+                textView.setTextColor(context.getColor(android.R.color.tab_indicator_text));
                 textView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
                 break;
             case Configuration.UI_MODE_NIGHT_YES:
@@ -191,7 +193,7 @@ public class DarkModeSupport {
     }
 
     /*Snackberの色*/
-    public void setSnackBerThemeColor(Snackbar snackbar){
+    public void setSnackBerThemeColor(Snackbar snackbar) {
         snackbar.getView().getRootView().setBackgroundColor(context.getColor(R.color.black));
     }
 
@@ -227,7 +229,7 @@ public class DarkModeSupport {
     }
 
     /*ImageView*/
-    public void setImageViewThemeColor(ImageView view){
+    public void setImageViewThemeColor(ImageView view) {
         switch (nightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
                 view.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.black)));

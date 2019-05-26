@@ -46,9 +46,7 @@ public class BackupRestoreBottomDialog extends BottomSheetDialogFragment {
         restore_Button = view.findViewById(R.id.backup_restore_restore_Button);
         path_TextView = view.findViewById(R.id.backup_restore_path_textView);
         DarkModeSupport darkModeSupport = new DarkModeSupport(getContext());
-        darkModeSupport.setBackgroundDarkMode((LinearLayout) backup_Button.getParent().getParent());
-        darkModeSupport.setTextViewThemeColor(restore_Button);
-        darkModeSupport.setTextViewThemeColor(backup_Button);
+        darkModeSupport.setLayoutAllThemeColor((LinearLayout) view);
         backup_Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

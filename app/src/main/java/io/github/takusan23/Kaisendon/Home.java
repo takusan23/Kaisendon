@@ -107,7 +107,6 @@ import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSettingFragment;
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog;
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.TLQuickSettingSnackber;
-import io.github.takusan23.Kaisendon.CustomMenu.Dialog.TLQuickSettingsBottomFragment;
 import io.github.takusan23.Kaisendon.CustomMenu.DirectMessage_Fragment;
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment;
@@ -241,7 +240,6 @@ public class Home extends AppCompatActivity
     private Switch misskey_switch;
     private boolean isDesktop = false;
 
-    private TLQuickSettingsBottomFragment dialogFragment;
     private TLQuickSettingSnackber tlQuickSettingSnackber;
 
     private CustomMenuLoadSupport customMenuLoadSupport;
@@ -339,8 +337,6 @@ public class Home extends AppCompatActivity
         } else {
             isDesktop = false;
         }
-
-        dialogFragment = new TLQuickSettingsBottomFragment();
 
 
 
@@ -2911,7 +2907,7 @@ public class Home extends AppCompatActivity
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        System.out.println(jsonObject.toString());
+        //System.out.println(jsonObject.toString());
         RequestBody requestBody_json = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
         //System.out.println(jsonObject.toString());
 

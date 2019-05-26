@@ -592,7 +592,7 @@ public class CustomMenuTimeLine extends Fragment {
         }
 
         //ネットワーク変更を検知する
-        //setNetworkChangeCallback();
+        setNetworkChangeCallback();
 
     }
 
@@ -2563,36 +2563,46 @@ public class CustomMenuTimeLine extends Fragment {
         builder.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
         builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
         connectivityManager.registerNetworkCallback(builder.build(), new ConnectivityManager.NetworkCallback() {
+
             @Override
-            public void onCapabilitiesChanged(Network network, NetworkCapabilities networkCapabilities) {
-                Snackbar.make(recyclerView, R.string.network_change, Snackbar.LENGTH_SHORT).show();
-                //5秒後にストリーミングAPIに再接続する
-                Timer timer = new Timer();
-                TimerTask timerTask = new TimerTask() {
-                    @Override
-                    public void run() {
-                        if (webSocketClient != null) {
-                            webSocketClient.close();
-                            //通知以外
-                            if (!url.contains("/api/v1/notifications")) {
-                                loadTimeline("");
-                                //ストリーミング
-                                useStreamingAPI(false);
-                            } else {
-                                notificationLayout();
-                                //普通にAPI叩く
-                                loadNotification("");
-                                //ストリーミング
-                                useStreamingAPI(true);
+            public void onAvailable(Network network) {
+                //最初は無視する
+                if (network_count > 0) {
+                    //変更されたら
+                    if (webSocketClient != null || notification_WebSocketClient != null) {
+                        //なんとなくスナックバー
+                        Snackbar.make(recyclerView, R.string.network_change, Snackbar.LENGTH_SHORT).show();
+                        //5秒後にストリーミングAPIに再接続する
+                        Timer timer = new Timer();
+                        TimerTask timerTask = new TimerTask() {
+                            @Override
+                            public void run() {
+                                if (webSocketClient != null) {
+                                    webSocketClient.close();
+                                    //通知以外
+                                    if (!url.contains("/api/v1/notifications")) {
+                                        loadTimeline("");
+                                        //ストリーミング
+                                        useStreamingAPI(false);
+                                    } else {
+                                        notificationLayout();
+                                        //普通にAPI叩く
+                                        loadNotification("");
+                                        //ストリーミング
+                                        useStreamingAPI(true);
+                                    }
+                                }
+                                if (notification_WebSocketClient != null) {
+                                    notification_WebSocketClient.close();
+                                    setStreamingNotification();
+                                }
                             }
-                        }
-                        if (notification_WebSocketClient != null) {
-                            notification_WebSocketClient.close();
-                            setStreamingNotification();
-                        }
+                        };
+                        timer.schedule(timerTask, 5000);
+
                     }
-                };
-                timer.schedule(timerTask, 5000);
+                }
+                network_count += 1;
             }
         });
     }

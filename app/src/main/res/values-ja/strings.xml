@@ -481,6 +481,7 @@
     <string name="floating_tl_error_custom_tl">フローリングタイムラインを利用するにはカスタムメニューを開いてる必要があります。</string>
     <string name="release_note">リリースノート</string>
     <string name="copy_toot_id">トゥートIDをコピー</string>
-    <string name="lunch_count">アプリ起動回数</string>
+    <string name="lunch_count">アプリ起動日数</string>
+    <string name="day">日目</string>
 
 </resources>

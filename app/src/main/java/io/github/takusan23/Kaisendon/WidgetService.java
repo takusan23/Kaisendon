@@ -75,15 +75,20 @@ public class WidgetService extends RemoteViewsService {
             ConnectivityManager connectivityManager =
                     (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+            NetworkCapabilities networkCapabilities = null;
+            if (connectivityManager != null) {
+                networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+            }
             //Wi-Fi
             if (setting_avater_wifi) {
-                if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                    avater_show = true;
-                }
-                //Wi-Fi no Connection
-                else {
-                    avater_show = false;
+                if (networkCapabilities != null) {
+                    if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        avater_show = true;
+                    }
+                    //Wi-Fi no Connection
+                    else {
+                        avater_show = false;
+                    }
                 }
             } else {
                 avater_show = false;
@@ -186,7 +191,7 @@ public class WidgetService extends RemoteViewsService {
 
 
         //JSON取得
-        public void getTimeLineJson() {
+        void getTimeLineJson() {
             //Log.v(TAG, "[Request]");
 
             pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());

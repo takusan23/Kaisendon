@@ -27,17 +27,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import androidx.browser.customtabs.CustomTabsIntent;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.bundled.BundledEmojiCompatConfig;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.appcompat.view.menu.MenuBuilder;
-import androidx.appcompat.view.menu.MenuPopupHelper;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
@@ -58,8 +47,20 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.emoji.bundled.BundledEmojiCompatConfig;
+import androidx.emoji.text.EmojiCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.sys1yagi.mastodon4j.MastodonClient;
@@ -359,7 +360,6 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         String card_url = listItem.get(13);
         String card_description = listItem.get(14);
         String card_image = listItem.get(15);
-
 
         //ArrayList<String> arrayList = item.getStringList();
         if (card_title != null) {
@@ -3078,7 +3078,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                 emoji = "⭐";
                 break;
             case "null":
-                emoji="";
+                emoji = "";
                 break;
         }
         return emoji;

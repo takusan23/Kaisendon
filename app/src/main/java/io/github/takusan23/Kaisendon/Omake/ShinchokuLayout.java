@@ -66,7 +66,7 @@ public class ShinchokuLayout {
             LayoutInflater.from(context).inflate(R.layout.progressbar_inflate, lunch_count_LinearLayout);
             ProgressBar progressBar = lunch_count_LinearLayout.findViewById(R.id.progressber_infalte);
             TextView progress_textview = lunch_count_LinearLayout.findViewById(R.id.progressber_textview);
-            progress_textview.setText(context.getString(R.string.lunch_count) + " : " + pref_setting.getString("lunch_count", "0"));
+            progress_textview.setText(context.getString(R.string.lunch_count) + " : " + pref_setting.getString("lunch_count", "0") + " " + context.getString(R.string.day));
 
             //2桁以上で動くようにする
             String lunch_count = pref_setting.getString("lunch_count", "0");

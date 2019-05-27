@@ -483,5 +483,6 @@
     <string name="copy_toot_id">トゥートIDをコピー</string>
     <string name="lunch_count">アプリ起動日数</string>
     <string name="day">日目</string>
+    <string name="custom_menu_duplicate">カスタムメニューを複製する</string>
 
 </resources>

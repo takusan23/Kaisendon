@@ -283,7 +283,7 @@ public class CustomMenuSettingFragment extends Fragment {
      * Snackber
      */
     private Snackbar showSnackber(String message, String action, View.OnClickListener clickListener) {
-        Snackbar snackbar = Snackbar.make(backup_restore_Button, message, Toast.LENGTH_SHORT);
+        Snackbar snackbar = Snackbar.make(backup_restore_Button, message, Snackbar.LENGTH_SHORT);
         ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
         //SnackBerを複数行対応させる
         TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);

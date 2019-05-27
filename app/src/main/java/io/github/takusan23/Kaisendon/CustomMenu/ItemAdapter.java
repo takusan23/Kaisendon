@@ -1,10 +1,18 @@
 package io.github.takusan23.Kaisendon.CustomMenu;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.context.Context;
+import android.context.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import androidx.annotation.NonNull;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.core.util.Pair;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -45,6 +53,8 @@ class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter.ViewHo
                 holder.itemView.getContext().startActivity(intent);
             }
         });
+        //長押しのときはメニューを出す
+        
     }
 
     @Override
@@ -85,4 +95,38 @@ class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter.ViewHo
     private void showCustomMenuEditor(String name) {
 
     }
+    
+    /*メニュー作成*/
+    @SuppressLint("RestrictedApi")
+    private void setPopupMenu(ViewHolder viewHolder){
+        Context context = viewHolder.itemView.getContext();
+        MenuBuilder menuBuilder = new MenuBuilder(context);
+        MenuInflater inflater = new MenuInflater(context);
+        inflater.inflate(R.menu.custom_menu_load_menu, menuBuilder);
+        MenuPopupHelper optionsMenu = new MenuPopupHelper(context, menuBuilder, viewHolder.mText);
+        optionsMenu.setForceShowIcon(true);
+
+        viewHolder.mText.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                optionsMenu.show();
+                //選択
+                menuBuilder.setCallback(new MenuBuilder.Callback() {
+                    @Override
+                    public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+                        return false;
+                    }
+
+                    @Override
+                    public void onMenuModeChange(MenuBuilder menu) {
+
+                    }
+                });
+                return true;
+            }
+        });
+
+
+    }
+    
 }

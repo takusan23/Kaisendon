@@ -8,20 +8,21 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.core.content.ContextCompat;
-import androidx.core.util.Pair;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.util.Pair;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.woxthebox.draglistview.DragListView;
 
 import java.util.ArrayList;
@@ -318,6 +319,9 @@ public class CustomMenuSettingFragment extends Fragment {
             writeSQLiteDB(String.valueOf((i) + 1), name_List.get(i), value_List.get(i));
         }
 
+        //メニュー再読み込み
+        reLoadMenu();
+
     }
 
 
@@ -351,6 +355,16 @@ public class CustomMenuSettingFragment extends Fragment {
         values.put("name", name);
         values.put("setting", value);
         db.insert("custom_menudb", "", values);
+    }
+
+    /*Fragment再生成*/
+    private void reLoadMenu() {
+        NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
+        CustomMenuLoadSupport customMenuLoadSupport = new CustomMenuLoadSupport(getContext(), navigationView);
+        //再読み込み
+        navigationView.getMenu().clear();
+        navigationView.inflateMenu(R.menu.custom_menu);
+        customMenuLoadSupport.loadCustomMenu(null);
     }
 
 }

@@ -706,6 +706,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 name_EditText.setText(jsonObject.getString("name"));
                 urlToContent(jsonObject.getString("content"));
                 instance = jsonObject.getString("instance");
+                account_Button.setText(instance);
                 access_token = jsonObject.getString("access_token");
                 image_Switch.setChecked(Boolean.valueOf(jsonObject.getString("image_load")));
                 dark_Switch.setChecked(Boolean.valueOf(jsonObject.getString("dark_mode")));

@@ -15,7 +15,7 @@ public class LunchBonus {
         this.context = context;
         pref_setting = PreferenceManager.getDefaultSharedPreferences(context);
         //記録
-        if (pref_setting.getBoolean("lunch_bonus_mode", false)) {
+        if (pref_setting.getBoolean("life_mode", false)) {
             addSave();
         }
     }

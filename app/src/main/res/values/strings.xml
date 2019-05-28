@@ -588,5 +588,9 @@
     <string name="lunch_count">App launch days</string>
     <string name="day">day</string>
     <string name="custom_menu_duplicate">Duplicate CustomMenu</string>
+    <string name="status">Status</string>
+    <string name="domain">Domain</string>
+    <string name="toot_count_set">Toot number</string>
+    <string name="decision">Decision</string>
 
 </resources>

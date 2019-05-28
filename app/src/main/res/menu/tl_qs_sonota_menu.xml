@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/home_menu_instance_info"
+        android:icon="@drawable/ic_info_outline_black_24dp"
+        android:orderInCategory="100"
+        android:title="@string/instance_info"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/home_menu_reload_menu"
         android:icon="@drawable/ic_refresh_black_24dp"
         android:orderInCategory="100"

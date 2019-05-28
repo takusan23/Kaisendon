@@ -484,5 +484,9 @@
     <string name="lunch_count">アプリ起動日数</string>
     <string name="day">日目</string>
     <string name="custom_menu_duplicate">カスタムメニューを複製する</string>
+    <string name="status">ステータス</string>
+    <string name="domain">ドメイン</string>
+    <string name="toot_count_set">トゥート数</string>
+    <string name="decision">決定</string>
 
 </resources>

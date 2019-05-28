@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/instance_info_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_info_outline_black_24dp"
+        android:padding="10dp"
+        android:text="@string/instance_info" />
+
+    <TextView
+        android:id="@+id/instance_info_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_label_outline_black_24dp"
+        android:padding="10dp"
+        android:text="@string/name" />
+
+    <TextView
+        android:id="@+id/instance_info_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_import_contacts_black_24dp"
+        android:padding="10dp"
+        android:text="@string/instance_description" />
+
+
+    <TextView
+        android:id="@+id/instance_info_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_timeline_black_24dp"
+        android:padding="10dp"
+        android:text="@string/status" />
+
+
+</LinearLayout>

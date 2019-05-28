@@ -2183,8 +2183,11 @@ public class Home extends AppCompatActivity
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-home", "home");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/fav-local", "local");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/じゃんけん", "じゃんけん");
+/*
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/progress", "progress");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/lunch_bonus", "lunch_bonus");
+*/
+                CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/life", "life");
                 //カウント
                 tootTextCount = toot_EditText.getText().toString().length();
                 //投稿ボタンの文字
@@ -2253,7 +2256,7 @@ public class Home extends AppCompatActivity
         snackber_LinearLayout.addView(media_LinearLayout);
         snackber_LinearLayout.addView(toot_LinearLayout);
 
-        if (pref_setting.getBoolean("progress_mode", false)) {
+        if (pref_setting.getBoolean("life_mode", false)) {
             LinearLayout linearLayout = shinchokuLayout.getLayout();
             snackber_LinearLayout.addView(linearLayout, 1);
         }

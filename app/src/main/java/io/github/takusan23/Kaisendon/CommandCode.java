@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import io.github.takusan23.Kaisendon.Omake.KaisendonLife;
 import io.github.takusan23.Kaisendon.Zyanken.ZyankenMenu;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -139,7 +140,13 @@ public class CommandCode {
                             if (commandType.contains("lunch_bonus")) {
                                 saveSharedPreference(context, editText, "lunch_bonus_mode");
                             }
-
+                            //Life機能
+                            if (commandType.contains("life")) {
+                                context.startActivity(new Intent(context, KaisendonLife.class));
+                            }
+                            //戻す
+                            editText.setText("");
+                            toot_LinearLayout.removeView(command_Button);
                         }
                     }).show();
                 }

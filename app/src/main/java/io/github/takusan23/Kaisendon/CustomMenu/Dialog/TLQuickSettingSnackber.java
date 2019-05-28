@@ -9,8 +9,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -21,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuPopupHelper;
+
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -167,7 +170,7 @@ public class TLQuickSettingSnackber {
                 FloatingTL floatingTL = new FloatingTL(context, fragment.getArguments().getString("json"));
                 floatingTL.setNotification();
             } else {
-                Toast.makeText(context,context.getString(R.string.floating_tl_error_custom_tl),Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, context.getString(R.string.floating_tl_error_custom_tl), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -213,7 +216,7 @@ public class TLQuickSettingSnackber {
                         break;
                     case R.id.home_menu_account:
                         Intent intent = new Intent(context, UserActivity.class);
-                        if (list!=null){
+                        if (list != null) {
                             if (CustomMenuTimeLine.isMisskeyMode()) {
                                 intent.putExtra("Account_ID", CustomMenuTimeLine.getAccount_id());
                             } else {
@@ -280,6 +283,10 @@ public class TLQuickSettingSnackber {
                     case R.id.home_menu_wear:
                         transaction.replace(R.id.container_container, new WearFragment());
                         transaction.commit();
+                        break;
+                    case R.id.home_menu_instance_info:
+                        InstanceInfoBottomFragment instanceInfoBottomFragment = new InstanceInfoBottomFragment();
+                        instanceInfoBottomFragment.show(transaction, "instance_info");
                         break;
                 }
                 return false;
@@ -352,7 +359,7 @@ public class TLQuickSettingSnackber {
     }
 
     /*配列を設定*/
-    public void setList(ArrayList<String> list){
+    public void setList(ArrayList<String> list) {
         this.list = list;
     }
 

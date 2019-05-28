@@ -48,7 +48,6 @@ public class ShinchokuLayout {
 
         //起動カウント
         setLunchCountLayout();
-
     }
 
     /*進捗設定*/
@@ -58,7 +57,7 @@ public class ShinchokuLayout {
 
     /*アプリ起動カウント*/
     private void setLunchCountLayout() {
-        if (pref_setting.getBoolean("lunch_bonus_mode", false)) {
+        if (pref_setting.getBoolean("life_mode", false)) {
             LinearLayout lunch_count_LinearLayout = new LinearLayout(context);
             lunch_count_LinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             lunch_count_LinearLayout.setPadding(10, 10, 10, 10);

@@ -49,11 +49,12 @@ public class KaisendonLife extends AppCompatActivity {
 
     /*保存*/
     private void setTootCount(){
+        editText.setText(pref_setting.getString("one_day_toot_challenge","0"));
         set_Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 SharedPreferences.Editor editor = pref_setting.edit();
-                editor.putString("one_day_toot_count", editText.getText().toString());
+                editor.putString("one_day_toot_challenge", editText.getText().toString());
                 editor.apply();
             }
         });

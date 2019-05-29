@@ -92,7 +92,7 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
                 if (getActivity() != null) {
                     ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                     if (clipboardManager != null) {
-                        clipboardManager.setPrimaryClip(ClipData.newPlainText(getArguments().getString("status_text"), "copy"));
+                        clipboardManager.setPrimaryClip(ClipData.newPlainText("とぅーとこぴー", getArguments().getString("status_text")));
                         Toast.makeText(getContext(), getString(R.string.copy) + " : " + getArguments().getString("status_text"), Toast.LENGTH_SHORT).show();
                     }
                     dismiss();

@@ -2858,31 +2858,6 @@ public class Home extends AppCompatActivity
         String AccessToken = pref_setting.getString("main_token", "");
         String Instance = pref_setting.getString("main_instance", "");
         String url = "https://" + Instance + "/api/v1/statuses/?access_token=" + AccessToken;
-/*
-        //ぱらめーたー
-        FormBody.Builder requestBody = new FormBody.Builder();
-        requestBody.add("status", toot_EditText.getText().toString());
-        requestBody.add("visibility", toot_area);
-
-        //時間指定
-        if (isTimePost) {
-            //System.out.println(post_date + "/" + post_time);
-            //nullCheck
-            if (post_date != null && post_time != null) {
-                requestBody.add("scheduled_at", post_date + post_time);
-            }
-        }
-        //画像
-        for (int i = 0; i < post_media_id.size(); i++) {
-            requestBody.add("media_ids[]", post_media_id.get(i));
-        }
-        //投票機能
-        if (isMastodon_vote) {
-            requestBody.add("poll", createMastodonVote().toString());
-        }
-        requestBody.build();
-*/
-
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("status", toot_EditText.getText().toString());
@@ -2910,10 +2885,7 @@ public class Home extends AppCompatActivity
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        //System.out.println(jsonObject.toString());
         RequestBody requestBody_json = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
-        //System.out.println(jsonObject.toString());
-
         Request request = new Request.Builder()
                 .url(url)
                 .post(requestBody_json)
@@ -2936,7 +2908,6 @@ public class Home extends AppCompatActivity
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String response_string = response.body().string();
-                //System.out.println(response_string);
                 if (!response.isSuccessful()) {
                     //失敗
                     runOnUiThread(new Runnable() {
@@ -2973,6 +2944,8 @@ public class Home extends AppCompatActivity
                             media_uri_list.clear();
                             post_media_id.clear();
                             media_LinearLayout.removeAllViews();
+                            //目標更新
+                            shinchokuLayout.setTootChallenge();
                         }
                     });
                 }

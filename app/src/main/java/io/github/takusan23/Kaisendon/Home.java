@@ -600,8 +600,6 @@ public class Home extends AppCompatActivity
                             user_header = jsonObject.getString("header");
                             account_id = jsonObject.getString("id");
                             toot_count = jsonObject.getString("statuses_count");
-                            //裏機能？
-                            shinchokuLayout.setStatusProgress(toot_count);
                             //カスタム絵文字適用
                             if (emojis_show) {
                                 //他のところでは一旦配列に入れてるけど今回はここでしか使ってないから省くね
@@ -643,8 +641,7 @@ public class Home extends AppCompatActivity
                                         header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"));
                                     }
                                     //Wi-Fi
-                                    if (setting_avater_wifi) {
-                                        assert networkCapabilities != null;
+                                    if (setting_avater_wifi && networkCapabilities != null) {
                                         if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                                             if (setting_avater_gif) {
                                                 //GIFアニメ再生させない
@@ -2328,6 +2325,7 @@ public class Home extends AppCompatActivity
                     String display_name = jsonObject.getString("display_name");
                     String user_id = jsonObject.getString("acct");
                     snackber_DisplayName = display_name;
+                    toot_count = jsonObject.getString("statuses_count");
                     //カスタム絵文字適用
                     if (emojis_show) {
                         //他のところでは一旦配列に入れてるけど今回はここでしか使ってないから省くね
@@ -2396,6 +2394,8 @@ public class Home extends AppCompatActivity
                             PicassoImageGetter imageGetter = new PicassoImageGetter(snackberAccount_TextView);
                             snackberAccount_TextView.setText(Html.fromHtml(snackber_DisplayName, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
                             snackberAccount_TextView.append("\n" + snackber_Name);
+                            //裏機能？
+                            shinchokuLayout.setStatusProgress(toot_count);
                         }
                     });
                 } catch (JSONException e) {

@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
@@ -70,7 +69,9 @@ public class ShinchokuLayout {
 
     /*進捗設定*/
     public void setStatusProgress(String toot_count) {
-        setProgressBerProgress(toot_count, progressBar, prgress_textview);
+        if (pref_setting.getBoolean("life_mode", false)) {
+            setProgressBerProgress(toot_count, progressBar, prgress_textview);
+        }
     }
 
     /*アプリ起動カウント*/
@@ -106,7 +107,7 @@ public class ShinchokuLayout {
             ProgressBar progressBar = one_day_LinearLayout.findViewById(R.id.progressber_infalte);
             TextView progress_textview = one_day_LinearLayout.findViewById(R.id.progressber_textview);
             //次の日ならリセットする
-            if (calendar.get(Calendar.DATE)!=challenge_day){
+            if (calendar.get(Calendar.DATE) != challenge_day) {
                 SharedPreferences.Editor editor = pref_setting.edit();
                 editor.putString("one_day_toot_challenge_count", "1");
                 editor.putString("one_day_toot_challenge_day", String.valueOf(calendar.get(Calendar.DATE)));
@@ -131,22 +132,24 @@ public class ShinchokuLayout {
 
     /*プログレスバーで進捗！*/
     private void setProgressBerProgress(String text, ProgressBar progressBar, TextView prgress_textview) {
-        //2桁以上で動くようにする
-        if (text.length() >= 2) {
-            //先頭文字
-            String nextStep = text.substring(1);
-            //桁を取得
-            int digit = text.length() - 1;
-            int max_value = Integer.parseInt("1" + String.format("%0" + digit + "d", 0));
-            int next_value = Integer.parseInt(String.format("%0" + digit + "d", 0));
-            //次のステップを取得する
-            //先頭の文字＋１と0を桁の数だけ用意する
-            String nextStage = (Integer.valueOf(text.substring(0, 1)) + 1) + String.format("%0" + digit + "d", 0);
-            prgress_textview.setText(context.getString(R.string.toot) + " : " + text + " / " + nextStage);
-            progressBar.setMax(max_value);
-            progressBar.setProgress(Integer.parseInt(nextStep));
-        } else {
-            ((LinearLayout) progressBar.getParent()).removeView(progressBar);
+        if (pref_setting.getBoolean("life_mode", false)) {
+            //2桁以上で動くようにする
+            if (text.length() >= 2) {
+                //先頭文字
+                String nextStep = text.substring(1);
+                //桁を取得
+                int digit = text.length() - 1;
+                int max_value = Integer.parseInt("1" + String.format("%0" + digit + "d", 0));
+                int next_value = Integer.parseInt(String.format("%0" + digit + "d", 0));
+                //次のステップを取得する
+                //先頭の文字＋１と0を桁の数だけ用意する
+                String nextStage = (Integer.valueOf(text.substring(0, 1)) + 1) + String.format("%0" + digit + "d", 0);
+                prgress_textview.setText(context.getString(R.string.toot) + " : " + text + " / " + nextStage);
+                progressBar.setMax(max_value);
+                progressBar.setProgress(Integer.parseInt(nextStep));
+            } else {
+                ((LinearLayout) progressBar.getParent()).removeView(progressBar);
+            }
         }
     }
 

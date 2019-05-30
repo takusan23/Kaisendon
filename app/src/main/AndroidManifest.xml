@@ -43,6 +43,7 @@
             android:name=".Zyanken.Zyanken"
             android:parentActivityName=".Zyanken.ZyankenMenu" />
         <activity
+            android:supportsPictureInPicture="true"
             android:name=".Home"
             android:configChanges="orientation"
             android:label="@string/app_name"

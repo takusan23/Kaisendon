@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
@@ -16,26 +17,33 @@ import io.github.takusan23.Kaisendon.R;
 
 public class ShinchokuLayout {
     /*うらめにゅー？*/
-    Context context;
-    ProgressBar progressBar;
-    TextView prgress_textview;
-    LinearLayout linearLayout;
-    SharedPreferences pref_setting;
-    LinearLayout content_LinearLayout;
-    ViewGroup.LayoutParams layoutParams;
-    Calendar calendar;
+    private Context context;
+    private ProgressBar progressBar;
+    private TextView prgress_textview;
+    private LinearLayout linearLayout;
+    private SharedPreferences pref_setting;
+    private LinearLayout content_LinearLayout;
+    private ViewGroup.LayoutParams layoutParams;
+    private Calendar calendar;
+    private ProgressBar one_day_ProgressBar;
+    private TextView one_day_TextView;
 
     public ShinchokuLayout(Context context) {
         this.context = context;
         layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         pref_setting = PreferenceManager.getDefaultSharedPreferences(context);
         calendar = Calendar.getInstance();
-        setProgressLayout();
-        //目標
-        setOneDayTootLayout();
-        //起動カウント
-        setLunchCountLayout();
+        setLayout();
+    }
 
+    public void setLayout() {
+        if (pref_setting.getBoolean("life_mode", false)) {
+            setProgressLayout();
+            //目標
+            setOneDayTootLayout();
+            //起動カウント
+            setLunchCountLayout();
+        }
     }
 
     /*返す*/
@@ -56,7 +64,8 @@ public class ShinchokuLayout {
         prgress_textview = progress_inflate.findViewById(R.id.progressber_textview);
         content_LinearLayout = (LinearLayout) prgress_textview.getParent();
 
-        linearLayout.addView(progress_inflate);
+        linearLayout.removeView(linearLayout.getChildAt(0));
+        linearLayout.addView(progress_inflate, 0);
     }
 
     /*進捗設定*/
@@ -78,13 +87,15 @@ public class ShinchokuLayout {
         //2桁以上で動くようにする
         String lunch_count = pref_setting.getString("lunch_count", "0");
         setProgressBerProgress(lunch_count, progressBar, prgress_textview);
-        linearLayout.addView(lunch_count_LinearLayout);
+        linearLayout.removeView(linearLayout.getChildAt(2));
+        linearLayout.addView(lunch_count_LinearLayout, 2);
     }
 
     /*今日のトゥート目標レイアウト*/
     private void setOneDayTootLayout() {
         int challenge = Integer.valueOf(pref_setting.getString("one_day_toot_challenge", "0"));
         int count = Integer.valueOf(pref_setting.getString("one_day_toot_challenge_count", "0"));
+        int challenge_day = Integer.valueOf(pref_setting.getString("one_day_toot_challenge_day", "0"));
         if (challenge > 0) {
             //レイアウト
             LinearLayout one_day_LinearLayout = new LinearLayout(context);
@@ -94,16 +105,26 @@ public class ShinchokuLayout {
             LayoutInflater.from(context).inflate(R.layout.progressbar_inflate, one_day_LinearLayout);
             ProgressBar progressBar = one_day_LinearLayout.findViewById(R.id.progressber_infalte);
             TextView progress_textview = one_day_LinearLayout.findViewById(R.id.progressber_textview);
+            //次の日ならリセットする
+            if (calendar.get(Calendar.DATE)!=challenge_day){
+                SharedPreferences.Editor editor = pref_setting.edit();
+                editor.putString("one_day_toot_challenge_count", "1");
+                editor.putString("one_day_toot_challenge_day", String.valueOf(calendar.get(Calendar.DATE)));
+                editor.apply();
+            }
             progress_textview.setText("目標トゥート数 : " + pref_setting.getString("one_day_toot_challenge_count", "0") + " / " + pref_setting.getString("one_day_toot_challenge", "0"));
             //2桁以上で動くようにする
             progressBar.setMax(Integer.valueOf(pref_setting.getString("one_day_toot_challenge", "0")));
             progressBar.setProgress(Integer.valueOf(pref_setting.getString("one_day_toot_challenge_count", "0")));
+            one_day_ProgressBar = progressBar;
+            one_day_TextView = progress_textview;
             //目標に達したときの処理
             if (count >= challenge) {
                 progress_textview.setText("おめでとう。今日のトゥート数目標達成だよ！");
             }
-            linearLayout.removeView(one_day_LinearLayout);
-            linearLayout.addView(one_day_LinearLayout);
+            //既にあったら消す
+            linearLayout.removeView(linearLayout.getChildAt(1));
+            linearLayout.addView(one_day_LinearLayout, 1);
         }
     }
 
@@ -133,7 +154,7 @@ public class ShinchokuLayout {
     public void setTootChallenge() {
         int challenge = Integer.valueOf(pref_setting.getString("one_day_toot_challenge", "0"));
         int count = Integer.valueOf(pref_setting.getString("one_day_toot_challenge_count", "0"));
-        int challenge_day = Integer.valueOf(pref_setting.getString("one_day_toot_challenge_day", "1"));
+        int challenge_day = Integer.valueOf(pref_setting.getString("one_day_toot_challenge_day", "0"));
         if (challenge > 0) {
             //比較
             SharedPreferences.Editor editor = pref_setting.edit();
@@ -150,7 +171,22 @@ public class ShinchokuLayout {
             //さいせいせい
             editor.apply();
             setOneDayTootLayout();
+        }
+    }
 
+    /*値変更*/
+    public void setOnDayProgress() {
+        int challenge = Integer.valueOf(pref_setting.getString("one_day_toot_challenge", "0"));
+        int count = Integer.valueOf(pref_setting.getString("one_day_toot_challenge_count", "0"));
+        if (one_day_ProgressBar != null && one_day_TextView != null) {
+            //2桁以上で動くようにする
+            one_day_TextView.setText("目標トゥート数 : " + pref_setting.getString("one_day_toot_challenge_count", "0") + " / " + pref_setting.getString("one_day_toot_challenge", "0"));
+            one_day_ProgressBar.setMax(Integer.valueOf(pref_setting.getString("one_day_toot_challenge", "0")));
+            one_day_ProgressBar.setProgress(Integer.valueOf(pref_setting.getString("one_day_toot_challenge_count", "0")));
+            //目標に達したときの処理
+            if (count >= challenge) {
+                one_day_TextView.setText("おめでとう。今日のトゥート数目標達成だよ！");
+            }
         }
     }
 

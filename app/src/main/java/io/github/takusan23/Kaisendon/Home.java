@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.PictureInPictureParams;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
@@ -23,6 +24,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -37,6 +39,7 @@ import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
+import android.util.Rational;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -2274,6 +2277,7 @@ public class Home extends AppCompatActivity
         return toot_snackbar;
     }
 
+
     //自分の情報を手に入れる
     private void getAccount() {
         //Wi-Fi接続状況確認
@@ -3497,6 +3501,7 @@ public class Home extends AppCompatActivity
                 toot_Button_LinearLayout.removeView(mastodon_vote_Button);
                 toot_Button_LinearLayout.addView(misskey_drive_Button);
             } else {
+                shinchokuLayout.setOnDayProgress();
                 getAccount();
                 setMastodonVisibilityMenu(toot_area_Button);
                 toot_Button_LinearLayout.removeView(misskey_drive_Button);
@@ -3554,6 +3559,4 @@ public class Home extends AppCompatActivity
         //追加されてなければ追加
         toolbar.addView(qs);
     }
-
-
 }

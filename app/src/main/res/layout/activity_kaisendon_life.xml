@@ -25,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/ic_info_outline_black_24dp"
-                android:text="試験的機能"
+                android:text="試験的機能、変更後は再起動してください。"
                 android:textSize="18dp" />
 
             <TextView

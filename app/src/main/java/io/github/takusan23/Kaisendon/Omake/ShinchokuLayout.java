@@ -109,7 +109,7 @@ public class ShinchokuLayout {
             //次の日ならリセットする
             if (calendar.get(Calendar.DATE) != challenge_day) {
                 SharedPreferences.Editor editor = pref_setting.edit();
-                editor.putString("one_day_toot_challenge_count", "1");
+                editor.putString("one_day_toot_challenge_count", "0");
                 editor.putString("one_day_toot_challenge_day", String.valueOf(calendar.get(Calendar.DATE)));
                 editor.apply();
             }

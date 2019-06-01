@@ -132,7 +132,7 @@ public class ShinchokuLayout {
 
     /*プログレスバーで進捗！*/
     private void setProgressBerProgress(String text, ProgressBar progressBar, TextView prgress_textview) {
-        if (pref_setting.getBoolean("life_mode", false)) {
+        if (pref_setting.getBoolean("life_mode", false) && progressBar != null && prgress_textview != null) {
             //2桁以上で動くようにする
             if (text.length() >= 2) {
                 //先頭文字

@@ -3,7 +3,6 @@
     style="@style/Widget.Design.Snackbar"
     class="com.google.android.material.snackbar.Snackbar$SnackbarLayout"
     android:layout_width="match_parent"
-    android:background="@android:color/transparent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
     android:theme="@style/AppTheme"/>

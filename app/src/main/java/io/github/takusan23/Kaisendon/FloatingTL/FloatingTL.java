@@ -9,8 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
 import android.os.Build;
-import androidx.annotation.RequiresApi;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
 
 import io.github.takusan23.Kaisendon.R;
 
@@ -67,9 +68,12 @@ public class FloatingTL {
                     .build();
 
             notificationManager.notify(23, builder);
+        } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            //PictureInPictureで起動
+            context.startActivity(intent);
         } else {
             //エラー文
-            Toast.makeText(context,context.getString(R.string.floating_tl_error_os),Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.floating_tl_error_os), Toast.LENGTH_SHORT).show();
         }
     }
 

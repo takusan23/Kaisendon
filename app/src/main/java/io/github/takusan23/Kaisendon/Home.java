@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.PictureInPictureParams;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
@@ -24,7 +23,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -39,7 +37,6 @@ import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
-import android.util.Rational;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -2122,7 +2119,7 @@ public class Home extends AppCompatActivity
         mastodon_vote_Button.setPadding(20, 20, 20, 20);
         mastodon_vote_Button.setBackgroundColor(Color.parseColor("#00000000"));
         mastodon_vote_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
-        mastodon_vote_Button.setImageDrawable(getDrawable(R.drawable.ic_move_to_inbox_black_24dp));
+        mastodon_vote_Button.setImageDrawable(getDrawable(R.drawable.ic_baseline_how_to_vote_24px));
         mastodon_vote_Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -2187,7 +2184,7 @@ public class Home extends AppCompatActivity
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/progress", "progress");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/lunch_bonus", "lunch_bonus");
 */
-                CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/life", "life");
+                //CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/life", "life");
                 //カウント
                 tootTextCount = toot_EditText.getText().toString().length();
                 //投稿ボタンの文字

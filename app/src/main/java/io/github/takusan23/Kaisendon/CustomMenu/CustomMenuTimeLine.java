@@ -2176,7 +2176,9 @@ public class CustomMenuTimeLine extends Fragment {
      */
     private void setStreamingNotification() {
         String url = "wss://" + instance + "/api/v1/streaming/?stream=user&access_token=" + access_token;
-        vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        if (getContext() != null) {
+            vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        }
         try {
             notification_WebSocketClient = new WebSocketClient(new URI(url)) {
                 @Override
@@ -2223,7 +2225,7 @@ public class CustomMenuTimeLine extends Fragment {
                                 toast.setView(layout);
                                 toast.setDuration(Toast.LENGTH_LONG);
                                 toast.show();
-                                if (pref_setting.getBoolean("pref_notification_vibrate", true)) {
+                                if (pref_setting.getBoolean("pref_notification_vibrate", true) && vibrator != null) {
                                     long[] pattern = {100, 100, 100, 100};
                                     vibrator.vibrate(pattern, -1);
                                 }

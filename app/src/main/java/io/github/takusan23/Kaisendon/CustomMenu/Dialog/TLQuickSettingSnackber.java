@@ -57,6 +57,7 @@ import io.github.takusan23.Kaisendon.Fragment.License_Fragment;
 import io.github.takusan23.Kaisendon.Fragment.SettingFragment;
 import io.github.takusan23.Kaisendon.Fragment.WearFragment;
 import io.github.takusan23.Kaisendon.Home;
+import io.github.takusan23.Kaisendon.Omake.KaisendonLife;
 import io.github.takusan23.Kaisendon.R;
 
 public class TLQuickSettingSnackber {
@@ -287,6 +288,10 @@ public class TLQuickSettingSnackber {
                     case R.id.home_menu_instance_info:
                         InstanceInfoBottomFragment instanceInfoBottomFragment = new InstanceInfoBottomFragment();
                         instanceInfoBottomFragment.show(transaction, "instance_info");
+                        break;
+                    case R.id.home_menu_kaisendon_life:
+                        Intent intent = new Intent(bottomNavigationView.getContext(), KaisendonLife.class);
+                        bottomNavigationView.getContext().startActivity(intent);
                         break;
                 }
                 return false;

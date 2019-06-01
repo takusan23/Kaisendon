@@ -25,14 +25,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/ic_info_outline_black_24dp"
-                android:text="試験的機能、変更後は再起動してください。"
+                android:text="Kaisendon Life"
                 android:textSize="18dp" />
 
             <TextView
                 android:id="@+id/textView4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="この機能では一日のトゥート数の目標を設定して、トゥート画面に表示できるようにします。マストドンと楽しい毎日！" />
+                android:text="この機能では一日のトゥート数の目標を設定して、トゥート画面に表示できるようにします" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

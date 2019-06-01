@@ -577,7 +577,7 @@
     <string name="notification_poll">Result of voting</string>
     <string name="floating_tl">Floating TL</string>
     <string name="floating_tl_description">You can see the timeline even while other applications are running.</string>
-    <string name="floating_tl_error_os">You need to have Android version 10 or later to use this function.</string>
+    <string name="floating_tl_error_os">You need Android version 8 or later to use this feature.</string>
     <string name="darkmode_error_os">This menu is for handsets running Android 9 or earlier. In case of Android 10 or later, it is automatically enabled by enabling the dark mode from the setting of the main unit.</string>
     <string name="darkmode">DarkMode</string>
     <string name="sonota">Other</string>
@@ -592,5 +592,9 @@
     <string name="domain">Domain</string>
     <string name="toot_count_set">Toot number</string>
     <string name="decision">Decision</string>
+    <string name="life_description">You can set Toots goals for the day. As it is an additional function, it may not be available in the future.</string>
+    <string name="true_setting">Enable this feature.</string>
+    <string name="one_day_toot">Toot number setting of the day</string>
+    <string name="one_day_toot_description">Let\'s decide the Toot number.</string>
 
 </resources>

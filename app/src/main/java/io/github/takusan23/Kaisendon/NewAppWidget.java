@@ -13,23 +13,30 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
-import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.sys1yagi.mastodon4j.MastodonClient;
-import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
-import com.sys1yagi.mastodon4j.api.method.Statuses;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * Implementation of App Widget functionality.
@@ -63,7 +70,7 @@ public class NewAppWidget extends AppWidgetProvider {
     @Override
     public void onReceive(Context ctx, Intent intent) {
         super.onReceive(ctx, intent);
-
+        pref_setting = androidx.preference.PreferenceManager.getDefaultSharedPreferences(ctx);
         int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
         if (appWidgetId != 0) {
             AppWidgetManager.getInstance(ctx).notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_listview);
@@ -143,36 +150,51 @@ public class NewAppWidget extends AppWidgetProvider {
 
             if (remoteInput != null) {
                 charSequence = remoteInput.getCharSequence("Toot_Text");
-                System.out.println("Reply : " + (String) charSequence);
-
                 CharSequence finalCharSequence = charSequence;
-                new AsyncTask<String, Void, String>() {
+                Handler uiHandler = new Handler(Looper.getMainLooper());
+                String AccessToken = pref_setting.getString("main_token", "");
+                String Instance = pref_setting.getString("main_instance", "");
+                String url = "https://" + Instance + "/api/v1/statuses/?access_token=" + AccessToken;
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("status", finalCharSequence);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                RequestBody requestBody_json = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString());
+                Request request = new Request.Builder()
+                        .url(url)
+                        .post(requestBody_json)
+                        .build();
+                OkHttpClient okHttpClient = new OkHttpClient();
+                okHttpClient.newCall(request).enqueue(new Callback() {
                     @Override
-                    protected String doInBackground(String... string) {
-                        try {
-                            pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
-
-                            String AccessToken, Instance;
-
-                            boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
-                            if (accessToken_boomelan) {
-                                AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
-                                Instance = pref_setting.getString("pref_mastodon_instance", "");
-                            } else {
-                                AccessToken = pref_setting.getString("main_token", "");
-                                Instance = pref_setting.getString("main_instance", "");
+                    public void onFailure(Call call, IOException e) {
+                        //失敗
+                        uiHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(ctx, ctx.getString(R.string.error), Toast.LENGTH_SHORT).show();
                             }
-                            MastodonClient client = new MastodonClient.Builder(Instance, new OkHttpClient.Builder(), new Gson()).accessToken(AccessToken).build();
-                            com.sys1yagi.mastodon4j.api.entity.Status statuses = new Statuses(client).postStatus((String) finalCharSequence, null, null, false, null).execute();
-                        } catch (Mastodon4jRequestException e) {
-                            e.printStackTrace();
-                        }
-                        return null;
+                        });
                     }
-                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-                Toast.makeText(ctx, ctx.getString(R.string.toot_ok) + " : " + charSequence, Toast.LENGTH_SHORT).show();
-                notificationManager.cancel(R.string.add_widget);
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        uiHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!response.isSuccessful()) {
+                                    Toast.makeText(ctx, ctx.getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(ctx, ctx.getString(R.string.toot_ok) + " : " + finalCharSequence, Toast.LENGTH_SHORT).show();
+                                    notificationManager.cancel(R.string.add_widget);
+                                }
+                            }
+                        });
+
+                    }
+                });
             }
         }
 

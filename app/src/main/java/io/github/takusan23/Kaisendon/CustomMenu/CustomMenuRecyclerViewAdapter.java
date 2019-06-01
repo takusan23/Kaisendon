@@ -250,12 +250,16 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (item.get(0).contains("ActivityPub")) {
             isActivityPubViewer = true;
         }
-        //デスクトップモード
+        //デスクトップモードかPiP利用時は簡略表示する
         Fragment fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentById(R.id.container_container);
+        Fragment pip_Fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentByTag("pip_fragment");
         if (fragment instanceof DesktopFragment) {
             MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting);
             setAccountLayout(viewHolder);
             setDesktopTootOption(viewHolder, api, item);
+        }
+        if (pip_Fragment != null) {
+            setPiPLayout(viewHolder);
         }
 
         //TL/それ以外
@@ -757,7 +761,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             layoutInflater.inflate(R.layout.custom_menu_recycler_adapter_card_layout, viewHolder.toot_card_LinearLayout);
             viewHolder.card_ImageView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_card_imageView);
             viewHolder.card_TextView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_card_textView);
-            if (getLoadImageConnection(viewHolder, setting)) {
+            if (getLoadImageConnection(viewHolder, setting) && api.getCardImage() != null && viewHolder.card_ImageView != null) {
                 Glide.with(viewHolder.card_ImageView.getContext()).load(api.getCardImage()).into(viewHolder.card_ImageView);
             } else {
                 ((LinearLayout) viewHolder.card_ImageView.getParent()).removeView(viewHolder.card_ImageView);
@@ -1794,6 +1798,17 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         //parent_LinearLayout.removeView(viewHolder.toot_media_LinearLayout);
         //parent_LinearLayout.removeView(viewHolder.toot_card_LinearLayout);
         //parent_LinearLayout.removeView(viewHolder.action_LinearLayout);
+    }
+
+    /*PiPLayout*/
+    private void setPiPLayout(ViewHolder viewHolder) {
+        //TootTextView以外消す
+        setAccountLayout(viewHolder);
+        LinearLayout parent_LinearLayout = viewHolder.mainLinearLayout;
+        parent_LinearLayout.removeView(viewHolder.toot_reblog_LinearLayout);
+        parent_LinearLayout.removeView(viewHolder.toot_media_LinearLayout);
+        parent_LinearLayout.removeView(viewHolder.toot_card_LinearLayout);
+        parent_LinearLayout.removeView(viewHolder.action_LinearLayout);
     }
 
     /**

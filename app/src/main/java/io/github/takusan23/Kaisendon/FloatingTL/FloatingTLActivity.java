@@ -1,22 +1,35 @@
 package io.github.takusan23.Kaisendon.FloatingTL;
 
+import android.app.PendingIntent;
+import android.app.PictureInPictureParams;
+import android.app.RemoteAction;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.AppCompatActivity;
+import android.util.Rational;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine;
+import io.github.takusan23.Kaisendon.Home;
 import io.github.takusan23.Kaisendon.R;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -98,13 +111,38 @@ public class FloatingTLActivity extends AppCompatActivity {
             //Fragmentおく？
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.float_tl_linearlayout, customMenuTimeLine);
+            String tag = "";
+            //PiPモードで簡略表示するため
+            if (!Build.VERSION.CODENAME.contains("Q")) {
+                tag = "pip_fragment";
+            }
+            fragmentTransaction.replace(R.id.float_tl_linearlayout, customMenuTimeLine, tag);
             fragmentTransaction.commit();
         } catch (JSONException e) {
             e.printStackTrace();
         }
         //投稿
         setStatusPOST();
+
+        //Android 10以前の端末はPictureInPictureモードで起動する
+        //Nougatユーザーは名バージョンだけど使えないよ😢
+        if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.P && !Build.VERSION.CODENAME.contains("Q")) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                //1:1の大きさにする設定
+                Rational aspectRatio = new Rational(1, 1);
+                PictureInPictureParams.Builder PIPParamsBuilder = null;
+                PIPParamsBuilder = new PictureInPictureParams.Builder();
+                PIPParamsBuilder.setAspectRatio(aspectRatio).build();
+                ArrayList<RemoteAction> toot_RemoteAction = new ArrayList<>();
+                RemoteAction remoteAction = new RemoteAction(Icon.createWithResource(getContext(), R.drawable.ic_create_black_24dp), getString(R.string.toot), "Toot", PendingIntent.getBroadcast(getContext(), 114, new Intent(getContext(), PiPBroadcastReciver.class), 0));
+                toot_RemoteAction.add(remoteAction);
+                PIPParamsBuilder.setActions(toot_RemoteAction);
+                enterPictureInPictureMode(PIPParamsBuilder.build());
+                //投稿ボタンを消す
+                LinearLayout edit_LinearLayout = (LinearLayout) postImageButton.getParent();
+                ((LinearLayout) edit_LinearLayout.getParent()).removeView(edit_LinearLayout);
+            }
+        }
     }
 
     /*とうこう*/
@@ -239,6 +277,14 @@ public class FloatingTLActivity extends AppCompatActivity {
             });
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    /*PiPからアプリ起動したときの処理*/
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
+        if (!isInPictureInPictureMode) {
+            startActivity(new Intent(getContext(), Home.class));
         }
     }
 

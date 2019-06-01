@@ -19,7 +19,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Omake.KaisendonLife"></activity>
+        <activity
+            android:name=".Omake.KaisendonLife"
+            android:label="Kaisendon Life"
+            android:parentActivityName=".Home"></activity>
         <activity
             android:name=".CustomMenu.AddCustomMenuActivity"
             android:parentActivityName=".Home" />
@@ -29,6 +32,7 @@
             android:documentLaunchMode="always"
             android:label="Floating TL"
             android:resizeableActivity="true"
+            android:supportsPictureInPicture="true"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Activity.WearTootShortcutListActivity"
@@ -43,7 +47,6 @@
             android:name=".Zyanken.Zyanken"
             android:parentActivityName=".Zyanken.ZyankenMenu" />
         <activity
-            android:supportsPictureInPicture="true"
             android:name=".Home"
             android:configChanges="orientation"
             android:label="@string/app_name"
@@ -67,7 +70,9 @@
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
-        </activity> <!-- 明示的ブロードキャストする時 -->
+        </activity>
+        <!-- 明示的ブロードキャストする時 -->
+        <receiver android:name=".FloatingTL.PiPBroadcastReciver" />
         <receiver android:name=".BroadcastRecever_Notification_Button" />
         <receiver android:name=".BroadcastReciver_Widget_ToastTimeline" />
         <receiver android:name=".BroadcastReceiver_Notification_Timeline" /> <!-- なうぷれいんぐのサービス登録 -->

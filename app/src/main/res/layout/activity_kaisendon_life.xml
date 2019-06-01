@@ -24,7 +24,7 @@
                 android:id="@+id/textView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/ic_info_outline_black_24dp"
+                android:drawableStart="@drawable/ic_event_available_black_24dp"
                 android:text="Kaisendon Life"
                 android:textSize="18dp" />
 
@@ -32,7 +32,7 @@
                 android:id="@+id/textView4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="この機能では一日のトゥート数の目標を設定して、トゥート画面に表示できるようにします" />
+                android:text="@string/life_description" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -52,14 +52,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/ic_settings_black_24dp"
-                android:text="設定"
+                android:text="@string/setting"
                 android:textSize="18dp" />
 
             <Switch
                 android:id="@+id/life_switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="この機能を有効にする"
+                android:text="@string/true_setting"
                 android:textColor="@android:color/tab_indicator_text" />
 
         </LinearLayout>
@@ -82,13 +82,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/ic_create_black_24dp_black"
-                android:text="一日のトゥート数設定"
+                android:text="@string/one_day_toot"
                 android:textSize="18dp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="トゥート数を決めましょう。そこまで難しく考えないで" />
+                android:text="@string/one_day_toot_description" />
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"

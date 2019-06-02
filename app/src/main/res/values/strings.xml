@@ -596,5 +596,10 @@
     <string name="true_setting">Enable this feature.</string>
     <string name="one_day_toot">Toot number setting of the day</string>
     <string name="one_day_toot_description">Let\'s decide the Toot number.</string>
+    <string name="toot_notification_name">Post from notification</string>
+    <string name="toot_notification_description">You can post from the notification area.</string>
+    <string name="bubble">Bubble</string>
+    <string name="toot_challenge_count">Target toot number</string>
+    <string name="toot_challenge_complete">Congrats. Goal achievement!</string>
 
 </resources>

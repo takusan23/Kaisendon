@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
@@ -211,11 +213,15 @@ public class CommandCode {
                 String rateLimit = headers.get("x-ratelimit-limit");
                 String rateLimit_nokori = headers.get("x-ratelimit-remaining");
                 String rateLimit_time = headers.get("x-ratelimit-reset");
-
-                editText.append("\n");
-                editText.append(context.getString(R.string.ratelimit_limit) + "(x-ratelimit-limit) : " + rateLimit + "\n");
-                editText.append(context.getString(R.string.ratelimit_remaining) + "(x-ratelimit-remaining) : " + rateLimit_nokori + "\n");
-                editText.append(context.getString(R.string.ratelimit_reset) + "(x-ratelimit-reset) : " + rateLimit_time + "\n");
+                ((AppCompatActivity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        editText.append("\n");
+                        editText.append(context.getString(R.string.ratelimit_limit) + "(x-ratelimit-limit) : " + rateLimit + "\n");
+                        editText.append(context.getString(R.string.ratelimit_remaining) + "(x-ratelimit-remaining) : " + rateLimit_nokori + "\n");
+                        editText.append(context.getString(R.string.ratelimit_reset) + "(x-ratelimit-reset) : " + rateLimit_time + "\n");
+                    }
+                });
             }
         });
     }
@@ -264,7 +270,7 @@ public class CommandCode {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
                         //ID取得
                         String id = jsonObject.getString("id");
-                        System.out.println("れすぽんす : " + id);
+                        //System.out.println("れすぽんす : " + id);
                         //Favouriteする
                         String url = "https://" + instance + "/api/v1/statuses/" + id + "/favourite/?access_token=" + AccessToken;
                         //ぱらめーたー

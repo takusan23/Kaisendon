@@ -78,16 +78,17 @@ public class NewAppWidget extends AppWidgetProvider {
         }
 
         if (intent.getBooleanExtra("TootMode", false)) {
-            String channel = "Widget_Notification";
+            String channel = "notification_toot";
 
             //通知チャンネル実装
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 NotificationManager notificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-                NotificationChannel notificationChannel = new NotificationChannel(channel, "LocalTimeline Toot", NotificationManager.IMPORTANCE_HIGH);
-                notificationChannel.setDescription(ctx.getString(R.string.widget_notification_channel));
-                notificationChannel.setName(ctx.getString(R.string.widget_notification_channel));
-
-                notificationManager.createNotificationChannel(notificationChannel);
+                if (notificationManager != null && notificationManager.getNotificationChannel(channel) == null) {
+                    NotificationChannel notificationChannel = new NotificationChannel(channel, "Notification Toot", NotificationManager.IMPORTANCE_HIGH);
+                    notificationChannel.setDescription(ctx.getString(R.string.toot_notification_description));
+                    notificationChannel.setName(ctx.getString(R.string.toot_notification_name));
+                    notificationManager.createNotificationChannel(notificationChannel);
+                }
 
                 Intent notification_localtimeline_toot = new Intent(ctx, NewAppWidget.class);
                 PendingIntent notification_localtimeline_pendingIntent = PendingIntent.getBroadcast(ctx, 1, notification_localtimeline_toot, PendingIntent.FLAG_UPDATE_CURRENT);

@@ -493,5 +493,10 @@
     <string name="one_day_toot">一日のトゥート数設定</string>
     <string name="one_day_toot_description">トゥート数を決めましょう。そこまで難しく考えないで。</string>
     <string name="true_setting">この機能を有効にする</string>
+    <string name="toot_notification_description">通知領域から投稿できます。</string>
+    <string name="toot_notification_name">通知から投稿</string>
+    <string name="bubble">バブル</string>
+    <string name="toot_challenge_count">目標トゥート数</string>
+    <string name="toot_challenge_complete">おめでとう。目標達成だよ！</string>
 
 </resources>

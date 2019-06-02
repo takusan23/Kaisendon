@@ -46,6 +46,8 @@ public class FloatingTLActivity extends AppCompatActivity {
     private EditText editText;
     private ImageButton postImageButton;
     private JSONObject jsonObject;
+    private String isMisskey;
+    private boolean pip_mode;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,6 +56,7 @@ public class FloatingTLActivity extends AppCompatActivity {
 
         editText = findViewById(R.id.floating_tl_edittext);
         postImageButton = findViewById(R.id.floating_tl_post_button);
+        pip_mode = getIntent().getBooleanExtra("pip", false);
 
         //Fragmentにわたすやつ
         try {
@@ -113,11 +116,12 @@ public class FloatingTLActivity extends AppCompatActivity {
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             String tag = "";
             //PiPモードで簡略表示するため
-            if (!Build.VERSION.CODENAME.contains("Q")) {
+            if (!Build.VERSION.CODENAME.contains("Q") || pip_mode) {
                 tag = "pip_fragment";
             }
             fragmentTransaction.replace(R.id.float_tl_linearlayout, customMenuTimeLine, tag);
             fragmentTransaction.commit();
+            isMisskey = jsonObject.getString("misskey");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -125,18 +129,23 @@ public class FloatingTLActivity extends AppCompatActivity {
         setStatusPOST();
 
         //Android 10以前の端末はPictureInPictureモードで起動する
-        //Nougatユーザーは名バージョンだけど使えないよ😢
-        if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.P && !Build.VERSION.CODENAME.contains("Q")) {
+        //Nougatユーザーは神バージョンだけど使えないよ😢
+        //TLQuickSettingSnackbarの中にQ以外の場合はpipがtrueになることになる。
+        if (pip_mode) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 //1:1の大きさにする設定
                 Rational aspectRatio = new Rational(1, 1);
                 PictureInPictureParams.Builder PIPParamsBuilder = null;
                 PIPParamsBuilder = new PictureInPictureParams.Builder();
                 PIPParamsBuilder.setAspectRatio(aspectRatio).build();
-                ArrayList<RemoteAction> toot_RemoteAction = new ArrayList<>();
-                RemoteAction remoteAction = new RemoteAction(Icon.createWithResource(getContext(), R.drawable.ic_create_black_24dp), getString(R.string.toot), "Toot", PendingIntent.getBroadcast(getContext(), 114, new Intent(getContext(), PiPBroadcastReciver.class), 0));
-                toot_RemoteAction.add(remoteAction);
-                PIPParamsBuilder.setActions(toot_RemoteAction);
+                //Mastodonのときは投稿ボタンを表示する
+                if (!Boolean.valueOf(isMisskey)) {
+                    ArrayList<RemoteAction> toot_RemoteAction = new ArrayList<>();
+                    Intent intent = new Intent(getContext(), PiPBroadcastReciver.class);
+                    RemoteAction remoteAction = new RemoteAction(Icon.createWithResource(getContext(), R.drawable.ic_create_black_24dp), getString(R.string.toot), "Toot", PendingIntent.getBroadcast(getContext(), 114, intent, 0));
+                    toot_RemoteAction.add(remoteAction);
+                    PIPParamsBuilder.setActions(toot_RemoteAction);
+                }
                 enterPictureInPictureMode(PIPParamsBuilder.build());
                 //投稿ボタンを消す
                 LinearLayout edit_LinearLayout = (LinearLayout) postImageButton.getParent();
@@ -284,6 +293,7 @@ public class FloatingTLActivity extends AppCompatActivity {
     @Override
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
         if (!isInPictureInPictureMode) {
+            finishAndRemoveTask();
             startActivity(new Intent(getContext(), Home.class));
         }
     }

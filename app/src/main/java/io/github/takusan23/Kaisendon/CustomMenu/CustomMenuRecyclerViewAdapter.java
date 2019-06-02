@@ -128,6 +128,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         public ImageView client_icon_ImageView;
         public ImageView visibility_icon_ImageView;
         public ImageButton spoiler_text_ImageButton;
+        public ImageView toot_pinned_ImageView;
         //画像
         public ImageView media_ImageView_1;
         public ImageView media_ImageView_2;
@@ -176,6 +177,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             date_icon_ImageView = itemView.findViewById(R.id.date_icon_imageview);
             visibility_icon_ImageView = itemView.findViewById(R.id.visibility_icon_imageview);
             client_icon_ImageView = itemView.findViewById(R.id.client_icon_imageview);
+            toot_pinned_ImageView = itemView.findViewById(R.id.pinned_icon_imageview);
             spoiler_text_ImageButton = new ImageButton(context);
             media_ImageView_1 = new ImageView(context);
             media_ImageView_2 = new ImageView(context);
@@ -305,7 +307,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //ブースト
                 setReBlogToot(viewHolder, api, item, setting);
                 //クイックプロフィール
-                showMisskeyQuickProfile(viewHolder.account_LinearLayout, api.getUser_ID(), item, setting);
+                showMisskeyQuickProfile(viewHolder.toot_user_TextView, api.getUser_ID(), item, setting);
                 //通知タイプ
                 showNotificationType(viewHolder, api);
                 //クライアント名のTextViewを消す
@@ -342,7 +344,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //通知タイプ
                 showNotificationType(viewHolder, api);
                 //クイックプロフィール
-                showQuickProfile(viewHolder.account_LinearLayout, api.getUser_ID(), viewHolder, item, setting);
+                showQuickProfile(viewHolder.toot_user_TextView, api.getUser_ID(), viewHolder, item, setting);
                 //クライアント名のTextViewを消す
                 setClientTextViewRemove(viewHolder);
                 //カスタムフォント
@@ -364,6 +366,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 setThemeIconColor(viewHolder, api);
                 //警告文
                 setContentWarning(viewHolder, api, item);
+                //固定トゥート
+                setPinnedIcon(viewHolder, api);
             }
         } else if (isScheduled_statuses) {
             MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
@@ -2316,6 +2320,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                     }
                 }
             });
+        }
+    }
+
+    /*固定トゥート*/
+    private void setPinnedIcon(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
+        if (Boolean.valueOf(api.getPinned())) {
+            viewHolder.toot_pinned_ImageView.setImageResource(R.drawable.ic_attachment_black_24dp);
         }
     }
 }

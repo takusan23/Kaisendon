@@ -28,14 +28,16 @@ public class FloatingTL {
 
     /*通知作成*/
     @RequiresApi(api = Build.VERSION_CODES.Q)
-    public void setNotification() {
+    public void setNotification(boolean lunchPiP) {
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         Intent intent = new Intent(context, FloatingTLActivity.class);
         intent.putExtra("json", jsonObject);
+        intent.putExtra("pip", lunchPiP);
         PendingIntent bubbleIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         //通知作成
         NotificationChannel notificationChannel = null;
-        if (Build.VERSION.CODENAME.contains("Q")) {
+        //PiPモードが無効になってる場合
+        if (!lunchPiP) {
             String notificationID = "floating_tl";
             //通知ちゃんねるが作成されてなければ作成する
             if (notificationManager.getNotificationChannel(notificationID) == null) {
@@ -69,7 +71,7 @@ public class FloatingTL {
 
             notificationManager.notify(23, builder);
         } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            //PictureInPictureで起動
+            //Oreo以降はPictureInPictureで起動
             context.startActivity(intent);
         } else {
             //エラー文

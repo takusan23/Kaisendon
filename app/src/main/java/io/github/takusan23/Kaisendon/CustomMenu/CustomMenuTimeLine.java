@@ -799,11 +799,13 @@ public class CustomMenuTimeLine extends Fragment {
                                 public void run() {
                                     //ドロワーに反映
                                     setDrawerImageText(avatarUrl, bannerUrl, finalName, "@" + username + "@" + instance);
-                                    //サブタイトル更新
-                                    if (subtitle.length() >= 1) {
-                                        ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
-                                    } else {
-                                        ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(title_name + "( @" + username + " / " + instance + " )");
+                                    if (getContext() != null && ((AppCompatActivity) getContext()).getSupportActionBar() != null) {
+                                        //サブタイトル更新
+                                        if (subtitle.length() >= 1) {
+                                            ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(subtitle);
+                                        } else {
+                                            ((AppCompatActivity) getContext()).getSupportActionBar().setSubtitle(title_name + "( @" + username + " / " + instance + " )");
+                                        }
                                     }
                                 }
                             });
@@ -1164,7 +1166,7 @@ public class CustomMenuTimeLine extends Fragment {
                     getContext().getDrawable(R.drawable.ic_repeat_black_24dp),
                     getContext().getDrawable(R.drawable.ic_announcement_black_24dp),
                     getContext().getDrawable(R.drawable.ic_person_add_black_24dp),
-                    getContext().getDrawable(R.drawable.ic_move_to_inbox_black_24dp)
+                    getContext().getDrawable(R.drawable.ic_baseline_how_to_vote_24px)
             };
             String tag[] = {"fav_filter", "bt_filter", "mention_filter", "follow_filter", "vote_filter"};
             //背景

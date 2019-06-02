@@ -63,6 +63,7 @@ public class MastodonTLAPIJSONParse {
     private String note;
     private String follow_count;
     private String follower_count;
+    private String pinned;
 
     //インスタンス
     public MastodonTLAPIJSONParse(Context context, String response_string, CustomMenuJSONParse setting) {
@@ -256,6 +257,10 @@ public class MastodonTLAPIJSONParse {
         return follower_count;
     }
 
+    public String getPinned() {
+        return pinned;
+    }
+
     //JSONパース
     private void setMastodonTLParse(String response_string, CustomMenuJSONParse setting) {
         try {
@@ -283,6 +288,9 @@ public class MastodonTLAPIJSONParse {
                 //Local、その他同じクライアントのユーザー
                 if (!toot_JsonObject.isNull("application")) {
                     client = toot_JsonObject.getJSONObject("application").getString("name");
+                }
+                if (!toot_JsonObject.isNull("pinned")) {
+                    pinned = toot_JsonObject.getString("pinned");
                 }
                 //reBlog
                 if (!toot_JsonObject.isNull("reblog")) {

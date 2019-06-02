@@ -93,6 +93,8 @@ public class UserFollowActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
     private RecyclerView recyclerView;
     private CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter;
+    //固定トゥーとを読み込み済みの場合はtrue
+    private boolean loadedPinnedStatus = false;
 
 
     @Override
@@ -199,7 +201,7 @@ public class UserFollowActivity extends AppCompatActivity {
             });
 
         } else {
-            postMastodonAPI(mastodonUrl, null);
+            getMastodonAPI(mastodonUrl, null);
             //最後までスクロール
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
@@ -220,7 +222,7 @@ public class UserFollowActivity extends AppCompatActivity {
                         if (recyclerViewList.size() >= 20) {
                             SnackberProgress.showProgressSnackber(recyclerView, getContext(), getString(R.string.loading) + "\n" + misskeyUrl);
                             scroll = true;
-                            postMastodonAPI(mastodonUrl, nextID);
+                            getMastodonAPI(mastodonUrl, nextID);
                         }
                     }
                 }
@@ -317,7 +319,7 @@ public class UserFollowActivity extends AppCompatActivity {
      * @param api_url 全部
      * @param max_id  使わないなら<b>null</b>で
      */
-    private void postMastodonAPI(String api_url, String max_id) {
+    private void getMastodonAPI(String api_url, String max_id) {
         //作成
         SnackberProgress.showProgressSnackber(recyclerView, getContext(), getString(R.string.loading) + "\n" + api_url);
         //パラメータを設定
@@ -326,6 +328,10 @@ public class UserFollowActivity extends AppCompatActivity {
         builder.addQueryParameter("access_token", AccessToken);
         if (max_id != null) {
             builder.addQueryParameter("max_id", max_id);
+        }
+        //固定トゥートを読み込む
+        if (!loadedPinnedStatus) {
+            builder.addQueryParameter("pinned", "true");
         }
         String final_url = builder.build().toString();
         Request request = new Request.Builder()
@@ -371,6 +377,11 @@ public class UserFollowActivity extends AppCompatActivity {
                                 break;
                             case 3:
                                 loadMastodonToot(response_string);
+                                //固定トゥートを読み込んだらそれ以外を読み込むのでもう一回叩く
+                                if (!loadedPinnedStatus) {
+                                    loadedPinnedStatus = true;
+                                    getMastodonAPI(mastodonUrl, null);
+                                }
                                 nextID = new JSONArray(response_string).getJSONObject(39).getString("id");
                                 break;
                         }

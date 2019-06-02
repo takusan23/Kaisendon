@@ -133,7 +133,7 @@ public class TLQuickSettingSnackber {
                         setDesktopMode();
                         break;
                     case R.id.tl_qs_floating_tl:
-                        showFloatingTL();
+                        showFloatingMenu();
                         break;
                     case R.id.tl_qs_sonota:
                         setSonotaMenu();
@@ -164,12 +164,12 @@ public class TLQuickSettingSnackber {
     }
 
     /*Floating TL*/
-    private void showFloatingTL() {
+    private void showFloatingTL(boolean isPiP) {
         if (context != null) {
             Fragment fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentById(R.id.container_container);
             if (fragment instanceof CustomMenuTimeLine) {
                 FloatingTL floatingTL = new FloatingTL(context, fragment.getArguments().getString("json"));
-                floatingTL.setNotification();
+                floatingTL.setNotification(isPiP);
             } else {
                 Toast.makeText(context, context.getString(R.string.floating_tl_error_custom_tl), Toast.LENGTH_SHORT).show();
             }
@@ -303,6 +303,45 @@ public class TLQuickSettingSnackber {
             }
         });
     }
+
+    /*フローティングメニュー*/
+    @SuppressLint("RestrictedApi")
+    private void showFloatingMenu() {
+        if (Build.VERSION.CODENAME.contains("Q")) {
+            //QのユーザーはBubbleかPiPか選べるように
+            //ポップアップメニュー作成
+            MenuBuilder menuBuilder = new MenuBuilder(context);
+            MenuInflater inflater = new MenuInflater(context);
+            inflater.inflate(R.menu.floating_tl_menu, menuBuilder);
+            MenuPopupHelper optionsMenu = new MenuPopupHelper(context, menuBuilder, bottomNavigationView);
+            optionsMenu.setForceShowIcon(true);
+            //表示
+            optionsMenu.show();
+            menuBuilder.setCallback(new MenuBuilder.Callback() {
+                @Override
+                public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.home_menu_floating_pip:
+                            showFloatingTL(true);
+                            break;
+                        case R.id.home_menu_floating_bubble:
+                            showFloatingTL(false);
+                            break;
+                    }
+                    return false;
+                }
+
+                @Override
+                public void onMenuModeChange(MenuBuilder menu) {
+
+                }
+            });
+        } else {
+            //PiPで起動
+            showFloatingTL(true);
+        }
+    }
+
 
     /**
      * プライバシーポリシー

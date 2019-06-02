@@ -160,21 +160,11 @@ public class UserActivity extends AppCompatActivity {
         }
 
 
-        //画面に合わせる
-        if (pref_setting.getBoolean("background_fit_image", false)) {
-            //有効
-            background_imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        }
-
-        //透明度
-        if (pref_setting.getFloat("transparency", 1.0f) != 0.0) {
-            background_imageView.setAlpha(pref_setting.getFloat("transparency", 1.0f));
-        }
 
 
         // Backボタンを有効にする
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setHomeButtonEnabled(true);
 
         //くるくる
 /*

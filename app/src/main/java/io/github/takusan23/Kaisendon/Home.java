@@ -2694,6 +2694,7 @@ public class Home extends AppCompatActivity
                 try {
                     JSONObject jsonObject = new JSONObject(response_string);
                     String display_name = jsonObject.getString("name");
+                    toot_count = jsonObject.getString("notesCount");
                     snackber_DisplayName = display_name;
                     //カスタム絵文字適用
                     if (emojis_show) {
@@ -2763,6 +2764,8 @@ public class Home extends AppCompatActivity
                             PicassoImageGetter imageGetter = new PicassoImageGetter(snackberAccount_TextView);
                             snackberAccount_TextView.setText(Html.fromHtml(snackber_DisplayName, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
                             snackberAccount_TextView.append("\n" + snackber_Name);
+                            //裏機能？
+                            shinchokuLayout.setStatusProgress(toot_count);
                         }
                     });
                 } catch (JSONException e) {
@@ -3491,6 +3494,7 @@ public class Home extends AppCompatActivity
             //MisskeyモードでMisskeyアカウントが登録されれいるときのみ表示
             //避けたかったけどどうしてもisMisskeyMode()必要だから使う
             if (CustomMenuTimeLine.isMisskeyMode() && !pref_setting.getString("misskey_instance_list", "").equals("")) {
+                shinchokuLayout.setOnDayProgress();
                 getMisskeyAccount();
                 setMisskeyVisibilityMenu(toot_area_Button);
                 toot_Button_LinearLayout.removeView(misskey_drive_Button);

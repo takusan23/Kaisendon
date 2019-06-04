@@ -498,5 +498,8 @@
     <string name="bubble">バブル</string>
     <string name="toot_challenge_count">目標トゥート（投稿）数</string>
     <string name="toot_challenge_complete">おめでとう。目標達成だよ！</string>
+    <string name="hash_tag_tl_public">ハッシュタグタイムライン（連合）</string>
+    <string name="hash_tag_tl_local">ハッシュタグタイムライン（ローカル）</string>
+    <string name="hashtag_tl_toast_message">ハッシュタグタイムラインではカスタムメニューの名前がハッシュタグとして使われます。</string>
 
 </resources>

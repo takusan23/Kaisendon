@@ -477,7 +477,6 @@ public class CustomMenuTimeLine extends Fragment {
             } else {
                 //名前表示
                 //サブタイトル更新
-                //片手モード有効時の処理
                 loadAccountName();
 
                 //ストリーミングAPI。本来は無効のときチェックを付けてるけど保存時に反転してるのでおっけ
@@ -615,7 +614,17 @@ public class CustomMenuTimeLine extends Fragment {
     private void loadTimeline(String max_id_id) {
         //パラメータを設定
         //最終的なURL(static使いまくったらDesktopMode実装で困った（）
-        url = getDesktopModeURL();
+        //ハッシュタグはそのままURLが利用できないので修正
+        if (url.contains("/api/v1/timelines/tag/")) {
+            if (url.equals("?local=true")) {
+                url = "https://" + instance + "/api/v1/timelines/tag/" + getArguments().getString("name") + "?local=true";
+            } else {
+                url = " https://" + instance + "/api/v1/timelines/tag/" + getArguments().getString("name");
+            }
+        } else {
+            //ハッシュタグ以外はここから取れる
+            url = getDesktopModeURL();
+        }
         HttpUrl.Builder builder = HttpUrl.parse(url).newBuilder();
         builder.addQueryParameter("limit", "40");
         builder.addQueryParameter("access_token", getArguments().getString("access_token"));
@@ -942,6 +951,12 @@ public class CustomMenuTimeLine extends Fragment {
             case "/api/v1/timelines/direct":
                 direct = true;
                 link = "wss://" + instance + "/api/v1/streaming/?stream=direct&access_token=" + access_token;
+                break;
+            case "/api/v1/timelines/tag/":
+                link = "wss://" + instance + "/api/v1/streaming/hashtag/?hashtag=" + getArguments().getString("name") + "&access_token=" + access_token;
+                break;
+            case "/api/v1/timelines/tag/?local=true":
+                link = "wss://" + instance + "/api/v1/streaming/hashtag/local?hashtag=" + getArguments().getString("name") + "&access_token=" + access_token;
                 break;
         }
         if ("sdk".equals(Build.PRODUCT)) {

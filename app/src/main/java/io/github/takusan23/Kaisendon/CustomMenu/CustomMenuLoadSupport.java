@@ -379,6 +379,12 @@ public class CustomMenuLoadSupport {
             case "/api/v1/suggestions":
                 drawable = context.getDrawable(R.drawable.ic_person_add_black_24dp);
                 break;
+            case "/api/v1/timelines/tag/":
+                drawable = context.getDrawable(R.drawable.ic_label_outline_black_24dp);
+                break;
+            case "/api/v1/timelines/tag/?local=true":
+                drawable = context.getDrawable(R.drawable.ic_label_outline_black_24dp);
+                break;
             case "/api/notes/timeline":
                 drawable = context.getDrawable(R.drawable.ic_home_black_24dp);
                 break;

@@ -808,6 +808,18 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                                 load_Button.setText(R.string.follow_suggestions);
                                 load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_person_add_black_24dp, 0, 0, 0);
                                 break;
+                            case R.id.custom_menu_load_hastag_tl_local:
+                                showHashtagMessageToast();
+                                load_url = "/api/v1/timelines/tag/?local=true";
+                                load_Button.setText(getString(R.string.hash_tag_tl_local));
+                                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_label_outline_black_24dp, 0, 0, 0);
+                                break;
+                            case R.id.custom_menu_load_hastag_tl_public:
+                                showHashtagMessageToast();
+                                load_url = "/api/v1/timelines/tag/";
+                                load_Button.setText(getString(R.string.hash_tag_tl_local));
+                                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_label_outline_black_24dp, 0, 0, 0);
+                                break;
                         }
                         return false;
                     }
@@ -912,6 +924,11 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    /*ハッシュタグ用の警告。名前欄にハッシュタグを入れてねっていうメッセージ*/
+    private void showHashtagMessageToast(){
+        Toast.makeText(getContext(),getString(R.string.hashtag_tl_toast_message),Toast.LENGTH_SHORT).show();
     }
 
     /**

@@ -31,5 +31,13 @@
         android:id="@+id/custom_menu_load_follow_suggestions"
         android:icon="@drawable/ic_person_add_black_24dp"
         android:title="@string/follow_suggestions"></item>
+    <item
+        android:id="@+id/custom_menu_load_hastag_tl_local"
+        android:icon="@drawable/ic_label_outline_black_24dp"
+        android:title="@string/hash_tag_tl_local"></item>
+    <item
+        android:id="@+id/custom_menu_load_hastag_tl_public"
+        android:icon="@drawable/ic_label_outline_black_24dp"
+        android:title="@string/hash_tag_tl_public"></item>
 
 </menu>

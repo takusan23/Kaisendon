@@ -601,5 +601,8 @@
     <string name="bubble">Bubble</string>
     <string name="toot_challenge_count">Target toot number</string>
     <string name="toot_challenge_complete">Congrats. Goal achievement!</string>
+    <string name="hash_tag_tl_local">Hashtag TL (Local)</string>
+    <string name="hash_tag_tl_public">Hasttag TL (Public)</string>
+    <string name="hashtag_tl_toast_message">In a hashtag timeline,custom menu names are used as hashtags.</string>
 
 </resources>

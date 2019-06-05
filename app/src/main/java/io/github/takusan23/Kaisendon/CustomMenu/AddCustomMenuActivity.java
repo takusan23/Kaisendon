@@ -728,10 +728,6 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 font_path = jsonObject.getString("font");
                 no_fav_icon_path = jsonObject.getString("no_fav_icon");
                 yes_fav_icon_path = jsonObject.getString("yes_fav_icon");
-/*
-                Glide.with(getContext()).load(no_fav_icon_path).into(no_favourite_ImageView);
-                Glide.with(getContext()).load(yes_fav_icon_path).into(yes_favourite_ImageView);
-*/
                 File file = new File(font_path);
                 misskey_username = jsonObject.getString("misskey_username");
                 if (file.exists()) {
@@ -817,7 +813,7 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                             case R.id.custom_menu_load_hastag_tl_public:
                                 showHashtagMessageToast();
                                 load_url = "/api/v1/timelines/tag/";
-                                load_Button.setText(getString(R.string.hash_tag_tl_local));
+                                load_Button.setText(getString(R.string.hash_tag_tl_public));
                                 load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_label_outline_black_24dp, 0, 0, 0);
                                 break;
                         }
@@ -927,8 +923,8 @@ public class AddCustomMenuActivity extends AppCompatActivity {
     }
 
     /*ハッシュタグ用の警告。名前欄にハッシュタグを入れてねっていうメッセージ*/
-    private void showHashtagMessageToast(){
-        Toast.makeText(getContext(),getString(R.string.hashtag_tl_toast_message),Toast.LENGTH_SHORT).show();
+    private void showHashtagMessageToast() {
+        Toast.makeText(getContext(), getString(R.string.hashtag_tl_toast_message), Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -1132,6 +1128,16 @@ public class AddCustomMenuActivity extends AppCompatActivity {
                 load_url = "/api/v1/suggestions";
                 load_Button.setText(R.string.follow_suggestions);
                 load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_person_add_black_24dp, 0, 0, 0);
+                break;
+            case "/api/v1/timelines/tag/?local=true":
+                load_url = "/api/v1/timelines/tag/?local=true";
+                load_Button.setText(R.string.hash_tag_tl_local);
+                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_label_outline_black_24dp, 0, 0, 0);
+                break;
+            case "/api/v1/timelines/tag/":
+                load_url = "api/v1/timelines/tag/";
+                load_Button.setText(R.string.hash_tag_tl_public);
+                load_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_label_outline_black_24dp, 0, 0, 0);
                 break;
             case "/api/notes/timeline":
                 load_url = "/api/notes/timeline";

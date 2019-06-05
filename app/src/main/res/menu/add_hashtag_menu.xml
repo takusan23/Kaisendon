@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/add_hashtag_tl_local"
+        android:icon="@drawable/ic_train_black_24dp"
+        android:title="@string/add_hashtag_tl_local" />
+    <item
+        android:id="@+id/add_hashtag_tl_public"
+        android:icon="@drawable/ic_flight_black_24dp"
+        android:title="@string/add_hashtag_tl_public" />
+</menu>

@@ -20,8 +20,6 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Html;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,8 +58,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import io.github.takusan23.Kaisendon.APIJSONParse.ActivityPubJSONParse;
 import io.github.takusan23.Kaisendon.APIJSONParse.CustomMenuJSONParse;
@@ -320,7 +316,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 setTypeFace(setting);
                 setCustomFont(viewHolder, setting);
                 //ボタン
-                showTootOption(viewHolder, api, item);
+                showTootOption(viewHolder, api, item, setting);
                 //透明度
                 setTransparency(viewHolder, setting);
                 //フォント
@@ -357,7 +353,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //隠す
                 setSpoiler_text(viewHolder, api);
                 //ボタン
-                showTootOption(viewHolder, api, item);
+                showTootOption(viewHolder, api, item, setting);
                 //投票
                 showVoteLayout(viewHolder, api);
                 //透明度
@@ -1757,7 +1753,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * トゥートオプション
      */
-    private void showTootOption(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item) {
+    private void showTootOption(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //ブックマークボタン
         viewHolder.toot_bookmark_TextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1770,6 +1766,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 bundle.putString("status_id", api.getToot_ID());
                 bundle.putString("status_text", viewHolder.toot_text_TextView.getText().toString());
                 bundle.putString("json", item.get(3));
+                bundle.putString("cmtl_name", setting.getName());
                 dialog.setArguments(bundle);
                 dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "toot_option");
             }
@@ -2135,7 +2132,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             public void onClick(View v) {
                 TootOptionBottomDialog dialog = new TootOptionBottomDialog();
                 Bundle bundle = new Bundle();
+                bundle.putString("instance", Instance);
                 bundle.putString("user_id", api.getUser_ID());
+                bundle.putString("user_name", api.getAcct());
                 bundle.putString("status_id", api.getToot_ID());
                 bundle.putString("status_text", viewHolder.toot_text_TextView.getText().toString());
                 bundle.putString("json", item.get(3));

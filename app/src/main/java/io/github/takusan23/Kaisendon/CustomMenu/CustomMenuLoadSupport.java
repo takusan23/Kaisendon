@@ -6,10 +6,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+
 import com.google.android.material.navigation.NavigationView;
+
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
+
 import android.view.MenuItem;
 
 import org.json.JSONException;
@@ -221,7 +224,7 @@ public class CustomMenuLoadSupport {
                     String finalJson = json;
                     String finalNo_fav_icon = no_fav_icon;
                     String finalYes_fav_icon = yes_fav_icon;
-                    navigationView.getMenu().add(name).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    navigationView.getMenu().add(getDrawerMenuTitle(content,name)).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
                             //Fragment切り替え
@@ -292,7 +295,7 @@ public class CustomMenuLoadSupport {
                     String finalJson = json;
                     String finalNo_fav_icon = no_fav_icon;
                     String finalYes_fav_icon = yes_fav_icon;
-                    navigationView.getMenu().add(name).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    navigationView.getMenu().add(getDrawerMenuTitle(content,name)).setIcon(urlToContent(content)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
                             //Fragment切り替え
@@ -401,5 +404,12 @@ public class CustomMenuLoadSupport {
         return drawable;
     }
 
+    /*ハッシュタグ（＃）を入れる*/
+    private String getDrawerMenuTitle(String context, String title) {
+        if (context.contains("/api/v1/timelines/tag/")||context.contains("/api/v1/timelines/tag/?local=true")) {
+            title = "#" + title;
+        }
+        return title;
+    }
 
 }

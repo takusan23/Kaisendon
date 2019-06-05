@@ -9,8 +9,11 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +30,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import io.github.takusan23.Kaisendon.Activity.UserActivity;
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport;
@@ -37,6 +43,7 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
 
     private SharedPreferences pref_setting;
     private View view;
+    private LinearLayout toot_option_LinearLayout;
     private TextView account_Button;
     private TextView bookmark_Button;
     private TextView copy_TextView;
@@ -65,6 +72,10 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
         copy_TextView = view.findViewById(R.id.toot_option_copy_button);
         copy_toot_id_TextView = view.findViewById(R.id.toot_option_toot_id_copy);
         browser_TextView = view.findViewById(R.id.toot_option_browser);
+        toot_option_LinearLayout = view.findViewById(R.id.toot_option_linearlayout);
+
+        //ハッシュタグ
+        setHashtagButton();
 
 //        DarkModeSupport darkModeSupport = new DarkModeSupport(getContext());
 //        darkModeSupport.setLayoutAllThemeColor((LinearLayout) bookmark_Button.getParent().getParent());
@@ -154,6 +165,22 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
                 }
             }
         });
+    }
+
+    //ハッシュタグ
+    private void setHashtagButton(){
+        LinearLayout linearLayout = (LinearLayout)account_Button.getParent();
+        SpannableString spannableString = new SpannableString(getArguments().getString("status_text"));
+        //正規表現
+        Matcher hashtag_Matcher = Pattern.compile("#([A-Za-z0-9あ-んァ-ヶ亜-煕_-]+)").matcher(spannableString);
+        Matcher nicoID_Matcher = Pattern.compile("sm([0-9]+)").matcher(spannableString);
+        while (hashtag_Matcher.find()) {
+            TextView textView = new TextView(getContext());
+            textView.setText(hashtag_Matcher.group());
+            textView.setPadding(account_Button.getLeft(),account_Button.getTop(),account_Button.getRight(),account_Button.getBottom());
+            textView.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_label_outline_black_24dp,getActivity().getTheme()),null,null,null);
+            toot_option_LinearLayout.addView(textView);
+        }
     }
 
 }

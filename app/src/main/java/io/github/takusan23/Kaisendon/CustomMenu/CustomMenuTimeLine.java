@@ -286,7 +286,7 @@ public class CustomMenuTimeLine extends Fragment {
             ((AppCompatActivity) getContext()).setTitle(getString(R.string.desktop_mode));
         } else {
             //タイトル
-            ((AppCompatActivity) getContext()).setTitle(getArguments().getString("name"));
+            ((AppCompatActivity) getContext()).setTitle(setName(url,getArguments().getString("name")));
             if (!misskey_mode) {
                 SharedPreferences.Editor editor = pref_setting.edit();
                 editor.putString("main_instance", instance);
@@ -2625,4 +2625,12 @@ public class CustomMenuTimeLine extends Fragment {
             }
         });
     }
+    /*ハッシュタグ（＃）を入れる*/
+    private String setName(String context, String title) {
+        if (context.contains("/api/v1/timelines/tag/")||context.contains("/api/v1/timelines/tag/?local=true")) {
+            title = "#" + title;
+        }
+        return title;
+    }
+
 }

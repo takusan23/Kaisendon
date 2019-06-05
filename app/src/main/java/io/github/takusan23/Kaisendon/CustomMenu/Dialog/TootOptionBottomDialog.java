@@ -108,6 +108,8 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
         }
         //ハッシュタグ
         setHashtagButton();
+        //ニコニコ大百科
+        setNicoNicoPedia();
 
         //クリック
         account_Button.setOnClickListener(new View.OnClickListener() {
@@ -200,7 +202,7 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
         //正規表現
         //パクった→https://qiita.com/corin8823/items/75309761833d823cac6f
         Matcher hashtag_Matcher = Pattern.compile("#([Ａ-Ｚａ-ｚA-Za-z一-鿆0-9０-９ぁ-ヶｦ-ﾟー]+)").matcher(spannableString);
-        Matcher nicoID_Matcher = Pattern.compile("sm([0-9]+)").matcher(spannableString);
+        Matcher nicoID_Matcher = Pattern.compile("(sm|nw)([0-9]+)").matcher(spannableString);
         while (hashtag_Matcher.find()) {
             TextView textView = new TextView(getContext());
             textView.setPadding(padding, padding, padding, padding);
@@ -216,11 +218,11 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
             //動画リンクと#smがあると2つ生成されるので回避する
             if (temp_id == null) {
                 temp_id = nicoID_Matcher.group();
-                setニコニコ動画で開く(nicoID_Matcher.group());
+                setニコニコで開く(nicoID_Matcher.group());
             } else {
                 if (!temp_id.contains(nicoID_Matcher.group())) {
                     //かぶってなかったら生成
-                    setニコニコ動画で開く(nicoID_Matcher.group());
+                    setニコニコで開く(nicoID_Matcher.group());
                 } else {
                     //同じだったらnullにしとく
                     temp_id = null;
@@ -230,24 +232,44 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
     }
 
     //ニコニコ動画で開く
-    private void setニコニコ動画で開く(String title) {
+    private void setニコニコで開く(String title) {
+        String id = title;
+        if (title.contains("nw")) {
+            setニコニコニュースで開く(title);
+        } else {
+            //かぶってなかったら生成
+            TextView textView = new TextView(getContext());
+            //日本語と英語でわける。英語わけわかめ
+            if (getString(R.string.open_nicovideo).contains("をニコニコ動画で開く")) {
+                title = title + getString(R.string.open_nicovideo);
+            } else {
+                title = "Open" + title + getString(R.string.open_nicovideo);
+            }
+            textView.setPadding(padding, padding, padding, padding);
+            textView.setText(title);
+            textView.setGravity(Gravity.CENTER_VERTICAL);
+            textView.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_open_in_new_black_24dp, getActivity().getTheme()), null, null, null);
+            toot_option_LinearLayout.addView(textView);
+            //押したらリンク
+            setニコニコ動画ID(id, textView);
+        }
+    }
+
+    //ニコニコニュースで開く
+    private void setニコニコニュースで開く(String title) {
         String id = title;
         //かぶってなかったら生成
         TextView textView = new TextView(getContext());
-        //日本語と英語でわける。英語わけわかめ
-        if (getString(R.string.open_nicovideo).contains("をニコニコ動画で開く")) {
-            title = title + getString(R.string.open_nicovideo);
-        } else {
-            title = "Open" + title + getString(R.string.open_nicovideo);
-        }
+        title = title + "をニコニコニュースで開く";
         textView.setPadding(padding, padding, padding, padding);
         textView.setText(title);
         textView.setGravity(Gravity.CENTER_VERTICAL);
         textView.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_open_in_new_black_24dp, getActivity().getTheme()), null, null, null);
         toot_option_LinearLayout.addView(textView);
         //押したらリンク
-        setニコニコ動画ID(id, textView);
+        setニコニコニュース(id, textView);
     }
+
 
     //メニュー作成
     @SuppressLint("RestrictedApi")
@@ -293,6 +315,18 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
             @Override
             public void onClick(View view) {
                 String base_url = "https://www.nicovideo.jp/watch/";
+                base_url += id;
+                useCustomTabs(base_url);
+            }
+        });
+    }
+
+    //ニコニコニュース
+    private void setニコニコニュース(String id, View view) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String base_url = "https://news.nicovideo.jp/watch/";
                 base_url += id;
                 useCustomTabs(base_url);
             }
@@ -361,5 +395,47 @@ public class TootOptionBottomDialog extends BottomSheetDialogFragment {
         navigationView.getMenu().clear();
         navigationView.inflateMenu(R.menu.custom_menu);
         customMenuLoadSupport.loadCustomMenu(null);
+    }
+
+    //ニコニコ大百科にも対応させる？
+    private void setNicoNicoPedia() {
+        String status = getArguments().getString("status_text");
+        if (status.contains("https://dic.nicovideo.jp/")) {
+            //正規表現でURL取り出し
+            Pattern pattern = Pattern.compile("(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+");
+            Matcher matcher = pattern.matcher(status);
+            if (matcher.find()) {
+                //かぶってなかったら生成
+                TextView textView = new TextView(getContext());
+                //タイトルだけ取得するのでそれ以外を消す
+                String title = getNicoNicoPediaTitle(status, matcher.group());
+                textView.setPadding(padding, padding, padding, padding);
+                textView.setText(title);
+                textView.setGravity(Gravity.CENTER_VERTICAL);
+                textView.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_open_in_new_black_24dp, getActivity().getTheme()), null, null, null);
+                toot_option_LinearLayout.addView(textView);
+                //押したらリンク
+                textView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        useCustomTabs(matcher.group());
+                    }
+                });
+            }
+        }
+    }
+
+    //ニコニコ大百科のタイトルだけ取得
+    private String getNicoNicoPediaTitle(String title, String url) {
+        title = title.replace("- ニコ百", "");
+        title = title.replace("#nicopedia", "");
+        title = title.replace(url, "");
+        title = title.replace("\n","");
+        if (getString(R.string.open_niconico_pedia).contains("をニコニコ大百科で開く")) {
+            title = title + getString(R.string.open_niconico_pedia);
+        } else {
+            title = "Open " + title + getString(R.string.open_niconico_pedia);
+        }
+        return title;
     }
 }

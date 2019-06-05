@@ -1,28 +1,23 @@
 package io.github.takusan23.Kaisendon;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
+import android.preference.PreferenceManager;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
 import com.sys1yagi.mastodon4j.MastodonClient;
 import com.sys1yagi.mastodon4j.api.Handler;
 import com.sys1yagi.mastodon4j.api.Shutdownable;
 import com.sys1yagi.mastodon4j.api.entity.Notification;
-import com.sys1yagi.mastodon4j.api.entity.auth.AccessToken;
 import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException;
 import com.sys1yagi.mastodon4j.api.method.Streaming;
 
@@ -30,9 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
 
 public class PublicTimeLine extends AppCompatActivity {
 
@@ -233,6 +226,7 @@ public class PublicTimeLine extends AppCompatActivity {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         String finalAccessToken1 = AccessToken;
 
+/*
         //テキストボックス長押し
         toot_text_edit.setOnLongClickListener(new View.OnLongClickListener() {
 
@@ -326,6 +320,7 @@ public class PublicTimeLine extends AppCompatActivity {
             }
         });
 
+*/
 
 
 /*

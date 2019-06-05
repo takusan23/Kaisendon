@@ -19,13 +19,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.Settings;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -42,8 +39,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.sys1yagi.mastodon4j.MastodonClient;
@@ -1188,8 +1189,8 @@ public class TootActivity extends AppCompatActivity {
 */
 
     private void stopNowPlayingService() {
-        Intent intent_stop = new Intent(TootActivity.this, Kaisendon_NowPlaying_Service.class);
-        stopService(intent_stop);
+//        Intent intent_stop = new Intent(TootActivity.this, Kaisendon_NowPlaying_Service.class);
+//        stopService(intent_stop);
     }
 
     private void commandSet(String commandText, String prefKey) {

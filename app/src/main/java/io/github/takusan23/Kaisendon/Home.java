@@ -98,34 +98,16 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import io.github.takusan23.Kaisendon.Activity.KonoAppNiTuite;
 import io.github.takusan23.Kaisendon.Activity.LoginActivity;
-import io.github.takusan23.Kaisendon.Activity.UserActivity;
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuLoadSupport;
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper;
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSettingFragment;
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog;
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.TLQuickSettingSnackber;
-import io.github.takusan23.Kaisendon.CustomMenu.DirectMessage_Fragment;
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment;
-import io.github.takusan23.Kaisendon.Fragment.Bookmark_Frament;
-import io.github.takusan23.Kaisendon.Fragment.CustomStreamingFragment;
-import io.github.takusan23.Kaisendon.Fragment.Favourites_List_Fragment;
-import io.github.takusan23.Kaisendon.Fragment.Federated_TimeLine_Fragment;
-import io.github.takusan23.Kaisendon.Fragment.Follow_Suggestions_Fragment;
 import io.github.takusan23.Kaisendon.Fragment.HelloFragment;
-import io.github.takusan23.Kaisendon.Fragment.HomeCrad_Fragment;
-import io.github.takusan23.Kaisendon.Fragment.Home_Fragment;
-import io.github.takusan23.Kaisendon.Fragment.InstanceInfo_Fragment;
-import io.github.takusan23.Kaisendon.Fragment.License_Fragment;
-import io.github.takusan23.Kaisendon.Fragment.MultiAccountList_Fragment;
-import io.github.takusan23.Kaisendon.Fragment.MultiPain_UI_Fragment;
-import io.github.takusan23.Kaisendon.Fragment.Notification_Fragment;
-import io.github.takusan23.Kaisendon.Fragment.Public_TimeLine_Fragment;
-import io.github.takusan23.Kaisendon.Fragment.SettingFragment;
-import io.github.takusan23.Kaisendon.Fragment.WearFragment;
 import io.github.takusan23.Kaisendon.Omake.LunchBonus;
 import io.github.takusan23.Kaisendon.Omake.ShinchokuLayout;
 import okhttp3.Call;
@@ -250,7 +232,6 @@ public class Home extends AppCompatActivity
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
         //設定のプリファレンス
         pref_setting = PreferenceManager.getDefaultSharedPreferences(Home.this);
@@ -1513,173 +1494,7 @@ public class Home extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         SharedPreferences pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.getContext());
-
-        if (id == R.id.home_timeline) {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", false);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new Home_Fragment());
-            transaction.commit();
-
-        } else if (id == R.id.login_menu) {
-            Intent login = new Intent(this, LoginActivity.class);
-            startActivity(login);
-
-        } else if (id == R.id.account_menu) {
-            Intent intent = new Intent(this, UserActivity.class);
-            intent.putExtra("Account_ID", account_id);
-            intent.putExtra("my", true);
-            startActivity(intent);
-
-        } else if (id == R.id.notifications) {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", false);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new Notification_Fragment());
-            transaction.commit();
-
-        } else if (id == R.id.public_time_line_menu) {
-
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", false);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new Public_TimeLine_Fragment());
-            transaction.commit();
-
-        } else if (id == R.id.federated_time_line_menu) {
-
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", false);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new Federated_TimeLine_Fragment());
-            transaction.commit();
-
-        } else if (id == R.id.instance_info_menu) {
-
-//            Intent setting = new Intent(this, SettingsActivity.class);
-//            startActivity(setting);
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new InstanceInfo_Fragment());
-            transaction.commit();
-/*
-
-        } else if (id == R.id.search_menu) {
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new SearchFragment());
-            transaction.commit();
-
-
-*/
-        } else if (id == R.id.setting) {
-
-//            Intent setting = new Intent(this, SettingsActivity.class);
-//            startActivity(setting);
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new SettingFragment());
-            transaction.commit();
-
-        } else if (id == R.id.multipain_ui) {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", true);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new MultiPain_UI_Fragment());
-            transaction.commit();
-
-        } else if (id == R.id.homecard_menu) {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", false);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new HomeCrad_Fragment());
-            transaction.commit();
-
-        } else if (id == R.id.follow_suggestions) {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", false);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new Follow_Suggestions_Fragment());
-            transaction.commit();
-
-        } else if (id == R.id.favourite_list) {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", false);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new Favourites_List_Fragment());
-            transaction.commit();
-
-        } else if (id == R.id.bookmark) {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", false);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new Bookmark_Frament());
-            transaction.commit();
-
-        } else if (id == R.id.multi_account_menu) {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", false);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new MultiAccountList_Fragment());
-            transaction.commit();
-
-        } else if (id == R.id.custom_streaming_nemu) {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", false);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new CustomStreamingFragment());
-            transaction.commit();
-
-        } else if (id == R.id.licence_menu) {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", false);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new License_Fragment());
-            transaction.commit();
-        } else if (id == R.id.direct_message_menu) {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", false);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new DirectMessage_Fragment());
-            transaction.commit();
-        } else if (id == R.id.menu_wear) {
-            SharedPreferences.Editor editor = pref_setting.edit();
-            editor.putBoolean("app_multipain_ui", false);
-            editor.commit();
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.container_container, new WearFragment());
-            transaction.commit();
-        } else if (id == R.id.konoAppmenu) {
-            Intent login = new Intent(this, KonoAppNiTuite.class);
-            startActivity(login);
-        } else if (id == R.id.custom_menu_mode_menu) {
+        if (id == R.id.custom_menu_mode_menu) {
             //モード切替
             NavigationView navigationView = findViewById(R.id.nav_view);
             navigationView.getMenu().clear();

@@ -54,9 +54,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.emoji.bundled.BundledEmojiCompatConfig;
 import androidx.emoji.text.EmojiCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -86,7 +83,6 @@ import java.util.concurrent.ExecutionException;
 import io.github.takusan23.Kaisendon.Activity.UserActivity;
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine;
 import io.github.takusan23.Kaisendon.CustomTabURL.LinkTransformationMethod;
-import io.github.takusan23.Kaisendon.Fragment.User_Fragment;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -1044,6 +1040,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
         }
 
 
+/*
         //ユーザー情報
         FragmentTransaction ft = ((FragmentActivity) parent.getContext()).getSupportFragmentManager().beginTransaction();
         Fragment fragment = new User_Fragment();
@@ -1072,6 +1069,7 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                     //IDを渡す
                     getContext().startActivity(intent);
 
+*/
 /*
                     if (multipain_ui_mode) {
                         Bundle bundle = new Bundle();
@@ -1080,10 +1078,12 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
                         ft.replace(R.id.fragment3, fragment).commit();
                     } else {
                     }
-*/
+*//*
+
                 }
             }
         });
+*/
 
 
         //ブックマーク関係
@@ -1970,9 +1970,11 @@ public class HomeTimeLineAdapter extends ArrayAdapter<ListItem> {
 
                                             Bundle bundle = new Bundle();
                                             bundle.putLong("Account_ID", finalAccount_id1);
+/*
                                             fragment.setArguments(bundle);
 
                                             ft.replace(R.id.fragment3, fragment).commit();
+*/
 
                                         } else {
 

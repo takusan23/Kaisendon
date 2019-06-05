@@ -1,7 +1,6 @@
 package io.github.takusan23.Kaisendon;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -13,12 +12,6 @@ import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.bundled.BundledEmojiCompatConfig;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -30,7 +23,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.emoji.bundled.BundledEmojiCompatConfig;
+import androidx.emoji.text.EmojiCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -43,9 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import io.github.takusan23.Kaisendon.Activity.UserActivity;
 import io.github.takusan23.Kaisendon.CustomTabURL.LinkTransformationMethod;
-import io.github.takusan23.Kaisendon.Fragment.User_Fragment;
 
 public class SimpleAdapter extends ArrayAdapter<ListItem> {
 
@@ -428,7 +422,7 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
         String account_id = listItem.get(6);
 
 
-        //ユーザー情報
+ /*       //ユーザー情報
         FragmentTransaction ft = ((FragmentActivity) parent.getContext()).getSupportFragmentManager().beginTransaction();
         Fragment fragment = new User_Fragment();
         View finalConvertView = convertView;
@@ -465,7 +459,7 @@ public class SimpleAdapter extends ArrayAdapter<ListItem> {
                 }
             });
         }
-
+*/
 
         //カスタムストリーミングで背景色を変える機能
         String type = listItem.get(0);

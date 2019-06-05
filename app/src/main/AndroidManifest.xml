@@ -73,9 +73,7 @@
         </activity>
         <!-- 明示的ブロードキャストする時 -->
         <receiver android:name=".FloatingTL.PiPBroadcastReciver" />
-        <receiver android:name=".BroadcastRecever_Notification_Button" />
-        <receiver android:name=".BroadcastReciver_Widget_ToastTimeline" />
-        <receiver android:name=".BroadcastReceiver_Notification_Timeline" /> <!-- なうぷれいんぐのサービス登録 -->
+        <!-- なうぷれいんぐのサービス登録 -->
         <service
             android:name=".Kaisendon_NowPlaying_Service"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
@@ -180,7 +178,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.github.takusan23.Kaisendon.Home" />
         </activity>
-        <activity android:name=".Activity.MultiPainActivity" />
         <!--
                 <activity
                     android:name=".ScrollingUser"

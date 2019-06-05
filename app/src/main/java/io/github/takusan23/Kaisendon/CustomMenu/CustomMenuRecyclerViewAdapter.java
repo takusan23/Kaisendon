@@ -20,6 +20,8 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Html;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,6 +60,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.github.takusan23.Kaisendon.APIJSONParse.ActivityPubJSONParse;
 import io.github.takusan23.Kaisendon.APIJSONParse.CustomMenuJSONParse;

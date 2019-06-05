@@ -501,5 +501,8 @@
     <string name="hash_tag_tl_public">ハッシュタグタイムライン（連合）</string>
     <string name="hash_tag_tl_local">ハッシュタグタイムライン（ローカル）</string>
     <string name="hashtag_tl_toast_message">ハッシュタグタイムラインではカスタムメニューの名前がハッシュタグとして使われます。</string>
+    <string name="add_hashtag_tl_public">ハッシュタグタイムライン（連合）で開く。 設定内容は今開いてるカスタムメニューが適用されます。</string>
+    <string name="add_hashtag_tl_local">ハッシュタグタイムライン（ローカル）で開く。 設定内容は今開いてるカスタムメニューが適用されます。</string>
+    <string name="open_nicovideo">をニコニコ動画で開く</string>
 
 </resources>

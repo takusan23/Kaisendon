@@ -357,7 +357,7 @@ public class CustomMenuSettingFragment extends Fragment {
         db.insert("custom_menudb", "", values);
     }
 
-    /*Fragment再生成*/
+    /*めにゅー再生成*/
     private void reLoadMenu() {
         NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
         CustomMenuLoadSupport customMenuLoadSupport = new CustomMenuLoadSupport(getContext(), navigationView);

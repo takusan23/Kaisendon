@@ -51,10 +51,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
 import io.github.takusan23.Kaisendon.Activity.LoginActivity
-import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuLoadSupport
-import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper
-import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSettingFragment
-import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
+import io.github.takusan23.Kaisendon.CustomMenu.*
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.TLQuickSettingSnackber
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
@@ -2567,21 +2564,11 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         requestBody.addFormDataPart("i", token!!)
         requestBody.addFormDataPart("force", "true")
         //Android Qで動かないのでUriからBitmap変換してそれをバイトに変換してPOSTしてます
+        val uri_byte = UriToByte(this@Home)
         try {
-            val inputStream = contentResolver.openInputStream(uri)
-            val byteBuffer = ByteArrayOutputStream()
-            val bufferSize = 1024
-            val buffer = ByteArray(bufferSize)
-            var len = 0
-            do {
-                len = inputStream!!.read(buffer)
-                byteBuffer.write(buffer, 0, len)
-                if (len == null)
-                    break
-            } while (true)
             val file_name = getFileNameUri(uri)
             val extn = contentResolver.getType(uri)
-            requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn!!), byteBuffer.toByteArray()))
+            requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn!!), uri_byte.getByte(uri)))
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -2658,25 +2645,14 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         //Android Qで動かないのでUriからバイトに変換してPOSTしてます
         //重いから非同期処理
         Thread(Runnable {
+            val uri_byte = UriToByte(this@Home);
             try {
-                val inputStream = contentResolver.openInputStream(uri)
-                val byteBuffer = ByteArrayOutputStream()
-                val bufferSize = 1024
-                val buffer = ByteArray(bufferSize)
-                var len = 0
-                do {
-                    len = inputStream!!.read(buffer)
-                    byteBuffer.write(buffer, 0, len)
-                    if (len == null)
-                        break
-                } while (true)
                 val file_name = getFileNameUri(uri)
                 val extn = contentResolver.getType(uri)
-                requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn!!), byteBuffer.toByteArray()))
+                requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn!!),uri_byte.getByte(uri)))
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-
             //じゅんび
             val request = Request.Builder()
                     .url(url)

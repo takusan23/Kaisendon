@@ -11,7 +11,7 @@ public class UriToByte {
 
     private Context context;
 
-    public UriToByte(Context context){
+    public UriToByte(Context context) {
         this.context = context;
     }
 
@@ -21,8 +21,8 @@ public class UriToByte {
         int bufferSize = 1024;
         byte[] buffer = new byte[bufferSize];
         int len = 0;
-        while((len=inputStream.read(buffer))!=-1){
-            byteArrayOutputStream.write(buffer,0,len);
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteArrayOutputStream.write(buffer, 0, len);
         }
         return byteArrayOutputStream.toByteArray();
     }

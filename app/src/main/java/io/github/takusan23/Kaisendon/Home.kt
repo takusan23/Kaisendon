@@ -64,7 +64,6 @@ import org.chromium.customtabsclient.shared.CustomTabsHelper
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -1080,59 +1079,6 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                             ImageViewClick()
                         }
                     }
-                    //画像アップロード
-                    post_button.setOnClickListener {
-                        //クローズでソフトキーボード非表示
-                        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                        if (imm != null) {
-                            if (this@Home.currentFocus != null) {
-                                imm.hideSoftInputFromWindow(this@Home.currentFocus!!.windowToken, 0)
-                            }
-                        }
-                        /*
-                            //通常POST・画像つきPOST
-                            if (!media_uri_list.isEmpty()) {
-                                //配列からUriを取り出す
-                                for (int i = 0; i < media_uri_list.size(); i++) {
-                                    //ひつようなやつ
-                                    Uri uri = media_uri_list.get(i);
-                                    if (CustomMenuTimeLine.isMisskeyMode()) {
-                                        uploadDrivePhoto(uri);
-                                    } else {
-                                        uploadMastodonPhoto(uri);
-                                    }
-                                }
-                            } else {
-                                //画像添付トゥートは別に書くよ
-                                if (media_uri_list.isEmpty() || media_uri_list == null || media_uri_list.get(0) == null) {
-                                    //FABのアイコン戻す
-                                    fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-                                    //時間指定投稿（予約投稿）を送信するね！メッセージ
-                                    String message;
-                                    if (isTimePost) {
-                                        message = getString(R.string.time_post_post_button);
-                                    } else {
-                                        message = getString(R.string.note_create_message);
-                                    }
-                                    //Tootする
-                                    //確認SnackBer
-                                    Snackbar.make(v, message, Snackbar.LENGTH_SHORT).setAction(R.string.toot_text, new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            //FABのアイコン戻す
-                                            fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp));
-                                            //Mastodon / Misskey
-                                            if (CustomMenuTimeLine.isMisskeyMode()) {
-                                                misskeyNoteCreatePOST();
-                                            } else {
-                                                mastodonStatusesPOST();
-                                            }
-                                        }
-                                    }).show();
-                                }
-                            }
-*/
-                    }
                 }
             }
     }
@@ -1183,7 +1129,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             media_LinearLayout.addView(imageView)
             //押したとき
             imageView.setOnClickListener {
-                Toast.makeText(this@Home, "位置 : " + (imageView.tag as Int).toString(), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@Home, getString(R.string.delete_ok) + " : " + (imageView.tag as Int).toString(), Toast.LENGTH_SHORT).show()
                 //要素の削除
                 //なんだこのくそｇｍコードは
                 //removeにgetTagそのまま書くとなんかだめなんだけど何これ意味不
@@ -1590,7 +1536,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
             //画像添付なしのときはここを利用して、
             //画像添付トゥートは別に書くよ
-            if (media_uri_list!!.isEmpty() || media_uri_list == null || media_uri_list!![0] == null) {
+            if (media_uri_list!!.isEmpty()) {
                 //FABのアイコン戻す
                 fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp))
                 //時間指定投稿（予約投稿）を送信するね！メッセージ
@@ -2649,7 +2595,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             try {
                 val file_name = getFileNameUri(uri)
                 val extn = contentResolver.getType(uri)
-                requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn!!),uri_byte.getByte(uri)))
+                requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn!!), uri_byte.getByte(uri)))
             } catch (e: IOException) {
                 e.printStackTrace()
             }

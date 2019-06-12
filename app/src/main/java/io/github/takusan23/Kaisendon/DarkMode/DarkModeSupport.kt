@@ -56,7 +56,7 @@ class DarkModeSupport/*テキストビューの染色だけならここからど
         val conf = context.resources.configuration
         nightMode = conf.uiMode and Configuration.UI_MODE_NIGHT_MASK
         //Android Q以前の場合はメニューから切り替えを行う
-        if (Build.VERSION.SDK_INT <= 28 && Build.VERSION.CODENAME != "Q") {
+        if (Build.VERSION.SDK_INT <= 28) {
             if (pref_setting.getBoolean("darkmode", false)) {
                 nightMode = Configuration.UI_MODE_NIGHT_YES
             } else {
@@ -84,7 +84,7 @@ class DarkModeSupport/*テキストビューの染色だけならここからど
     fun setIsDarkModeSelf(darkmode: Int): Int {
         var darkmode = darkmode
         //Android Pie以前端末用
-        if (Build.VERSION.SDK_INT <= 28 && Build.VERSION.CODENAME != "Q") {
+        if (Build.VERSION.SDK_INT <= 28) {
             if (pref_setting.getBoolean("darkmode", false)) {
                 darkmode = Configuration.UI_MODE_NIGHT_YES
             } else {

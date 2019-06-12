@@ -98,7 +98,7 @@ class FloatingTLActivity : AppCompatActivity() {
             val fragmentTransaction = fragmentManager.beginTransaction()
             var tag = ""
             //PiPモードで簡略表示するため
-            if (!Build.VERSION.CODENAME.contains("Q") || pip_mode) {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O || pip_mode) {
                 tag = "pip_fragment"
             }
             fragmentTransaction.replace(R.id.float_tl_linearlayout, customMenuTimeLine, tag)

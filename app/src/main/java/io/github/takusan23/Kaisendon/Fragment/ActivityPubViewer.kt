@@ -66,7 +66,7 @@ class ActivityPubViewer : Fragment() {
         activity!!.title = getString(R.string.activity_pub_viewer)
 
         //ぱす（Android Qから変わった
-        if (!Build.VERSION.CODENAME.contains("Q")) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
             path = Environment.getExternalStorageDirectory().path + "/Kaisendon/activity_pub_json/outbox.json"
         } else {
             path = "/sdcard/Android/sandbox/io.github.takusan23/kaisendon/activity_pub_json/outbox.json"

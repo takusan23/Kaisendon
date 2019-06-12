@@ -5,15 +5,14 @@ import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.preference.PreferenceManager
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
-import io.github.takusan23.Kaisendon.Preference_ApplicationContext
 import io.github.takusan23.Kaisendon.R
 import okhttp3.*
 import org.chromium.customtabsclient.shared.CustomTabsHelper
@@ -48,7 +47,7 @@ class KonoAppNiTuite : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.context)
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(this)
 
         //ダークテーマに切り替える機能
         val darkModeSupport = DarkModeSupport(this)
@@ -63,7 +62,9 @@ class KonoAppNiTuite : AppCompatActivity() {
         bottomNavigationView = findViewById(R.id.bottom_navigation)
         chrome_custom_tabs = pref_setting!!.getBoolean("pref_chrome_custom_tabs", true)
         iconImageView = findViewById(R.id.producer_avataer_imageView)
-        iconImageView!!.imageTintList = null
+        if (iconImageView != null) {
+            iconImageView!!.imageTintList = null
+        }
 
         version_TextView!!.text = getString(R.string.version) + " " + release_ver_6 + "\r\n" + release_name_6
 

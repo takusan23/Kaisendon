@@ -5,40 +5,19 @@ import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.view.*
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.browser.customtabs.CustomTabsIntent
-
+import androidx.preference.PreferenceManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
-
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
-import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
-import androidx.appcompat.view.menu.MenuBuilder
-import androidx.appcompat.view.menu.MenuPopupHelper
-
-import android.view.LayoutInflater
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.widget.CompoundButton
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.Switch
-import android.widget.TextView
-import android.widget.Toast
-
-import org.chromium.customtabsclient.shared.CustomTabsHelper
-
-import java.util.ArrayList
-
 import io.github.takusan23.Kaisendon.Activity.KonoAppNiTuite
 import io.github.takusan23.Kaisendon.Activity.LoginActivity
 import io.github.takusan23.Kaisendon.Activity.UserActivity
@@ -48,18 +27,14 @@ import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment
 import io.github.takusan23.Kaisendon.FloatingTL.FloatingTL
-import io.github.takusan23.Kaisendon.Fragment.AccountListFragment
-import io.github.takusan23.Kaisendon.Fragment.ActivityPubViewer
-import io.github.takusan23.Kaisendon.Fragment.Bookmark_Frament
-import io.github.takusan23.Kaisendon.Fragment.License_Fragment
-import io.github.takusan23.Kaisendon.Fragment.SettingFragment
-import io.github.takusan23.Kaisendon.Fragment.WearFragment
+import io.github.takusan23.Kaisendon.Fragment.*
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.Omake.KaisendonLife
 import io.github.takusan23.Kaisendon.R
+import org.chromium.customtabsclient.shared.CustomTabsHelper
+import java.util.*
 
 class TLQuickSettingSnackber(private val context: Activity?, view: View) {
-    private val view: View? = null
     /*SnackBer*/
     //表示
     val snackbar: Snackbar
@@ -288,7 +263,7 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
     /*フローティングメニュー*/
     @SuppressLint("RestrictedApi")
     private fun showFloatingMenu() {
-        if (Build.VERSION.CODENAME.contains("Q")) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //QのユーザーはBubbleかPiPか選べるように
             //ポップアップメニュー作成
             val menuBuilder = MenuBuilder(context!!)
@@ -339,7 +314,7 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
 
     /*Android Pie以前ユーザー用にダークモードスイッチを用意する*/
     private fun setDarkmodeSwitch() {
-        if (Build.VERSION.CODENAME != "Q") {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             val sw = Switch(context)
             sw.text = context!!.getText(R.string.darkmode)
             sw.setTextColor(context.getColor(R.color.white))

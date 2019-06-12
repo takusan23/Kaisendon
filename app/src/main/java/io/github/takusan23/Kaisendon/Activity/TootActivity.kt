@@ -391,7 +391,7 @@ class TootActivity : AppCompatActivity() {
 
                     override fun doInBackground(vararg params: String): String {
                         val accessToken = AccessToken()
-                        accessToken.accessToken = finalAccessToken
+                        accessToken.accessToken = finalAccessToken!!
 
                         val client = MastodonClient.Builder(finalInstance!!, OkHttpClient.Builder(), Gson()).accessToken(accessToken.accessToken).build()
                         try {

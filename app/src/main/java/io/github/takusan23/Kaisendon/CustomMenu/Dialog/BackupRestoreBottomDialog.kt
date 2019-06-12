@@ -1,7 +1,6 @@
 package io.github.takusan23.Kaisendon.CustomMenu.Dialog
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.view.LayoutInflater
@@ -47,11 +46,16 @@ class BackupRestoreBottomDialog : BottomSheetDialogFragment() {
             context!!.startActivity(Intent(context, Home::class.java))
         }
         //ぱす（Android Qから変わった
-        if (!Build.VERSION.CODENAME.contains("Q")) {
+/*
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
             path = Environment.getExternalStorageDirectory().path + "/Kaisendon"
         } else {
             path = "/sdcard/Android/sandbox/io.github.takusan23/Kaisendon"
         }
+*/
+        //知らんけどScoped Storage聞かない？
+        path = Environment.getExternalStorageDirectory().path + "/Kaisendon"
+
         //パスをTextViewに入れる
         path_TextView!!.append("\n$path/kaisendon_backup")
     }

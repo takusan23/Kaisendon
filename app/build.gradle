@@ -3,7 +3,7 @@ apply plugin: 'kotlin-kapt'//kotlinでアノテーションを利用できるよ
 apply plugin: 'kotlin-android'//追加。
 
 android {
-    compileSdkVersion 'android-Q'
+    compileSdkVersion 29
     defaultConfig {
         applicationId 'io.github.takusan23.Kaisendon'
         minSdkVersion 24

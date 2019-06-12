@@ -245,7 +245,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             if (resultData!!.data != null) {
                 val selectedImage = resultData.data
-                if (!Build.VERSION.CODENAME.contains("Q")) {
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
                     //完全パス取得
                     val get_Path = getPath(selectedImage)
                     val image_Path = "file:\\\\$get_Path"
@@ -275,7 +275,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
             //String変換（非正規ルート？）
             val path = uri!!.path
             //Android QのScoped Storageのおかげで使えなくなった。
-            if (!Build.VERSION.CODENAME.contains("Q")) {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
                 //Android Pie以前
                 //「/document/raw:」を消す
                 //「/document/primary:」を消す
@@ -460,7 +460,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
         var file_404 = false
         var files: Array<File>? = null
         var path = ""
-        if (Build.VERSION.CODENAME.contains("Q")) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //Android Q以降
             //Scoped Storageのせいで基本このアプリのサンドボックスしかあくせすできないので
             //ちなみにScoped Storageだと権限はいらない
@@ -512,7 +512,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
         val finalPath = path
         font_Button!!.setOnClickListener(object : View.OnClickListener {
             public override fun onClick(v: View) {
-                if (!Build.VERSION.CODENAME.contains("Q")) {
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
                     //Android Pieまでの処理
                     //パーミッション？
                     if (ContextCompat.checkSelfPermission(this@AddCustomMenuActivity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {

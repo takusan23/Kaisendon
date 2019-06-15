@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId 'io.github.takusan23.Kaisendon'
         minSdkVersion 24
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 24
         versionName "6.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

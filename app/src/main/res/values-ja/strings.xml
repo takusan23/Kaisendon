@@ -505,5 +505,6 @@
     <string name="add_hashtag_tl_local">ハッシュタグタイムライン（ローカル）で開く。 設定内容は今開いてるカスタムメニューが適用されます。</string>
     <string name="open_nicovideo">をニコニコ動画で開く</string>
     <string name="open_niconico_pedia">をニコニコ大百科で開く</string>
+    <string name="tl_menu">メニュー</string>
 
 </resources>

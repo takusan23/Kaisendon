@@ -608,5 +608,6 @@
     <string name="add_hashtag_tl_public">Open with custom menu hashtag timeline (Federated). The settings will be applied to the custom menu that is open now.</string>
     <string name="open_nicovideo">with a smile video</string>
     <string name="open_niconico_pedia">with Nico Nico Pedia</string>
+    <string name="tl_menu">Menu</string>
 
 </resources>

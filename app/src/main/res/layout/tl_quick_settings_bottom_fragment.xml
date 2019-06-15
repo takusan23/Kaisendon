@@ -30,7 +30,7 @@
                 android:layout_weight="1"
                 android:gravity="left"
                 android:padding="10dp"
-                android:text="@string/quick_setting"
+                android:text="@string/tl_menu"
                 android:textColor="@color/white" />
         </LinearLayout>
 

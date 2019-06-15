@@ -93,6 +93,9 @@ class MastodonTLAPIJSONParse//インスタンス
         private set
     var pinned: String? = null
         private set
+    var ReblogToot: String? = null
+        private set
+
 
     fun getIsFav(): String {
         return isFav
@@ -249,6 +252,11 @@ class MastodonTLAPIJSONParse//インスタンス
                         votes_title!!.add(option.getString("title"))
                         votes_count!!.add(option.getString("votes_count"))
                     }
+                }
+                if (!toot_JsonObject.isNull("reblog")) {
+                    ReblogToot = "true"
+                } else {
+                    ReblogToot = null
                 }
             } else if (!toot_JsonObject.isNull("type") && toot_JsonObject.isNull("unread")) {
                 //通知
@@ -518,7 +526,7 @@ class MastodonTLAPIJSONParse//インスタンス
                 btCount = note_JsonObject.getString("renoteCount")
                 isFav = note_JsonObject.getString("myReaction")
                 //絵文字
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || java.lang.Boolean.valueOf(setting.custom_emoji)) {
+                if (androidx.preference.PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || java.lang.Boolean.valueOf(setting.custom_emoji)) {
                     val emoji = note_JsonObject.getJSONArray("emojis")
                     for (e in 0 until emoji.length()) {
                         val emoji_jsonObject = emoji.getJSONObject(e)
@@ -546,6 +554,11 @@ class MastodonTLAPIJSONParse//インスタンス
                     if (!media_array.isNull(0)) {
                         mediaList!!.add(media_array.getJSONObject(i).getString("url"))
                     }
+                }
+                if (!note_JsonObject.isNull("renote")) {
+                    ReblogToot = "true"
+                } else {
+                    ReblogToot = null
                 }
             } else {
                 //通知
@@ -602,7 +615,7 @@ class MastodonTLAPIJSONParse//インスタンス
                 }
 
                 //絵文字
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || isCustomEmoji) {
+                if (androidx.preference.PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || isCustomEmoji) {
                     //ユーザーネームの方の絵文字
                     val account_emoji = account_JsonObject.getJSONArray("emojis")
                     for (e in 0 until account_emoji.length()) {

@@ -291,6 +291,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             item.set(2, api.getToot_ID());
             //Misskey
             if (item.get(6).contains("Misskey")) {
+                //ダークモード
+                setThemeIconColor(viewHolder, api);
                 //アバター画像
                 loadAvatarImage(api, viewHolder, setting);
                 //Misskeyリアクション
@@ -320,11 +322,11 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 setTransparency(viewHolder, setting);
                 //フォント
                 setFontSetting(viewHolder);
-                //ダークモード
-                setThemeIconColor(viewHolder, api);
                 //警告文
                 setContentWarning(viewHolder, api, item);
             } else {
+                //ダークモード
+                setThemeIconColor(viewHolder, api);
                 //アバター画像
                 loadAvatarImage(api, viewHolder, setting);
                 //BT、Favできるようにする
@@ -360,9 +362,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //フォント
                 setFontSetting(viewHolder);
                 //ふぁぼぼたんのかすたまいず
-                //setCustomizeFavIcon(viewHolder,api, setting);
-                //ダークモード
-                setThemeIconColor(viewHolder, api);
+                setCustomizeFavIcon(viewHolder, api, setting);
                 //警告文
                 setContentWarning(viewHolder, api, item);
                 //固定トゥート
@@ -370,32 +370,31 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             }
         } else if (isScheduled_statuses) {
             MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
+            //ダークモード
+            setThemeIconColor(viewHolder, null);
             //時間指定投稿（予約投稿）ようレイアウト
             setSimpleLayout(viewHolder);
             setScheduled_statuses_layout(viewHolder, api);
-            //ダークモード
-            setThemeIconColor(viewHolder, null);
         } else if (isFollowSuggestions) {
             MastodonAccountJSONParse api = new MastodonAccountJSONParse(viewHolder.mainLinearLayout.getContext(), item.get(3));
-            setAccountLayout(viewHolder);
-            createAccountLinearLayout(viewHolder, api, item, setting);
             //ダークモード
             setThemeIconColor(viewHolder, null);
+            setAccountLayout(viewHolder);
+            createAccountLinearLayout(viewHolder, api, item, setting);
         } else if (isMastodonFollowes || isMisskeyFollowes) {
             MastodonAccountJSONParse api = new MastodonAccountJSONParse(viewHolder.mainLinearLayout.getContext(), item.get(3));
-            setAccountLayout(viewHolder);
-            createAccountLinearLayout(viewHolder, api, item, setting);
             //ダークモード
             setThemeIconColor(viewHolder, null);
+            setAccountLayout(viewHolder);
+            createAccountLinearLayout(viewHolder, api, item, setting);
         } else if (isActivityPubViewer) {
             ActivityPubJSONParse api = new ActivityPubJSONParse(item.get(3));
+            //ダークモード
+            setThemeIconColor(viewHolder, null);
             setSimpleLayout(viewHolder);
             viewHolder.toot_text_TextView.setText(Html.fromHtml(api.getContext(), Html.FROM_HTML_MODE_COMPACT));
             viewHolder.toot_user_TextView.setTextSize(18);
-            //ダークモード
-            setThemeIconColor(viewHolder, null);
         }
-
     }
 
     @Override
@@ -583,11 +582,20 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         viewHolder.toot_favourite_TextView.setText(api.getFavCount());
         Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp, null);
         Drawable favIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp, null);
-        if (Boolean.valueOf(setting.getDark_mode())) {
+        Drawable menuIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_more_vert_black_24dp, null);
+
+        Configuration conf = context.getResources().getConfiguration();
+        int currecntNightMode = conf.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        DarkModeSupport darkModeSupport = new DarkModeSupport(context);
+        currecntNightMode = darkModeSupport.setIsDarkModeSelf(currecntNightMode);
+
+        if (currecntNightMode == Configuration.UI_MODE_NIGHT_YES) {
             boostIcon.setTint(Color.parseColor("#ffffff"));
             favIcon.setTint(Color.parseColor("#ffffff"));
+            menuIcon.setTint(Color.parseColor("#ffffff"));
             viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
             viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
+            viewHolder.toot_bookmark_TextView.setCompoundDrawablesRelativeWithIntrinsicBounds(menuIcon,null,null,null);
             //Toot詳細も白アイコン
             viewHolder.date_icon_ImageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.white)));
             viewHolder.visibility_icon_ImageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.white)));
@@ -787,7 +795,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     private void setReBlogToot(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //null Check
         viewHolder.toot_reblog_LinearLayout.removeAllViews();
-        if (api.getBtAccountID() != null) {
+        if (api.getReblogToot() != null) {
             //getLayoutInflaterが使えないので
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             //Cardのレイアウト適用
@@ -829,12 +837,21 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 viewHolder.toot_text_TextView.setText("");
                 Drawable drawable = context.getDrawable(R.drawable.ic_repeat_black_24dp_2);
                 drawable.setTint(Color.parseColor("#008000"));
-                viewHolder.toot_user_TextView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+                //viewHolder.toot_user_TextView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
                 //クイックプロフィール
                 if (item.get(6).contains("Misskey")) {
                     showMisskeyQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBtAccountID(), item, setting);
                 } else {
                     showQuickProfile(viewHolder.reblog_avatar_ImageView, api.getBtAccountID(), viewHolder, item, setting);
+                }
+
+                Configuration conf = context.getResources().getConfiguration();
+                int currecntNightMode = conf.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                DarkModeSupport darkModeSupport = new DarkModeSupport(context);
+                currecntNightMode = darkModeSupport.setIsDarkModeSelf(currecntNightMode);
+
+                if (currecntNightMode == Configuration.UI_MODE_NIGHT_YES) {
+                    viewHolder.reblog_avatar_ImageView.setImageTintList(null);
                 }
             }
         }
@@ -2307,30 +2324,6 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (viewHolder.reblog_avatar_ImageView != null) {
             viewHolder.reblog_avatar_ImageView.setImageTintList(null);
         }
-
-        Drawable isBoostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp, null);
-        Drawable isFavIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp, null);
-
-        if (api != null && Boolean.valueOf(api.getIsBT())) {
-            isBoostIcon.setTint(Color.parseColor("#008000"));
-        } else if (api != null && Boolean.valueOf(api.getIsFav())) {
-            isFavIcon.setTint(Color.parseColor("#ffd700"));
-        } else {
-            switch (currecntNightMode) {
-                case Configuration.UI_MODE_NIGHT_NO:
-                    isBoostIcon.setTint(Color.parseColor("#000000"));
-                    isFavIcon.setTint(Color.parseColor("#000000"));
-                    viewHolder.toot_bookmark_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.black, context.getTheme()));
-                    break;
-                case Configuration.UI_MODE_NIGHT_YES:
-                    isBoostIcon.setTint(Color.parseColor("#ffffff"));
-                    isFavIcon.setTint(Color.parseColor("#ffffff"));
-                    viewHolder.toot_bookmark_TextView.setCompoundDrawableTintList(context.getResources().getColorStateList(android.R.color.white, context.getTheme()));
-                    break;
-            }
-        }
-        viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(isFavIcon, null, null, null);
-        viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(isBoostIcon, null, null, null);
     }
 
     /*こんてんとわーにんぐ 11*/

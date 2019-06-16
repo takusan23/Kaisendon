@@ -1,29 +1,13 @@
 package io.github.takusan23.Kaisendon.CustomMenu.Dialog
 
 import android.annotation.SuppressLint
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.ContentValues
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
-import android.database.Cursor
+import android.content.*
 import android.database.sqlite.SQLiteDatabase
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -31,27 +15,19 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.preference.PreferenceManager
-
-import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.navigation.NavigationView
-
-import org.chromium.customtabsclient.shared.CustomTabsHelper
-import org.json.JSONException
-import org.json.JSONObject
-
-import java.io.File
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
 import io.github.takusan23.Kaisendon.Activity.UserActivity
-import io.github.takusan23.Kaisendon.CustomMenu.AddCustomMenuActivity
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuLoadSupport
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.R
 import io.github.takusan23.Kaisendon.TootBookmark_SQLite
+import org.chromium.customtabsclient.shared.CustomTabsHelper
+import org.json.JSONException
+import org.json.JSONObject
+import java.util.regex.Pattern
 
 
 class TootOptionBottomDialog : BottomSheetDialogFragment() {
@@ -64,6 +40,7 @@ class TootOptionBottomDialog : BottomSheetDialogFragment() {
     private var copy_TextView: TextView? = null
     private var copy_toot_id_TextView: TextView? = null
     private var browser_TextView: TextView? = null
+    private var lockback_TextView: TextView? = null
     private val favourite_TextView: TextView? = null
     private val boost_TextView: TextView? = null
     private val padding = 35
@@ -90,6 +67,7 @@ class TootOptionBottomDialog : BottomSheetDialogFragment() {
         copy_toot_id_TextView = view.findViewById(R.id.toot_option_toot_id_copy)
         browser_TextView = view.findViewById(R.id.toot_option_browser)
         toot_option_LinearLayout = view.findViewById(R.id.toot_option_linearlayout)
+        lockback_TextView = view.findViewById(R.id.lockback_timeline_textview)
 
         //SQLite
         if (customMenuSQLiteHelper == null) {
@@ -171,6 +149,20 @@ class TootOptionBottomDialog : BottomSheetDialogFragment() {
                 startActivity(intent)
             }
         }
+
+        //振り返りタイムライン
+        //タイムラインのみ対応にする
+        if (arguments!!.getString("url")!!.contains("timelines") && !arguments!!.getString("instance")!!.contains("misskey")) {
+            lockback_TextView!!.setOnClickListener {
+                val dialog = LockBackTimelineBottomFragment()
+                var bundle = arguments
+                dialog.arguments = bundle
+                dialog.show(fragmentManager, "lockback_tl")
+            }
+        } else {
+            (lockback_TextView!!.parent as LinearLayout).removeView(lockback_TextView!!)
+        }
+
     }
 
     //ハッシュタグ

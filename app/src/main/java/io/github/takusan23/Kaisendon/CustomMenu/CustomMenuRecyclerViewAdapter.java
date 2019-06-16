@@ -257,7 +257,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (fragment instanceof DesktopFragment) {
             MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting);
             setAccountLayout(viewHolder);
-            setDesktopTootOption(viewHolder, api, item);
+            setDesktopTootOption(viewHolder, api, item, setting);
         }
         if (pip_Fragment != null) {
             setPiPLayout(viewHolder);
@@ -595,7 +595,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             menuIcon.setTint(Color.parseColor("#ffffff"));
             viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
             viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
-            viewHolder.toot_bookmark_TextView.setCompoundDrawablesRelativeWithIntrinsicBounds(menuIcon,null,null,null);
+            viewHolder.toot_bookmark_TextView.setCompoundDrawablesRelativeWithIntrinsicBounds(menuIcon, null, null, null);
             //Toot詳細も白アイコン
             viewHolder.date_icon_ImageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.white)));
             viewHolder.visibility_icon_ImageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.white)));
@@ -1828,6 +1828,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 bundle.putString("status_text", viewHolder.toot_text_TextView.getText().toString());
                 bundle.putString("json", item.get(3));
                 bundle.putString("cmtl_name", setting.getName());
+                bundle.putString("url", setting.getContent());
+                bundle.putString("setting",item.get(9));
                 dialog.setArguments(bundle);
                 dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "toot_option");
             }
@@ -2187,7 +2189,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * DesktopMode用TootOption
      */
-    private void setDesktopTootOption(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item) {
+    private void setDesktopTootOption(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         viewHolder.toot_text_TextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -2199,6 +2201,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 bundle.putString("status_id", api.getToot_ID());
                 bundle.putString("status_text", viewHolder.toot_text_TextView.getText().toString());
                 bundle.putString("json", item.get(3));
+                bundle.putString("cmtl_name", setting.getName());
+                bundle.putString("url", setting.getContent());
+                bundle.putString("setting",item.get(9));
                 dialog.setArguments(bundle);
                 dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "toot_option");
             }

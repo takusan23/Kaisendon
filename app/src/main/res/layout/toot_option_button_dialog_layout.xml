@@ -57,6 +57,15 @@
             android:padding="10dp"
             android:text="@string/open_browser" />
 
+        <TextView
+            android:id="@+id/lockback_timeline_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_history_black_24dp"
+            android:gravity="center_vertical"
+            android:padding="10dp"
+            android:text="振り返りタイムライン（ベータ）" />
+
 
     </LinearLayout>
 

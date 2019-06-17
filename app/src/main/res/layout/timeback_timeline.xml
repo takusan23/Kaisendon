@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/ic_history_black_24dp"
         android:padding="10dp"
-        android:text="振り返りタイムライン" />
+        android:text="@string/lockback_timeline" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lockbackRecyclerView"

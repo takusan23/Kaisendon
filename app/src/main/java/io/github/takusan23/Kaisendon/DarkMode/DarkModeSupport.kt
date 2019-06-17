@@ -139,6 +139,14 @@ class DarkModeSupport/*テキストビューの染色だけならここからど
         }
     }
 
+    fun setDrawableStartTextViewColor(layout: LinearLayout) {
+        for (i in 0 until layout.childCount) {
+            if (layout.getChildAt(i) is TextView) {
+                setTextViewThemeColor(layout.getChildAt(i) as TextView)
+            }
+        }
+    }
+
     /*Drawableに染色する*/
     private fun setDrawableColor(drawable: Drawable): Drawable {
         when (nightMode) {

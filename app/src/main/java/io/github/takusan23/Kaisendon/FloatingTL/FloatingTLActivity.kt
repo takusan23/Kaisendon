@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
+import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
 import okhttp3.*
@@ -39,6 +40,10 @@ class FloatingTLActivity : AppCompatActivity() {
         editText = findViewById(R.id.floating_tl_edittext)
         postImageButton = findViewById(R.id.floating_tl_post_button)
         pip_mode = intent.getBooleanExtra("pip", false)
+
+        //ダークテーマに切り替える機能
+        val darkModeSupport = DarkModeSupport(this)
+        darkModeSupport.setActivityTheme(this)
 
         //Fragmentにわたすやつ
         try {

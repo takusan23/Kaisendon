@@ -64,7 +64,7 @@
             android:drawableStart="@drawable/ic_history_black_24dp"
             android:gravity="center_vertical"
             android:padding="10dp"
-            android:text="振り返りタイムライン（ベータ）" />
+            android:text="@string/lockback_timeline" />
 
 
     </LinearLayout>

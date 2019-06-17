@@ -56,6 +56,7 @@ class TootOptionBottomDialog : BottomSheetDialogFragment() {
         return inflater.inflate(R.layout.toot_option_button_dialog_layout, container, false)
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         this.view_ = view
         val darkModeSupport = DarkModeSupport(context!!)
@@ -151,13 +152,40 @@ class TootOptionBottomDialog : BottomSheetDialogFragment() {
         }
 
         //振り返りタイムライン
-        //タイムラインのみ対応にする
-        if (arguments!!.getString("url")!!.contains("timelines") && !arguments!!.getString("instance")!!.contains("misskey")) {
+        //Mastodonのみ対応？
+        if (!arguments!!.getString("instance")!!.contains("misskey")) {
             lockback_TextView!!.setOnClickListener {
                 val dialog = LockBackTimelineBottomFragment()
                 var bundle = arguments
-                dialog.arguments = bundle
-                dialog.show(fragmentManager, "lockback_tl")
+                //ポップアップメニュー作成
+                val menuBuilder = MenuBuilder(context!!)
+                val inflater = MenuInflater(context)
+                inflater.inflate(R.menu.lockback_tl_menu, menuBuilder)
+                val optionsMenu = MenuPopupHelper(context!!, menuBuilder, lockback_TextView!!)
+                optionsMenu.setForceShowIcon(true)
+                //表示
+                optionsMenu.show()
+                menuBuilder.setCallback(object : MenuBuilder.Callback {
+                    override fun onMenuItemSelected(menu: MenuBuilder?, item: MenuItem?): Boolean {
+                        //URL設定
+                        when (item!!.itemId) {
+                            R.id.lockback_tl_home -> {
+                                bundle!!.putString("lockback_url", "/api/v1/timelines/home")
+                            }
+                            R.id.lockback_tl_local -> {
+                                bundle!!.putString("lockback_url", "/api/v1/timelines/public?local=true")
+                            }
+                        }
+                        dialog.arguments = bundle
+                        dialog.show(fragmentManager, "lockback_tl")
+                        return false
+                    }
+
+                    override fun onMenuModeChange(menu: MenuBuilder?) {
+                    }
+                })
+
+
             }
         } else {
             (lockback_TextView!!.parent as LinearLayout).removeView(lockback_TextView!!)

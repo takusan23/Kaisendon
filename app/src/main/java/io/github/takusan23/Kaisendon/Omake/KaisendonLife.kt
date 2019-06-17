@@ -4,9 +4,11 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Switch
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
+import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.R
 
 class KaisendonLife : AppCompatActivity() {
@@ -18,12 +20,20 @@ class KaisendonLife : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //ダークテーマに切り替える機能
+        val darkModeSupport = DarkModeSupport(this)
+        darkModeSupport.setActivityTheme(this)
         setContentView(R.layout.activity_kaisendon_life)
 
         pref_setting = PreferenceManager.getDefaultSharedPreferences(this)
         sw = findViewById(R.id.life_switch)
         editText = findViewById(R.id.one_day_toot_count)
         set_Button = findViewById(R.id.life_settting_button)
+
+        darkModeSupport.setTextViewThemeColor(findViewById(R.id.kaisendon_life_title))
+        darkModeSupport.setDrawableStartTextViewColor(sw!!.parent as LinearLayout)
+        darkModeSupport.setDrawableStartTextViewColor(set_Button!!.parent as LinearLayout)
 
         setSwitch()
         setTootCount()

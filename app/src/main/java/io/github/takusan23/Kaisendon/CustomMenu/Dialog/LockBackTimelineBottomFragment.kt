@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuRecyclerViewAdapter
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
+import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.R
 import okhttp3.*
 import org.json.JSONArray
@@ -44,7 +46,7 @@ class LockBackTimelineBottomFragment : BottomSheetDialogFragment() {
         recyclerView = view.findViewById(R.id.lockbackRecyclerView);
 
         id = arguments?.getString("status_id", "0") ?: "0"
-        url = arguments?.getString("url", "") ?: ""
+        url = arguments?.getString("lockback_url", "") ?: ""
         instance = arguments?.getString("instance", "") ?: ""
         token = arguments?.getString("token", "") ?: ""
         json_data = arguments?.getString("setting") ?: ""
@@ -57,6 +59,10 @@ class LockBackTimelineBottomFragment : BottomSheetDialogFragment() {
         customMenuRecyclerViewAdapter = CustomMenuRecyclerViewAdapter(recyclerViewList!!)
         recyclerView!!.adapter = customMenuRecyclerViewAdapter
         recyclerViewLayoutManager = recyclerView!!.layoutManager
+
+        //ダークモード
+        val darkModeSupport = DarkModeSupport(context!!)
+        darkModeSupport.setLayoutAllThemeColor(view as LinearLayout)
 
         getBeforeTimeline()
     }

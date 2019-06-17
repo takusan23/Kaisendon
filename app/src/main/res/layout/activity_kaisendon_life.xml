@@ -21,7 +21,7 @@
             android:padding="5dp">
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/kaisendon_life_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/ic_event_available_black_24dp"

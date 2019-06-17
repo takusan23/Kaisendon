@@ -506,5 +506,6 @@
     <string name="open_nicovideo">をニコニコ動画で開く</string>
     <string name="open_niconico_pedia">をニコニコ大百科で開く</string>
     <string name="tl_menu">メニュー</string>
+    <string name="lockback_timeline">振り返りタイムライン</string>
 
 </resources>

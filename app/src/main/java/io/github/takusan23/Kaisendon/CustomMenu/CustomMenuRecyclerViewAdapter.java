@@ -68,6 +68,7 @@ import io.github.takusan23.Kaisendon.Activity.UserActivity;
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.TootOptionBottomDialog;
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport;
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment;
+import io.github.takusan23.Kaisendon.HTMLMarkdown.GIFEmoji;
 import io.github.takusan23.Kaisendon.Home;
 import io.github.takusan23.Kaisendon.PicassoImageGetter;
 import io.github.takusan23.Kaisendon.R;
@@ -255,7 +256,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         Fragment fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentById(R.id.container_container);
         Fragment pip_Fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentByTag("pip_fragment");
         if (fragment instanceof DesktopFragment) {
-            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting);
+            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting, 66);
             setAccountLayout(viewHolder);
             setDesktopTootOption(viewHolder, api, item, setting);
         }
@@ -268,7 +269,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //レイアウト
             //JSONパース用クラス
             //System.out.println(item.get(3));
-            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting);
+            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting, 66);
             //カスタム絵文字
             PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
             PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);
@@ -281,8 +282,14 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 }
             }
             //SetText
-            viewHolder.toot_text_TextView.setText(Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
-            viewHolder.toot_user_TextView.setText(Html.fromHtml(api.getDisplay_name(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
+            if (Boolean.valueOf(setting.getGif())) {
+                GIFEmoji gifEmoji = new GIFEmoji();
+                gifEmoji.setGIFEmoji(context, text, viewHolder.toot_text_TextView);
+                gifEmoji.setGIFEmoji(context, api.getDisplay_name(), viewHolder.toot_user_TextView);
+            } else {
+                viewHolder.toot_text_TextView.setText(Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
+                viewHolder.toot_user_TextView.setText(Html.fromHtml(api.getDisplay_name(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
+            }
             viewHolder.toot_user_TextView.append("@" + api.getAcct());
             viewHolder.toot_createAt_TextView.setText(getCreatedAtFormat(api.getCreatedAt()));
             viewHolder.toot_client_TextView.setText(api.getClient());
@@ -955,7 +962,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                 @Override
                                 public void run() {
                                     //Fav/BT Countを表示できるようにする
-                                    MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string, setting);
+                                    MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string, setting, 66);
                                     if (setting.getYes_fav_icon() != null && setting.getNo_fav_icon() != null) {
                                         //setCustomizeFavIcon();
                                     } else {
@@ -1829,7 +1836,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 bundle.putString("json", item.get(3));
                 bundle.putString("cmtl_name", setting.getName());
                 bundle.putString("url", setting.getContent());
-                bundle.putString("setting",item.get(9));
+                bundle.putString("setting", item.get(9));
                 dialog.setArguments(bundle);
                 dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "toot_option");
             }
@@ -2203,7 +2210,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 bundle.putString("json", item.get(3));
                 bundle.putString("cmtl_name", setting.getName());
                 bundle.putString("url", setting.getContent());
-                bundle.putString("setting",item.get(9));
+                bundle.putString("setting", item.get(9));
                 dialog.setArguments(bundle);
                 dialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "toot_option");
             }

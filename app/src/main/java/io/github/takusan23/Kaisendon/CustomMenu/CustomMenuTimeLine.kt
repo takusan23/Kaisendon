@@ -1201,7 +1201,7 @@ class CustomMenuTimeLine : Fragment() {
                     } else {
                         tts!!.setSpeechRate(java.lang.Float.valueOf(pref_setting!!.getString("pref_speech_rate", "1.0f")!!))
                         val setting = CustomMenuJSONParse(json_data!!)
-                        val api = MastodonTLAPIJSONParse(context!!, toot_jsonObject.toString(), setting)
+                        val api = MastodonTLAPIJSONParse(context!!, toot_jsonObject.toString(), setting,66)
                         //正規表現でURL消す
                         var text = Html.fromHtml(api.toot_text, Html.FROM_HTML_MODE_COMPACT).toString()
                         if (pref_setting!!.getBoolean("pref_speech_url", true)) {

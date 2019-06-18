@@ -1,16 +1,15 @@
 package io.github.takusan23.Kaisendon.APIJSONParse
 
 import android.content.Context
-import android.preference.PreferenceManager
 import io.github.takusan23.Kaisendon.HomeTimeLineAdapter
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
 class MastodonTLAPIJSONParse//インスタンス
-(private val context: Context, private val response_string: String, setting: CustomMenuJSONParse) {
+(private val context: Context, private val response_string: String, setting: CustomMenuJSONParse, size: Number) {
     private val isCustomEmoji = false
-
+    var size = 35
     //パース
     //それぞれ
     var toot_text: String? = null
@@ -186,13 +185,13 @@ class MastodonTLAPIJSONParse//インスタンス
                 }
 
                 //絵文字
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || isCustomEmoji) {
+                if (androidx.preference.PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || isCustomEmoji) {
                     val emoji = toot_JsonObject.getJSONArray("emojis")
                     for (e in 0 until emoji.length()) {
                         val jsonObject = emoji.getJSONObject(e)
                         val emoji_name = jsonObject.getString("shortcode")
                         val emoji_url = jsonObject.getString("url")
-                        val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                        val custom_emoji_src = "<img src=\'$emoji_url\' height=${size}>"
                         toot_text = toot_text!!.replace(":$emoji_name:", custom_emoji_src)
                     }
 
@@ -202,7 +201,7 @@ class MastodonTLAPIJSONParse//インスタンス
                         val jsonObject = account_emoji.getJSONObject(e)
                         val emoji_name = jsonObject.getString("shortcode")
                         val emoji_url = jsonObject.getString("url")
-                        val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                        val custom_emoji_src = "<img src=\'$emoji_url\' height=${size}>"
                         display_name = display_name!!.replace(":$emoji_name:", custom_emoji_src)
                     }
 
@@ -214,7 +213,7 @@ class MastodonTLAPIJSONParse//インスタンス
                             val jsonObject = avater_emoji.getJSONObject(a)
                             val emoji_name = jsonObject.getString("shortcode")
                             val emoji_url = jsonObject.getString("url")
-                            val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                            val custom_emoji_src = "<img src=\'$emoji_url\' height=${size}>"
                             toot_text = toot_text!!.replace(":$emoji_name:", custom_emoji_src)
                         }
 
@@ -225,7 +224,7 @@ class MastodonTLAPIJSONParse//インスタンス
                             val jsonObject = account_avater_emoji.getJSONObject(a)
                             val emoji_name = jsonObject.getString("shortcode")
                             val emoji_url = jsonObject.getString("url")
-                            val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                            val custom_emoji_src = "<img src=\'$emoji_url\' height=${size}>\">"
                             display_name = display_name!!.replace(":$emoji_name:", custom_emoji_src)
                         }
                     }
@@ -296,13 +295,13 @@ class MastodonTLAPIJSONParse//インスタンス
                             mediaList!!.add(media_array.getJSONObject(i).getString("url"))
                         }
                     }
-                    if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || isCustomEmoji) {
+                    if (androidx.preference.PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || isCustomEmoji) {
                         val emoji = status_JsonObject.getJSONArray("emojis")
                         for (e in 0 until emoji.length()) {
                             val jsonObject = emoji.getJSONObject(e)
                             val emoji_name = jsonObject.getString("shortcode")
                             val emoji_url = jsonObject.getString("url")
-                            val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                            val custom_emoji_src = "<img src=\'$emoji_url\' height=${size}>"
                             toot_text = toot_text!!.replace(":$emoji_name:", custom_emoji_src)
                         }
                     }
@@ -327,14 +326,14 @@ class MastodonTLAPIJSONParse//インスタンス
                 }
 
                 //絵文字
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || isCustomEmoji) {
+                if (androidx.preference.PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || isCustomEmoji) {
                     //ユーザーネームの方の絵文字
                     val account_emoji = account_JsonObject.getJSONArray("emojis")
                     for (e in 0 until account_emoji.length()) {
                         val jsonObject = account_emoji.getJSONObject(e)
                         val emoji_name = jsonObject.getString("shortcode")
                         val emoji_url = jsonObject.getString("url")
-                        val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                        val custom_emoji_src = "<img src=\'$emoji_url\' height=${size}>"
                         display_name = display_name!!.replace(":$emoji_name:", custom_emoji_src)
                     }
                 }
@@ -389,13 +388,13 @@ class MastodonTLAPIJSONParse//インスタンス
                 }
 
                 //絵文字
-                if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || isCustomEmoji) {
+                if (androidx.preference.PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_custom_emoji", true) || isCustomEmoji) {
                     val emoji = toot_JsonObject.getJSONArray("emojis")
                     for (e in 0 until emoji.length()) {
                         val jsonObject = emoji.getJSONObject(e)
                         val emoji_name = jsonObject.getString("shortcode")
                         val emoji_url = jsonObject.getString("url")
-                        val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                        val custom_emoji_src = "<img src=\'$emoji_url\' height=${size}>"
                         toot_text = toot_text!!.replace(":$emoji_name:", custom_emoji_src)
                     }
 
@@ -405,7 +404,7 @@ class MastodonTLAPIJSONParse//インスタンス
                         val jsonObject = account_emoji.getJSONObject(e)
                         val emoji_name = jsonObject.getString("shortcode")
                         val emoji_url = jsonObject.getString("url")
-                        val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                        val custom_emoji_src = "<img src=\'$emoji_url\' height=${size}>"
                         display_name = display_name!!.replace(":$emoji_name:", custom_emoji_src)
                     }
 
@@ -417,7 +416,7 @@ class MastodonTLAPIJSONParse//インスタンス
                             val jsonObject = avater_emoji.getJSONObject(a)
                             val emoji_name = jsonObject.getString("shortcode")
                             val emoji_url = jsonObject.getString("url")
-                            val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                            val custom_emoji_src = "<img src=\'$emoji_url\' height=${size}>"
                             toot_text = toot_text!!.replace(":$emoji_name:", custom_emoji_src)
                         }
 
@@ -428,7 +427,7 @@ class MastodonTLAPIJSONParse//インスタンス
                             val jsonObject = account_avater_emoji.getJSONObject(a)
                             val emoji_name = jsonObject.getString("shortcode")
                             val emoji_url = jsonObject.getString("url")
-                            val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                            val custom_emoji_src = "<img src=\'$emoji_url\' height=${size}>"
                             display_name = display_name!!.replace(":$emoji_name:", custom_emoji_src)
                         }
                     }
@@ -532,7 +531,7 @@ class MastodonTLAPIJSONParse//インスタンス
                         val emoji_jsonObject = emoji.getJSONObject(e)
                         val emoji_name = emoji_jsonObject.getString("name")
                         val emoji_url = emoji_jsonObject.getString("url")
-                        val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                        val custom_emoji_src = "<img src=\'$emoji_url\' height=${size}>"
                         toot_text = toot_text!!.replace(":$emoji_name:", custom_emoji_src)
                     }
 
@@ -543,7 +542,7 @@ class MastodonTLAPIJSONParse//インスタンス
                             val emoji_jsonObject = account_emoji.getJSONObject(e)
                             val emoji_name = emoji_jsonObject.getString("name")
                             val emoji_url = emoji_jsonObject.getString("url")
-                            val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                            val custom_emoji_src = "<img src=\'$emoji_url\' height=${size}>"
                             display_name = display_name!!.replace(":$emoji_name:", custom_emoji_src)
                         }
                     }
@@ -622,7 +621,7 @@ class MastodonTLAPIJSONParse//インスタンス
                         val jsonObject = account_emoji.getJSONObject(e)
                         val emoji_name = jsonObject.getString("name")
                         val emoji_url = jsonObject.getString("url")
-                        val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                        val custom_emoji_src = "<img src=\'$emoji_url\' height=${size}>"
                         display_name = display_name!!.replace(":$emoji_name:", custom_emoji_src)
                     }
                 }

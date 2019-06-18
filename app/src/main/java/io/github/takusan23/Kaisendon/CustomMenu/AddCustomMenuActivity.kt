@@ -15,7 +15,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.preference.PreferenceManager
 import android.provider.MediaStore
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -111,7 +110,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
         val darkModeSupport = DarkModeSupport(this)
         darkModeSupport.setActivityTheme(this)
         setContentView(R.layout.activity_add_custom_menu)
-        pref_setting = PreferenceManager.getDefaultSharedPreferences(this)
+        pref_setting = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
 
         setTitle(R.string.custom_menu_add)
 
@@ -180,7 +179,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
             //ボタンを動的に生成
             val delete_Button = Button(this)
             delete_Button.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            delete_Button.background = getDrawable(R.drawable.button_style_white)
+            delete_Button.background = getDrawable(R.drawable.button_style)
             delete_Button.setText(R.string.custome_menu_delete)
             delete_Button.setOnClickListener { v ->
                 Snackbar.make(v, R.string.custom_setting_delete_message, Snackbar.LENGTH_SHORT).setAction(R.string.delete_ok) {
@@ -474,19 +473,22 @@ class AddCustomMenuActivity : AppCompatActivity() {
             if (font_folder.exists()) {
                 //存在するときはフォルダの中身を表示させる
                 files = font_folder.listFiles()
-                //PopupMenu
-                popupMenu = PopupMenu(this@AddCustomMenuActivity, font_Button)
-                val menu = popupMenu!!.getMenu()
-                //ディレクトリの中0個
-                if (files!!.size == 0) {
-                    file_404 = true
-                } else {
-                    for (i in files!!.indices) {
-                        //追加
-                        //ItemIDに配列の番号を入れる
-                        menu.add(0, i, 0, files!![i].getName())
+                if (files != null) {
+                    //PopupMenu
+                    popupMenu = PopupMenu(this@AddCustomMenuActivity, font_Button)
+                    val menu = popupMenu.getMenu()
+                    //ディレクトリの中0個
+                    if (files.size == 0) {
+                        file_404 = true
+                    } else {
+                        for (i in files.indices) {
+                            //追加
+                            //ItemIDに配列の番号を入れる
+                            menu.add(0, i, 0, files[i].getName())
+                        }
                     }
                 }
+
             } else {
                 //存在しないときはディレクトリ作成
                 font_folder.mkdir()
@@ -532,7 +534,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
                     if (finalFile_40) {
                         Toast.makeText(this@AddCustomMenuActivity, getString(R.string.font_directory_not_found) + "\n" + finalPath, Toast.LENGTH_LONG).show()
                     } else {
-                        finalPopupMenu!!.show()
+                        finalPopupMenu?.show()
                     }
                 }
             }

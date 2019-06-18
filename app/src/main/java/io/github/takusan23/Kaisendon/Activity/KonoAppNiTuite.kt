@@ -19,7 +19,11 @@ import org.chromium.customtabsclient.shared.CustomTabsHelper
 import org.json.JSONException
 import org.json.JSONObject
 import ru.noties.markwon.Markwon
+import ru.noties.markwon.html.HtmlPlugin
+import ru.noties.markwon.image.ImagesPlugin
+import ru.noties.markwon.image.gif.GifPlugin
 import java.io.IOException
+
 
 class KonoAppNiTuite : AppCompatActivity() {
 
@@ -34,7 +38,7 @@ class KonoAppNiTuite : AppCompatActivity() {
     //private String release_ver_5 = "5.0";
     private val release_ver_5 = "5.1.4"
     private val release_name_6 = "べーたどん"
-    private val release_ver_6 = "6 Beta 5"
+    private val release_ver_6 = "6 Beta 6"
 
     private var version_TextView: TextView? = null
     private var pref_setting: SharedPreferences? = null
@@ -496,11 +500,24 @@ class KonoAppNiTuite : AppCompatActivity() {
                     //失敗
                     runOnUiThread { Toast.makeText(this@KonoAppNiTuite, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
                 } else {
+                    var tree = textView.viewTreeObserver
+                    var height = 66;
+                    tree.addOnGlobalLayoutListener { ->
+                        height = textView.height
+
+                    }
+                    //var mark = "GIF <img src=\"https://media.best-friends.chat/accounts/avatars/000/020/498/original/bc0bd14abb0bb063.gif\" width=\"${height}\" >"
+
                     runOnUiThread {
                         //Markdownのライブラリ入れた
-                        val markwon = Markwon.create(this@KonoAppNiTuite)
+                        val markwon = Markwon.builder(this@KonoAppNiTuite)
+                                .usePlugin(HtmlPlugin.create())
+                                .usePlugin(ImagesPlugin.create(this@KonoAppNiTuite))
+                                .usePlugin(GifPlugin.create())
+                                .build()
                         markwon.setMarkdown(textView, response_string)
                     }
+
                 }
             }
         })

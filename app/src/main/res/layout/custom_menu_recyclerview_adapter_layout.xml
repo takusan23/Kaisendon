@@ -109,8 +109,7 @@
                         <ImageView
                             android:id="@+id/pinned_icon_imageview"
                             android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                             />
+                            android:layout_height="match_parent" />
 
                     </LinearLayout>
 
@@ -169,46 +168,6 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"></LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/custom_menu_adapter_notification_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:visibility="invisible"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp">
-
-
-                <TextView
-                    android:id="@+id/custom_menu_adapter_boost"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:drawableStart="@drawable/ic_repeat_black_24dp"
-                    android:gravity="center"
-                    android:text=""
-                    android:textSize="10dp" />
-
-                <TextView
-                    android:id="@+id/custom_menu_adapter_favourite"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:drawableStart="@drawable/ic_star_black_24dp"
-                    android:gravity="center"
-                    android:text=""
-                    android:textSize="10dp" />
-
-                <TextView
-                    android:id="@+id/custom_menu_adapter_bookmark"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:drawableStart="@drawable/ic_more_vert_black_24dp"
-                    android:gravity="center"
-                    android:text=""
-                    android:textSize="10dp" />
-            </LinearLayout>
 
             <com.google.android.material.chip.ChipGroup
                 android:layout_width="match_parent"

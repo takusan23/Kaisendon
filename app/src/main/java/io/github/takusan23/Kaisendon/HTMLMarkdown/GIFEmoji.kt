@@ -2,8 +2,12 @@ package io.github.takusan23.Kaisendon.HTMLMarkdown
 
 import android.content.Context
 import android.widget.TextView
+import androidx.annotation.NonNull
+import io.github.takusan23.Kaisendon.R
+import ru.noties.markwon.AbstractMarkwonPlugin
 import ru.noties.markwon.Markwon
 import ru.noties.markwon.html.HtmlPlugin
+import ru.noties.markwon.image.AsyncDrawableLoader
 import ru.noties.markwon.image.ImagesPlugin
 import ru.noties.markwon.image.gif.GifPlugin
 
@@ -21,7 +25,25 @@ class GIFEmoji() {
                 .usePlugin(HtmlPlugin.create())
                 .usePlugin(ImagesPlugin.create(context))
                 .usePlugin(GifPlugin.create())
-                .build()
+                .usePlugin(object : AbstractMarkwonPlugin() {   //読み込み中は別のDrawableを表示する
+                    override fun configureImages(builder: AsyncDrawableLoader.Builder) {
+                        builder.placeholderDrawableProvider {
+                            // your custom placeholder drawable
+                            context.getDrawable(R.drawable.ic_refresh_black_24dp)
+                        }
+                    }
+                }).build()
         markwon.setMarkdown(textView, html)
     }
+
+    fun getTextViewHeight(textView: TextView): Int {
+        var height = 0
+        var treeObserver = textView.viewTreeObserver
+        treeObserver.addOnGlobalLayoutListener { ->
+            height = textView.height
+        }
+        return height
+    }
+
+
 }

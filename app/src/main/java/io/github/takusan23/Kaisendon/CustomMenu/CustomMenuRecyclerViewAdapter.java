@@ -256,7 +256,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         Fragment fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentById(R.id.container_container);
         Fragment pip_Fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentByTag("pip_fragment");
         if (fragment instanceof DesktopFragment) {
-            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting, 66);
+            GIFEmoji gif = new GIFEmoji();
+            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting, gif.getTextViewHeight(viewHolder.toot_text_TextView));
             setAccountLayout(viewHolder);
             setDesktopTootOption(viewHolder, api, item, setting);
         }
@@ -269,7 +270,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //レイアウト
             //JSONパース用クラス
             //System.out.println(item.get(3));
-            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting, 66);
+            GIFEmoji gif = new GIFEmoji();
+            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting, gif.getTextViewHeight(viewHolder.toot_text_TextView));
             //カスタム絵文字
             PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
             PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);

@@ -45,6 +45,7 @@ import io.github.takusan23.Kaisendon.APIJSONParse.MastodonTLAPIJSONParse
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.TLQuickSettingSnackber
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment
+import io.github.takusan23.Kaisendon.HTMLMarkdown.GIFEmoji
 import okhttp3.*
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -191,7 +192,7 @@ class CustomMenuTimeLine : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        pref_setting = PreferenceManager.getDefaultSharedPreferences(context)
+        pref_setting = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
         parent_linearlayout = view.findViewById(R.id.custom_menu_parent_linearlayout)
         linearLayout = view.findViewById(R.id.custom_menu_fragment_linearlayout)
         recyclerView = view.findViewById(R.id.custom_menu_recycler_view)
@@ -1201,7 +1202,7 @@ class CustomMenuTimeLine : Fragment() {
                     } else {
                         tts!!.setSpeechRate(java.lang.Float.valueOf(pref_setting!!.getString("pref_speech_rate", "1.0f")!!))
                         val setting = CustomMenuJSONParse(json_data!!)
-                        val api = MastodonTLAPIJSONParse(context!!, toot_jsonObject.toString(), setting,66)
+                        val api = MastodonTLAPIJSONParse(context!!, toot_jsonObject.toString(), setting,0)
                         //正規表現でURL消す
                         var text = Html.fromHtml(api.toot_text, Html.FROM_HTML_MODE_COMPACT).toString()
                         if (pref_setting!!.getBoolean("pref_speech_url", true)) {

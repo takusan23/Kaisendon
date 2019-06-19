@@ -208,6 +208,19 @@
                     android:text=""
                     android:textSize="10dp" />
             </LinearLayout>
+
+            <com.google.android.material.chip.ChipGroup
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/favoutire"
+                    app:chipIcon="@drawable/ic_star_black_24dp" />
+            </com.google.android.material.chip.ChipGroup>
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

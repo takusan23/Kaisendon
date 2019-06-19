@@ -158,6 +158,7 @@ class DarkModeSupport/*テキストビューの染色だけならここからど
 
     /*BottomNavigationBer*/
     fun setBottomNavigationBerThemeColor(view: BottomNavigationView) {
+        view.setBackgroundColor(context.getColor(android.R.color.transparent))
         when (nightMode) {
             Configuration.UI_MODE_NIGHT_NO -> {
                 //view.setItemBackgroundResource(R.color.white);

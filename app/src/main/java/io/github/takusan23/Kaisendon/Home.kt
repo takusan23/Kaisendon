@@ -3,10 +3,7 @@ package io.github.takusan23.Kaisendon
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.*
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -1189,12 +1186,18 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
 
     override fun onBackPressed() {
-
         val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START)
         } else {
-            super.onBackPressed()
+            //　終了ダイアログ 修正（Android Qで動かないので）
+            AlertDialog.Builder(this@Home)
+                    .setTitle(getString(R.string.close_dialog_title))
+                    .setIcon(R.drawable.ic_local_hotel_black_12dp)
+                    .setMessage(getString(R.string.close_dialog_message))
+                    .setPositiveButton(getString(R.string.close_dialog_ok)) { dialog, which -> finish(); super.onBackPressed() }
+                    .setNegativeButton(getString(R.string.cancel)) { dialog, which -> dialog.cancel() }
+                    .show()
         }
     }
 
@@ -1372,6 +1375,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
 
+/*
     //終了しますか？
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         when (keyCode) {
@@ -1387,6 +1391,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
         return super.onKeyDown(keyCode, event)
     }
+*/
 
     fun FragmentChange(fragment: Fragment) {
         val transaction = supportFragmentManager.beginTransaction()

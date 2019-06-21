@@ -610,5 +610,8 @@
     <string name="open_niconico_pedia">with Nico Nico Pedia</string>
     <string name="tl_menu">Menu</string>
     <string name="lockback_timeline">Looking back Timeline</string>
+    <string name="close_dialog_title">End confirmation</string>
+    <string name="close_dialog_message">Do you want to exit the application?</string>
+    <string name="close_dialog_ok">End</string>
 
 </resources>

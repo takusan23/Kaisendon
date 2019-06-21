@@ -1,6 +1,7 @@
 package io.github.takusan23.Kaisendon.CustomMenu.Dialog
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.view.LayoutInflater
@@ -53,8 +54,12 @@ class BackupRestoreBottomDialog : BottomSheetDialogFragment() {
             path = "/sdcard/Android/sandbox/io.github.takusan23/Kaisendon"
         }
 */
-        //知らんけどScoped Storage聞かない？
-        path = Environment.getExternalStorageDirectory().path + "/Kaisendon"
+        //Scoped Storage に対応させる
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            path = context?.getExternalFilesDir(null)?.path + "/Kaisendon"
+        } else {
+            path = Environment.getExternalStorageDirectory().path + "/Kaisendon"
+        }
 
         //パスをTextViewに入れる
         path_TextView!!.append("\n$path/kaisendon_backup")
@@ -92,7 +97,13 @@ class BackupRestoreBottomDialog : BottomSheetDialogFragment() {
     private fun backup(fileName: String) {
         try {
             //ぱす
-            val kaisendon_path = Environment.getExternalStorageDirectory().path + "/Kaisendon"
+            //Scoped Storage に対応させる
+            var kaisendon_path = ""
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                kaisendon_path = context?.getExternalFilesDir(null)?.path + "/Kaisendon"
+            } else {
+                kaisendon_path = Environment.getExternalStorageDirectory().path + "/Kaisendon"
+            }
             val kaisendon_file = File(kaisendon_path)
             kaisendon_file.mkdir()
             val sd = File("$kaisendon_path/kaisendon_backup")
@@ -126,7 +137,13 @@ class BackupRestoreBottomDialog : BottomSheetDialogFragment() {
     private fun restore(fileName: String) {
 
         //ぱす
-        val kaisendon_path = Environment.getExternalStorageDirectory().path + "/Kaisendon"
+        //Scoped Storage に対応させる
+        var kaisendon_path = ""
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            kaisendon_path = context?.getExternalFilesDir(null)?.path + "/Kaisendon"
+        } else {
+            kaisendon_path = Environment.getExternalStorageDirectory().path + "/Kaisendon"
+        }
         val kaisendon_file = File(kaisendon_path)
         kaisendon_file.mkdir()
         val sd = File("$kaisendon_path/kaisendon_backup")

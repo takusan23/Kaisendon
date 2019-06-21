@@ -507,5 +507,8 @@
     <string name="open_niconico_pedia">をニコニコ大百科で開く</string>
     <string name="tl_menu">メニュー</string>
     <string name="lockback_timeline">振り返りタイムライン</string>
+    <string name="close_dialog_message">アプリケーションを終了しますか？</string>
+    <string name="close_dialog_title">終了確認</string>
+    <string name="close_dialog_ok">終了</string>
 
 </resources>

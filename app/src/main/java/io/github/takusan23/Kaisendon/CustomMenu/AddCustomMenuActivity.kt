@@ -459,86 +459,70 @@ class AddCustomMenuActivity : AppCompatActivity() {
         var file_404 = false
         var files: Array<File>? = null
         var path = ""
+        //Scoped Storageのせいで基本このアプリのサンドボックスしかあくせすできないので
+        //ちなみにScoped Storageだと権限はいらない
+        //ぱす
+        var kaisendon_path = ""
+        //Scoped Storage に対応させる
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            //Android Q以降
-            //Scoped Storageのせいで基本このアプリのサンドボックスしかあくせすできないので
-            //ちなみにScoped Storageだと権限はいらない
-            //ぱす
-            val kaisendon_path = Environment.getExternalStorageDirectory().getPath() + "/Kaisendon"
-            val kaisendon_file = File(kaisendon_path)
-            kaisendon_file.mkdir()
-            path = kaisendon_path + "/kaisendon_fonts"
-            val font_folder = File(path)
-            //存在チェック
-            if (font_folder.exists()) {
-                //存在するときはフォルダの中身を表示させる
-                files = font_folder.listFiles()
-                if (files != null) {
-                    //PopupMenu
-                    popupMenu = PopupMenu(this@AddCustomMenuActivity, font_Button)
-                    val menu = popupMenu.getMenu()
-                    //ディレクトリの中0個
-                    if (files.size == 0) {
-                        file_404 = true
-                    } else {
-                        for (i in files.indices) {
-                            //追加
-                            //ItemIDに配列の番号を入れる
-                            menu.add(0, i, 0, files[i].getName())
-                        }
+            kaisendon_path = getExternalFilesDir(null)?.path + "/Kaisendon"
+        } else {
+            kaisendon_path = Environment.getExternalStorageDirectory().path + "/Kaisendon"
+        }
+        val kaisendon_file = File(kaisendon_path)
+        kaisendon_file.mkdir()
+        path = kaisendon_path + "/kaisendon_fonts"
+        val font_folder = File(path)
+        //存在チェック
+        if (font_folder.exists()) {
+            //存在するときはフォルダの中身を表示させる
+            files = font_folder.listFiles()
+            if (files != null) {
+                //PopupMenu
+                popupMenu = PopupMenu(this@AddCustomMenuActivity, font_Button)
+                val menu = popupMenu.getMenu()
+                //ディレクトリの中0個
+                if (files.size == 0) {
+                    file_404 = true
+                } else {
+                    for (i in files.indices) {
+                        //追加
+                        //ItemIDに配列の番号を入れる
+                        menu.add(0, i, 0, files[i].getName())
                     }
                 }
-
-            } else {
-                //存在しないときはディレクトリ作成
-                font_folder.mkdir()
-                file_404 = true
             }
-            //クリックイベント
-            val finalFiles = files
-            if (popupMenu != null) {
-                popupMenu!!.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
-                    public override fun onMenuItemClick(item: MenuItem): Boolean {
-                        font_Button!!.setText(finalFiles!![item.getItemId()].getPath())
-                        font_path = finalFiles!![item.getItemId()].getPath()
-                        typeface = Typeface.createFromFile(File(font_path))
-                        font_TextView!!.setTypeface(typeface)
-                        return false
-                    }
-                })
-            }
+        } else {
+            //存在しないときはディレクトリ作成
+            font_folder.mkdir()
+            file_404 = true
+        }
+        //クリックイベント
+        val finalFiles = files
+        if (popupMenu != null) {
+            popupMenu!!.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
+                public override fun onMenuItemClick(item: MenuItem): Boolean {
+                    font_Button!!.setText(finalFiles!![item.getItemId()].getPath())
+                    font_path = finalFiles!![item.getItemId()].getPath()
+                    typeface = Typeface.createFromFile(File(font_path))
+                    font_TextView!!.setTypeface(typeface)
+                    return false
+                }
+            })
         }
 
         val finalPopupMenu = popupMenu
         val finalFile_40 = file_404
         val finalPath = path
-        font_Button!!.setOnClickListener(object : View.OnClickListener {
-            public override fun onClick(v: View) {
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
-                    //Android Pieまでの処理
-                    //パーミッション？
-                    if (ContextCompat.checkSelfPermission(this@AddCustomMenuActivity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                        //権限をリクエストする
-                        ActivityCompat.requestPermissions(this@AddCustomMenuActivity,
-                                arrayOf<String>(Manifest.permission.READ_EXTERNAL_STORAGE),
-                                1000)
-                    } else {
-                        //画像選択
-                        val intent = Intent(Intent.ACTION_GET_CONTENT)
-                        intent.setType("*/*")
-                        startActivityForResult(intent, 4545)
-                    }
-                } else {
-                    //Android Q
-                    //フォント用ディレクトリがない・ディレクトリの中身が無いときにToastを出す
-                    if (finalFile_40) {
-                        Toast.makeText(this@AddCustomMenuActivity, getString(R.string.font_directory_not_found) + "\n" + finalPath, Toast.LENGTH_LONG).show()
-                    } else {
-                        finalPopupMenu?.show()
-                    }
-                }
+        font_Button!!.setOnClickListener {
+            // Android 9 以前の端末でもフォントをディレクトリに入れてもらう
+            //フォント用ディレクトリがない・ディレクトリの中身が無いときにToastを出す
+            if (finalFile_40) {
+                Toast.makeText(this@AddCustomMenuActivity, getString(R.string.font_directory_not_found) + "\n" + finalPath, Toast.LENGTH_LONG).show()
+            } else {
+                finalPopupMenu?.show()
             }
-        })
+        }
 
 
         font_reset_Button!!.setOnClickListener(object : View.OnClickListener {

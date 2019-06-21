@@ -66,10 +66,10 @@ class ActivityPubViewer : Fragment() {
         activity!!.title = getString(R.string.activity_pub_viewer)
 
         //ぱす（Android Qから変わった
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
-            path = Environment.getExternalStorageDirectory().path + "/Kaisendon/activity_pub_json/outbox.json"
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            path = context?.getExternalFilesDir(null)?.path + "/Kaisendon/activity_pub_json/outbox.json"
         } else {
-            path = "/sdcard/Android/sandbox/io.github.takusan23/kaisendon/activity_pub_json/outbox.json"
+            path = Environment.getExternalStorageDirectory().path + "/Kaisendon/activity_pub_json/outbox.json"
         }
 
         Toast.makeText(context, getString(R.string.activity_pub_message) + "\n" + path, Toast.LENGTH_LONG).show()
@@ -95,7 +95,13 @@ class ActivityPubViewer : Fragment() {
         //くるくる
         SnackberProgress.showProgressSnackber(recyclerView, context!!, getString(R.string.loading))
         //ぱす
-        val kaisendon_path = Environment.getExternalStorageDirectory().path + "/Kaisendon"
+        var kaisendon_path = ""
+        //ぱす
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            kaisendon_path = context?.getExternalFilesDir(null)?.path + "/Kaisendon"
+        } else {
+            kaisendon_path = Environment.getExternalStorageDirectory().path + "/Kaisendon"
+        }
         val kaisendon_file = File(kaisendon_path)
         kaisendon_file.mkdir()
         //ディレクトリ生成

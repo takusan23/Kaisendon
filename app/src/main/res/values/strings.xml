@@ -613,5 +613,9 @@
     <string name="close_dialog_title">End confirmation</string>
     <string name="close_dialog_message">Do you want to exit the application?</string>
     <string name="close_dialog_ok">End</string>
+    <string name="bottom_titlebar">Move title bar down</string>
+    <string name="bottom_titlebar_description">If enabled, titles and subtitles will not be displayed.</string>
+    <string name="button_right">Move the button to the right</string>
+    <string name="button_right_description">Favorite, put the boost button on the right</string>
 
 </resources>

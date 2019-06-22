@@ -19,13 +19,13 @@
             android:summary="@string/setting_drawer_avater_header_hidden_info"
             android:title="@string/setting_drawer_avater_header_hidden" />
 
-<!--
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_toot_media"
-            android:summary="@string/setting_toot_media_hidden_info"
-            android:title="@string/setting_toot_media_hidden" />
--->
+        <!--
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_toot_media"
+                    android:summary="@string/setting_toot_media_hidden_info"
+                    android:title="@string/setting_toot_media_hidden" />
+        -->
 
         <CheckBoxPreference
             android:defaultValue="true"
@@ -52,6 +52,18 @@
             android:summary="@string/setting_chrome_custom_tabs_info"
             android:title="@string/setting_chrome_custom_tabs" />
 
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_bottom_navigation"
+            android:summary="@string/bottom_titlebar_description"
+            android:title="@string/bottom_titlebar" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_button_right"
+            android:summary="@string/button_right_description"
+            android:title="@string/button_right" />
+
         <!--
                 <ListPreference
                     android:defaultValue="HomeCard"
@@ -62,11 +74,13 @@
                     android:title="@string/setting_start_fragment" />
         -->
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_networkchange"
-            android:summary="@string/setting_networkchange_info"
-            android:title="@string/setting_networkchange" />
+        <!--
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_networkchange"
+                    android:summary="@string/setting_networkchange_info"
+                    android:title="@string/setting_networkchange" />
+        -->
 
         <!--
                 <CheckBoxPreference
@@ -84,19 +98,23 @@
                     android:title="@string/setting_svg_animation_title" />
         -->
 
-        <ListPreference
-            android:defaultValue="Home"
-            android:entries="@array/notification_timeline_list"
-            android:entryValues="@array/notification_timeline_values"
-            android:key="pref_notification_timeline"
-            android:summary="@string/setting_notification_timeline_message"
-            android:title="@string/setting_notification_timeline_title" />
+        <!--
+                <ListPreference
+                    android:defaultValue="Home"
+                    android:entries="@array/notification_timeline_list"
+                    android:entryValues="@array/notification_timeline_values"
+                    android:key="pref_notification_timeline"
+                    android:summary="@string/setting_notification_timeline_message"
+                    android:title="@string/setting_notification_timeline_title" />
+        -->
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_no_sleep"
-            android:summary="@string/setting_no_sleep_info"
-            android:title="@string/setting_no_sleep" />
+        <!--
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_no_sleep"
+                    android:summary="@string/setting_no_sleep_info"
+                    android:title="@string/setting_no_sleep" />
+        -->
 
     </PreferenceCategory>
 
@@ -184,25 +202,24 @@
     </PreferenceCategory>
 
 
-        <PreferenceCategory
-            android:key="preference_setting"
-            android:title="@string/speech_timeline_setting">
+    <PreferenceCategory
+        android:key="preference_setting"
+        android:title="@string/speech_timeline_setting">
 
-            <EditTextPreference
-                android:defaultValue="1.0f"
-                android:key="pref_speech_rate"
-                android:summary="@string/speech_timeline_rate_message"
-                android:title="@string/speech_timeline_rate_title" />
+        <EditTextPreference
+            android:defaultValue="1.0f"
+            android:key="pref_speech_rate"
+            android:summary="@string/speech_timeline_rate_message"
+            android:title="@string/speech_timeline_rate_title" />
 
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:key="pref_speech_url"
-                android:summary="@string/setting_url_speech_message"
-                android:title="@string/setting_url_speech_title" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_speech_url"
+            android:summary="@string/setting_url_speech_message"
+            android:title="@string/setting_url_speech_title" />
 
 
-        </PreferenceCategory>
-
+    </PreferenceCategory>
 
 
     <!--ダイアログを出すかどうか-->

@@ -18,13 +18,14 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:tint="@color/white"
                 android:id="@+id/imageView2"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:tint="@color/white"
                 app:srcCompat="@drawable/ic_check_box_black_24dp" />
 
             <TextView
+                android:id="@+id/tl_qs_title_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -48,17 +49,17 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:theme="@style/EditTextHint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/color_text"
-                android:textColorHint="@color/white">
+                android:textColorHint="@color/white"
+                android:theme="@style/EditTextHint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tl_qs_color_edittext"
                     android:layout_width="match_parent"
-                    android:textColor="@color/white"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:textColor="@color/white" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -76,6 +77,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/speech_timeline"
+                android:textColor="@color/white" />
+
+            <Switch
+                android:id="@+id/tl_qs_sleep"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/setting_no_sleep"
                 android:textColor="@color/white" />
 
         </LinearLayout>

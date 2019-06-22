@@ -42,6 +42,8 @@ import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
@@ -56,6 +58,8 @@ import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment
 import io.github.takusan23.Kaisendon.Fragment.HelloFragment
 import io.github.takusan23.Kaisendon.Omake.LunchBonus
 import io.github.takusan23.Kaisendon.Omake.ShinchokuLayout
+import kotlinx.android.synthetic.main.app_bar_home2.*
+import kotlinx.android.synthetic.main.bottom_bar_layout.*
 import okhttp3.*
 import org.chromium.customtabsclient.shared.CustomTabsHelper
 import org.json.JSONArray
@@ -237,9 +241,6 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         //進捗
         shinchokuLayout = ShinchokuLayout(this)
-        //アプリ起動カウント
-        val lunchBonus = LunchBonus(this)
-
 
         //ログイン情報があるか
         //アクセストークンがない場合はログイン画面へ飛ばす
@@ -286,39 +287,6 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             isDesktop = false
         }
 
-
-        /*
-        String start_fragment = pref_setting.getString("pref_startFragment", "HomeCard");
-        if (savedInstanceState == null) {
-            if (start_fragment.equals("HomeCard")) {
-                FragmentChange(new HomeCrad_Fragment());
-            }
-            if (start_fragment.equals("Home")) {
-                FragmentChange(new Home_Fragment());
-            }
-            if (start_fragment.equals("Notification")) {
-                FragmentChange(new Notification_Fragment());
-            }
-            if (start_fragment.equals("Local")) {
-                FragmentChange(new Public_TimeLine_Fragment());
-            }
-            if (start_fragment.equals("Federated")) {
-                FragmentChange(new Federated_TimeLine_Fragment());
-            }
-            if (start_fragment.equals("Start")) {
-            }
-            if (start_fragment.equals("Streaming")) {
-                FragmentChange(new CustomStreamingFragment());
-            }
-
-            //何もなかった場合（初期状態）
-            if (start_fragment.equals("")) {
-                FragmentChange(new HomeCrad_Fragment());
-            }
-        }
-*/
-
-
         //カスタム絵文字有効/無効
         if (pref_setting.getBoolean("pref_custom_emoji", true)) {
             if (pref_setting.getBoolean("pref_avater_wifi", true)) {
@@ -344,15 +312,11 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         val accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false)
         if (accessToken_boomelan) {
-
             AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "")
             Instance = pref_setting.getString("pref_mastodon_instance", "")
-
         } else {
-
             AccessToken = pref_setting.getString("main_token", "")
             Instance = pref_setting.getString("main_instance", "")
-
         }
 
         //カスタムメニューの場合は追加処理
@@ -363,51 +327,13 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             customMenuLoadSupport!!.loadCustomMenu(null)
         }
 
-        //ネットワークが切り替わったらトースト表示
-        if (pref_setting.getBoolean("pref_networkchange", false)) {
-            /*API 28で以下のコードは廃止されて動かないのでこれからはフラグメントの方に書きます*/
-            /*
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                networkChangeBroadcast = new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        //何故かアプリ起動時にもネットワーク変更ブロードキャストが飛んでくるので
-                        //カウントアップして起動時は表示しないように
-                        test++;
-                        //System.out.println("カウント : " + String.valueOf(test));
-                        if (test >= 2) {
-                            View view = findViewById(android.R.id.content);
-                            Snackbar.make(view, R.string.network_change, Snackbar.LENGTH_SHORT).setAction(R.string.ReStart, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    //押したときにActivityを再生成する
-                                    // アクティビティ再起動
-                                    Intent intent = new Intent(Home.this, Home.class);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // 起動しているActivityをすべて削除し、新しいタスクでMainActivityを起動する
-                                    startActivity(intent);
-
-                                }
-                            }).show();
-                        }
-                    }
-                };
-                registerReceiver(networkChangeBroadcast, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-            }
-*/
-        }
-
-
-        toolBer = findViewById<View>(R.id.toolbar) as Toolbar
-        setSupportActionBar(toolBer)
-
-        fab = findViewById<View>(R.id.fab) as FloatingActionButton
 
         //TootSnackBerのコードがクソ長いのでメゾット化
         //Misskey
         //setNewNote_Snackber();
         tootSnackBer()
 
-        fab.setOnClickListener { showTootShortcut() }
+        setAppBar()
 
 
         //共有を受け取る
@@ -480,12 +406,6 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         });
 */
 
-
-        drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
-        val toggle = ActionBarDrawerToggle(
-                this, drawer, toolBer, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        drawer.addDrawerListener(toggle)
-        toggle.syncState()
 
         val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
         navigationView.setNavigationItemSelectedListener(this)
@@ -591,7 +511,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                                 if (pref_setting.getBoolean("pref_subtitle_show", true)) {
                                     //サブタイトルに名前を入れる
                                     try {
-                                        supportActionBar!!.setSubtitle(jsonObject.getString("display_name") + " ( @" + user_id + " / " + finalInstance + " )")
+                                        supportActionBar?.setSubtitle(jsonObject.getString("display_name") + " ( @" + user_id + " / " + finalInstance + " )")
                                     } catch (e: JSONException) {
                                         e.printStackTrace()
                                     }
@@ -611,9 +531,6 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             })
         }
 
-        /*クイック設定*/
-        setTimelinQuickSettings()
-        tlQuickSettingSnackber = TLQuickSettingSnackber(this@Home, navigationView)
 
         /*
         //ローカルタイムライントースト
@@ -1189,6 +1106,8 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START)
+        } else if (toot_snackbar.isShown) {
+            toot_snackbar.dismiss()
         } else {
             //　終了ダイアログ 修正（Android Qで動かないので）
             AlertDialog.Builder(this@Home)
@@ -2996,7 +2915,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     /*タイムラインクイック設定ボタン生成*/
-    private fun setTimelinQuickSettings() {
+    private fun setTimelinQuickSettings(): ImageView {
         val qs = ImageView(this)
         qs.setImageResource(R.drawable.tl_quick_setting_icon)
         qs.setPadding(50, 10, 50, 10)
@@ -3015,8 +2934,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 tlQuickSettingSnackber!!.showSnackBer()
             }
         }
-        //追加されてなければ追加
-        toolBer.addView(qs)
+        return qs
     }
 
     companion object {
@@ -3039,4 +2957,41 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             return path
         }
     }
+
+    fun setAppBar() {
+        toolBer = findViewById<View>(R.id.toolbar) as Toolbar
+        fab = findViewById<View>(R.id.fab) as FloatingActionButton
+        drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
+
+        if (pref_setting.getBoolean("pref_bottom_navigation", false)) {
+            // 上のバーとFabをけす
+            container_public.removeView(toolBer.parent as AppBarLayout)
+            container_public.removeView(fab)
+
+            layoutInflater.inflate(R.layout.bottom_bar_layout, container_public)
+            setSupportActionBar(bottomAppBar)
+            bottomAppBar.setNavigationOnClickListener() {
+                drawer.openDrawer(Gravity.LEFT)
+            }
+            bottom_fab.setOnClickListener { showTootShortcut() }
+            //追加されてなければ追加
+            bottomAppBar.addView(setTimelinQuickSettings())
+            tlQuickSettingSnackber = TLQuickSettingSnackber(this@Home, navigationView)
+        } else {
+            setSupportActionBar(toolBer)
+            val toggle = ActionBarDrawerToggle(
+                    this, drawer, toolBer, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+            drawer.addDrawerListener(toggle)
+            toggle.syncState()
+            fab.setOnClickListener { showTootShortcut() }
+            /*クイック設定*/
+            toolBer.addView(setTimelinQuickSettings())
+            tlQuickSettingSnackber = TLQuickSettingSnackber(this@Home, navigationView)
+        }
+    }
+
+    fun isSnackbarShow(): Boolean {
+        return toot_snackbar.isShown
+    }
+
 }

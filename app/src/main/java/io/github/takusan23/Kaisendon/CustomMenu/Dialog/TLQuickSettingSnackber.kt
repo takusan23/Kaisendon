@@ -40,7 +40,9 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
     val snackbar: Snackbar
 
     private var bottomNavigationView: BottomNavigationView? = null
+    private var title_textview: TextView? = null
     private var tts_Switch: Switch? = null
+    private var sleep_Switch: Switch? = null
     private var color_EditText: EditText? = null
     //private FragmentTransaction transaction;
     private var pref_setting: SharedPreferences? = null
@@ -95,7 +97,9 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
 
         pref_setting = PreferenceManager.getDefaultSharedPreferences(context)
         bottomNavigationView = main_LinearLayout.findViewById(R.id.tl_qs_menu)
+        title_textview = main_LinearLayout.findViewById(R.id.tl_qs_title_textview)
         tts_Switch = main_LinearLayout.findViewById(R.id.tl_qs_tts_switch)
+        sleep_Switch = main_LinearLayout.findViewById(R.id.tl_qs_sleep)
         color_EditText = main_LinearLayout.findViewById(R.id.tl_qs_color_edittext)
         icon = main_LinearLayout.findViewById(R.id.imageView2)
         navigationView = context.findViewById(R.id.nav_view)
@@ -107,6 +111,12 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
 
         setClickEvent()
         setDarkmodeSwitch()
+        setSleep()
+
+        title_textview?.setOnClickListener {
+            snackbar.dismiss()
+        }
+
 
         return snackbar
     }
@@ -131,7 +141,9 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
             val fragment = (context as AppCompatActivity).supportFragmentManager.findFragmentById(R.id.container_container)
             if (fragment is CustomMenuTimeLine) {
                 val floatingTL = FloatingTL(context, fragment.arguments!!.getString("json")!!)
-                floatingTL.setNotification(isPiP)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    floatingTL.setNotification(isPiP)
+                }
             } else {
                 Toast.makeText(context, context.getString(R.string.floating_tl_error_custom_tl), Toast.LENGTH_SHORT).show()
             }
@@ -346,6 +358,16 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
     /*配列を設定*/
     fun setList(list: ArrayList<String>) {
         this.list = list
+    }
+
+    fun setSleep() {
+        sleep_Switch?.setOnCheckedChangeListener() { compoundButton: CompoundButton, b: Boolean ->
+            if (b) {
+                context?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            } else {
+                context?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
+        }
     }
 
 }

@@ -510,5 +510,9 @@
     <string name="close_dialog_message">アプリケーションを終了しますか？</string>
     <string name="close_dialog_title">終了確認</string>
     <string name="close_dialog_ok">終了</string>
+    <string name="bottom_titlebar">タイトルバーを下に移動させる</string>
+    <string name="bottom_titlebar_description">有効にするとタイトル、サブタイトルが表示されません。</string>
+    <string name="button_right_description">お気に入り、ブーストボタンを右側に置く</string>
+    <string name="button_right">ボタンを右側に寄せる</string>
 
 </resources>

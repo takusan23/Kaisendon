@@ -910,8 +910,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.mainLinearLayout.addView(viewHolder.notification_type_TextView, 0);
             //DM以外でレイアウト消す
             if (api.getNotification_Type().equals("follow")) {
-                LinearLayout linearLayout = ((LinearLayout) viewHolder.fav_chip.getParent());
-                viewHolder.mainLinearLayout.removeView(linearLayout);
+                ChipGroup chipGroup = ((ChipGroup) viewHolder.fav_chip.getParent());
+                viewHolder.mainLinearLayout.removeView(chipGroup);
             }
         }
     }
@@ -1053,7 +1053,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      */
     private void setMisskeyReaction(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //アイコン変更
-        viewHolder.fav_chip.setCompoundDrawablesWithIntrinsicBounds(context.getDrawable(R.drawable.ic_add_black_24dp), null, null, null);
+        viewHolder.fav_chip.setChipIcon(context.getDrawable(R.drawable.ic_add_black_24dp));
         viewHolder.fav_chip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

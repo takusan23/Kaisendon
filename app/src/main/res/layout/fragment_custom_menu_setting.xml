@@ -6,12 +6,27 @@
     android:orientation="vertical"
     tools:context=".CustomMenu.CustomMenuSettingFragment">
 
-    <Button
-        android:id="@+id/add_custom_menu_button"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/button_style"
-        android:text="@string/custom_menu_add" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/add_custom_menu_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/button_style"
+            android:text="@string/custom_menu_add" />
+
+        <Button
+            android:id="@+id/custom_menu_backup_restore"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/button_style"
+            android:text="@string/custom_menu_backup_restore" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/textView7"
@@ -24,12 +39,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1" />
-
-    <Button
-        android:id="@+id/custom_menu_backup_restore"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/button_style"
-        android:text="@string/custom_menu_backup_restore" />
 
 </LinearLayout>

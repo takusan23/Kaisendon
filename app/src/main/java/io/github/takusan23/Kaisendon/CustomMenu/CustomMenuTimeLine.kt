@@ -191,7 +191,6 @@ class CustomMenuTimeLine : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         pref_setting = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
         parent_linearlayout = view.findViewById(R.id.custom_menu_parent_linearlayout)
         linearLayout = view.findViewById(R.id.custom_menu_fragment_linearlayout)
@@ -222,6 +221,9 @@ class CustomMenuTimeLine : Fragment() {
         one_hand = arguments!!.getString("one_hand")
         no_fav_icon = arguments!!.getString("no_fav_icon")
         yes_fav_icon = arguments!!.getString("yes_fav_icon")
+
+        // onOptionsItemSelectedが呼ばれない対策
+        setHasOptionsMenu(true)
 
         //Navication Drawer
         if (activity != null) {
@@ -320,7 +322,6 @@ class CustomMenuTimeLine : Fragment() {
             } catch (e: ClassCastException) {
                 e.printStackTrace()
             }
-
         }
 
         //TLQuickSettings
@@ -533,10 +534,17 @@ class CustomMenuTimeLine : Fragment() {
             //フォロー推奨ユーザーを読み込む
             loadFollowSuggestions(view)
         }
-
         //ネットワーク変更を検知する
         setNetworkChangeCallback()
 
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item?.itemId == R.id.bottom_app_bar_menu_scroll) {
+            // BottomAppBarのときはTextView無いので指定のボタンを押したときに動くようにしてます
+            recyclerView!!.smoothScrollToPosition(0)
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 
@@ -1202,7 +1210,7 @@ class CustomMenuTimeLine : Fragment() {
                     } else {
                         tts!!.setSpeechRate(java.lang.Float.valueOf(pref_setting!!.getString("pref_speech_rate", "1.0f")!!))
                         val setting = CustomMenuJSONParse(json_data!!)
-                        val api = MastodonTLAPIJSONParse(context!!, toot_jsonObject.toString(), setting,0)
+                        val api = MastodonTLAPIJSONParse(context!!, toot_jsonObject.toString(), setting, 0)
                         //正規表現でURL消す
                         var text = Html.fromHtml(api.toot_text, Html.FROM_HTML_MODE_COMPACT).toString()
                         if (pref_setting!!.getBoolean("pref_speech_url", true)) {
@@ -2364,5 +2372,4 @@ class CustomMenuTimeLine : Fragment() {
                 return mode
             }
     }
-
 }

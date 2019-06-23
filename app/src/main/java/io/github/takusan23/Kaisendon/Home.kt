@@ -209,7 +209,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         super.onCreate(savedInstanceState)
 
         //設定のプリファレンス
-        pref_setting = PreferenceManager.getDefaultSharedPreferences(this@Home)
+        pref_setting = getDefaultSharedPreferences(this@Home)
 
         //Wi-Fi接続状況確認
         val connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -944,6 +944,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 */
+/*
         //スリープ無効？
         val setting_sleep = pref_setting.getBoolean("pref_no_sleep", false)
         if (setting_sleep) {
@@ -953,6 +954,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             //常時点灯しない
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
+*/
 
     }
 
@@ -1121,9 +1123,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater = menuInflater
-        inflater.inflate(R.menu.home, menu)
-        return true
+        if (pref_setting.getBoolean("pref_bottom_navigation", false)) {
+            getMenuInflater().inflate(R.menu.bottom_app_bar_menu, menu);
+        }
+        return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -2977,6 +2980,11 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             //追加されてなければ追加
             bottomAppBar.addView(setTimelinQuickSettings())
             tlQuickSettingSnackber = TLQuickSettingSnackber(this@Home, navigationView)
+            // ダークモード対応
+            val darkModeSupport = DarkModeSupport(this@Home)
+            if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
+                bottomAppBar.backgroundTintList = resources.getColorStateList(android.R.color.black, theme)
+            }
         } else {
             setSupportActionBar(toolBer)
             val toggle = ActionBarDrawerToggle(
@@ -2993,5 +3001,6 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     fun isSnackbarShow(): Boolean {
         return toot_snackbar.isShown
     }
+
 
 }

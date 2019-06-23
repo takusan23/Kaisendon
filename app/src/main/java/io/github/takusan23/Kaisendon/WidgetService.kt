@@ -187,13 +187,13 @@ class WidgetService : RemoteViewsService() {
 
             //pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.context)
 
-            val accessToken_boomelan = pref_setting!!.getBoolean("pref_advanced_setting_instance_change", false)
-            if (accessToken_boomelan) {
-                AccessToken = pref_setting!!.getString("pref_mastodon_accesstoken", "")
-                Instance = pref_setting!!.getString("pref_mastodon_instance", "")
+            val accessToken_boomelan = pref_setting?.getBoolean("pref_advanced_setting_instance_change", false)
+            if (accessToken_boomelan ?: false) {
+                AccessToken = pref_setting?.getString("pref_mastodon_accesstoken", "")
+                Instance = pref_setting?.getString("pref_mastodon_instance", "")
             } else {
-                AccessToken = pref_setting!!.getString("main_token", "")
-                Instance = pref_setting!!.getString("main_instance", "")
+                AccessToken = pref_setting?.getString("main_token", "")
+                Instance = pref_setting?.getString("main_instance", "")
             }
 
             //URL設定

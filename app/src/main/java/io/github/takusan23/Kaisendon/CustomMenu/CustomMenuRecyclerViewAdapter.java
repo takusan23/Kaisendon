@@ -991,6 +991,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
+                                    System.out.println(response_string);
+
                                     //Fav/BT Countを表示できるようにする
                                     MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string, setting, 66);
                                     if (setting.getYes_fav_icon() != null && setting.getNo_fav_icon() != null) {

@@ -740,9 +740,9 @@ class LoginActivity : AppCompatActivity() {
         val db = customMenuSQLiteHelper.writableDatabase
         db.disableWriteAheadLogging()
         val values = ContentValues()
-        val content = arrayListOf("${getString(R.string.home)} : ","${getString(R.string.notifications)} : ","${getString(R.string.public_time_line)} : ")
-        val url = arrayListOf("/api/v1/timelines/home","/api/v1/notifications","/api/v1/timelines/public?local=true")
-        for(i in content){
+        val content = arrayListOf("${getString(R.string.home)} : ", "${getString(R.string.notifications)} : ", "${getString(R.string.public_time_line)} : ")
+        val url = arrayListOf("/api/v1/timelines/home", "/api/v1/notifications", "/api/v1/timelines/public?local=true")
+        for (i in content) {
             //JSON化
             val jsonObject = JSONObject()
             try {
@@ -756,7 +756,7 @@ class LoginActivity : AppCompatActivity() {
                 jsonObject.put("dialog", "false")
                 jsonObject.put("dark_mode", "false")
                 jsonObject.put("position", "")
-                jsonObject.put("streaming", "false") //反転させてONのときStereaming有効に
+                jsonObject.put("streaming", "true") //反転させてONのときStereaming有効に
                 jsonObject.put("subtitle", "")
                 jsonObject.put("image_url", "")
                 jsonObject.put("background_transparency", "")
@@ -768,13 +768,13 @@ class LoginActivity : AppCompatActivity() {
                 jsonObject.put("font", "")
                 jsonObject.put("one_hand", "false")
                 jsonObject.put("misskey_username", "")
-                jsonObject.put("no_fav_icon", "")
-                jsonObject.put("yes_fav_icon", "")
+                jsonObject.put("no_fav_icon", null)
+                jsonObject.put("yes_fav_icon", null)
                 jsonObject.put("setting", "")
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
-            values.put("name", "Home : $instance_custom_menu")
+            values.put("name", "${i}$instance_custom_menu")
             values.put("setting", jsonObject.toString())
             db.insert("custom_menudb", null, values)
         }

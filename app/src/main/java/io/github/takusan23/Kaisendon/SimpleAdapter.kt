@@ -215,6 +215,7 @@ class SimpleAdapter
 
         val toot_media = pref_setting.getBoolean("pref_toot_media", false)
 
+/*
         media_url_1 = listItem[8]
         media_url_2 = listItem[9]
         media_url_3 = listItem[10]
@@ -306,6 +307,7 @@ class SimpleAdapter
             }
         }
 
+*/
 
         //      サムネイル画像を設定
         val thumbnail = holder.avater_imageview

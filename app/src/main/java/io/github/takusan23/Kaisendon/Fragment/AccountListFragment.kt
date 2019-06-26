@@ -121,9 +121,9 @@ class AccountListFragment : Fragment() {
                             //ユーザー名
                             Item.add("$display_name @$acct")
                             //時間、クライアント名等
-                            Item.add(null!!)
+                            Item.add("")
                             //Toot ID 文字列版
-                            Item.add(null!!)
+                            Item.add("")
                             //アバターURL
                             Item.add(avatar)
                             //アカウントID
@@ -131,17 +131,17 @@ class AccountListFragment : Fragment() {
                             //ユーザーネーム
                             Item.add(display_name)
                             //メディア
-                            Item.add(null!!)
-                            Item.add(null!!)
-                            Item.add(null!!)
-                            Item.add(null!!)
+                            Item.add("")
+                            Item.add("")
+                            Item.add("")
+                            Item.add("")
                             //カード
-                            Item.add(null!!)
-                            Item.add(null!!)
-                            Item.add(null!!)
-                            Item.add(null!!)
+                            Item.add("")
+                            Item.add("")
+                            Item.add("")
+                            Item.add("")
                             val listItem = ListItem(Item)
-                            activity!!.runOnUiThread {
+                            activity!!.runOnUiThread{
                                 mastodon_adapter!!.add(listItem)
                                 mastodon_adapter!!.notifyDataSetChanged()
                                 mastodon_listView!!.adapter = mastodon_adapter

@@ -2,6 +2,7 @@ package io.github.takusan23.Kaisendon.Activity
 
 import android.app.Activity
 import android.app.ProgressDialog
+import android.content.ContentValues
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
@@ -12,11 +13,13 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import com.google.android.material.textfield.TextInputLayout
+import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
 import io.github.takusan23.Kaisendon.SnackberProgress
 import okhttp3.*
+import okhttp3.internal.Internal.instance
 import org.chromium.customtabsclient.shared.CustomTabsHelper
 import org.json.JSONArray
 import org.json.JSONException
@@ -58,6 +61,9 @@ class LoginActivity : AppCompatActivity() {
     private var editor: SharedPreferences.Editor? = null
     //強制保存モード
     private val error_mode = false
+
+    var access_token_custom_menu = ""
+    var instance_custom_menu = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -319,7 +325,7 @@ class LoginActivity : AppCompatActivity() {
         val multi_account_instance = ArrayList<String>()
         val multi_account_access_token = ArrayList<String>()
         //とりあえずPreferenceに書き込まれた値を
-        val instance_instance_string = pref_setting!!.getString("instance_list", "")
+        var instance_instance_string = pref_setting!!.getString("instance_list", "")
         val account_instance_string = pref_setting!!.getString("access_list", "")
         if (instance_instance_string != "") {
             try {
@@ -362,6 +368,13 @@ class LoginActivity : AppCompatActivity() {
         editor.putBoolean("pref_dark_theme", false)
         editor.putBoolean("pref_oled_mode", false)
         editor.commit()
+
+        //Homeなカスタムメニューを作成
+        access_token_custom_menu = access_token
+        instance_custom_menu = instance
+        createCustomMenu()
+
+
         val homecard = Intent(this@LoginActivity, Home::class.java)
         startActivity(homecard)
     }
@@ -721,37 +734,51 @@ class LoginActivity : AppCompatActivity() {
         })
     }
 
-    /**
-     * ためしにAPI叩いた
-     */
-    private fun testMisskey() {
-        val url = "https://misskey.m544.net/api/notes/timeline"
-        val jsonObject = JSONObject()
-        try {
-            jsonObject.put("i", "26e301f8dbc6ca77bc2029e7296ddad806e3f695b5a5f0da84a90f9dc24a3ed6")
-            jsonObject.put("limit", 100)
-        } catch (e: JSONException) {
-            e.printStackTrace()
+    //ログイン時にHome,Notification,Localを作成する
+    fun createCustomMenu() {
+        val customMenuSQLiteHelper = CustomMenuSQLiteHelper(this@LoginActivity)
+        val db = customMenuSQLiteHelper.writableDatabase
+        db.disableWriteAheadLogging()
+        val values = ContentValues()
+        val content = arrayListOf("${getString(R.string.home)} : ","${getString(R.string.notifications)} : ","${getString(R.string.public_time_line)} : ")
+        val url = arrayListOf("/api/v1/timelines/home","/api/v1/notifications","/api/v1/timelines/public?local=true")
+        for(i in content){
+            //JSON化
+            val jsonObject = JSONObject()
+            try {
+                jsonObject.put("misskey", "false")
+                jsonObject.put("name", "${i}$instance_custom_menu")
+                jsonObject.put("memo", "")
+                jsonObject.put("content", url[content.indexOf(i)])
+                jsonObject.put("instance", instance_custom_menu)
+                jsonObject.put("access_token", access_token_custom_menu)
+                jsonObject.put("image_load", "false")
+                jsonObject.put("dialog", "false")
+                jsonObject.put("dark_mode", "false")
+                jsonObject.put("position", "")
+                jsonObject.put("streaming", "false") //反転させてONのときStereaming有効に
+                jsonObject.put("subtitle", "")
+                jsonObject.put("image_url", "")
+                jsonObject.put("background_transparency", "")
+                jsonObject.put("background_screen_fit", "false")
+                jsonObject.put("quick_profile", "true")
+                jsonObject.put("toot_counter", "false")
+                jsonObject.put("custom_emoji", "true")
+                jsonObject.put("gif", "false")
+                jsonObject.put("font", "")
+                jsonObject.put("one_hand", "false")
+                jsonObject.put("misskey_username", "")
+                jsonObject.put("no_fav_icon", "")
+                jsonObject.put("yes_fav_icon", "")
+                jsonObject.put("setting", "")
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+            values.put("name", "Home : $instance_custom_menu")
+            values.put("setting", jsonObject.toString())
+            db.insert("custom_menudb", null, values)
         }
-
-        val requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString())
-        //作成
-        val request = Request.Builder()
-                .url(url)
-                .post(requestBody)
-                .build()
-        //GETリクエスト
-        val client = OkHttpClient()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-
-            }
-
-            @Throws(IOException::class)
-            override fun onResponse(call: Call, response: Response) {
-                //System.out.println(response.body().string());
-            }
-        })
     }
+
 
 }

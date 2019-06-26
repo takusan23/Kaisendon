@@ -813,7 +813,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
                             val jsonObject = JSONObject(response_string)
                             val display_name = jsonObject.getString("display_name")
                             val user_id = jsonObject.getString("acct")
-                            account_menuBuilder!!.add(0, finalCount, 0, display_name + "(" + user_id + " / " + multi_instance + ")")
+                            account_menuBuilder?.add(0, finalCount, 0, display_name + "(" + user_id + " / " + multi_instance + ")")
                         } catch (e: JSONException) {
                             e.printStackTrace()
                         }

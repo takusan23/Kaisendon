@@ -991,54 +991,48 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    System.out.println(response_string);
-
                                     //Fav/BT Countを表示できるようにする
                                     MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string, setting, 66);
-                                    if (setting.getYes_fav_icon() != null && setting.getNo_fav_icon() != null) {
-                                        //setCustomizeFavIcon();
-                                    } else {
-                                        Chip chip = (Chip) view;
-                                        if (endPoint.contains("reblog")) {
-                                            Toast.makeText(view.getContext(), view.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
-                                            Drawable boostIcon = ResourcesCompat.getDrawable(view.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
-                                            boostIcon.setTint(Color.parseColor("#008000"));
-                                            chip.setText(api.getBtCount());
-                                            chip.setChipIcon(boostIcon);
-                                            chip.setChecked(true);
-                                            //BTしたぜ！
-                                            item.set(4, "true");
-                                        }
-                                        if (endPoint.contains("favourite")) {
-                                            Toast.makeText(view.getContext(), view.getContext().getString(R.string.favourite_add) + " : " + id, Toast.LENGTH_SHORT).show();
-                                            Drawable favIcon = ResourcesCompat.getDrawable(view.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
-                                            favIcon.setTint(Color.parseColor("#ffd700"));
-                                            chip.setChipIcon(favIcon);
-                                            chip.setText(api.getFavCount());
-                                            chip.setChecked(true);
-                                            //Favしたぜ！
-                                            item.set(5, "true");
-                                        }
-                                        if (endPoint.contains("unfavourite")) {
-                                            Toast.makeText(view.getContext(), view.getContext().getString(R.string.delete_fav_toast) + " : " + id, Toast.LENGTH_SHORT).show();
-                                            Drawable favIcon = ResourcesCompat.getDrawable(view.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
-                                            favIcon.setTint(Color.parseColor("#000000"));
-                                            chip.setChipIcon(favIcon);
-                                            chip.setText(api.getFavCount());
-                                            chip.setChecked(false);
-                                            //Favしたぜ！
-                                            item.set(5, "false");
-                                        }
-                                        if (endPoint.contains("unreblog")) {
-                                            Toast.makeText(view.getContext(), view.getContext().getString(R.string.delete_bt_toast) + " : " + id, Toast.LENGTH_SHORT).show();
-                                            Drawable favIcon = ResourcesCompat.getDrawable(view.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
-                                            favIcon.setTint(Color.parseColor("#000000"));
-                                            chip.setChipIcon(favIcon);
-                                            chip.setText(api.getBtCount());
-                                            chip.setChecked(false);
-                                            //BTしたぜ！
-                                            item.set(4, "false");
-                                        }
+                                    Chip chip = (Chip) view;
+                                    if (endPoint.contains("reblog")) {
+                                        Toast.makeText(view.getContext(), view.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
+                                        Drawable boostIcon = ResourcesCompat.getDrawable(view.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                                        boostIcon.setTint(Color.parseColor("#008000"));
+                                        chip.setText(api.getBtCount());
+                                        chip.setChipIcon(boostIcon);
+                                        chip.setChecked(true);
+                                        //BTしたぜ！
+                                        item.set(4, "true");
+                                    }
+                                    if (endPoint.contains("favourite")) {
+                                        Toast.makeText(view.getContext(), view.getContext().getString(R.string.favourite_add) + " : " + id, Toast.LENGTH_SHORT).show();
+                                        Drawable favIcon = ResourcesCompat.getDrawable(view.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                                        favIcon.setTint(Color.parseColor("#ffd700"));
+                                        chip.setChipIcon(favIcon);
+                                        chip.setText(api.getFavCount());
+                                        chip.setChecked(true);
+                                        //Favしたぜ！
+                                        item.set(5, "true");
+                                    }
+                                    if (endPoint.contains("unfavourite")) {
+                                        Toast.makeText(view.getContext(), view.getContext().getString(R.string.delete_fav_toast) + " : " + id, Toast.LENGTH_SHORT).show();
+                                        Drawable favIcon = ResourcesCompat.getDrawable(view.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                                        favIcon.setTint(Color.parseColor("#000000"));
+                                        chip.setChipIcon(favIcon);
+                                        chip.setText(api.getFavCount());
+                                        chip.setChecked(false);
+                                        //Favしたぜ！
+                                        item.set(5, "false");
+                                    }
+                                    if (endPoint.contains("unreblog")) {
+                                        Toast.makeText(view.getContext(), view.getContext().getString(R.string.delete_bt_toast) + " : " + id, Toast.LENGTH_SHORT).show();
+                                        Drawable favIcon = ResourcesCompat.getDrawable(view.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                                        favIcon.setTint(Color.parseColor("#000000"));
+                                        chip.setChipIcon(favIcon);
+                                        chip.setText(api.getBtCount());
+                                        chip.setChecked(false);
+                                        //BTしたぜ！
+                                        item.set(4, "false");
                                     }
                                 }
                             });

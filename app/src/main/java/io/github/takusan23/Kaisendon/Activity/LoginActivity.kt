@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import com.google.android.material.textfield.TextInputLayout
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper
+import io.github.takusan23.Kaisendon.CustomMenu.Dialog.CreateDefaultCustomMenuBottomFragment
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
@@ -369,14 +370,21 @@ class LoginActivity : AppCompatActivity() {
         editor.putBoolean("pref_oled_mode", false)
         editor.commit()
 
-        //Homeなカスタムメニューを作成
+/*
         access_token_custom_menu = access_token
         instance_custom_menu = instance
         createCustomMenu()
+*/
 
 
-        val homecard = Intent(this@LoginActivity, Home::class.java)
-        startActivity(homecard)
+        //カスタムメニューを作成するBottomFragment表示
+        val createDefaultCustomMenuBottomFragment = CreateDefaultCustomMenuBottomFragment()
+        //データ渡す
+        val bundle = Bundle()
+        bundle.putString("name",instance_custom_menu)
+        bundle.putString("token",access_token_custom_menu)
+        createDefaultCustomMenuBottomFragment.show(supportFragmentManager,"create_custommenu")
+
     }
 
     /**

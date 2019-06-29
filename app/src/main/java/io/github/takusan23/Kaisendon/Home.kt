@@ -241,6 +241,9 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         //進捗
         shinchokuLayout = ShinchokuLayout(this)
+        //アプリ起動カウント
+        val lunchBonus = LunchBonus(this)
+
 
         //ログイン情報があるか
         //アクセストークンがない場合はログイン画面へ飛ばす

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="カスタムメニューを作成"
+        android:textSize="16dp" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="カスタムメニューは右上のハンバーガーメニューからも作成できます。" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="10dp">
+
+        <Switch
+            android:id="@+id/create_dafault_custom_menu_home_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_home_black_24dp"
+            android:padding="10dp"
+            android:text="@string/home" />
+
+        <Switch
+            android:id="@+id/create_dafault_custom_menu_notifications_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_notifications_black_24dp"
+            android:padding="10dp"
+            android:text="notifications" />
+
+        <Switch
+            android:id="@+id/create_dafault_custom_menu_local_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_train_black_24dp"
+            android:padding="10dp"
+            android:text="@string/public_time_line" />
+
+        <Switch
+            android:id="@+id/create_dafault_custom_menu_federated_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_flight_black_24dp"
+            android:padding="10dp"
+            android:text="@string/federated_timeline" />
+
+        <Button
+            android:id="@+id/create_custommenu_create_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="作成" />
+    </LinearLayout>
+</LinearLayout>

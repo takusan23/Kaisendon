@@ -57,7 +57,6 @@ class NewAppWidget : AppWidgetProvider() {
         val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
         if (appWidgetId != 0) {
             AppWidgetManager.getInstance(ctx).notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_listview)
-
         }
 
         if (intent.getBooleanExtra("TootMode", false)) {

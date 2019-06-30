@@ -381,8 +381,9 @@ class LoginActivity : AppCompatActivity() {
         val createDefaultCustomMenuBottomFragment = CreateDefaultCustomMenuBottomFragment()
         //データ渡す
         val bundle = Bundle()
-        bundle.putString("name",instance_custom_menu)
-        bundle.putString("token",access_token_custom_menu)
+        bundle.putString("name", instance)
+        bundle.putString("token",access_token)
+        createDefaultCustomMenuBottomFragment.setArguments(bundle)
         createDefaultCustomMenuBottomFragment.show(supportFragmentManager,"create_custommenu")
 
     }
@@ -740,52 +741,6 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         })
-    }
-
-    //ログイン時にHome,Notification,Localを作成する
-    fun createCustomMenu() {
-        val customMenuSQLiteHelper = CustomMenuSQLiteHelper(this@LoginActivity)
-        val db = customMenuSQLiteHelper.writableDatabase
-        db.disableWriteAheadLogging()
-        val values = ContentValues()
-        val content = arrayListOf("${getString(R.string.home)} : ", "${getString(R.string.notifications)} : ", "${getString(R.string.public_time_line)} : ")
-        val url = arrayListOf("/api/v1/timelines/home", "/api/v1/notifications", "/api/v1/timelines/public?local=true")
-        for (i in content) {
-            //JSON化
-            val jsonObject = JSONObject()
-            try {
-                jsonObject.put("misskey", "false")
-                jsonObject.put("name", "${i}$instance_custom_menu")
-                jsonObject.put("memo", "")
-                jsonObject.put("content", url[content.indexOf(i)])
-                jsonObject.put("instance", instance_custom_menu)
-                jsonObject.put("access_token", access_token_custom_menu)
-                jsonObject.put("image_load", "false")
-                jsonObject.put("dialog", "false")
-                jsonObject.put("dark_mode", "false")
-                jsonObject.put("position", "")
-                jsonObject.put("streaming", "true") //反転させてONのときStereaming有効に
-                jsonObject.put("subtitle", "")
-                jsonObject.put("image_url", "")
-                jsonObject.put("background_transparency", "")
-                jsonObject.put("background_screen_fit", "false")
-                jsonObject.put("quick_profile", "true")
-                jsonObject.put("toot_counter", "false")
-                jsonObject.put("custom_emoji", "true")
-                jsonObject.put("gif", "false")
-                jsonObject.put("font", "")
-                jsonObject.put("one_hand", "false")
-                jsonObject.put("misskey_username", "")
-                jsonObject.put("no_fav_icon", null)
-                jsonObject.put("yes_fav_icon", null)
-                jsonObject.put("setting", "")
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
-            values.put("name", "${i}$instance_custom_menu")
-            values.put("setting", jsonObject.toString())
-            db.insert("custom_menudb", null, values)
-        }
     }
 
 

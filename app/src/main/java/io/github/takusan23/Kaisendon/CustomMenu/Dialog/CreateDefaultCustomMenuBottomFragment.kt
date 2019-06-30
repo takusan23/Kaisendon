@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.preference.PreferenceManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper
 import io.github.takusan23.Kaisendon.Home
@@ -15,37 +16,67 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class CreateDefaultCustomMenuBottomFragment : BottomSheetDialogFragment() {
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.create_dafault_custommenu_bottom_fragment_layout, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        //Activity切り替え
         create_custommenu_create_button.setOnClickListener {
+            //カスタムメニュー作成
+            setCreateCustomMenu()
             val homecard = Intent(context, Home::class.java)
             startActivity(homecard)
         }
     }
 
-    fun setCreateCustomMenu(){
+    fun setCreateCustomMenu() {
         val instance = arguments?.getString("name")
         val token = arguments?.getString("token")
-        if(context!=null){
+
+        val custom_menu_name = arrayListOf<String>()
+        val custom_menu_url = arrayListOf<String>()
+
+        if (create_default_custom_menu_home_switch.isChecked) {
+            custom_menu_name.add("${getString(R.string.home)} : ")
+            custom_menu_url.add("/api/v1/timelines/home")
+        }
+        if (create_default_custom_menu_notifications_switch.isChecked) {
+            custom_menu_name.add("${getString(R.string.notifications)} : ")
+            custom_menu_url.add("/api/v1/notifications")
+        }
+        if (create_default_custom_menu_local_switch.isChecked) {
+            custom_menu_name.add("${getString(R.string.public_time_line)} : ")
+            custom_menu_url.add("/api/v1/timelines/public?local=true")
+        }
+        if (create_default_custom_menu_federated_switch.isChecked) {
+            custom_menu_name.add("${getString(R.string.federated_timeline)} : ")
+            custom_menu_url.add("/api/v1/timelines/public")
+        }
+
+
+        if (context != null) {
             val customMenuSQLiteHelper = CustomMenuSQLiteHelper(context!!)
             val db = customMenuSQLiteHelper.writableDatabase
             db.disableWriteAheadLogging()
             val values = ContentValues()
-
-            val content = arrayListOf("${getString(R.string.home)} : ", "${getString(R.string.notifications)} : ", "${getString(R.string.public_time_line)} : ")
-            val url = arrayListOf("/api/v1/timelines/home", "/api/v1/notifications", "/api/v1/timelines/public?local=true")
-            for (i in content) {
+            for (i in custom_menu_name) {
+                //起動するFragment指定
+                if (custom_menu_name.indexOf(i) == 0){
+                    val pref_setting = PreferenceManager.getDefaultSharedPreferences(context)
+                    val editor = pref_setting.edit()
+                    editor.putString("custom_menu_last", "${i}${instance}")
+                    editor.apply()
+                }
                 //JSON化
                 val jsonObject = JSONObject()
                 try {
                     jsonObject.put("misskey", "false")
                     jsonObject.put("name", "${i}${instance}")
                     jsonObject.put("memo", "")
-                    jsonObject.put("content", url[content.indexOf(i)])
+                    jsonObject.put("content", custom_menu_url[custom_menu_name.indexOf(i)])
                     jsonObject.put("instance", instance)
                     jsonObject.put("access_token", token)
                     jsonObject.put("image_load", "false")
@@ -70,11 +101,16 @@ class CreateDefaultCustomMenuBottomFragment : BottomSheetDialogFragment() {
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }
-                values.put("name", "${i}")
+                values.put("name", "${i}${instance}")
                 values.put("setting", jsonObject.toString())
                 db.insert("custom_menudb", null, values)
             }
         }
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        val homecard = Intent(context, Home::class.java)
+        startActivity(homecard)
     }
 }

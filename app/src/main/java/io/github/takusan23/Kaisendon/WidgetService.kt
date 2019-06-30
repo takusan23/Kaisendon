@@ -8,6 +8,7 @@ import android.net.NetworkCapabilities
 import android.text.Html
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
+import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.bumptech.glide.Glide
 import okhttp3.*
 import org.json.JSONArray
@@ -51,7 +52,7 @@ class WidgetService : RemoteViewsService() {
             //ここでListViewに追加する
             var remoteViews: RemoteViews? = null
             remoteViews = RemoteViews(applicationContext.packageName, R.layout.widget_listview_layout)
-            //pref_setting = getDefaultSharedPreferences(Preference_ApplicationContext.context)
+            pref_setting = getDefaultSharedPreferences(Preference_ApplicationContext.context)
             //URL
             var toot_url: String? = null
             //画像を表示するかの判断]
@@ -187,6 +188,7 @@ class WidgetService : RemoteViewsService() {
 
             //pref_setting = PreferenceManager.getDefaultSharedPreferences(Preference_ApplicationContext.context)
 
+            pref_setting = getDefaultSharedPreferences(Preference_ApplicationContext.context)
             val accessToken_boomelan = pref_setting?.getBoolean("pref_advanced_setting_instance_change", false)
             if (accessToken_boomelan ?: false) {
                 AccessToken = pref_setting?.getString("pref_mastodon_accesstoken", "")

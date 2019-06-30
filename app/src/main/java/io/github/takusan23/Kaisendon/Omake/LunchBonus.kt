@@ -24,7 +24,7 @@ class LunchBonus(private val context: Context) {
             //前回の記録から一日経過したらカウント
             var count = Integer.valueOf(pref_setting.getString("lunch_count", "0")!!)
             val yesterday = Integer.valueOf(pref_setting.getString("lunch_day", "0")!!)
-            if (true) {
+            if (calendar.get(Calendar.DATE) > yesterday) {
                 //更新
                 count++
                 editor.putString("lunch_count", count.toString())

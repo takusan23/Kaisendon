@@ -239,10 +239,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         navigationView = findViewById(R.id.nav_view)
         customMenuLoadSupport = CustomMenuLoadSupport(this, navigationView)
 
+        //アプリ起動カウント
+        LunchBonus(this)
         //進捗
         shinchokuLayout = ShinchokuLayout(this)
-        //アプリ起動カウント
-        val lunchBonus = LunchBonus(this)
 
 
         //ログイン情報があるか

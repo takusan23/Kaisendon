@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.cardview.widget.CardView;
@@ -43,6 +44,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
@@ -459,17 +464,54 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //既定でGIFは再生しない方向で
             if (pref_setting.getBoolean("pref_avater_gif", true)) {
                 //GIFアニメ再生させない
-                Glide.with(viewHolder.toot_avatar_ImageView.getContext()).load(api.getAvatarUrlNotGIF()).into(viewHolder.toot_avatar_ImageView);
+                Glide.with(viewHolder.toot_avatar_ImageView.getContext())
+                        .load(api.getAvatarUrlNotGIF())
+                        .into(viewHolder.toot_avatar_ImageView);
             } else {
                 //GIFアニメを再生
-                Glide.with(viewHolder.toot_avatar_ImageView.getContext()).load(api.getAvatarUrl()).into(viewHolder.toot_avatar_ImageView);
+                Glide.with(viewHolder.toot_avatar_ImageView.getContext())
+                        .load(api.getAvatarUrl())
+                        .into(viewHolder.toot_avatar_ImageView);
             }
         } else {
+            //オフライン時でもキャッシュが存在すればキャッシュを読み込む
+            if (pref_setting.getBoolean("pref_offline_cache_load", false)) {
+                if (pref_setting.getBoolean("pref_avater_gif", true)) {
+                    //GIFアニメ再生させない
+                    loadOfflineGlide(api.getBtAvatarUrlNotGif(), viewHolder, api);
+                } else {
+                    //GIFアニメを再生
+                    loadOfflineGlide(api.getAvatarUrl(), viewHolder, api);
+                }
+            }
             //Layout Remove
             if (((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()) != null) {
                 ((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()).removeView(viewHolder.toot_avatar_ImageView);
             }
         }
+    }
+
+    //オフライン（キャッシュ）で読み込む？
+    private void loadOfflineGlide(String url, ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
+        Glide.with(viewHolder.toot_avatar_ImageView.getContext())
+                .load(url)
+                .onlyRetrieveFromCache(true)
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        //読み込めなかったらレイアウト消す
+                        if (((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()) != null) {
+                            ((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()).removeView(viewHolder.toot_avatar_ImageView);
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        return false;
+                    }
+                })
+                .into(viewHolder.toot_avatar_ImageView);
     }
 
     /**

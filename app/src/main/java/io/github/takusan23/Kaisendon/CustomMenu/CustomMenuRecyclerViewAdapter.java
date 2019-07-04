@@ -483,10 +483,11 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                     //GIFアニメを再生
                     loadOfflineGlide(api.getAvatarUrl(), viewHolder, api);
                 }
-            }
-            //Layout Remove
-            if (((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()) != null) {
-                ((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()).removeView(viewHolder.toot_avatar_ImageView);
+            } else {
+                //Layout Remove
+                if (((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()) != null) {
+                    ((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()).removeView(viewHolder.toot_avatar_ImageView);
+                }
             }
         }
     }

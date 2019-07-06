@@ -47,6 +47,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -459,7 +460,6 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      * 画像表示とか
      */
     private void loadAvatarImage(MastodonTLAPIJSONParse api, ViewHolder viewHolder, CustomMenuJSONParse setting) {
-        //画像
         if (getLoadImageConnection(viewHolder, setting)) {
             //既定でGIFは再生しない方向で
             if (pref_setting.getBoolean("pref_avater_gif", true)) {
@@ -478,7 +478,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             if (pref_setting.getBoolean("pref_offline_cache_load", false)) {
                 if (pref_setting.getBoolean("pref_avater_gif", true)) {
                     //GIFアニメ再生させない
-                    loadOfflineGlide(api.getBtAvatarUrlNotGif(), viewHolder, api);
+                    loadOfflineGlide(api.getAvatarUrlNotGIF(), viewHolder, api);
                 } else {
                     //GIFアニメを再生
                     loadOfflineGlide(api.getAvatarUrl(), viewHolder, api);

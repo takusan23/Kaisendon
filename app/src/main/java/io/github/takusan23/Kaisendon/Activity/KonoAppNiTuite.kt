@@ -38,7 +38,7 @@ class KonoAppNiTuite : AppCompatActivity() {
     //private String release_ver_5 = "5.0";
     private val release_ver_5 = "5.1.4"
     private val release_name_6 = "たまごどん"
-    private val release_ver_6 = "6.0.0"
+    private val release_ver_6 = "6.0.1"
 
     private var version_TextView: TextView? = null
     private var pref_setting: SharedPreferences? = null

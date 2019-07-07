@@ -617,5 +617,6 @@
     <string name="bottom_titlebar_description">If enabled, titles and subtitles will not be displayed.</string>
     <string name="button_right">Move the button to the right</string>
     <string name="button_right_description">Favorite, put the boost button on the right</string>
+    <string name="how_to_use">How to use</string>
 
 </resources>

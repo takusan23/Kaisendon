@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
@@ -18,13 +17,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.text.Html;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -47,7 +44,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -310,6 +306,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             } else {
                 viewHolder.toot_text_TextView.setText(Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
                 viewHolder.toot_user_TextView.setText(Html.fromHtml(api.getDisplay_name(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
+                //setCustomEmojiFonts(viewHolder, Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
             }
             viewHolder.toot_user_TextView.append("@" + api.getAcct());
             viewHolder.toot_createAt_TextView.setText(getCreatedAtFormat(api.getCreatedAt()));
@@ -451,6 +448,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (Boolean.valueOf(setting.getImage_load())) {
             mode = true;
         }
+
 
         return mode;
     }
@@ -2343,6 +2341,36 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             }
         }
     }
+
+    /*
+     * こんなもの
+     * https://github.com/C1710/blobmoji
+     * */
+/*
+    private void setCustomEmojiFonts(ViewHolder viewHolder, Spanned status) {
+        if (pref_setting.getBoolean("pref_emoji_compat", false)) {
+            File fontFile = new File(context.getExternalFilesDir(null).getPath() + "/Kaisendon/kaisendon_fonts/emoji_compat.ttf");
+            //存在するか
+            EmojiCompat.Config config = new FileEmojiCompatConfig(context, fontFile);
+            ((FileEmojiCompatConfig) config).setReplaceAll(true, true);
+            EmojiCompat.init(config);
+            EmojiCompat emojiCompat = EmojiCompat.get();
+            emojiCompat.registerInitCallback(new EmojiCompat.InitCallback() {
+                @Override
+                public void onInitialized() {
+                    super.onInitialized();
+                    viewHolder.toot_text_TextView.setText(emojiCompat.process(status));
+                }
+
+                @Override
+                public void onFailed(@Nullable Throwable throwable) {
+                    super.onFailed(throwable);
+                }
+            });
+        }
+    }
+*/
+
 
     /*
      */

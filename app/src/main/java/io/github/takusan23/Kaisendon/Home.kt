@@ -205,6 +205,9 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     internal var media_list = ArrayList<String>()
     internal var media_uri_list: ArrayList<Uri>? = ArrayList()
 
+    //アカウント情報一回一回取ってくるの通信量的にどうなのってことで
+    var tootSnackbarCustomMenuName = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -2417,6 +2420,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                         media_LinearLayout.removeAllViews()
                         //目標更新
                         shinchokuLayout.setTootChallenge()
+                        //JSONParseしてトゥート数変更する
+                        val jsonObject = JSONObject(response_string)
+                        val toot_count = jsonObject.getJSONObject("account").getInt("statuses_count").toString()
+                        shinchokuLayout.setStatusProgress(toot_count)
                     }
                 }
             }
@@ -2890,8 +2897,22 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 toot_Button_LinearLayout.removeView(mastodon_vote_Button)
                 toot_Button_LinearLayout.addView(misskey_drive_Button)
             } else {
+                //FAB押すたびにAPI叩くの直す
+                //まずFragmentがCustomMenuTimeLineかどうか
+                if (fragment is CustomMenuTimeLine) {
+                    if (tootSnackbarCustomMenuName.isEmpty()) {
+                        //初回
+                        tootSnackbarCustomMenuName = (fragment as CustomMenuTimeLine).getCustomMenuName()
+                    } else if (!tootSnackbarCustomMenuName.contains((fragment as CustomMenuTimeLine).getCustomMenuName())) {
+                        //名前が同じじゃなかったらAPI叩く
+                        tootSnackbarCustomMenuName = (fragment as CustomMenuTimeLine).getCustomMenuName()
+                        getAccount()
+                    }
+                } else {
+                    //API叩く
+                    getAccount()
+                }
                 shinchokuLayout.setOnDayProgress()
-                getAccount()
                 setMastodonVisibilityMenu(toot_area_Button)
                 toot_Button_LinearLayout.removeView(misskey_drive_Button)
                 toot_Button_LinearLayout.removeView(mastodon_time_post_Button)

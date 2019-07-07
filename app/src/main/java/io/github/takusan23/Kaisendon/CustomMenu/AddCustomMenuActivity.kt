@@ -817,7 +817,6 @@ class AddCustomMenuActivity : AppCompatActivity() {
                         } catch (e: JSONException) {
                             e.printStackTrace()
                         }
-
                     }
                 })
             }
@@ -827,9 +826,10 @@ class AddCustomMenuActivity : AppCompatActivity() {
         account_Button!!.setOnClickListener(object : View.OnClickListener {
             public override fun onClick(v: View) {
                 //追加中に押したら落ちるから回避
-                if (account_menuBuilder!!.size() == multi_account_instance.size) {
-                    account_optionsMenu!!.show()
-                    account_menuBuilder!!.setCallback(object : MenuBuilder.Callback {
+                //Knzk.meなどの終了した鯖があると絶対動かないので一個以上あれば動くように修正
+                if (account_menuBuilder?.size() ?: 0 >= 1) {
+                    account_optionsMenu?.show()
+                    account_menuBuilder?.setCallback(object : MenuBuilder.Callback {
                         public override fun onMenuItemSelected(menuBuilder: MenuBuilder, menuItem: MenuItem): Boolean {
 
                             //ItemIdにマルチアカウントのカウントを入れている

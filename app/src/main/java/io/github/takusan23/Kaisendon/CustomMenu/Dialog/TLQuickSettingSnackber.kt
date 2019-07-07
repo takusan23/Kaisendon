@@ -262,6 +262,9 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
                         val intent = Intent(bottomNavigationView!!.context, KaisendonLife::class.java)
                         bottomNavigationView!!.context.startActivity(intent)
                     }
+                    R.id.home_menu_guide -> {
+                        showDocument()
+                    }
                 }
                 return false
             }
@@ -270,6 +273,26 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
 
             }
         })
+    }
+
+    /*
+    * 説明書だす
+    * */
+    fun showDocument() {
+        val documentUrl = "https://github.com/takusan23/Kaisendon/wiki"
+        val chrome_custom_tabs = pref_setting!!.getBoolean("pref_chrome_custom_tabs", true)
+        if (chrome_custom_tabs) {
+            val back_icon = BitmapFactory.decodeResource(context?.resources, R.drawable.ic_action_arrow_back)
+            val custom = CustomTabsHelper.getPackageNameToUse(context)
+            val builder = CustomTabsIntent.Builder().setCloseButtonIcon(back_icon).setShowTitle(true)
+            val customTabsIntent = builder.build()
+            customTabsIntent.intent.setPackage(custom)
+            customTabsIntent.launchUrl(context, Uri.parse(documentUrl))
+        } else {
+            val uri = Uri.parse(documentUrl)
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            context?.startActivity(intent)
+        }
     }
 
     /*フローティングメニュー*/

@@ -17,7 +17,6 @@ import android.net.NetworkRequest
 import android.os.Build
 import android.os.Bundle
 import android.os.Vibrator
-import android.preference.PreferenceManager
 import android.speech.tts.TextToSpeech
 import android.text.Html
 import android.view.*
@@ -45,7 +44,6 @@ import io.github.takusan23.Kaisendon.APIJSONParse.MastodonTLAPIJSONParse
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.TLQuickSettingSnackber
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment
-import io.github.takusan23.Kaisendon.HTMLMarkdown.GIFEmoji
 import okhttp3.*
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -79,6 +77,7 @@ class CustomMenuTimeLine : Fragment() {
     private val dark_mode: String? = null
     private val setting: String? = null
     private var streaming: String? = null
+    private var name: String? = null
     private var subtitle: String? = null
     private var image_url: String? = null
     private var background_transparency: String? = null
@@ -182,7 +181,7 @@ class CustomMenuTimeLine : Fragment() {
      */
     private//最終的なURL(static使いまくったらDesktopMode実装で困った（）
     val desktopModeURL: String
-        get() = "https://" + arguments!!.getString("instance") + arguments!!.getString("content")
+        get() = "https://" + arguments?.getString("instance") + arguments?.getString("content")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -219,6 +218,7 @@ class CustomMenuTimeLine : Fragment() {
         font = arguments!!.getString("font")
         misskey_username = arguments!!.getString("misskey_username")
         one_hand = arguments!!.getString("one_hand")
+        name = arguments!!.getString("name")
         no_fav_icon = arguments!!.getString("no_fav_icon")
         yes_fav_icon = arguments!!.getString("yes_fav_icon")
 
@@ -317,7 +317,7 @@ class CustomMenuTimeLine : Fragment() {
             try {
                 (activity as Home).toolBer.setOnClickListener {
                     //これ一番上に移動するやつ
-                    recyclerView!!.smoothScrollToPosition(0)
+                    recyclerView?.smoothScrollToPosition(0)
                 }
             } catch (e: ClassCastException) {
                 e.printStackTrace()
@@ -558,25 +558,25 @@ class CustomMenuTimeLine : Fragment() {
         //パラメータを設定
         //最終的なURL(static使いまくったらDesktopMode実装で困った（）
         //ハッシュタグはそのままURLが利用できないので修正
-        if (url!!.contains("/api/v1/timelines/tag/")) {
+        if (url?.contains("/api/v1/timelines/tag/") ?: false) {
             if (url == "?local=true") {
-                url = "https://" + instance + "/api/v1/timelines/tag/" + arguments!!.getString("name") + "?local=true"
+                url = "https://" + instance + "/api/v1/timelines/tag/" + arguments?.getString("name") + "?local=true"
             } else {
-                url = " https://" + instance + "/api/v1/timelines/tag/" + arguments!!.getString("name")
+                url = " https://" + instance + "/api/v1/timelines/tag/" + arguments?.getString("name")
             }
         } else {
             //ハッシュタグ以外はここから取れる
             url = desktopModeURL
         }
-        val builder = HttpUrl.parse(url!!)!!.newBuilder()
-        builder.addQueryParameter("limit", "40")
-        builder.addQueryParameter("access_token", arguments!!.getString("access_token"))
+        val builder = HttpUrl.parse(url)?.newBuilder()
+        builder?.addQueryParameter("limit", "40")
+        builder?.addQueryParameter("access_token", arguments?.getString("access_token"))
         if (max_id_id != null) {
             if (max_id_id.length != 0) {
-                builder.addQueryParameter("max_id", max_id_id)
+                builder?.addQueryParameter("max_id", max_id_id)
             }
         }
-        val max_id_final_url = builder.build().toString()
+        val max_id_final_url = builder?.build().toString()
         //作成
         val request = Request.Builder()
                 .url(max_id_final_url)
@@ -587,14 +587,14 @@ class CustomMenuTimeLine : Fragment() {
         val client = OkHttpClient()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
+                activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
             }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
                 //成功時
                 if (response.isSuccessful) {
-                    val response_string = response.body()!!.string()
+                    val response_string = response.body()?.string()
                     var jsonArray: JSONArray? = null
                     try {
                         jsonArray = JSONArray(response_string)
@@ -606,7 +606,7 @@ class CustomMenuTimeLine : Fragment() {
                                 //メモとか通知とかに
                                 Item.add("CustomMenu Local")
                                 //内容
-                                Item.add(url!!)
+                                Item.add(url ?: "")
                                 //ユーザー名
                                 Item.add("")
                                 //JSONObject
@@ -618,40 +618,33 @@ class CustomMenuTimeLine : Fragment() {
                                 //Mastodon / Misskey
                                 Item.add("Mastodon")
                                 //Insatnce/AccessToken
-                                Item.add(instance!!)
-                                Item.add(access_token!!)
+                                Item.add(instance ?: "")
+                                Item.add(access_token ?: "")
                                 //設定ファイルJSON
-                                Item.add(json_data!!)
+                                Item.add(json_data ?: "")
                                 //画像表示、こんてんとわーにんぐ
                                 Item.add("false")
                                 Item.add("false")
 
                                 //ListItem listItem = new ListItem(Item);
-                                recyclerViewList!!.add(Item)
+                                recyclerViewList?.add(Item)
 
-                                activity!!.runOnUiThread {
+                                activity?.runOnUiThread {
                                     if (recyclerViewLayoutManager != null) {
                                         (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
                                     }
                                     //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                                    recyclerView!!.adapter = customMenuRecyclerViewAdapter
+                                    recyclerView?.adapter = customMenuRecyclerViewAdapter
                                     SnackberProgress.closeProgressSnackber()
                                     scroll = false
-
-                                    /*
-                                        adapter.add(listItem);
-                                        adapter.notifyDataSetChanged();
-                                        listView.setAdapter(adapter);
-                                        //くるくる終了
-*/
                                 }
                             }
                         }
                         //最後のIDを更新する
                         val last_toot = jsonArray.getJSONObject(39)
                         max_id = last_toot.getString("id")
-                        if (swipeRefreshLayout!!.isRefreshing) {
-                            activity!!.runOnUiThread { swipeRefreshLayout!!.isRefreshing = false }
+                        if (swipeRefreshLayout?.isRefreshing ?: false) {
+                            activity?.runOnUiThread { swipeRefreshLayout?.isRefreshing = false }
                         }
                     } catch (e: JSONException) {
                         e.printStackTrace()
@@ -659,7 +652,7 @@ class CustomMenuTimeLine : Fragment() {
 
                 } else {
                     //失敗時
-                    activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                    activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
                 }
             }
         })
@@ -687,15 +680,15 @@ class CustomMenuTimeLine : Fragment() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 //失敗時
-                activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
+                activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
             }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
-                val response_string = response.body()!!.string()
+                val response_string = response.body()?.string()
                 if (!response.isSuccessful) {
                     //失敗時
-                    activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                    activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
                 } else {
                     try {
                         val jsonObject = JSONObject(response_string)
@@ -705,7 +698,7 @@ class CustomMenuTimeLine : Fragment() {
                         account_id = jsonObject.getString("id")
                         val avatarUrl = jsonObject.getString("avatarUrl")
                         val bannerUrl = jsonObject.getString("bannerUrl")
-                        if (pref_setting!!.getBoolean("pref_custom_emoji", true) || java.lang.Boolean.valueOf(custom_emoji)) {
+                        if (pref_setting?.getBoolean("pref_custom_emoji", true) ?: true || java.lang.Boolean.valueOf(custom_emoji)) {
                             val emoji = jsonObject.getJSONArray("emojis")
                             for (e in 0 until emoji.length()) {
                                 val emoji_jsonObject = emoji.getJSONObject(e)
@@ -718,15 +711,15 @@ class CustomMenuTimeLine : Fragment() {
                         val finalName = name
 
                         if (activity != null) {
-                            activity!!.runOnUiThread {
+                            activity?.runOnUiThread {
                                 //ドロワーに反映
                                 setDrawerImageText(avatarUrl, bannerUrl, finalName, "@$username@$instance")
                                 if (context != null && (context as AppCompatActivity).supportActionBar != null) {
                                     //サブタイトル更新
-                                    if (subtitle!!.length >= 1) {
-                                        (context as AppCompatActivity).supportActionBar!!.subtitle = subtitle
+                                    if (subtitle?.length ?: 0 >= 1) {
+                                        (context as AppCompatActivity).supportActionBar?.subtitle = subtitle
                                     } else {
-                                        (context as AppCompatActivity).supportActionBar!!.subtitle = "$title_name( @$username / $instance )"
+                                        (context as AppCompatActivity).supportActionBar?.subtitle = "$title_name( @$username / $instance )"
                                     }
                                 }
                             }
@@ -745,9 +738,9 @@ class CustomMenuTimeLine : Fragment() {
     //DisplayName + ID　が出るようにする
     private fun loadAccountName() {
         //パラメータを設定
-        val builder = HttpUrl.parse("https://$instance/api/v1/accounts/verify_credentials")!!.newBuilder()
-        builder.addQueryParameter("access_token", access_token)
-        val url = builder.build().toString()
+        val builder = HttpUrl.parse("https://$instance/api/v1/accounts/verify_credentials")?.newBuilder()
+        builder?.addQueryParameter("access_token", access_token)
+        val url = builder?.build().toString()
         //作成
         val request = Request.Builder()
                 .url(url)
@@ -759,14 +752,14 @@ class CustomMenuTimeLine : Fragment() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 //失敗時
-                activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
+                activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
             }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     try {
-                        val jsonObject = JSONObject(response.body()!!.string())
+                        val jsonObject = JSONObject(response.body()?.string())
 
                         val name = jsonObject.getString("display_name")
                         val id = jsonObject.getString("acct")
@@ -779,7 +772,7 @@ class CustomMenuTimeLine : Fragment() {
                         val header = jsonObject.getString("header")
                         account_JsonObject = jsonObject
                         //カスタム絵文字
-                        if (java.lang.Boolean.valueOf(custom_emoji) || pref_setting!!.getBoolean("pref_custom_emoji", true)) {
+                        if (java.lang.Boolean.valueOf(custom_emoji) || pref_setting?.getBoolean("pref_custom_emoji", true) ?: true) {
                             val emojis = jsonObject.getJSONArray("emojis")
                             for (i in 0 until emojis.length()) {
                                 val emojiObject = emojis.getJSONObject(i)
@@ -787,25 +780,25 @@ class CustomMenuTimeLine : Fragment() {
                                 val emoji_url = emojiObject.getString("url")
                                 val custom_emoji_src = "<img src=\'$emoji_url\'>"
                                 //display_name
-                                if (display_name!!.contains(emoji_name)) {
+                                if (display_name?.contains(emoji_name) ?: false) {
                                     //あったよ
-                                    display_name = display_name!!.replace(":$emoji_name:", custom_emoji_src)
+                                    display_name = display_name?.replace(":$emoji_name:", custom_emoji_src)
                                 }
                             }
                         }
                         if (activity != null) {
-                            activity!!.runOnUiThread {
+                            activity?.runOnUiThread {
                                 //ドロワー
                                 setDrawerImageText(avatar, header, display_name, "@$username@$instance")
                                 //サブタイトル更新
                                 if (isDesktopMode) {
-                                    (context as AppCompatActivity).supportActionBar!!.subtitle = ""
+                                    (context as AppCompatActivity).supportActionBar?.subtitle = ""
                                 } else {
                                     if (context != null && (context as AppCompatActivity).supportActionBar != null) {
-                                        if (subtitle!!.length >= 1) {
-                                            (context as AppCompatActivity).supportActionBar!!.subtitle = subtitle
+                                        if (subtitle?.length ?: 0 >= 1) {
+                                            (context as AppCompatActivity).supportActionBar?.subtitle = subtitle
                                         } else {
-                                            (context as AppCompatActivity).supportActionBar!!.subtitle = "$name( @$id / $instance )"
+                                            (context as AppCompatActivity).supportActionBar?.subtitle = "$name( @$id / $instance )"
                                         }
                                     }
                                 }
@@ -818,7 +811,7 @@ class CustomMenuTimeLine : Fragment() {
 
                 } else {
                     //失敗時
-                    activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                    activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
                 }
             }
         })
@@ -834,7 +827,7 @@ class CustomMenuTimeLine : Fragment() {
         var notification = false
         //DM
         var direct = false
-        when (arguments!!.getString("content")) {
+        when (arguments?.getString("content")) {
             "/api/v1/timelines/home" -> link = "wss://$instance/api/v1/streaming/?stream=user&access_token=$access_token"
             "/api/v1/notifications" -> {
                 notification = true
@@ -927,7 +920,7 @@ class CustomMenuTimeLine : Fragment() {
 
                 override fun onClose(code: Int, reason: String, remote: Boolean) {
                     //失敗時
-                    activity!!.runOnUiThread {
+                    activity?.runOnUiThread {
                         if (isAdded) {
                             Toast.makeText(context, getString(R.string.error) + "\n" + reason, Toast.LENGTH_SHORT).show()
                         }
@@ -940,7 +933,7 @@ class CustomMenuTimeLine : Fragment() {
                 }
             }
             //接続
-            webSocketClient!!.connect()
+            webSocketClient?.connect()
 
         } catch (e: URISyntaxException) {
             e.printStackTrace()
@@ -955,14 +948,14 @@ class CustomMenuTimeLine : Fragment() {
      */
     private fun loadNotification(max_id_id: String) {
         //パラメータを設定
-        val builder = HttpUrl.parse(desktopModeURL)!!.newBuilder()
-        builder.addQueryParameter("limit", "40")
-        builder.addQueryParameter("access_token", access_token)
+        val builder = HttpUrl.parse(desktopModeURL)?.newBuilder()
+        builder?.addQueryParameter("limit", "40")
+        builder?.addQueryParameter("access_token", access_token)
         if (max_id_id.length != 0) {
-            builder.addQueryParameter("max_id", max_id_id)
+            builder?.addQueryParameter("max_id", max_id_id)
         }
 
-        val max_id_final_url = builder.build().toString()
+        val max_id_final_url = builder?.build().toString()
 
         //作成
         val request = Request.Builder()
@@ -975,14 +968,14 @@ class CustomMenuTimeLine : Fragment() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 if (context != null) {
-                    activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
+                    activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
                 }
             }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
-                    val response_string = response.body()!!.string()
+                    val response_string = response.body()?.string()
                     var jsonArray: JSONArray? = null
                     try {
                         jsonArray = JSONArray(response_string)
@@ -1022,9 +1015,11 @@ class CustomMenuTimeLine : Fragment() {
                         val last_toot_text = jsonArray.getJSONObject(29)
                         max_id = last_toot_text.getString("id")
                         //わんちゃんJSONすべてがフィルターにかかって０件の場合があるのでそのときは２０個以上になるまで叩き続ける
-                        if (adapter!!.count < 20) {
+/*
+                        if (adapter?.count < 20) {
                             //loadNotification(max_id);
                         }
+*/
 
                     } catch (e: JSONException) {
                         e.printStackTrace()
@@ -1033,7 +1028,7 @@ class CustomMenuTimeLine : Fragment() {
                 } else {
                     //失敗時
                     if (context != null) {
-                        activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                        activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
                     }
                 }
             }
@@ -1061,7 +1056,7 @@ class CustomMenuTimeLine : Fragment() {
 
             for (i in 0..4) {
                 val sw = Switch(context)
-                darkModeSupport!!.setSwitchThemeColor(sw)
+                darkModeSupport?.setSwitchThemeColor(sw)
                 sw.setCompoundDrawablesWithIntrinsicBounds(icon[i], null, null, null)
                 sw.tag = tag[i]
                 sw.isChecked = true
@@ -1074,8 +1069,10 @@ class CustomMenuTimeLine : Fragment() {
                         notificationFilterBoolean(tag[i], false)
                     }
                     //通知更新
-                    recyclerViewList!!.clear()
-                    SnackberProgress.showProgressSnackber(sw, context!!, getString(R.string.loading) + "\n" + arguments!!.getString("content"))
+                    recyclerViewList?.clear()
+                    if (context != null) {
+                        SnackberProgress.showProgressSnackber(sw, context!!, getString(R.string.loading) + "\n" + arguments?.getString("content"))
+                    }
                     if (java.lang.Boolean.valueOf(misskey)) {
                         loadMisskeyTimeline(null, true)
                     } else {
@@ -1084,7 +1081,7 @@ class CustomMenuTimeLine : Fragment() {
                 }
             }
             //ついか
-            linearLayout!!.addView(notificationLinearLayout, 0)
+            linearLayout?.addView(notificationLinearLayout, 0)
         }
     }
 
@@ -1127,7 +1124,7 @@ class CustomMenuTimeLine : Fragment() {
             //メモとか通知とかに
             Item.add("CustomMenu")
             //内容
-            Item.add(url!!)
+            Item.add(url ?: "")
             //ユーザー名
             Item.add("")
             //時間、クライアント名等
@@ -1139,20 +1136,20 @@ class CustomMenuTimeLine : Fragment() {
             //Mastodon / Misskey
             Item.add("Mastodon")
             //Insatnce/AccessToken
-            Item.add(instance!!)
-            Item.add(access_token!!)
+            Item.add(instance ?: "")
+            Item.add(access_token ?: "")
             //設定ファイルJSON
-            Item.add(json_data!!)
+            Item.add(json_data ?: "")
             //画像表示、こんてんとわーにんぐ
             Item.add("false")
             Item.add("false")
 
             if (streaming) {
-                recyclerViewList!!.add(0, Item)
+                recyclerViewList?.add(0, Item)
             } else {
-                recyclerViewList!!.add(Item)
+                recyclerViewList?.add(Item)
             }
-            activity!!.runOnUiThread {
+            activity?.runOnUiThread {
                 //カウンター
                 if (java.lang.Boolean.valueOf(toot_counter)) {
                     if (count_text != null) {
@@ -1161,7 +1158,7 @@ class CustomMenuTimeLine : Fragment() {
                             if (toot_jsonObject.getString("content").contains(count_text!!)) {
                                 val count_template = " : "
                                 akeome_count++
-                                countTextView!!.text = count_text + count_template + akeome_count.toString()
+                                countTextView?.text = count_text + count_template + akeome_count.toString()
                             }
                         } catch (e: JSONException) {
                             e.printStackTrace()
@@ -1181,22 +1178,22 @@ class CustomMenuTimeLine : Fragment() {
                     if (streaming) {
                         //一番上にアイテムが追加されたことを通知する？
                         //notifyDataSetChanged()と違って追加時にアニメーションされる
-                        customMenuRecyclerViewAdapter!!.notifyItemInserted(0)
+                        customMenuRecyclerViewAdapter?.notifyItemInserted(0)
                     } else {
-                        customMenuRecyclerViewAdapter!!.notifyDataSetChanged()
+                        customMenuRecyclerViewAdapter?.notifyDataSetChanged()
                     }
                     //一番上なら追いかける
                     if (pos == 0) {
-                        recyclerView!!.post {
+                        recyclerView?.post {
                             //scrollToPosition()に置き換えた。アニメーションされるようになった
-                            recyclerView!!.scrollToPosition(0)
+                            recyclerView?.scrollToPosition(0)
                         }
                     } else {
                         (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(pos + 1, top)
                     }
                 }
                 /*TTS*/
-                if (tlQuickSettingSnackber != null && tlQuickSettingSnackber!!.timelineTTS) {
+                if (tlQuickSettingSnackber != null && tlQuickSettingSnackber?.timelineTTS ?: false) {
                     //インスタンス生成
                     if (tts == null) {
                         tts = TextToSpeech(context, TextToSpeech.OnInitListener { i ->
@@ -1208,20 +1205,20 @@ class CustomMenuTimeLine : Fragment() {
                             }
                         })
                     } else {
-                        tts!!.setSpeechRate(java.lang.Float.valueOf(pref_setting!!.getString("pref_speech_rate", "1.0f")!!))
-                        val setting = CustomMenuJSONParse(json_data!!)
+                        tts?.setSpeechRate(java.lang.Float.valueOf(pref_setting?.getString("pref_speech_rate", "1.0f")!!))
+                        val setting = CustomMenuJSONParse(json_data ?: "")
                         val api = MastodonTLAPIJSONParse(context!!, toot_jsonObject.toString(), setting, 0)
                         //正規表現でURL消す
                         var text = Html.fromHtml(api.toot_text, Html.FROM_HTML_MODE_COMPACT).toString()
-                        if (pref_setting!!.getBoolean("pref_speech_url", true)) {
+                        if (pref_setting?.getBoolean("pref_speech_url", true) ?: true) {
                             text = text.replace("(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+".toRegex(), "URL省略")
                         }
-                        tts!!.speak(text, TextToSpeech.QUEUE_ADD, null, "tts")
+                        tts?.speak(text, TextToSpeech.QUEUE_ADD, null, "tts")
                     }
                 } else {
                     if (tts != null) {
-                        tts!!.stop()
-                        tts!!.shutdown()
+                        tts?.stop()
+                        tts?.shutdown()
                     }
                 }
             }
@@ -1241,7 +1238,7 @@ class CustomMenuTimeLine : Fragment() {
             //配列を作成
             val Item = ArrayList<String>()
             //メモとか通知とかに
-            Item.add(url!!)
+            Item.add(url ?: "")
             //内容
             Item.add("")
             //ユーザー名
@@ -1255,26 +1252,26 @@ class CustomMenuTimeLine : Fragment() {
             //Mastodon / Misskey
             Item.add("Mastodon")
             //Insatnce/AccessToken
-            Item.add(instance!!)
-            Item.add(access_token!!)
+            Item.add(instance ?: "")
+            Item.add(access_token ?: "")
             //設定ファイルJSON
-            Item.add(json_data!!)
+            Item.add(json_data ?: "")
             //画像表示、こんてんとわーにんぐ
             Item.add("false")
             Item.add("false")
 
             if (streaming) {
-                recyclerViewList!!.add(0, Item)
+                recyclerViewList?.add(0, Item)
             } else {
-                recyclerViewList!!.add(Item)
+                recyclerViewList?.add(Item)
             }
 
-            activity!!.runOnUiThread {
+            activity?.runOnUiThread {
                 if (recyclerViewLayoutManager != null) {
                     (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
                 }
                 //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                recyclerView!!.adapter = customMenuRecyclerViewAdapter
+                recyclerView?.adapter = customMenuRecyclerViewAdapter
                 SnackberProgress.closeProgressSnackber()
                 scroll = false
 
@@ -1326,7 +1323,7 @@ class CustomMenuTimeLine : Fragment() {
             //メモとか通知とかに
             Item.add("CustomMenu")
             //内容
-            Item.add(url!!)
+            Item.add(url ?: "")
             //ユーザー名
             Item.add("")
             //時間、クライアント名等
@@ -1338,22 +1335,22 @@ class CustomMenuTimeLine : Fragment() {
             //Mastodon / Misskey
             Item.add("Mastodon")
             //Insatnce/AccessToken
-            Item.add(instance!!)
-            Item.add(access_token!!)
+            Item.add(instance ?: "")
+            Item.add(access_token ?: "")
             //設定ファイルJSON
-            Item.add(json_data!!)
+            Item.add(json_data ?: "")
             //画像表示、こんてんとわーにんぐ
             Item.add("false")
             Item.add("false")
 
-            recyclerViewList!!.add(0, Item)
+            recyclerViewList?.add(0, Item)
 
-            activity!!.runOnUiThread {
+            activity?.runOnUiThread {
                 if (recyclerViewLayoutManager != null) {
                     (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
                 }
                 //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                recyclerView!!.adapter = customMenuRecyclerViewAdapter
+                recyclerView?.adapter = customMenuRecyclerViewAdapter
                 /*
                     adapter.insert(listItem, 0);
                     // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
@@ -1409,7 +1406,7 @@ class CustomMenuTimeLine : Fragment() {
                 jsonObject.put("untilId", id)
             }
             //TLで自分の投稿を見れるように
-            if (url!!.contains("timeline")) {
+            if (url?.contains("timeline") ?: true) {
                 jsonObject.put("includeLocalRenotes", true)
                 jsonObject.put("includeMyRenotes", true)
                 jsonObject.put("includeRenotedMyNotes", true)
@@ -1442,7 +1439,7 @@ class CustomMenuTimeLine : Fragment() {
         val requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString())
         //作成
         val request = Request.Builder()
-                .url(url!!)
+                .url(url ?: "")
                 .post(requestBody)
                 .build()
         //GETリクエスト
@@ -1450,17 +1447,17 @@ class CustomMenuTimeLine : Fragment() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
-                activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
+                activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
             }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
-                val response_string = response.body()!!.string()
+                val response_string = response.body()?.string()
                 //System.out.println(response_string);
                 if (!response.isSuccessful) {
                     //失敗時
                     if (activity != null) {
-                        activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                        activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
                     }
                 } else {
                     try {
@@ -1474,7 +1471,7 @@ class CustomMenuTimeLine : Fragment() {
                             }
                         }
                         if (activity != null) {
-                            activity!!.runOnUiThread { swipeRefreshLayout!!.isRefreshing = false }
+                            activity?.runOnUiThread { swipeRefreshLayout?.isRefreshing = false }
                         }
                         //最後のIDを保存
                         val last = jsonArray.getJSONObject(99)
@@ -1502,7 +1499,7 @@ class CustomMenuTimeLine : Fragment() {
             //メモとか通知とかに
             Item.add("CustomMenu")
             //内容
-            Item.add(url!!)
+            Item.add(url ?: "")
             //ユーザー名
             Item.add("")
             //時間、クライアント名等
@@ -1514,22 +1511,22 @@ class CustomMenuTimeLine : Fragment() {
             //Mastodon / Misskey
             Item.add("Misskey")
             //Insatnce/AccessToken
-            Item.add(instance!!)
-            Item.add(access_token!!)
+            Item.add(instance ?: "")
+            Item.add(access_token ?: "")
             //設定ファイルJSON
-            Item.add(json_data!!)
+            Item.add(json_data ?: "")
             //画像表示、こんてんとわーにんぐ
             Item.add("false")
             Item.add("false")
 
-            recyclerViewList!!.add(Item)
+            recyclerViewList?.add(Item)
 
-            activity!!.runOnUiThread {
+            activity?.runOnUiThread {
                 if (recyclerViewLayoutManager != null) {
                     (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
                 }
                 //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                recyclerView!!.adapter = customMenuRecyclerViewAdapter
+                recyclerView?.adapter = customMenuRecyclerViewAdapter
                 SnackberProgress.closeProgressSnackber()
                 scroll = false
                 /*
@@ -1554,7 +1551,7 @@ class CustomMenuTimeLine : Fragment() {
             //配列を作成
             val Item = ArrayList<String>()
             //メモとか通知とかに
-            Item.add(url!!)
+            Item.add(url ?: "")
             //内容
             Item.add("")
             //ユーザー名
@@ -1568,22 +1565,22 @@ class CustomMenuTimeLine : Fragment() {
             //Mastodon / Misskey
             Item.add("Misskey")
             //Insatnce/AccessToken
-            Item.add(instance!!)
-            Item.add(access_token!!)
+            Item.add(instance ?: "")
+            Item.add(access_token ?: "")
             //設定ファイルJSON
-            Item.add(json_data!!)
+            Item.add(json_data ?: "")
             //画像表示、こんてんとわーにんぐ
             Item.add("false")
             Item.add("false")
 
-            recyclerViewList!!.add(Item)
+            recyclerViewList?.add(Item)
 
-            activity!!.runOnUiThread {
+            activity?.runOnUiThread {
                 if (recyclerViewLayoutManager != null) {
                     (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
                 }
                 //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                recyclerView!!.adapter = customMenuRecyclerViewAdapter
+                recyclerView?.adapter = customMenuRecyclerViewAdapter
                 SnackberProgress.closeProgressSnackber()
                 scroll = false
                 /*
@@ -1822,15 +1819,15 @@ class CustomMenuTimeLine : Fragment() {
         val countLinearLayout = LinearLayout(context)
         countLinearLayout.orientation = LinearLayout.HORIZONTAL
         countLinearLayout.layoutParams = LayoutlayoutParams
-        linearLayout!!.addView(countLinearLayout, 0)
+        linearLayout?.addView(countLinearLayout, 0)
         //いろいろ
         val countEditText = EditText(context)
         val countButton = Button(context)
         val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         layoutParams.weight = 1f
-        countTextView!!.layoutParams = layoutParams
+        countTextView?.layoutParams = layoutParams
         countEditText.layoutParams = layoutParams
-        countButton.background = context!!.getDrawable(R.drawable.button_style_white)
+        countButton.background = context?.getDrawable(R.drawable.button_style_white)
         countButton.text = ">"
         countEditText.hint = getString(R.string.toot_count_hint)
         //背景
@@ -1844,15 +1841,15 @@ class CustomMenuTimeLine : Fragment() {
         countLinearLayout.addView(countTextView)
 
         //テキストを決定
-        activity!!.runOnUiThread {
+        activity?.runOnUiThread {
             countButton.setOnClickListener {
                 count_text = countEditText.text.toString()
                 akeome_count = 0
-                countTextView!!.text = "$count_text : $akeome_count"
+                countTextView?.text = "$count_text : $akeome_count"
             }
             //長押しでコピー
-            countTextView!!.setOnLongClickListener {
-                val clipboardManager = context!!.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            countTextView?.setOnLongClickListener {
+                val clipboardManager = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 clipboardManager.setPrimaryClip(ClipData.newPlainText("", akeome_count.toString()))
                 Toast.makeText(context, R.string.copy, Toast.LENGTH_SHORT).show()
                 false
@@ -1889,7 +1886,7 @@ class CustomMenuTimeLine : Fragment() {
         //タイトルも
         val title_TextView = TextView(context)
         title_TextView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        title_TextView.text = arguments!!.getString("name")
+        title_TextView.text = arguments?.getString("name")
         title_TextView.textSize = 24f
         //追加
         one_hand_LinearLayout.addView(title_TextView)
@@ -1901,7 +1898,7 @@ class CustomMenuTimeLine : Fragment() {
             one_hand_LinearLayout.setBackgroundColor(Color.parseColor("#000000"))
         }
         //半分
-        parent_linearlayout!!.addView(one_hand_LinearLayout, 0)
+        parent_linearlayout?.addView(one_hand_LinearLayout, 0)
     }
 
     /**
@@ -1910,20 +1907,20 @@ class CustomMenuTimeLine : Fragment() {
     private fun setDrawerImageText(avatarUrl: String, headerUri: String, display_name: String?, username: String) {
         //Wi-Fi接続状況確認
         if (context != null && user_account_textView != null) {
-            val connectivityManager = context!!.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
             //一応Nullチェック
             if (header_imageView != null) {
                 //画像読み込むか
-                if (pref_setting!!.getBoolean("pref_drawer_avater", false)) {
+                if (pref_setting?.getBoolean("pref_drawer_avater", false) ?: false) {
                     //読み込まない
-                    avater_imageView!!.setImageResource(R.drawable.ic_person_black_24dp)
-                    header_imageView!!.setBackgroundColor(Color.parseColor("#c8c8c8"))
+                    avater_imageView?.setImageResource(R.drawable.ic_person_black_24dp)
+                    header_imageView?.setBackgroundColor(Color.parseColor("#c8c8c8"))
                 }
                 //Wi-Fi時は読み込む
-                if (pref_setting!!.getBoolean("pref_avater_wifi", true)) {
+                if (pref_setting?.getBoolean("pref_avater_wifi", true) ?: true) {
                     //既定でGIFは再生しない方向で
-                    if (pref_setting!!.getBoolean("pref_avater_gif", true)) {
+                    if (pref_setting?.getBoolean("pref_avater_gif", true) ?: true) {
                         //GIFアニメ再生させない
                         Picasso.get().load(avatarUrl).resize(100, 100).into(avater_imageView)
                         Picasso.get().load(headerUri).into(header_imageView)
@@ -1933,13 +1930,13 @@ class CustomMenuTimeLine : Fragment() {
                         Glide.with(context!!).load(headerUri).into(header_imageView!!)
                     }
                 } else {
-                    avater_imageView!!.setImageResource(R.drawable.ic_person_black_24dp)
-                    header_imageView!!.setBackgroundColor(Color.parseColor("#c8c8c8"))
+                    avater_imageView?.setImageResource(R.drawable.ic_person_black_24dp)
+                    header_imageView?.setBackgroundColor(Color.parseColor("#c8c8c8"))
                 }
                 //UserName
                 val imageGetter = PicassoImageGetter(user_account_textView!!)
-                user_account_textView!!.text = Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null)
-                user_id_textView!!.text = username
+                user_account_textView?.text = Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null)
+                user_id_textView?.text = username
 
             }
         }
@@ -1956,20 +1953,20 @@ class CustomMenuTimeLine : Fragment() {
             //時差計算？
             if (simpleDateFormat == null && japanDateFormat == null && calendar == null) {
                 simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                simpleDateFormat!!.timeZone = TimeZone.getTimeZone("UTC")
+                simpleDateFormat?.timeZone = TimeZone.getTimeZone("UTC")
                 //日本用フォーマット
                 japanDateFormat = SimpleDateFormat(pref_setting!!.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS")!!)
-                japanDateFormat!!.timeZone = TimeZone.getTimeZone(TimeZone.getDefault().id)
+                japanDateFormat?.timeZone = TimeZone.getTimeZone(TimeZone.getDefault().id)
                 calendar = Calendar.getInstance()
             }
             try {
                 val date = simpleDateFormat!!.parse(createdAt!!)
-                calendar!!.time = date!!
+                calendar?.time = date!!
                 //タイムゾーンを設定
                 //calendar.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
-                calendar!!.add(Calendar.HOUR, +Integer.valueOf(pref_setting!!.getString("pref_time_add", "9")!!))
+                calendar?.add(Calendar.HOUR, +Integer.valueOf(pref_setting!!.getString("pref_time_add", "9")!!))
                 //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-                createdAt = japanDateFormat!!.format(calendar!!.time)
+                createdAt = japanDateFormat?.format(calendar!!.time)
             } catch (e: ParseException) {
                 e.printStackTrace()
             }
@@ -1985,7 +1982,7 @@ class CustomMenuTimeLine : Fragment() {
     private fun setStreamingNotification() {
         val url = "wss://$instance/api/v1/streaming/?stream=user&access_token=$access_token"
         if (context != null) {
-            vibrator = context!!.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            vibrator = context?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         }
         try {
             notification_WebSocketClient = object : WebSocketClient(URI(url)) {
@@ -2016,7 +2013,7 @@ class CustomMenuTimeLine : Fragment() {
                         }
                         //トースト出す
                         val finalDisplay_name = display_name
-                        activity!!.runOnUiThread {
+                        activity?.runOnUiThread {
                             //カスタムトースト
                             val toast = Toast(context)
                             val inflater = layoutInflater
@@ -2050,7 +2047,7 @@ class CustomMenuTimeLine : Fragment() {
                 }
             }
             //接続
-            notification_WebSocketClient!!.connect()
+            notification_WebSocketClient?.connect()
         } catch (e: URISyntaxException) {
             e.printStackTrace()
         }
@@ -2063,7 +2060,7 @@ class CustomMenuTimeLine : Fragment() {
     private fun loadScheduled_statuses(view: View) {
         //作成
         val url = url + "?access_token=" + access_token
-        SnackberProgress.showProgressSnackber(view, view.context, getString(R.string.loading) + "\n" + arguments!!.getString("content"))
+        SnackberProgress.showProgressSnackber(view, view.context, getString(R.string.loading) + "\n" + arguments?.getString("content"))
         val request = Request.Builder()
                 .url(url)
                 .get()
@@ -2073,22 +2070,22 @@ class CustomMenuTimeLine : Fragment() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
-                activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
+                activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
             }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
-                val response_string = response.body()!!.string()
+                val response_string = response.body()?.string()
                 //System.out.println(response_string);
                 if (!response.isSuccessful) {
                     //失敗時
-                    activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                    activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
                 } else {
                     try {
                         val jsonArray = JSONArray(response_string)
                         //無いとき
                         if (jsonArray.length() == 0) {
-                            activity!!.runOnUiThread {
+                            activity?.runOnUiThread {
                                 SnackberProgress.closeProgressSnackber()
                                 Toast.makeText(context, getString(R.string.not_fount_time_post), Toast.LENGTH_LONG).show()
                             }
@@ -2113,21 +2110,21 @@ class CustomMenuTimeLine : Fragment() {
                                     //Mastodon / Misskey
                                     Item.add("Mastodon")
                                     //Insatnce/AccessToken
-                                    Item.add(instance!!)
-                                    Item.add(access_token!!)
+                                    Item.add(instance ?: "")
+                                    Item.add(access_token ?: "")
                                     //設定ファイルJSON
-                                    Item.add(json_data!!)
+                                    Item.add(json_data ?: "")
                                     //画像表示、こんてんとわーにんぐ
                                     Item.add("false")
                                     Item.add("false")
 
-                                    recyclerViewList!!.add(Item)
-                                    activity!!.runOnUiThread {
+                                    recyclerViewList?.add(Item)
+                                    activity?.runOnUiThread {
                                         if (recyclerViewLayoutManager != null) {
                                             (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
                                         }
                                         //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                                        recyclerView!!.adapter = customMenuRecyclerViewAdapter
+                                        recyclerView?.adapter = customMenuRecyclerViewAdapter
                                         SnackberProgress.closeProgressSnackber()
                                     }
                                 }
@@ -2148,7 +2145,7 @@ class CustomMenuTimeLine : Fragment() {
     private fun loadFollowSuggestions(view: View) {
         //作成
         val url = url + "?access_token=" + access_token
-        SnackberProgress.showProgressSnackber(view, view.context, getString(R.string.loading) + "\n" + arguments!!.getString("content"))
+        SnackberProgress.showProgressSnackber(view, view.context, getString(R.string.loading) + "\n" + arguments?.getString("content"))
         val request = Request.Builder()
                 .url(url)
                 .get()
@@ -2158,16 +2155,16 @@ class CustomMenuTimeLine : Fragment() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
-                activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
+                activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
             }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
-                val response_string = response.body()!!.string()
+                val response_string = response.body()?.string()
                 //System.out.println(response_string);
                 if (!response.isSuccessful) {
                     //失敗時
-                    activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                    activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
                 } else {
                     try {
                         val jsonArray = JSONArray(response_string)
@@ -2191,16 +2188,16 @@ class CustomMenuTimeLine : Fragment() {
                                 //Mastodon / Misskey
                                 Item.add("Mastodon")
                                 //Insatnce/AccessToken
-                                Item.add(instance!!)
-                                Item.add(access_token!!)
+                                Item.add(instance ?: "")
+                                Item.add(access_token ?: "")
                                 //設定ファイルJSON
-                                Item.add(json_data!!)
+                                Item.add(json_data ?: "")
                                 //画像表示、こんてんとわーにんぐ
                                 Item.add("false")
                                 Item.add("false")
 
-                                recyclerViewList!!.add(Item)
-                                activity!!.runOnUiThread {
+                                recyclerViewList?.add(Item)
+                                activity?.runOnUiThread {
                                     if (recyclerViewLayoutManager != null) {
                                         (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
                                     }
@@ -2245,7 +2242,7 @@ class CustomMenuTimeLine : Fragment() {
         val end = floatArrayOf(0f)
         val y_start = floatArrayOf(0f)
         val y_end = floatArrayOf(0f)
-        recyclerView!!.setOnTouchListener { v, event ->
+        recyclerView?.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     start[0] = event.x
@@ -2261,7 +2258,7 @@ class CustomMenuTimeLine : Fragment() {
                         //なんとなく400以上の誤差がないとうごかないように　と　縦スクロールが大きいと動作しないようにする（100から-100までのみ）
                         if (end[0] - start[0] > 400 && y_start[0] - y_end[0] < 100 && y_start[0] - y_end[0] > -100) {
                             //ドロワー開く。getActivity()あってよかた
-                            val drawer = activity!!.findViewById<View>(R.id.drawer_layout) as DrawerLayout
+                            val drawer = activity?.findViewById<View>(R.id.drawer_layout) as DrawerLayout
                             drawer?.openDrawer(Gravity.LEFT)
                         }
                     }
@@ -2274,7 +2271,7 @@ class CustomMenuTimeLine : Fragment() {
 
     /*ネットワークの変更を検知する*/
     private fun setNetworkChangeCallback() {
-        val connectivityManager = context!!.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val builder = NetworkRequest.Builder()
         //
         builder.addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
@@ -2286,7 +2283,7 @@ class CustomMenuTimeLine : Fragment() {
                 //最初は無視する
                 if (network_count > 0) {
                     //変更されたら
-                    if (webSocketClient != null || notification_WebSocketClient != null) {
+                    if (webSocketClient != null || notification_WebSocketClient != null && recyclerView != null) {
                         //なんとなくスナックバー
                         Snackbar.make(recyclerView!!, R.string.network_change, Snackbar.LENGTH_SHORT).show()
                         //5秒後にストリーミングAPIに再接続する
@@ -2294,9 +2291,9 @@ class CustomMenuTimeLine : Fragment() {
                         val timerTask = object : TimerTask() {
                             override fun run() {
                                 if (webSocketClient != null) {
-                                    webSocketClient!!.close()
+                                    webSocketClient?.close()
                                     //通知以外
-                                    if (!url!!.contains("/api/v1/notifications")) {
+                                    if (url?.contains("/api/v1/notifications") == false) {
                                         loadTimeline("")
                                         //ストリーミング
                                         useStreamingAPI(false)
@@ -2309,7 +2306,7 @@ class CustomMenuTimeLine : Fragment() {
                                     }
                                 }
                                 if (notification_WebSocketClient != null) {
-                                    notification_WebSocketClient!!.close()
+                                    notification_WebSocketClient?.close()
                                     setStreamingNotification()
                                 }
                             }
@@ -2330,6 +2327,16 @@ class CustomMenuTimeLine : Fragment() {
             title = "#" + title!!
         }
         return title as String
+    }
+
+    //インスタンス名を返す
+    fun getInstance(): String {
+        return instance.toString()
+    }
+
+    //CustomMenuの名前を返す
+    fun getCustomMenuName(): String {
+        return name.toString()
     }
 
     companion object {

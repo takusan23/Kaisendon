@@ -175,6 +175,10 @@ class CustomMenuTimeLine : Fragment() {
     //クイック設定
     private var tlQuickSettingSnackber: TLQuickSettingSnackber? = null
 
+    //Streaming APIに接続できないときにインスタンス情報APIからurlを取ってくる
+    //あくまで既定でつながらなった場合のみ
+    private var instance_api_streaming_api_link = ""
+
     /**
      * 変数 : url
      * これCustomMenuTimeLine単体だと動くけどDesktopModeだとおかしくなるのでこのメゾット使って
@@ -440,13 +444,13 @@ class CustomMenuTimeLine : Fragment() {
                     if (!url!!.contains("/api/v1/notifications")) {
                         loadTimeline("")
                         //ストリーミング
-                        useStreamingAPI(false)
+                        useStreamingAPI()
                     } else {
                         notificationLayout()
                         //普通にAPI叩く
                         loadNotification("")
                         //ストリーミング
-                        useStreamingAPI(true)
+                        useStreamingAPI()
                     }
                 } else {
                     //無効
@@ -820,28 +824,54 @@ class CustomMenuTimeLine : Fragment() {
     /**
      * ストリーミングAPI
      */
-    private fun useStreamingAPI(notification_mode: Boolean) {
+    private fun useStreamingAPI() {
         //接続先設定
         var link = ""
         //通知
         var notification = false
         //DM
         var direct = false
-        when (arguments?.getString("content")) {
-            "/api/v1/timelines/home" -> link = "wss://$instance/api/v1/streaming/?stream=user&access_token=$access_token"
-            "/api/v1/notifications" -> {
-                notification = true
-                link = "wss://$instance/api/v1/streaming/?stream=user:notification&access_token=$access_token"
+
+        /*
+        * もし/api/v1/instanceからurls.streaming_apiが違ったときに動く
+        * isEmpty()でfalseのときは別リンクが設定されてる
+        * */
+        if (instance_api_streaming_api_link.isEmpty()) {
+            //既定
+            when (arguments?.getString("content")) {
+                "/api/v1/timelines/home" -> link = "wss://$instance/api/v1/streaming/?stream=user&access_token=$access_token"
+                "/api/v1/notifications" -> {
+                    notification = true
+                    link = "wss://$instance/api/v1/streaming/?stream=user:notification&access_token=$access_token"
+                }
+                "/api/v1/timelines/public?local=true" -> link = "wss://$instance/api/v1/streaming/?stream=public:local&access_token=$access_token"
+                "/api/v1/timelines/public" -> link = "wss://$instance/api/v1/streaming/?stream=public&access_token=$access_token"
+                "/api/v1/timelines/direct" -> {
+                    direct = true
+                    link = "wss://$instance/api/v1/streaming/?stream=direct&access_token=$access_token"
+                }
+                "/api/v1/timelines/tag/" -> link = "wss://" + instance + "/api/v1/streaming/hashtag/?hashtag=" + arguments!!.getString("name") + "&access_token=" + access_token
+                "/api/v1/timelines/tag/?local=true" -> link = "wss://" + instance + "/api/v1/streaming/hashtag/local?hashtag=" + arguments!!.getString("name") + "&access_token=" + access_token
             }
-            "/api/v1/timelines/public?local=true" -> link = "wss://$instance/api/v1/streaming/?stream=public:local&access_token=$access_token"
-            "/api/v1/timelines/public" -> link = "wss://$instance/api/v1/streaming/?stream=public&access_token=$access_token"
-            "/api/v1/timelines/direct" -> {
-                direct = true
-                link = "wss://$instance/api/v1/streaming/?stream=direct&access_token=$access_token"
+        } else {
+            //特別リンクが設定されてる時
+            when (arguments?.getString("content")) {
+                "/api/v1/timelines/home" -> link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=user&access_token=$access_token"
+                "/api/v1/notifications" -> {
+                    notification = true
+                    link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=user:notification&access_token=$access_token"
+                }
+                "/api/v1/timelines/public?local=true" -> link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=public:local&access_token=$access_token"
+                "/api/v1/timelines/public" -> link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=public&access_token=$access_token"
+                "/api/v1/timelines/direct" -> {
+                    direct = true
+                    link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=direct&access_token=$access_token"
+                }
+                "/api/v1/timelines/tag/" -> link = "$instance_api_streaming_api_link/api/v1/streaming/hashtag/?hashtag=" + arguments!!.getString("name") + "&access_token=" + access_token
+                "/api/v1/timelines/tag/?local=true" -> link = "$instance_api_streaming_api_link/api/v1/streaming/hashtag/local?hashtag=" + arguments!!.getString("name") + "&access_token=" + access_token
             }
-            "/api/v1/timelines/tag/" -> link = "wss://" + instance + "/api/v1/streaming/hashtag/?hashtag=" + arguments!!.getString("name") + "&access_token=" + access_token
-            "/api/v1/timelines/tag/?local=true" -> link = "wss://" + instance + "/api/v1/streaming/hashtag/local?hashtag=" + arguments!!.getString("name") + "&access_token=" + access_token
         }
+
         if ("sdk" == Build.PRODUCT) {
             // エミュレータの場合はIPv6を無効    ----1
             java.lang.System.setProperty("java.net.preferIPv6Addresses", "false")
@@ -925,7 +955,11 @@ class CustomMenuTimeLine : Fragment() {
                             Toast.makeText(context, getString(R.string.error) + "\n" + reason, Toast.LENGTH_SHORT).show()
                         }
                     }
-
+                    //404エラーは再接続？
+                    //何回もAPI叩かれると困る
+                    if (instance_api_streaming_api_link.isEmpty() && reason.contains("404")){
+                        getInstanceUrlsStreamingAPI()
+                    }
                 }
 
                 override fun onError(ex: Exception) {
@@ -939,6 +973,41 @@ class CustomMenuTimeLine : Fragment() {
             e.printStackTrace()
         }
 
+    }
+
+    /*
+    * /api/v1/instanceを叩いてurls.streaming_apiを取得すりゅ
+    * */
+    fun getInstanceUrlsStreamingAPI() {
+        //APIを叩く
+        val url = "https://$instance/api/v1/accounts/$account_id"
+        //作成
+        val request = Request.Builder()
+                .url(url)
+                .get()
+                .build()
+        //GETリクエスト
+        val okHttpClient = OkHttpClient()
+        okHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                activity?.runOnUiThread {
+                    Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (!response.isSuccessful) {
+                    activity?.runOnUiThread {
+                        Toast.makeText(getContext(), getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    val jsonObject = JSONObject(response.body()?.string())
+                    instance_api_streaming_api_link = jsonObject.getJSONObject("urls").getString("streaming_api")
+                    //websocket再接続する
+                    useStreamingAPI()
+                }
+            }
+        })
     }
 
     /**
@@ -2296,13 +2365,13 @@ class CustomMenuTimeLine : Fragment() {
                                     if (url?.contains("/api/v1/notifications") == false) {
                                         loadTimeline("")
                                         //ストリーミング
-                                        useStreamingAPI(false)
+                                        useStreamingAPI()
                                     } else {
                                         notificationLayout()
                                         //普通にAPI叩く
                                         loadNotification("")
                                         //ストリーミング
-                                        useStreamingAPI(true)
+                                        useStreamingAPI()
                                     }
                                 }
                                 if (notification_WebSocketClient != null) {

@@ -141,9 +141,7 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
             val fragment = (context as AppCompatActivity).supportFragmentManager.findFragmentById(R.id.container_container)
             if (fragment is CustomMenuTimeLine) {
                 val floatingTL = FloatingTL(context, fragment.arguments!!.getString("json")!!)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    floatingTL.setNotification(isPiP)
-                }
+                floatingTL.setNotification(isPiP)
             } else {
                 Toast.makeText(context, context.getString(R.string.floating_tl_error_custom_tl), Toast.LENGTH_SHORT).show()
             }

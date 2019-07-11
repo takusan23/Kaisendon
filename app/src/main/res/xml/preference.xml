@@ -47,13 +47,11 @@
             android:title="@string/setting_avater_gif" />
 
 
-<!--
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_offline_cache_load"
-            android:summary="画像を読み込まないときはキャッシュから読み込みます。"
+            android:summary="画像を読み込まないときはキャッシュ限定で読み込みます。"
             android:title="キャッシュから読み込む（開発中）" />
--->
 
         <CheckBoxPreference
             android:defaultValue="true"

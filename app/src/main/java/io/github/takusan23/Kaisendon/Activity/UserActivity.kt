@@ -150,12 +150,14 @@ class UserActivity : AppCompatActivity() {
         //背景
         val background_imageView = findViewById<ImageView>(R.id.user_activity_background_imageview)
 
+/*
         if (pref_setting!!.getBoolean("background_image", true)) {
             val uri = Uri.parse(pref_setting!!.getString("background_image_path", ""))
             Glide.with(this@UserActivity)
                     .load(uri)
                     .into(background_imageView)
         }
+*/
 
 
         // Backボタンを有効にする
@@ -1126,7 +1128,7 @@ class UserActivity : AppCompatActivity() {
                 val calendar = Calendar.getInstance()
                 calendar.time = date!!
                 //9時間足して日本時間へ
-                calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting!!.getString("pref_time_add", "9")))
+                calendar.add(Calendar.HOUR, +Integer.valueOf(pref_setting?.getString("pref_time_add", "9") ?: "9"))
                 //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
                 timeReturn = japanDateFormat.format(calendar.time)
             } catch (e: ParseException) {

@@ -500,12 +500,12 @@ class AddCustomMenuActivity : AppCompatActivity() {
         //クリックイベント
         val finalFiles = files
         if (popupMenu != null) {
-            popupMenu!!.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
+            popupMenu.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
                 public override fun onMenuItemClick(item: MenuItem): Boolean {
                     font_Button!!.setText(finalFiles!![item.getItemId()].getPath())
                     font_path = finalFiles!![item.getItemId()].getPath()
                     typeface = Typeface.createFromFile(File(font_path))
-                    font_TextView!!.setTypeface(typeface)
+                    font_TextView?.setTypeface(typeface)
                     return false
                 }
             })

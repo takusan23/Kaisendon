@@ -2317,12 +2317,15 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         viewHolder.toot_user_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_user", "10")));
         viewHolder.toot_createAt_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_client", "10")));
         viewHolder.toot_visibility_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_client", "10")));
+        viewHolder.toot_client_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_client", "10")));
         viewHolder.toot_text_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_timeline", "10")));
         viewHolder.bt_chip.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_button", "10")));
         viewHolder.fav_chip.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_button", "10")));
+/*
         if (!viewHolder.toot_client_TextView.getText().toString().equals("")) {
             viewHolder.toot_client_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_button", "10")));
         }
+*/
     }
 
     /**

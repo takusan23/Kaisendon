@@ -361,7 +361,7 @@
     <string name="custom_menu_account">カスタムメニューで使うアカウント</string>
     <string name="custom_menu_dialog">お気に入り等でダイアログが出ないようにする</string>
     <string name="custom_menu_darkmode">ダークモード（OLEDモード）を有効にする</string>
-    <string name="custom_menu_image">画像を表示させる</string>
+    <string name="custom_menu_image">モバイルデータでも強制で画像を表示させる\n(無効にするとWi-Fi接続時のみ画像を表示させます。)</string>
     <string name="custom_add_message">カスタムメニューを登録しますか？</string>
     <string name="register">登録</string>
     <string name="custome_menu_delete">カスタムメニューを削除</string>

@@ -35,6 +35,7 @@
                     <TextView
                         android:id="@+id/custom_menu_adapter_reblog_account"
                         android:layout_width="match_parent"
+                        android:autoLink="web"
                         android:layout_height="match_parent"
                         android:gravity="center_vertical"
                         android:textSize="10sp" />

@@ -1088,6 +1088,22 @@ class AddCustomMenuActivity : AppCompatActivity() {
         }
     }
 
+    /*
+    * 閉じたときに保存する
+    * */
+    override fun onDestroy() {
+        super.onDestroy()
+        //更新・新規作成
+        if (!intent.getBooleanExtra("delete_button", false)) {
+            //新規作成
+            saveSQLite()
+        } else {
+            //更新
+            val name = intent.getStringExtra("name")
+            updateSQLite(name)
+        }
+    }
+
     fun getPath(uri: Uri?): String {
         val projection = arrayOf<String>(MediaStore.Images.Media.DATA)
         val cursor = getContentResolver().query(uri!!, projection, null, null, null)

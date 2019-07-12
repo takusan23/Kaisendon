@@ -317,6 +317,7 @@
                     android:id="@+id/custom_menu_image"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:checked="true"
                     android:text="@string/custom_menu_image" />
             </LinearLayout>
 

@@ -465,7 +465,7 @@
     <string name="custom_menu_account">Account of CustomMenu</string>
     <string name="custom_menu_dialog">prevent the dialog from appearing in favorites etc.</string>
     <string name="custom_menu_darkmode">enable dark mode (OLED mode)</string>
-    <string name="custom_menu_image">display an image</string>
+    <string name="custom_menu_image">Display images in mobile data forcibly\n(If disabled, the image will only be displayed when connected to Wi-Fi.)</string>
     <string name="custom_add_message">Would you like to register a custom menu?</string>
     <string name="register">Registration</string>
     <string name="custome_menu_delete">Delete CustomMenu</string>

@@ -8,7 +8,7 @@ android {
         applicationId 'io.github.takusan23.Kaisendon'
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 35
+        versionCode 36
         versionName "6.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

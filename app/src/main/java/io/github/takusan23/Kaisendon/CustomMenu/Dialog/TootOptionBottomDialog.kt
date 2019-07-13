@@ -2,6 +2,7 @@ package io.github.takusan23.Kaisendon.CustomMenu.Dialog
 
 import android.annotation.SuppressLint
 import android.content.*
+import android.content.res.Configuration
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -52,6 +53,17 @@ class TootOptionBottomDialog : BottomSheetDialogFragment() {
     private var custom_SqLiteDatabase: SQLiteDatabase? = null
 
 
+    /*はじっこを丸くする*/
+    override fun getTheme(): Int {
+        var theme = R.style.BottomSheetDialogThemeAppTheme
+        val darkModeSupport = DarkModeSupport(context!!)
+        if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES){
+            theme =  R.style.BottomSheetDialogThemeDarkTheme
+        }
+        return theme
+    }
+
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.toot_option_button_dialog_layout, container, false)
     }
@@ -60,7 +72,6 @@ class TootOptionBottomDialog : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         this.view_ = view
         val darkModeSupport = DarkModeSupport(context!!)
-        darkModeSupport.setLayoutAllThemeColor(view as LinearLayout)
         pref_setting = PreferenceManager.getDefaultSharedPreferences(context!!)
         account_Button = view.findViewById(R.id.toot_option_account_button)
         bookmark_Button = view.findViewById(R.id.toot_option_bookmark_button)
@@ -82,6 +93,10 @@ class TootOptionBottomDialog : BottomSheetDialogFragment() {
         setHashtagButton()
         //ニコニコ大百科
         setNicoNicoPedia()
+
+        //だーくもーど
+        darkModeSupport.setLayoutAllThemeColor(view as LinearLayout)
+
 
         //クリック
         account_Button!!.setOnClickListener {

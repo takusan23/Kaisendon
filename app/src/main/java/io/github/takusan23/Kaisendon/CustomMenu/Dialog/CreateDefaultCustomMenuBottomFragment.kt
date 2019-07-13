@@ -2,6 +2,7 @@ package io.github.takusan23.Kaisendon.CustomMenu.Dialog
 
 import android.content.ContentValues
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import android.view.ViewGroup
 import androidx.preference.PreferenceManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper
+import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
 import kotlinx.android.synthetic.main.create_dafault_custommenu_bottom_fragment_layout.*
@@ -16,6 +18,16 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class CreateDefaultCustomMenuBottomFragment : BottomSheetDialogFragment() {
+
+    /*はじっこを丸くする*/
+    override fun getTheme(): Int {
+        var theme = R.style.BottomSheetDialogThemeAppTheme
+        val darkModeSupport = DarkModeSupport(context!!)
+        if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES){
+            theme =  R.style.BottomSheetDialogThemeDarkTheme
+        }
+        return theme
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.create_dafault_custommenu_bottom_fragment_layout, container, false)

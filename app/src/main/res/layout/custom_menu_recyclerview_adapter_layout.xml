@@ -82,7 +82,6 @@
                                 android:id="@+id/custom_menu_adapter_visibility"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Public"
                                 android:textSize="10dp" />
                         </LinearLayout>
 

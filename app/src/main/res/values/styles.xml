@@ -6,6 +6,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="android:navigationBarColor">@color/colorPrimary</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -26,10 +27,13 @@
     <!--ダークテーマ　ホーム以外-->
 
     <style name="OLED_Theme" parent="Theme.AppCompat">
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:colorBackground">@color/background_material_dark</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:tint">#ffffff</item>
+        <item name="android:navigationBarColor">@color/background_material_dark</item>
     </style>
 
     <style name="OLED.ActionBer" parent="Theme.AppCompat">
@@ -73,5 +77,37 @@
         <item name="elevation">@dimen/design_snackbar_elevation</item>
         <item name="maxActionInlineWidth">@dimen/design_snackbar_action_inline_max_width</item>
     </style>
+
+
+    <!--BottomSheetで角を丸くするためのこーど-->
+    <!--BottomSheet丸くするやつ。AppTheme用-->
+    <style name="BottomSheet" parent="@style/Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/corner_bottomsheet</item>
+    </style>
+
+    <style name="BottomSheetDialogThemeAppTheme" parent="@style/Theme.Design.Light.BottomSheetDialog">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:textColorSecondary">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="bottomSheetStyle">@style/BottomSheet</item>
+    </style>
+
+
+    <!--BottomSheet丸くするやつ。ダークテーマ用-->
+    <style name="BottomSheetDark" parent="@style/Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/corner_bottomsheet_dark</item>
+    </style>
+
+    <style name="BottomSheetDialogThemeDarkTheme" parent="@style/Theme.Design.Light.BottomSheetDialog">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:textColorSecondary">@color/black</item>
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="bottomSheetStyle">@style/BottomSheetDark</item>
+    </style>
+
 
 </resources>

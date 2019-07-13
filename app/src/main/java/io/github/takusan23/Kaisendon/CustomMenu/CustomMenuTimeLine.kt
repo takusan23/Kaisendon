@@ -815,7 +815,9 @@ class CustomMenuTimeLine : Fragment() {
 
                 } else {
                     //失敗時
-                    activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                    if (isAdded){
+                        activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                    }
                 }
             }
         })
@@ -957,7 +959,7 @@ class CustomMenuTimeLine : Fragment() {
                     }
                     //404エラーは再接続？
                     //何回もAPI叩かれると困る
-                    if (instance_api_streaming_api_link.isEmpty() && reason.contains("404")){
+                    if (instance_api_streaming_api_link.isEmpty() && reason.contains("404")) {
                         getInstanceUrlsStreamingAPI()
                     }
                 }
@@ -2367,7 +2369,9 @@ class CustomMenuTimeLine : Fragment() {
                                         //ストリーミング
                                         useStreamingAPI()
                                     } else {
-                                        notificationLayout()
+                                        activity?.runOnUiThread {
+                                            notificationLayout()
+                                        }
                                         //普通にAPI叩く
                                         loadNotification("")
                                         //ストリーミング

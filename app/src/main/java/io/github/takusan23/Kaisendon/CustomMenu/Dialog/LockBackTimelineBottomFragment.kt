@@ -1,6 +1,7 @@
 package io.github.takusan23.Kaisendon.CustomMenu.Dialog
 
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -37,6 +38,17 @@ class LockBackTimelineBottomFragment : BottomSheetDialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return View.inflate(context, R.layout.timeback_timeline, null)
     }
+
+    /*はじっこを丸くする*/
+    override fun getTheme(): Int {
+        var theme = R.style.BottomSheetDialogThemeAppTheme
+        val darkModeSupport = DarkModeSupport(context!!)
+        if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES){
+            theme =  R.style.BottomSheetDialogThemeDarkTheme
+        }
+        return theme
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

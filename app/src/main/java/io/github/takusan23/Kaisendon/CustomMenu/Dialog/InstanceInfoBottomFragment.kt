@@ -1,6 +1,7 @@
 package io.github.takusan23.Kaisendon.CustomMenu.Dialog
 
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Bundle
 import android.text.Html
 import android.view.LayoutInflater
@@ -24,6 +25,16 @@ class InstanceInfoBottomFragment : BottomSheetDialogFragment() {
     private var name_TextView: TextView? = null
     private var description_TextView: TextView? = null
     private var status_TextView: TextView? = null
+
+    /*はじっこを丸くする*/
+    override fun getTheme(): Int {
+        var theme = R.style.BottomSheetDialogThemeAppTheme
+        val darkModeSupport = DarkModeSupport(context!!)
+        if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES){
+            theme =  R.style.BottomSheetDialogThemeDarkTheme
+        }
+        return theme
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.instance_info_bottom_fragment, container, false)

@@ -308,10 +308,12 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 viewHolder.toot_user_TextView.setText(Html.fromHtml(api.getDisplay_name(), Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
                 //setCustomEmojiFonts(viewHolder, Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
             }
+
             viewHolder.toot_user_TextView.append("@" + api.getAcct());
             viewHolder.toot_createAt_TextView.setText(getCreatedAtFormat(api.getCreatedAt()));
             viewHolder.toot_client_TextView.setText(api.getClient());
-            viewHolder.toot_visibility_TextView.setText(api.getVisibility());
+            //viewHolder.toot_visibility_TextView.setText(api.getVisibility());
+            visibilitySetIcon(api, viewHolder);
             //IDを配列に入れておく
             item.set(2, api.getToot_ID());
             //Misskey
@@ -1844,11 +1846,12 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      */
     private void setCustomFont(ViewHolder viewHolder, CustomMenuJSONParse setting) {
         File file = new File(setting.getFont());
+        viewHolder.toot_user_TextView.setTypeface(Typeface.DEFAULT_BOLD);
         if (file.exists()) {
             //配列の場所特定
             int position = type_face_String.indexOf(setting.getFont());
             Typeface typeface = type_face_list.get(position);
-            viewHolder.toot_user_TextView.setTypeface(typeface);
+            viewHolder.toot_user_TextView.setTypeface(typeface, Typeface.BOLD);
             viewHolder.toot_createAt_TextView.setTypeface(typeface);
             viewHolder.toot_visibility_TextView.setTypeface(typeface);
             viewHolder.toot_text_TextView.setTypeface(typeface);
@@ -2503,6 +2506,33 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 88);
             layoutParams.gravity = Gravity.RIGHT;
             chipGroup.setLayoutParams(layoutParams);
+        }
+    }
+
+    //公開範囲を今更ながらアイコン表示に変える
+    private void visibilitySetIcon(MastodonTLAPIJSONParse api, ViewHolder viewHolder) {
+        switch (api.getVisibility()) {
+            case "public":
+                viewHolder.visibility_icon_ImageView.setImageDrawable(context.getDrawable(R.drawable.ic_public_black_24dp));
+                break;
+            case "private":
+                viewHolder.visibility_icon_ImageView.setImageDrawable(context.getDrawable(R.drawable.ic_lock_open_black_24dp));
+                break;
+            case "unlisted":
+                viewHolder.visibility_icon_ImageView.setImageDrawable(context.getDrawable(R.drawable.ic_done_all_black_24dp));
+                break;
+            case "direct":
+                viewHolder.visibility_icon_ImageView.setImageDrawable(context.getDrawable(R.drawable.ic_assignment_ind_black_24dp));
+                break;
+            case "home":
+                viewHolder.visibility_icon_ImageView.setImageDrawable(context.getDrawable(R.drawable.ic_home_black_24dp));
+                break;
+            case "followers":
+                viewHolder.visibility_icon_ImageView.setImageDrawable(context.getDrawable(R.drawable.ic_done_all_black_24dp));
+                break;
+            case "specified":
+                viewHolder.visibility_icon_ImageView.setImageDrawable(context.getDrawable(R.drawable.ic_assignment_ind_black_24dp));
+                break;
         }
     }
 

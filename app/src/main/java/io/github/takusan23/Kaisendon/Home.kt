@@ -1007,6 +1007,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
     /**
      * context://→file://へ変換する
+     * いまはUriをバイト配列にしてるので使ってない（）
      */
     fun getPath(uri: Uri?): String {
         //uri.getLastPathSegment();

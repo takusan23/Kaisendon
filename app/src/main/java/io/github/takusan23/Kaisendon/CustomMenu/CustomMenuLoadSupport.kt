@@ -45,7 +45,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
         if (search != null) {
             cursor = db!!.query(
                     "custom_menudb",
-                    arrayOf("name", "setting"),
+                    arrayOf("name", "setting","_id"),
                     "name=?",
                     arrayOf(search), null, null, null
             )
@@ -143,6 +143,9 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                 customMenuTimeLine.arguments = bundle
                 //名前控える
                 saveLastOpenCustomMenu(name)
+                //チェックつける
+                val item = navigationView.menu.getItem(cursor.getInt(2))
+                item?.isChecked = true
                 //置き換え
                 val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
                 transaction.replace(R.id.container_container, customMenuTimeLine)
@@ -204,7 +207,15 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                     val finalMisskey = misskey
                     val finalMisskey_username = misskey_username
                     val finalJson = json
-                    navigationView.menu.add(getDrawerMenuTitle(content, name)).setIcon(urlToContent(content)).setOnMenuItemClickListener {
+                    val item = navigationView.menu.add(getDrawerMenuTitle(content, name)).setIcon(urlToContent(content))
+                    item.setOnMenuItemClickListener {
+                        //チェック外し
+                        for (count in 0..navigationView.menu.size() - 1) {
+                            val unCheckItem = navigationView.menu.getItem(count)
+                            unCheckItem.isChecked = false
+                        }
+                        //チェックつける
+                        item.isChecked = true
                         //Fragment切り替え
                         //受け渡す
                         val bundle = Bundle()
@@ -270,7 +281,15 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                     val finalMisskey = misskey
                     val finalMisskey_username = misskey_username
                     val finalJson = json
-                    navigationView.menu.add(getDrawerMenuTitle(content, name)).setIcon(urlToContent(content)).setOnMenuItemClickListener {
+                    val item = navigationView.menu.add(getDrawerMenuTitle(content, name)).setIcon(urlToContent(content))
+                    item.setOnMenuItemClickListener {
+                        //チェック外し
+                        for (count in 0..navigationView.menu.size()) {
+                            val unCheckItem = navigationView.menu.getItem(count)
+                            unCheckItem.isChecked = false
+                        }
+                        //チェックつける
+                        item.isChecked = true
                         //Fragment切り替え
                         //受け渡す
                         val bundle = Bundle()

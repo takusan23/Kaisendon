@@ -40,6 +40,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
+import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.appbar.AppBarLayout
@@ -60,6 +61,7 @@ import io.github.takusan23.Kaisendon.Omake.LunchBonus
 import io.github.takusan23.Kaisendon.Omake.ShinchokuLayout
 import kotlinx.android.synthetic.main.app_bar_home2.*
 import kotlinx.android.synthetic.main.bottom_bar_layout.*
+import kotlinx.android.synthetic.main.content_home2.*
 import okhttp3.*
 import org.chromium.customtabsclient.shared.CustomTabsHelper
 import org.json.JSONArray
@@ -279,8 +281,21 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             } catch (e: CursorIndexOutOfBoundsException) {
                 e.printStackTrace()
             }
-
         }
+
+        //ViewPager
+        if (pref_setting.getBoolean("pref_view_pager_mode", false)) {
+            //動的にViewPager生成
+            val viewPager = ViewPager(this)
+            viewPager.id = View.generateViewId()
+            val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+            viewPager.layoutParams = layoutParams
+            container_container.addView(viewPager, 0)
+            //Adapter
+            val fragmentPagerAdapter = FragmentPagerAdapter(supportFragmentManager, this)
+            viewPager.adapter = fragmentPagerAdapter
+        }
+
 
         //デスクトップモード時で再生成されないようにする
         val fragment = supportFragmentManager.findFragmentById(R.id.container_container)
@@ -2963,6 +2978,11 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
         }
         return qs
+    }
+
+    fun removeViewPager(){
+        val viewPager = container_container.getChildAt(0) as ViewPager
+        container_container.removeView(viewPager)
     }
 
     companion object {

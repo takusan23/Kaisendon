@@ -356,6 +356,7 @@ class CustomMenuTimeLine : Fragment() {
         customMenuRecyclerViewAdapter = CustomMenuRecyclerViewAdapter(recyclerViewList!!)
         recyclerView!!.adapter = customMenuRecyclerViewAdapter
         recyclerViewLayoutManager = recyclerView!!.layoutManager
+
         addNavigationOpen()
 
         //TL読み込み
@@ -815,7 +816,7 @@ class CustomMenuTimeLine : Fragment() {
 
                 } else {
                     //失敗時
-                    if (isAdded){
+                    if (isAdded) {
                         activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
                     }
                 }
@@ -2410,6 +2411,13 @@ class CustomMenuTimeLine : Fragment() {
     //CustomMenuの名前を返す
     fun getCustomMenuName(): String {
         return name.toString()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (pref_setting?.getBoolean("pref_view_pager_mode", false) ?: false) {
+            webSocketClient?.close()
+        }
     }
 
     companion object {

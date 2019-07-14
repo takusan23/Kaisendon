@@ -54,6 +54,13 @@
             android:title="キャッシュから読み込む（開発中）" />
 
         <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_view_pager_mode"
+            android:summary="有効にするとドロワーがスワイプで開かない、デスクトップモード等が使えなくなります。"
+            android:title="横スワイプで切り替える" />
+
+
+        <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_chrome_custom_tabs"
             android:summary="@string/setting_chrome_custom_tabs_info"

@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.google.android.material.navigation.NavigationView
 import io.github.takusan23.Kaisendon.R
@@ -45,7 +46,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
         if (search != null) {
             cursor = db!!.query(
                     "custom_menudb",
-                    arrayOf("name", "setting","_id"),
+                    arrayOf("name", "setting", "_id"),
                     "name=?",
                     arrayOf(search), null, null, null
             )
@@ -344,6 +345,204 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
         val editor = pref_setting.edit()
         editor.putString("custom_menu_last", name)
         editor.apply()
+    }
+
+    /*ViewPager用にFragment配列を返します*/
+    fun loadMenuViewPager(): ArrayList<Fragment> {
+
+        val argumentList = arrayListOf<Fragment>()
+
+        //SQLite
+        if (helper == null) {
+            helper = CustomMenuSQLiteHelper(context)
+        }
+        if (db == null) {
+            db = helper!!.writableDatabase
+            db!!.disableWriteAheadLogging()
+        }
+        //SQLite読み込み
+        val cursor: Cursor
+        cursor = db!!.query(
+                "custom_menudb",
+                arrayOf("name", "setting"), null, null, null, null, null
+        )
+
+
+        var misskey = ""
+        var name = ""
+        var content = ""
+        var instance = ""
+        var access_token = ""
+        var image_load = ""
+        var dialog = ""
+        var dark_mode = ""
+        var position = ""
+        var streaming = ""
+        var subtitle = ""
+        var image_url = ""
+        var background_transparency = ""
+        var background_screen_fit = ""
+        var quick_profile = ""
+        var toot_counter = ""
+        var custom_emoji = ""
+        var gif = ""
+        var font = ""
+        var one_hand = ""
+        var misskey_username = ""
+        var setting = ""
+        val no_fav_icon = ""
+        val yes_fav_icon = ""
+        var json = ""
+
+        cursor.moveToFirst()
+
+        for (i in 0 until cursor.count) {
+            try {
+                val jsonObject = JSONObject(cursor.getString(1))
+                json = jsonObject.toString()
+                name = jsonObject.getString("name")
+                content = jsonObject.getString("content")
+                instance = jsonObject.getString("instance")
+                access_token = jsonObject.getString("access_token")
+                image_load = jsonObject.getString("image_load")
+                dialog = jsonObject.getString("dialog")
+                dark_mode = jsonObject.getString("dark_mode")
+                position = jsonObject.getString("position")
+                streaming = jsonObject.getString("streaming")
+                subtitle = jsonObject.getString("subtitle")
+                image_url = jsonObject.getString("image_url")
+                background_transparency = jsonObject.getString("background_transparency")
+                background_screen_fit = jsonObject.getString("background_screen_fit")
+                quick_profile = jsonObject.getString("quick_profile")
+                toot_counter = jsonObject.getString("toot_counter")
+                custom_emoji = jsonObject.getString("custom_emoji")
+                gif = jsonObject.getString("gif")
+                font = jsonObject.getString("font")
+                one_hand = jsonObject.getString("one_hand")
+                misskey = jsonObject.getString("misskey")
+                misskey_username = jsonObject.getString("misskey_username")
+                //                    no_fav_icon = jsonObject.getString("no_fav_icon");
+                //                    yes_fav_icon = jsonObject.getString("yes_fav_icon");
+                setting = jsonObject.getString("setting")
+                //メニュー追加
+                val finalName = name
+                val finalContent = content
+                val finalInstance = instance
+                val finalAccess_token = access_token
+                val finalImage_load = image_load
+                val finalDialog = dialog
+                val finalDark_mode = dark_mode
+                val finalPosition = position
+                val finalStreaming = streaming
+                val finalSubtitle = subtitle
+                val finalImage_url = image_url
+                val finalBackground_transparency = background_transparency
+                val finalBackground_screen_fit = background_screen_fit
+                val finalQuick_profile = quick_profile
+                val finalToot_counter = toot_counter
+                val finalCustom_emoji = custom_emoji
+                val finalGif = gif
+                val finalFont = font
+                val finalOne_hand = one_hand
+                val finalSetting = setting
+                val finalMisskey = misskey
+                val finalMisskey_username = misskey_username
+                val finalJson = json
+
+                //Fragment切り替え
+                //受け渡す
+                val bundle = Bundle()
+                bundle.putString("misskey", finalMisskey)
+                bundle.putString("name", finalName)
+                bundle.putString("content", finalContent)
+                bundle.putString("instance", finalInstance)
+                bundle.putString("access_token", finalAccess_token)
+                bundle.putString("image_load", finalImage_load)
+                bundle.putString("dialog", finalDialog)
+                bundle.putString("dark_mode", finalDark_mode)
+                bundle.putString("position", finalPosition)
+                bundle.putString("streaming", finalStreaming)
+                bundle.putString("subtitle", finalSubtitle)
+                bundle.putString("image_url", finalImage_url)
+                bundle.putString("background_transparency", finalBackground_transparency)
+                bundle.putString("background_screen_fit", finalBackground_screen_fit)
+                bundle.putString("quick_profile", finalQuick_profile)
+                bundle.putString("toot_counter", finalToot_counter)
+                bundle.putString("custom_emoji", finalCustom_emoji)
+                bundle.putString("gif", finalGif)
+                bundle.putString("font", finalFont)
+                bundle.putString("one_hand", finalOne_hand)
+                bundle.putString("misskey_username", finalMisskey_username)
+                bundle.putString("setting", finalSetting)
+                bundle.putString("no_fav_icon", no_fav_icon)
+                bundle.putString("yes_fav_icon", yes_fav_icon)
+                bundle.putString("json", finalJson)
+                val customMenuTimeLine = CustomMenuTimeLine()
+                customMenuTimeLine.arguments = bundle
+                argumentList.add(customMenuTimeLine)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+                //なくてもとりあえず追加する
+                //メニュー追加
+                val finalName = name
+                val finalContent = content
+                val finalInstance = instance
+                val finalAccess_token = access_token
+                val finalImage_load = image_load
+                val finalDialog = dialog
+                val finalDark_mode = dark_mode
+                val finalPosition = position
+                val finalStreaming = streaming
+                val finalSubtitle = subtitle
+                val finalImage_url = image_url
+                val finalBackground_transparency = background_transparency
+                val finalBackground_screen_fit = background_screen_fit
+                val finalQuick_profile = quick_profile
+                val finalToot_counter = toot_counter
+                val finalCustom_emoji = custom_emoji
+                val finalGif = gif
+                val finalFont = font
+                val finalOne_hand = one_hand
+                val finalSetting = setting
+                val finalMisskey = misskey
+                val finalMisskey_username = misskey_username
+                val finalJson = json
+                //Fragment切り替え
+                //受け渡す
+                val bundle = Bundle()
+                bundle.putString("misskey", finalMisskey)
+                bundle.putString("name", finalName)
+                bundle.putString("content", finalContent)
+                bundle.putString("instance", finalInstance)
+                bundle.putString("access_token", finalAccess_token)
+                bundle.putString("image_load", finalImage_load)
+                bundle.putString("dialog", finalDialog)
+                bundle.putString("dark_mode", finalDark_mode)
+                bundle.putString("position", finalPosition)
+                bundle.putString("streaming", finalStreaming)
+                bundle.putString("subtitle", finalSubtitle)
+                bundle.putString("image_url", finalImage_url)
+                bundle.putString("background_transparency", finalBackground_transparency)
+                bundle.putString("background_screen_fit", finalBackground_screen_fit)
+                bundle.putString("quick_profile", finalQuick_profile)
+                bundle.putString("toot_counter", finalToot_counter)
+                bundle.putString("custom_emoji", finalCustom_emoji)
+                bundle.putString("gif", finalGif)
+                bundle.putString("font", finalFont)
+                bundle.putString("one_hand", finalOne_hand)
+                bundle.putString("misskey_username", finalMisskey_username)
+                bundle.putString("setting", finalSetting)
+                bundle.putString("no_fav_icon", no_fav_icon)
+                bundle.putString("yes_fav_icon", yes_fav_icon)
+                bundle.putString("json", finalJson)
+                val customMenuTimeLine = CustomMenuTimeLine()
+                customMenuTimeLine.arguments = bundle
+                argumentList.add(customMenuTimeLine)
+            }
+            cursor.moveToNext()
+        }
+        cursor.close()
+        return argumentList
     }
 
     /*アイコンを返す*/

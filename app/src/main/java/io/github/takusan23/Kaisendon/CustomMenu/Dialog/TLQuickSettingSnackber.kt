@@ -238,6 +238,7 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
                     R.id.home_menu_setting -> {
                         transaction.replace(R.id.container_container, SettingFragment())
                         transaction.commit()
+                        (context as Home).removeViewPager()
                     }
                     R.id.home_menu_license -> {
                         transaction.replace(R.id.container_container, License_Fragment())

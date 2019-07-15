@@ -9,13 +9,13 @@
         android:icon="@drawable/ic_book_black_24dp"
         android:title="@string/bookmark" />
     <item
-        android:id="@+id/tl_qs_desktop_mode"
-        android:icon="@drawable/ic_view_column_black_24dp"
-        android:title="@string/desktop_mode" />
+        android:id="@+id/tl_qs_edit"
+        android:icon="@drawable/ic_edit_black_24dp"
+        android:title="@string/custom_menu_setting" />
     <item
-        android:id="@+id/tl_qs_floating_tl"
-        android:icon="@drawable/ic_flip_to_front_black_24dp"
-        android:title="@string/floating_tl" />
+        android:id="@+id/tl_qs_display_method"
+        android:icon="@drawable/ic_lightbulb_outline_black_24dp"
+        android:title="@string/display_method" />
     <item
         android:id="@+id/tl_qs_sonota"
         android:icon="@drawable/ic_menu_black_24dp"

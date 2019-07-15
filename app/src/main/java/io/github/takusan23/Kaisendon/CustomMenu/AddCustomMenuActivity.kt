@@ -32,6 +32,8 @@ import com.google.android.material.snackbar.Snackbar
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
+import kotlinx.android.synthetic.main.activity_add_custom_menu.*
+import kotlinx.android.synthetic.main.activity_add_custom_menu.view.*
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONException
@@ -75,6 +77,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
     private var font_reset_Button: Button? = null
     private var font_TextView: TextView? = null
     private var fab: FloatingActionButton? = null
+    private var isReadOnly = false
 
     /*
     private ImageView no_favourite_ImageView;
@@ -233,6 +236,8 @@ class AddCustomMenuActivity : AppCompatActivity() {
         background_setting()
         //フォント
         font_setting()
+
+
         //お気に入りボタン
         //favButtonSetting()
     }
@@ -450,6 +455,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
         })
     }
 
+
     /**
      * フォント設定
      */
@@ -547,8 +553,8 @@ class AddCustomMenuActivity : AppCompatActivity() {
             jsonObject.put("name", name_EditText!!.getText().toString())
             jsonObject.put("memo", "")
             jsonObject.put("content", load_url)
-            jsonObject.put("instance", instance)
-            jsonObject.put("access_token", access_token)
+            jsonObject.put("instance", getInstanceName())
+            jsonObject.put("access_token", access_token ?: "")
             jsonObject.put("image_load", (image_Switch!!.isChecked()).toString())
             jsonObject.put("dialog", (dialog_Switch!!.isChecked()).toString())
             jsonObject.put("dark_mode", (dark_Switch!!.isChecked()).toString())
@@ -567,6 +573,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
             jsonObject.put("misskey_username", misskey_username)
             jsonObject.put("no_fav_icon", no_fav_icon_path)
             jsonObject.put("yes_fav_icon", yes_fav_icon_path)
+            jsonObject.put("read_only", custom_menu_read_only_instance_switch.isChecked.toString())
             jsonObject.put("setting", "")
         } catch (e: JSONException) {
             e.printStackTrace()
@@ -589,8 +596,8 @@ class AddCustomMenuActivity : AppCompatActivity() {
             jsonObject.put("name", name_EditText!!.getText().toString())
             jsonObject.put("memo", "")
             jsonObject.put("content", load_url)
-            jsonObject.put("instance", instance)
-            jsonObject.put("access_token", access_token)
+            jsonObject.put("instance", getInstanceName())
+            jsonObject.put("access_token", access_token ?: "")
             jsonObject.put("image_load", (image_Switch!!.isChecked()).toString())
             jsonObject.put("dialog", (dialog_Switch!!.isChecked()).toString())
             jsonObject.put("dark_mode", (dark_Switch!!.isChecked()).toString())
@@ -609,6 +616,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
             jsonObject.put("misskey_username", misskey_username)
             jsonObject.put("no_fav_icon", no_fav_icon_path)
             jsonObject.put("yes_fav_icon", yes_fav_icon_path)
+            jsonObject.put("read_only", custom_menu_read_only_instance_switch.isChecked.toString())
             jsonObject.put("setting", "")
         } catch (e: JSONException) {
             e.printStackTrace()
@@ -642,7 +650,9 @@ class AddCustomMenuActivity : AppCompatActivity() {
                 urlToContent(jsonObject.getString("content"))
                 instance = jsonObject.getString("instance")
                 account_Button!!.setText(instance)
-                access_token = jsonObject.getString("access_token")
+                if (!jsonObject.isNull("access_token")) {
+                    access_token = jsonObject.getString("access_token")
+                }
                 image_Switch!!.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("image_load")))
                 dark_Switch!!.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("dark_mode")))
                 streaming_Switch!!.setChecked(!java.lang.Boolean.valueOf(jsonObject.getString("streaming")))
@@ -661,14 +671,12 @@ class AddCustomMenuActivity : AppCompatActivity() {
                 one_hand_Switch!!.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("one_hand")))
                 font_Button!!.setText(jsonObject.getString("font"))
                 font_path = jsonObject.getString("font")
-                no_fav_icon_path = jsonObject.getString("no_fav_icon")
-                yes_fav_icon_path = jsonObject.getString("yes_fav_icon")
-                val file = File(font_path)
-                misskey_username = jsonObject.getString("misskey_username")
-                if (file.exists()) {
-                    typeface = Typeface.createFromFile(File(font_path))
-                    font_TextView!!.setTypeface(typeface)
+                if (!jsonObject.isNull("read_only")) {
+                    isReadOnly = jsonObject.getString("read_only")?.toBoolean() ?: false
+                    custom_menu_read_only_instance_switch.isChecked = isReadOnly
+                    custom_menu_read_only_instance_textinput.setText(instance)
                 }
+
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
@@ -1008,6 +1016,14 @@ class AddCustomMenuActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    /*インスタンス名取得？、読み取り専用の場合と登録済みから取るやつ。*/
+    private fun getInstanceName(): String {
+        if (isReadOnly || custom_menu_read_only_instance_switch.isChecked) {
+            instance = custom_menu_read_only_instance_textinput.text.toString()
+        }
+        return instance.toString()
     }
 
     /**

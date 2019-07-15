@@ -23,6 +23,7 @@ import io.github.takusan23.Kaisendon.Activity.LoginActivity
 import io.github.takusan23.Kaisendon.Activity.UserActivity
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuLoadSupport
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper
+import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSwipeSwitch
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment
@@ -127,8 +128,10 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
             when (menuItem.itemId) {
                 R.id.tl_qs_account -> setAccountPopupMenu()
                 R.id.tl_qs_bookmark -> setBookmark()
-                R.id.tl_qs_desktop_mode -> setDesktopMode()
-                R.id.tl_qs_floating_tl -> showFloatingMenu()
+                R.id.tl_qs_edit -> {
+                    Toast.makeText(context,"未実装",Toast.LENGTH_SHORT).show()
+                }
+                R.id.tl_qs_display_method -> showDisplayMethodMenu()
                 R.id.tl_qs_sonota -> setSonotaMenu()
             }
             true
@@ -141,7 +144,9 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
             val fragment = (context as AppCompatActivity).supportFragmentManager.findFragmentById(R.id.container_container)
             if (fragment is CustomMenuTimeLine) {
                 val floatingTL = FloatingTL(context, fragment.arguments!!.getString("json")!!)
-                floatingTL.setNotification(isPiP)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    floatingTL.setNotification(isPiP)
+                }
             } else {
                 Toast.makeText(context, context.getString(R.string.floating_tl_error_custom_tl), Toast.LENGTH_SHORT).show()
             }
@@ -238,7 +243,6 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
                     R.id.home_menu_setting -> {
                         transaction.replace(R.id.container_container, SettingFragment())
                         transaction.commit()
-                        (context as Home).removeViewPager()
                     }
                     R.id.home_menu_license -> {
                         transaction.replace(R.id.container_container, License_Fragment())
@@ -326,6 +330,38 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
         }
     }
 
+    /*表示方法メニュー*/
+    @SuppressLint("RestrictedApi")
+    private fun showDisplayMethodMenu() {
+        val menuBuilder = MenuBuilder(context!!)
+        val inflater = MenuInflater(context)
+        inflater.inflate(R.menu.display_method_menu, menuBuilder)
+        val optionsMenu = MenuPopupHelper(context, menuBuilder, bottomNavigationView!!)
+        optionsMenu.setForceShowIcon(true)
+        //表示
+        optionsMenu.show()
+        menuBuilder.setCallback(object : MenuBuilder.Callback {
+            override fun onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean {
+                when (item.itemId) {
+                    R.id.home_menu_desktop_mode -> setDesktopMode()
+                    R.id.home_menu_floating_mode -> showFloatingMenu()
+                    R.id.home_menu_view_pager_mode -> showSwipeSwitchingMode()
+                }
+                return false
+            }
+
+            override fun onMenuModeChange(menu: MenuBuilder) {
+
+            }
+        })
+    }
+
+    /*スワイプ切り替えモード（開発中）*/
+    private fun showSwipeSwitchingMode(){
+        val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.container_container, CustomMenuSwipeSwitch(), "swipe_switch")
+        transaction.commit()
+    }
 
     /**
      * プライバシーポリシー

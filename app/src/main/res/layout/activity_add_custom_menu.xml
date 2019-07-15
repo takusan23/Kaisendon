@@ -105,12 +105,39 @@
                     android:layout_height="match_parent"
                     android:src="@drawable/ic_person_black_24dp" />
 
-                <Button
-                    android:id="@+id/custom_menu_account"
+                <LinearLayout
+                    android:id="@+id/custom_menu_account_linearlayout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/button_style"
-                    android:text="@string/custom_menu_account" />
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/custom_menu_account"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_style"
+                        android:text="@string/custom_menu_account" />
+
+                    <Switch
+                        android:id="@+id/custom_menu_read_only_instance_switch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="ログインなしでローカルタイムラインを見る" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/custom_menu_read_only_instance_textinput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="ログイン無しでタイムラインを見る。" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
             </LinearLayout>
 
             <LinearLayout
@@ -148,7 +175,7 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:id="@+id/imageView12"
+                    android:id="@+id/imageView14"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     app:srcCompat="@drawable/ic_brush_black_24dp" />

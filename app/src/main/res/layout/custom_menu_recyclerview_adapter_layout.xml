@@ -157,7 +157,9 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp"></LinearLayout>
+                android:paddingRight="10dp">
+
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/custom_menu_adapter_voteLinearLayout"
@@ -165,47 +167,125 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp"></LinearLayout>
+                android:paddingRight="10dp">
+
+            </LinearLayout>
 
 
-            <com.google.android.material.chip.ChipGroup
+            <LinearLayout
+                android:id="@+id/custom_menu_adapter_POST_LinearLayout"
                 android:layout_width="wrap_content"
-                android:layout_height="25dp">
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/custom_menu_adapter_favourite_chip"
-                    style="@style/Platform.MaterialComponents.Light"
+                <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:text="0"
-                    app:checkedIconVisible="true"
-                    app:chipIcon="@drawable/ic_star_black_24dp"
-                    app:chipIconVisible="true"
-                    app:closeIconVisible="false" />
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp">
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/custom_menu_adapter_bt_chip"
-                    style="@style/Platform.MaterialComponents.Light"
+                    <ImageView
+                        android:id="@+id/custom_menu_adapter_BT_ImageView"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:srcCompat="@drawable/ic_repeat_black_24dp" />
+
+                    <TextView
+                        android:id="@+id/custom_menu_adapter_BT_TextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="0" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:text="0"
-                    app:chipIcon="@drawable/ic_repeat_black_24dp" />
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp">
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/custom_menu_adapter_option_chip"
-                    style="@style/Platform.MaterialComponents.Light"
+                    <ImageView
+                        android:id="@+id/custom_menu_adapter_Fav_ImageView"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:srcCompat="@drawable/ic_star_black_24dp" />
+
+                    <TextView
+                        android:id="@+id/custom_menu_adapter_Fav_TextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="0" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="false"
-                    android:text=""
-                    app:checkedIconVisible="false"
-                    app:chipIcon="@drawable/ic_more_vert_black_24dp"
-                    app:chipIconVisible="true"
-                    app:closeIconVisible="false" />
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp">
 
-            </com.google.android.material.chip.ChipGroup>
+                    <ImageView
+                        android:id="@+id/custom_menu_adapter_Option_ImageView"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:srcCompat="@drawable/ic_more_vert_black_24dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!--
+                        <com.google.android.material.chip.ChipGroup
+                            android:layout_width="wrap_content"
+                            android:layout_height="25dp">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/custom_menu_adapter_favourite_chip"
+                                style="@style/Platform.MaterialComponents.Light"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checkable="true"
+                                android:text="0"
+                                app:checkedIconVisible="true"
+                                app:chipIcon="@drawable/ic_star_black_24dp"
+                                app:chipIconVisible="true"
+                                app:closeIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/custom_menu_adapter_bt_chip"
+                                style="@style/Platform.MaterialComponents.Light"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checkable="true"
+                                android:text="0"
+                                app:chipIcon="@drawable/ic_repeat_black_24dp" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/custom_menu_adapter_option_chip"
+                                style="@style/Platform.MaterialComponents.Light"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checkable="false"
+                                android:text=""
+                                app:checkedIconVisible="false"
+                                app:chipIcon="@drawable/ic_more_vert_black_24dp"
+                                app:chipIconVisible="true"
+                                app:closeIconVisible="false" />
+
+                        </com.google.android.material.chip.ChipGroup>
+            -->
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

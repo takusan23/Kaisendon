@@ -515,5 +515,8 @@
     <string name="button_right_description">お気に入り、ブーストボタンを右側に置く</string>
     <string name="button_right">ボタンを右側に寄せる</string>
     <string name="how_to_use">使い方</string>
+    <string name="display_method">表示方法</string>
+    <string name="view_pager_mode">スワイプ切り替えモード</string>
+    <string name="read_only_toot">読み取り専用モードでは投稿することができません。ログインしてください。</string>
 
 </resources>

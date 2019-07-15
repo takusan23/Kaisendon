@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/home_menu_view_pager_mode"
+        android:icon="@drawable/ic_swap_horiz_black_24dp"
+        android:title="@string/view_pager_mode" />
+    <item
+        android:id="@+id/home_menu_desktop_mode"
+        android:icon="@drawable/ic_view_column_black_24dp"
+        android:title="@string/desktop_mode" />
+    <item
+        android:id="@+id/home_menu_floating_mode"
+        android:icon="@drawable/ic_flip_to_front_black_24dp"
+        android:title="@string/floating_tl" />
+
+</menu>

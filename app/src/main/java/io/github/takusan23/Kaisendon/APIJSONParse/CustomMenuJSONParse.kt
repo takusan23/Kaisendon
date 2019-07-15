@@ -46,6 +46,8 @@ class CustomMenuJSONParse(json_data: String) {
         internal set
     var misskey_username = ""
         internal set
+    var isReadOnly = ""
+        internal set
     var setting = ""
         internal set
     var no_fav_icon: String? = null
@@ -82,13 +84,10 @@ class CustomMenuJSONParse(json_data: String) {
             misskey = jsonObject.getString("misskey")
             misskey_username = jsonObject.getString("misskey_username")
             setting = jsonObject.getString("setting")
-            //試験的
-            if (!jsonObject.isNull("no_fav_icon")) {
-                no_fav_icon = jsonObject.getString("no_fav_icon")
+            if (!jsonObject.isNull("read_only")) {
+                isReadOnly = jsonObject.getString("read_only")
             }
-            if (!jsonObject.isNull("yes_fav_icon")) {
-                yes_fav_icon = jsonObject.getString("yes_fav_icon")
-            }
+
         } catch (e: JSONException) {
             e.printStackTrace()
         }

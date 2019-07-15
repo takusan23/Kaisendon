@@ -618,5 +618,8 @@
     <string name="button_right">Move the button to the right</string>
     <string name="button_right_description">Favorite, put the boost button on the right</string>
     <string name="how_to_use">How to use</string>
+    <string name="display_method">Display method</string>
+    <string name="view_pager_mode">swipe switching mode</string>
+    <string name="read_only_toot">You can not post in read-only mode. Please login.</string>
 
 </resources>

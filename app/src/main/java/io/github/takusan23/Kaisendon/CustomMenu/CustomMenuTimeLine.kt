@@ -179,6 +179,9 @@ class CustomMenuTimeLine : Fragment() {
     //あくまで既定でつながらなった場合のみ
     private var instance_api_streaming_api_link = ""
 
+    //読み取り専用モード？
+    private var isReadOnly = "false"
+
     /**
      * 変数 : url
      * これCustomMenuTimeLine単体だと動くけどDesktopModeだとおかしくなるのでこのメゾット使って
@@ -225,6 +228,7 @@ class CustomMenuTimeLine : Fragment() {
         name = arguments!!.getString("name")
         no_fav_icon = arguments!!.getString("no_fav_icon")
         yes_fav_icon = arguments!!.getString("yes_fav_icon")
+        isReadOnly = arguments?.getString("read_only") ?: "false"
 
         // onOptionsItemSelectedが呼ばれない対策
         setHasOptionsMenu(true)
@@ -246,7 +250,8 @@ class CustomMenuTimeLine : Fragment() {
         //インスタンス、アクセストークン変更
         //Misskeyは設定しないように
         //デスクトップモード時も設定しないように
-        if (activity!!.supportFragmentManager.findFragmentById(R.id.container_container) is DesktopFragment) {
+        //読み取り専用モード時も設定しないように
+        if (activity!!.supportFragmentManager.findFragmentById(R.id.container_container) is DesktopFragment || isReadOnly.toBoolean()) {
             //タイトル
             isDesktopMode = true
             (context as AppCompatActivity).title = getString(R.string.desktop_mode)
@@ -952,12 +957,6 @@ class CustomMenuTimeLine : Fragment() {
                 }
 
                 override fun onClose(code: Int, reason: String, remote: Boolean) {
-                    //失敗時
-                    activity?.runOnUiThread {
-                        if (isAdded) {
-                            Toast.makeText(context, getString(R.string.error) + "\n" + reason, Toast.LENGTH_SHORT).show()
-                        }
-                    }
                     //404エラーは再接続？
                     //何回もAPI叩かれると困る
                     if (instance_api_streaming_api_link.isEmpty() && reason.contains("404")) {
@@ -966,7 +965,17 @@ class CustomMenuTimeLine : Fragment() {
                 }
 
                 override fun onError(ex: Exception) {
-
+                    //失敗時
+                    activity?.runOnUiThread {
+                        if (isAdded) {
+                            Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    //404エラーは再接続？
+                    //何回もAPI叩かれると困る
+                    if (instance_api_streaming_api_link.isEmpty()) {
+                        getInstanceUrlsStreamingAPI()
+                    }
                 }
             }
             //接続
@@ -2413,9 +2422,14 @@ class CustomMenuTimeLine : Fragment() {
         return name.toString()
     }
 
+    //読み取り専用かどうかを返す
+    fun isReadOnly(): Boolean {
+        return isReadOnly.toBoolean()
+    }
+
     override fun onPause() {
         super.onPause()
-        if (pref_setting?.getBoolean("pref_view_pager_mode", false) ?: false) {
+        if (webSocketClient?.isClosed == false) {
             webSocketClient?.close()
         }
     }

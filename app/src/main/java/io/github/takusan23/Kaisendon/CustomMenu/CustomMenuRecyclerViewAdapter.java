@@ -45,8 +45,6 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
@@ -107,6 +105,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     private boolean isActivityPubViewer = false;
     private ArrayList<String> type_face_String;
     private ArrayList<Typeface> type_face_list;
+    private boolean isReadOnly = false;
     //アイコンの配列
     private ArrayList<String> no_fav_icon_String;
     private ArrayList<Drawable> no_fav_icon_list;
@@ -164,9 +163,16 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         public Button vote_4;
         public TextView vote_time;
         //Chip (Favourite Boost TootOption etc)
-        public Chip fav_chip;
-        public Chip bt_chip;
-        public Chip option_chip;
+        //public Chip fav_chip;
+        //public Chip bt_chip;
+        //public Chip option_chip;
+        //Fav・BT・おぷしょん
+        public ImageView fav_ImageView;
+        public TextView fav_TextView;
+        public ImageView bt_ImageView;
+        public TextView bt_TextView;
+        public ImageView option_ImageView;
+        public LinearLayout fav_bt_LinearLayout;
 
         public ViewHolder(@NonNull View itemView, Context context) {
             super(itemView);
@@ -210,9 +216,15 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             vote_3 = new Button(context);
             vote_4 = new Button(context);
             vote_time = new TextView(context);
-            fav_chip = itemView.findViewById(R.id.custom_menu_adapter_favourite_chip);
-            bt_chip = itemView.findViewById(R.id.custom_menu_adapter_bt_chip);
-            option_chip = itemView.findViewById(R.id.custom_menu_adapter_option_chip);
+            //fav_chip = itemView.findViewById(R.id.custom_menu_adapter_favourite_chip);
+            //bt_chip = itemView.findViewById(R.id.custom_menu_adapter_bt_chip);
+            //option_chip = itemView.findViewById(R.id.custom_menu_adapter_option_chip);
+            fav_ImageView = itemView.findViewById(R.id.custom_menu_adapter_Fav_ImageView);
+            fav_TextView = itemView.findViewById(R.id.custom_menu_adapter_Fav_TextView);
+            bt_ImageView = itemView.findViewById(R.id.custom_menu_adapter_BT_ImageView);
+            bt_TextView = itemView.findViewById(R.id.custom_menu_adapter_BT_TextView);
+            option_ImageView = itemView.findViewById(R.id.custom_menu_adapter_Option_ImageView);
+            fav_bt_LinearLayout = itemView.findViewById(R.id.custom_menu_adapter_POST_LinearLayout);
         }
     }
 
@@ -228,6 +240,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         return viewHolder;
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         pref_setting = PreferenceManager.getDefaultSharedPreferences(viewHolder.toot_text_TextView.getContext());
@@ -242,6 +255,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
         //ボタン右側設定
         setRightChip(viewHolder);
+
 
         //パースする種類
         if (item.get(1).contains("/api/v1/scheduled_statuses")) {
@@ -267,6 +281,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (item.get(0).contains("ActivityPub")) {
             isActivityPubViewer = true;
         }
+
         //デスクトップモードかPiP利用時は簡略表示する
         Fragment fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentById(R.id.container_container);
         Fragment pip_Fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentByTag("pip_fragment");
@@ -279,7 +294,10 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (pip_Fragment != null) {
             setPiPLayout(viewHolder);
         }
-
+        //読み取り専用の場合
+        if (Boolean.valueOf(setting.isReadOnly())) {
+            setReadOnlyLayout(viewHolder);
+        }
         //TL/それ以外
         if (!isScheduled_statuses && !isFollowSuggestions && !isMisskeyFollowes && !isMastodonFollowes && !isActivityPubViewer) {
             //レイアウト
@@ -357,8 +375,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //アバター画像
                 loadAvatarImage(api, viewHolder, setting);
                 //BT、Favできるようにする
-                setStatusClick(viewHolder.bt_chip, "bt_only", api, item, setting);
-                setStatusClick(viewHolder.fav_chip, "fav_only", api, item, setting);
+                setStatusClick(viewHolder.bt_TextView, viewHolder.bt_ImageView, "bt_only", api, item, setting);
+                setStatusClick(viewHolder.fav_TextView, viewHolder.fav_ImageView, "fav_only", api, item, setting);
                 //Fav+BTできるように
                 setPostBtFav(viewHolder, api, item, setting);
                 //Fav、BT済み、カウント数を出す
@@ -542,9 +560,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      *
      * @param type favかbtか
      */
-    private void setStatusClick(View textView, String type, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
+    private void setStatusClick(TextView textView, ImageView imageView, String type, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //クリックイベント
-        textView.setOnClickListener(new View.OnClickListener() {
+        imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Snackberのテキスト
@@ -559,13 +577,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                         message = context.getString(R.string.delete_fav);
                         button = context.getString(R.string.delete_ok);
                         apiUrl = "unfavourite";
-                        ((Chip) textView).setChecked(true); //これクリックイベント追加すると何も書いて無くてもチェックが付くので手動で付けてます。
+                        //((Chip) textView).setChecked(true); //これクリックイベント追加すると何も書いて無くてもチェックが付くので手動で付けてます。
                     } else {
                         //Favする
                         message = context.getString(R.string.favourite_add_message);
                         button = context.getString(R.string.favoutire);
                         apiUrl = "favourite";
-                        ((Chip) textView).setChecked(false);
+                        //((Chip) textView).setChecked(false);
                     }
                 } else {
                     //Fav済みか
@@ -574,13 +592,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                         message = context.getString(R.string.delete_bt);
                         button = context.getString(R.string.delete_text);
                         apiUrl = "unreblog";
-                        ((Chip) textView).setChecked(true);
+                        //((Chip) textView).setChecked(true);
                     } else {
                         //BTする
                         message = context.getString(R.string.dialog_boost_info);
                         button = context.getString(R.string.dialog_boost);
                         apiUrl = "reblog";
-                        ((Chip) textView).setChecked(false);
+                        //((Chip) textView).setChecked(false);
                     }
                 }
                 //SnackBer生成
@@ -589,13 +607,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 //ダイアログ非表示
                 if (Boolean.valueOf(setting.getDialog())) {
                     //実行
-                    TootAction(api.getToot_ID(), finalApiUrl, textView, api, item, setting);
+                    TootAction(api.getToot_ID(), finalApiUrl, textView, imageView, api, item, setting);
                 } else {
                     Snackbar.make(v, message, Snackbar.LENGTH_LONG).setAction(button, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             //実行
-                            TootAction(api.getToot_ID(), finalApiUrl, textView, api, item, setting);
+                            TootAction(api.getToot_ID(), finalApiUrl, textView, imageView, api, item, setting);
                         }
                     }).show();
                 }
@@ -609,7 +627,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      */
     private void setPostBtFav(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //Favourite+Boost
-        viewHolder.fav_chip.setOnLongClickListener(new View.OnLongClickListener() {
+        viewHolder.fav_ImageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 //Snackberのテキスト
@@ -624,16 +642,16 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 if (Boolean.valueOf(setting.getDialog())) {
                     //実行
                     //Fab+BTモード以外
-                    TootAction(api.getToot_ID(), "favourite", viewHolder.fav_chip, api, item, setting);
-                    TootAction(api.getToot_ID(), "reblog", viewHolder.bt_chip, api, item, setting);
+                    TootAction(api.getToot_ID(), "favourite", viewHolder.fav_TextView, viewHolder.fav_ImageView, api, item, setting);
+                    TootAction(api.getToot_ID(), "reblog", viewHolder.bt_TextView, viewHolder.bt_ImageView, api, item, setting);
                 } else {
                     Snackbar.make(v, message, Snackbar.LENGTH_LONG).setAction(button, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             //実行
                             //Fab+BTモード以外
-                            TootAction(api.getToot_ID(), "favourite", viewHolder.fav_chip, api, item, setting);
-                            TootAction(api.getToot_ID(), "reblog", viewHolder.bt_chip, api, item, setting);
+                            TootAction(api.getToot_ID(), "favourite", viewHolder.fav_TextView, viewHolder.fav_ImageView, api, item, setting);
+                            TootAction(api.getToot_ID(), "reblog", viewHolder.bt_TextView, viewHolder.bt_ImageView, api, item, setting);
                         }
                     }).show();
                 }
@@ -647,8 +665,14 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      * Fav、BT済み、カウント数を入れる
      */
     private void setCountAndIconColor(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
-        viewHolder.bt_chip.setText(api.getBtCount());
-        viewHolder.fav_chip.setText(api.getFavCount());
+        //viewHolder.bt_chip.setText(api.getBtCount());
+        //viewHolder.fav_chip.setText(api.getFavCount());
+        if (api.getFavCount() != null) {
+            viewHolder.fav_TextView.setText(api.getFavCount());
+        }
+        if (api.getBtCount() != null) {
+            viewHolder.bt_TextView.setText(api.getBtCount());
+        }
         Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp, null);
         Drawable favIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp, null);
         Drawable menuIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_more_vert_black_24dp, null);
@@ -665,13 +689,16 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
             //viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
             //viewHolder.toot_bookmark_TextView.setCompoundDrawablesRelativeWithIntrinsicBounds(menuIcon, null, null, null);
-            viewHolder.fav_chip.setChipIcon(favIcon);
-            viewHolder.bt_chip.setChipIcon(boostIcon);
-            viewHolder.option_chip.setChipIcon(menuIcon);
+            //viewHolder.fav_chip.setChipIcon(favIcon);
+            //viewHolder.bt_chip.setChipIcon(boostIcon);
+            //viewHolder.option_chip.setChipIcon(menuIcon);
+            viewHolder.fav_ImageView.setImageDrawable(favIcon);
+            viewHolder.bt_ImageView.setImageDrawable(favIcon);
+            viewHolder.option_ImageView.setImageDrawable(favIcon);
             //背景色
-            viewHolder.fav_chip.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#000000")));
-            viewHolder.bt_chip.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#000000")));
-            viewHolder.option_chip.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#000000")));
+            //viewHolder.fav_chip.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#000000")));
+            //viewHolder.bt_chip.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#000000")));
+            //viewHolder.option_chip.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#000000")));
             //Toot詳細も白アイコン
             viewHolder.date_icon_ImageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.white)));
             viewHolder.visibility_icon_ImageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.white)));
@@ -681,11 +708,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (api.getIsBT().contains("true") || item.get(4).contains("true")) {
             Drawable isBoostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp_1, null);
             isBoostIcon.setTint(Color.parseColor("#008000"));
-            viewHolder.bt_chip.setChipIcon(isBoostIcon);
-            viewHolder.bt_chip.setChecked(true);
+            //viewHolder.bt_chip.setChipIcon(isBoostIcon);
+            //viewHolder.bt_chip.setChecked(true);
+            viewHolder.bt_ImageView.setImageDrawable(isBoostIcon);
         } else {
-            viewHolder.bt_chip.setChipIcon(boostIcon);
-            viewHolder.bt_chip.setChecked(false);
+            //viewHolder.bt_chip.setChipIcon(boostIcon);
+            //viewHolder.bt_chip.setChecked(false);
+            viewHolder.bt_ImageView.setImageDrawable(boostIcon);
         }
         //ふぁぼ
         //Mastodonでは使わない
@@ -694,14 +723,17 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             if (api.getIsFav().contains("true") || item.get(5).contains("true")) {
                 Drawable isFavIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp_1, null);
                 isFavIcon.setTint(Color.parseColor("#ffd700"));
-                viewHolder.fav_chip.setChipIcon(isFavIcon);
-                viewHolder.fav_chip.setChecked(true);
+                //viewHolder.fav_chip.setChipIcon(isFavIcon);
+                //viewHolder.fav_chip.setChecked(true);
+                viewHolder.fav_ImageView.setImageDrawable(isFavIcon);
             } else {
-                viewHolder.fav_chip.setChipIcon(favIcon);
-                viewHolder.fav_chip.setChecked(false);
+                //viewHolder.fav_chip.setChipIcon(favIcon);
+                //viewHolder.fav_chip.setChecked(false);
+                viewHolder.fav_ImageView.setImageDrawable(favIcon);
             }
         } else {
-            viewHolder.fav_chip.setText(toReactionEmoji(api.getIsFav()));
+            //viewHolder.fav_chip.setText(toReactionEmoji(api.getIsFav()));
+            viewHolder.fav_TextView.setText(toReactionEmoji(api.getIsFav()));
             viewHolder.mainLinearLayout.removeView(viewHolder.reaction_TextView);
             viewHolder.reaction_TextView.setPadding(viewHolder.toot_text_TextView.getPaddingLeft(), 0, viewHolder.toot_text_TextView.getPaddingRight(), 0);
             viewHolder.reaction_TextView.setText(api.getFavCount());
@@ -953,8 +985,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.mainLinearLayout.addView(viewHolder.notification_type_TextView, 0);
             //DM以外でレイアウト消す
             if (api.getNotification_Type().equals("follow")) {
-                ChipGroup chipGroup = ((ChipGroup) viewHolder.fav_chip.getParent());
-                viewHolder.mainLinearLayout.removeView(chipGroup);
+                LinearLayout actionLinearLayout = (LinearLayout) viewHolder.fav_ImageView.getParent().getParent();
+                viewHolder.mainLinearLayout.removeView(actionLinearLayout);
             }
         }
     }
@@ -989,7 +1021,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     /**
      * BT,FavのAPI
      */
-    private void TootAction(String id, String endPoint, View view, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
+    private void TootAction(String id, String endPoint, TextView textView, ImageView imageView, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -1011,7 +1043,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(view.getContext(), view.getContext().getString(R.string.error), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.error), Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -1025,7 +1057,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(view.getContext(), view.getContext().getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         } else {
@@ -1036,44 +1068,40 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                 public void run() {
                                     //Fav/BT Countを表示できるようにする
                                     MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(context, response_string, setting, 66);
-                                    Chip chip = (Chip) view;
+                                    //Chip chip = (Chip) view;
                                     if (endPoint.contains("reblog")) {
-                                        Toast.makeText(view.getContext(), view.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
-                                        Drawable boostIcon = ResourcesCompat.getDrawable(view.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                                        Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
+                                        Drawable boostIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
                                         boostIcon.setTint(Color.parseColor("#008000"));
-                                        chip.setText(api.getBtCount());
-                                        chip.setChipIcon(boostIcon);
-                                        chip.setChecked(true);
+                                        textView.setText(api.getBtCount());
+                                        imageView.setImageDrawable(boostIcon);
                                         //BTしたぜ！
                                         item.set(4, "true");
                                     }
                                     if (endPoint.contains("favourite")) {
-                                        Toast.makeText(view.getContext(), view.getContext().getString(R.string.favourite_add) + " : " + id, Toast.LENGTH_SHORT).show();
-                                        Drawable favIcon = ResourcesCompat.getDrawable(view.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                                        Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.favourite_add) + " : " + id, Toast.LENGTH_SHORT).show();
+                                        Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
                                         favIcon.setTint(Color.parseColor("#ffd700"));
-                                        chip.setChipIcon(favIcon);
-                                        chip.setText(api.getFavCount());
-                                        chip.setChecked(true);
+                                        imageView.setImageDrawable(favIcon);
+                                        textView.setText(api.getFavCount());
                                         //Favしたぜ！
                                         item.set(5, "true");
                                     }
                                     if (endPoint.contains("unfavourite")) {
-                                        Toast.makeText(view.getContext(), view.getContext().getString(R.string.delete_fav_toast) + " : " + id, Toast.LENGTH_SHORT).show();
-                                        Drawable favIcon = ResourcesCompat.getDrawable(view.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                                        Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.delete_fav_toast) + " : " + id, Toast.LENGTH_SHORT).show();
+                                        Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
                                         favIcon.setTint(Color.parseColor("#000000"));
-                                        chip.setChipIcon(favIcon);
-                                        chip.setText(api.getFavCount());
-                                        chip.setChecked(false);
+                                        imageView.setImageDrawable(favIcon);
+                                        textView.setText(api.getFavCount());
                                         //Favしたぜ！
                                         item.set(5, "false");
                                     }
                                     if (endPoint.contains("unreblog")) {
-                                        Toast.makeText(view.getContext(), view.getContext().getString(R.string.delete_bt_toast) + " : " + id, Toast.LENGTH_SHORT).show();
-                                        Drawable favIcon = ResourcesCompat.getDrawable(view.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
+                                        Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.delete_bt_toast) + " : " + id, Toast.LENGTH_SHORT).show();
+                                        Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
                                         favIcon.setTint(Color.parseColor("#000000"));
-                                        chip.setChipIcon(favIcon);
-                                        chip.setText(api.getBtCount());
-                                        chip.setChecked(false);
+                                        imageView.setImageDrawable(favIcon);
+                                        textView.setText(api.getBtCount());
                                         //BTしたぜ！
                                         item.set(4, "false");
                                     }
@@ -1092,8 +1120,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      */
     private void setMisskeyReaction(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //アイコン変更
-        viewHolder.fav_chip.setChipIcon(context.getDrawable(R.drawable.ic_add_black_24dp));
-        viewHolder.fav_chip.setOnClickListener(new View.OnClickListener() {
+        //viewHolder.fav_chip.setChipIcon(context.getDrawable(R.drawable.ic_add_black_24dp));
+        viewHolder.fav_ImageView.setImageDrawable(context.getDrawable(R.drawable.ic_add_black_24dp));
+        viewHolder.fav_ImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Snackbar snackbar = Snackbar.make(v, "", Snackbar.LENGTH_INDEFINITE);
@@ -1143,13 +1172,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                     public void onClick(View v) {
                                         postMisskeyReaction("create", reactionNames[finalI], api.getToot_ID(), viewHolder);
                                         item.set(5, reactionEmojis[finalI]);
-                                        viewHolder.fav_chip.setText(toReactionEmoji(reactionEmojis[finalI]));
+                                        viewHolder.fav_TextView.setText(toReactionEmoji(reactionEmojis[finalI]));
                                     }
                                 }).show();
                             } else {
                                 postMisskeyReaction("create", reactionNames[finalI], api.getToot_ID(), viewHolder);
                                 item.set(5, reactionEmojis[finalI]);
-                                viewHolder.fav_chip.setText(toReactionEmoji(reactionEmojis[finalI]));
+                                viewHolder.fav_TextView.setText(toReactionEmoji(reactionEmojis[finalI]));
                             }
                         }
                     });
@@ -1190,13 +1219,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                 public void onClick(View v) {
                                     postMisskeyReaction("create", editText.getText().toString(), api.getToot_ID(), viewHolder);
                                     item.set(17, editText.getText().toString());
-                                    viewHolder.fav_chip.setText(editText.getText().toString());
+                                    viewHolder.fav_TextView.setText(editText.getText().toString());
                                 }
                             }).show();
                         } else {
                             postMisskeyReaction("create", editText.getText().toString(), api.getToot_ID(), viewHolder);
                             item.set(17, editText.getText().toString());
-                            viewHolder.fav_chip.setText(editText.getText().toString());
+                            viewHolder.fav_TextView.setText(editText.getText().toString());
                         }
                     }
                 });
@@ -1726,7 +1755,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             @Override
             public void onFailure(Call call, IOException e) {
                 //失敗時
-                viewHolder.fav_chip.post(new Runnable() {
+                viewHolder.fav_TextView.post(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_SHORT).show();
@@ -1739,7 +1768,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 String response_string = response.body().string();
                 if (!response.isSuccessful()) {
                     //失敗時
-                    viewHolder.fav_chip.post(new Runnable() {
+                    viewHolder.fav_TextView.post(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(context, context.getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
@@ -1747,7 +1776,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                     });
                 } else {
                     //成功時
-                    viewHolder.fav_chip.post(new Runnable() {
+                    viewHolder.fav_TextView.post(new Runnable() {
                         @Override
                         public void run() {
                             //メッセージ
@@ -1756,7 +1785,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                             } else {
                                 Toast.makeText(context, context.getString(R.string.reaction_delete_ok) + "\n" + id_string, Toast.LENGTH_SHORT).show();
                             }
-                            viewHolder.fav_chip.setText(toReactionEmoji(reactionName));
+                            viewHolder.fav_TextView.setText(toReactionEmoji(reactionName));
                         }
                     });
                 }
@@ -1856,8 +1885,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.toot_visibility_TextView.setTypeface(typeface);
             viewHolder.toot_text_TextView.setTypeface(typeface);
             //viewHolder.toot_boost_TextView.setTypeface(typeface);
-            viewHolder.fav_chip.setTypeface(typeface);
-            viewHolder.bt_chip.setTypeface(typeface);
+            viewHolder.fav_TextView.setTypeface(typeface);
+            viewHolder.bt_TextView.setTypeface(typeface);
             if (!viewHolder.toot_client_TextView.getText().toString().equals("")) {
                 viewHolder.toot_client_TextView.setTypeface(typeface);
             }
@@ -1902,7 +1931,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      */
     private void showTootOption(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //ブックマークボタン
-        viewHolder.option_chip.setOnClickListener(new View.OnClickListener() {
+        viewHolder.option_ImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TootOptionBottomDialog dialog = new TootOptionBottomDialog();
@@ -1932,7 +1961,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         parent_LinearLayout.removeView(viewHolder.toot_reblog_LinearLayout);
         parent_LinearLayout.removeView(viewHolder.toot_media_LinearLayout);
         parent_LinearLayout.removeView(viewHolder.toot_card_LinearLayout);
-        parent_LinearLayout.removeView((ChipGroup) viewHolder.fav_chip.getParent());
+        parent_LinearLayout.removeView((LinearLayout) viewHolder.fav_TextView.getParent().getParent());
     }
 
     /**
@@ -1962,7 +1991,14 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         parent_LinearLayout.removeView(viewHolder.toot_reblog_LinearLayout);
         parent_LinearLayout.removeView(viewHolder.toot_media_LinearLayout);
         parent_LinearLayout.removeView(viewHolder.toot_card_LinearLayout);
-        parent_LinearLayout.removeView((ChipGroup) viewHolder.fav_chip.getParent());
+        parent_LinearLayout.removeView((LinearLayout) viewHolder.fav_TextView.getParent().getParent());
+    }
+
+    /*読み取り専用のれいあうと。ふぁぼボタンをけす。*/
+    private void setReadOnlyLayout(ViewHolder viewHolder) {
+        //ふぁぼなどPOST系はけす。
+        LinearLayout parent_LinearLayout = viewHolder.mainLinearLayout;
+        parent_LinearLayout.removeView((LinearLayout) viewHolder.fav_TextView.getParent().getParent());
     }
 
     /**
@@ -2169,7 +2205,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         String token = pref_setting.getString("misskey_main_token", "");
         final String[] api_url = {"https://" + instance + "/api/notes/create"};
         final JSONObject[] jsonObject = {new JSONObject()};
-        viewHolder.bt_chip.setOnClickListener(new View.OnClickListener() {
+        viewHolder.bt_ImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (api.getIsBT().contains("true") || item.set(4, "false").contains("true")) {
@@ -2207,7 +2243,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                             @Override
                             public void onFailure(Call call, IOException e) {
                                 e.printStackTrace();
-                                viewHolder.bt_chip.post(new Runnable() {
+                                viewHolder.bt_TextView.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_SHORT).show();
@@ -2220,26 +2256,26 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                 System.out.println(jsonObject[0].toString());
                                 System.out.println(response.body().string());
                                 if (!response.isSuccessful()) {
-                                    viewHolder.bt_chip.post(new Runnable() {
+                                    viewHolder.bt_TextView.post(new Runnable() {
                                         @Override
                                         public void run() {
                                             Toast.makeText(context, context.getString(R.string.error) + "\n" + String.valueOf(response.code()), Toast.LENGTH_SHORT).show();
                                         }
                                     });
                                 } else {
-                                    viewHolder.bt_chip.post(new Runnable() {
+                                    viewHolder.bt_TextView.post(new Runnable() {
                                         @Override
                                         public void run() {
                                             if (api_url[0].contains("create")) {
                                                 Toast.makeText(context, context.getString(R.string.renote_ok) + "\n" + api.getToot_ID(), Toast.LENGTH_SHORT).show();
                                                 Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp_2, null);
                                                 boostIcon.setTint(Color.parseColor("#008000"));
-                                                viewHolder.bt_chip.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+                                                viewHolder.bt_ImageView.setImageDrawable(boostIcon);
                                                 item.set(4, "true");
                                             } else {
                                                 Toast.makeText(context, context.getString(R.string.renote_delete_ok) + "\n" + api.getToot_ID(), Toast.LENGTH_SHORT).show();
                                                 Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp, null);
-                                                viewHolder.bt_chip.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+                                                viewHolder.bt_ImageView.setImageDrawable(boostIcon);
                                                 item.set(4, "false");
                                             }
                                             jsonObject[0] = new JSONObject();
@@ -2322,8 +2358,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         viewHolder.toot_visibility_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_client", "10")));
         viewHolder.toot_client_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_client", "10")));
         viewHolder.toot_text_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_timeline", "10")));
-        viewHolder.bt_chip.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_button", "10")));
-        viewHolder.fav_chip.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_button", "10")));
+        viewHolder.bt_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_button", "10")));
+        viewHolder.fav_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_button", "10")));
 /*
         if (!viewHolder.toot_client_TextView.getText().toString().equals("")) {
             viewHolder.toot_client_TextView.setTextSize(Integer.valueOf(pref_setting.getString("pref_fontsize_button", "10")));
@@ -2502,10 +2538,10 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     // 右側にボタンを寄せる
     private void setRightChip(ViewHolder viewHolder) {
         if (pref_setting.getBoolean("pref_button_right", false)) {
-            ChipGroup chipGroup = ((ChipGroup) viewHolder.fav_chip.getParent());
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 88);
+            LinearLayout actionLinearLayout = (LinearLayout) viewHolder.fav_ImageView.getParent().getParent();
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) actionLinearLayout.getLayoutParams();
             layoutParams.gravity = Gravity.RIGHT;
-            chipGroup.setLayoutParams(layoutParams);
+            actionLinearLayout.setLayoutParams(layoutParams);
         }
     }
 

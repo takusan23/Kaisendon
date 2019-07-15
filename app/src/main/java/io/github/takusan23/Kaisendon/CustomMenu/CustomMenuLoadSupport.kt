@@ -82,7 +82,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
         val no_fav_icon = ""
         val yes_fav_icon = ""
         var json = ""
-
+        var read_only = ""
         cursor.moveToFirst()
 
         //最後に開く機能使うか？
@@ -111,9 +111,8 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                 one_hand = jsonObject.getString("one_hand")
                 misskey = jsonObject.getString("misskey")
                 misskey_username = jsonObject.getString("misskey_username")
-                //                no_fav_icon = jsonObject.getString("no_fav_icon");
-                //                yes_fav_icon = jsonObject.getString("yes_fav_icon");
                 setting = jsonObject.getString("setting")
+                read_only = getStringNullCheck(jsonObject, "read_only", "false")
                 val bundle = Bundle()
                 bundle.putString("misskey", misskey)
                 bundle.putString("name", name)
@@ -139,6 +138,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                 bundle.putString("setting", setting)
                 bundle.putString("no_fav_icon", no_fav_icon)
                 bundle.putString("yes_fav_icon", yes_fav_icon)
+                bundle.putString("read_only", read_only)
                 bundle.putString("json", json)
                 val customMenuTimeLine = CustomMenuTimeLine()
                 customMenuTimeLine.arguments = bundle
@@ -181,9 +181,8 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                     one_hand = jsonObject.getString("one_hand")
                     misskey = jsonObject.getString("misskey")
                     misskey_username = jsonObject.getString("misskey_username")
-                    //                    no_fav_icon = jsonObject.getString("no_fav_icon");
-                    //                    yes_fav_icon = jsonObject.getString("yes_fav_icon");
                     setting = jsonObject.getString("setting")
+                    read_only = getStringNullCheck(jsonObject, "read_only", "false")
                     //メニュー追加
                     val finalName = name
                     val finalContent = content
@@ -207,6 +206,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                     val finalSetting = setting
                     val finalMisskey = misskey
                     val finalMisskey_username = misskey_username
+                    val finalReadOnly = read_only
                     val finalJson = json
                     val item = navigationView.menu.add(getDrawerMenuTitle(content, name)).setIcon(urlToContent(content))
                     item.setOnMenuItemClickListener {
@@ -244,6 +244,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                         bundle.putString("setting", finalSetting)
                         bundle.putString("no_fav_icon", no_fav_icon)
                         bundle.putString("yes_fav_icon", yes_fav_icon)
+                        bundle.putString("read_only", finalReadOnly)
                         bundle.putString("json", finalJson)
                         val customMenuTimeLine = CustomMenuTimeLine()
                         customMenuTimeLine.arguments = bundle
@@ -281,6 +282,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                     val finalSetting = setting
                     val finalMisskey = misskey
                     val finalMisskey_username = misskey_username
+                    val finalReadOnly = read_only
                     val finalJson = json
                     val item = navigationView.menu.add(getDrawerMenuTitle(content, name)).setIcon(urlToContent(content))
                     item.setOnMenuItemClickListener {
@@ -318,6 +320,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                         bundle.putString("setting", finalSetting)
                         bundle.putString("no_fav_icon", no_fav_icon)
                         bundle.putString("yes_fav_icon", yes_fav_icon)
+                        bundle.putString("read_only", finalReadOnly)
                         bundle.putString("json", finalJson)
                         val customMenuTimeLine = CustomMenuTimeLine()
                         customMenuTimeLine.arguments = bundle
@@ -392,6 +395,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
         var setting = ""
         val no_fav_icon = ""
         val yes_fav_icon = ""
+        var read_only = ""
         var json = ""
 
         cursor.moveToFirst()
@@ -423,6 +427,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                 misskey_username = jsonObject.getString("misskey_username")
                 //                    no_fav_icon = jsonObject.getString("no_fav_icon");
                 //                    yes_fav_icon = jsonObject.getString("yes_fav_icon");
+                read_only = getStringNullCheck(jsonObject, "read_only", "false")
                 setting = jsonObject.getString("setting")
                 //メニュー追加
                 val finalName = name
@@ -447,8 +452,8 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                 val finalSetting = setting
                 val finalMisskey = misskey
                 val finalMisskey_username = misskey_username
+                val finalReadOnly = read_only
                 val finalJson = json
-
                 //Fragment切り替え
                 //受け渡す
                 val bundle = Bundle()
@@ -476,6 +481,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                 bundle.putString("setting", finalSetting)
                 bundle.putString("no_fav_icon", no_fav_icon)
                 bundle.putString("yes_fav_icon", yes_fav_icon)
+                bundle.putString("read_only", finalReadOnly)
                 bundle.putString("json", finalJson)
                 val customMenuTimeLine = CustomMenuTimeLine()
                 customMenuTimeLine.arguments = bundle
@@ -506,6 +512,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                 val finalSetting = setting
                 val finalMisskey = misskey
                 val finalMisskey_username = misskey_username
+                val finalReadOnly = read_only
                 val finalJson = json
                 //Fragment切り替え
                 //受け渡す
@@ -534,6 +541,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                 bundle.putString("setting", finalSetting)
                 bundle.putString("no_fav_icon", no_fav_icon)
                 bundle.putString("yes_fav_icon", yes_fav_icon)
+                bundle.putString("read_only", finalReadOnly)
                 bundle.putString("json", finalJson)
                 val customMenuTimeLine = CustomMenuTimeLine()
                 customMenuTimeLine.arguments = bundle
@@ -574,6 +582,20 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
             title = "#$title"
         }
         return title
+    }
+
+    /**Nullチェック付きgetString()
+     * @param key 名前
+     * @param default Nullのとき
+     * */
+    private fun getStringNullCheck(jsonObject: JSONObject, key: String, default: String): String {
+        var value = default
+        if (jsonObject.has(key)) {
+            value = jsonObject.getString(key)
+        } else {
+            value = default
+        }
+        return value
     }
 
 }

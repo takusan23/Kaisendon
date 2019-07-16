@@ -3039,6 +3039,8 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
                 bottomAppBar.backgroundTintList = resources.getColorStateList(android.R.color.black, theme)
             }
+            //ナビゲーションバーの色を動的に変える
+            window.navigationBarColor = getColor(R.color.colorPrimary)
         } else {
             setSupportActionBar(toolBer)
             val toggle = ActionBarDrawerToggle(

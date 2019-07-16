@@ -1871,10 +1871,10 @@ class CustomMenuTimeLine : Fragment() {
         shutdownable?.shutdown()
         if (webSocketClient != null) {
             //終了
-            webSocketClient!!.close()
+            webSocketClient?.close()
         }
         if (notification_WebSocketClient != null) {
-            notification_WebSocketClient!!.close()
+            notification_WebSocketClient?.close()
         }
         if (tts != null) {
             tts!!.shutdown()
@@ -2427,12 +2427,31 @@ class CustomMenuTimeLine : Fragment() {
         return isReadOnly.toBoolean()
     }
 
-    override fun onPause() {
-        super.onPause()
+
+    override fun onStop() {
+        super.onStop()
+        //アプリが後ろに移動したらストリーミングAPI切る
         if (webSocketClient?.isClosed == false) {
             webSocketClient?.close()
         }
+        if (notification_WebSocketClient?.isClosed == false) {
+            notification_WebSocketClient?.close()
+        }
     }
+
+    override fun onStart() {
+        super.onStart()
+        //アプリを表示させたらストリーミングAPI接続する
+        if (webSocketClient?.isClosed ?: false) {
+            useStreamingAPI()
+            //Snackbar.make(view!!, "タイムラインのストリーミングAPIへ再接続しました。", Snackbar.LENGTH_SHORT).show()
+        }
+        if (notification_WebSocketClient?.isClosed ?: false) {
+            setStreamingNotification()
+            //Snackbar.make(view!!, "通知のストリーミングAPIへ再接続しました。", Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
 
     companion object {
 

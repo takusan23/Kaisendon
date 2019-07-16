@@ -22,10 +22,7 @@
             android:id="@+id/widget_button_toot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
             android:drawableStart="@drawable/ic_create_black_24dp_black"
-            android:focusable="true"
             android:padding="10dp" />
 
 
@@ -33,10 +30,7 @@
             android:id="@+id/widget_button_lunch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
             android:drawableStart="@drawable/ic_open_in_browser_black_24dp"
-            android:focusable="true"
             android:padding="10dp" />
 
         <!--

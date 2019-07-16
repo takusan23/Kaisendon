@@ -53,11 +53,13 @@
             android:summary="画像を読み込まないときはキャッシュ限定で読み込みます。"
             android:title="キャッシュから読み込む（開発中）" />
 
+<!--
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_view_pager_mode"
             android:summary="有効にするとドロワーがスワイプで開かない、デスクトップモード等が使えなくなります。"
             android:title="横スワイプで切り替える" />
+-->
 
 
         <CheckBoxPreference
@@ -386,34 +388,40 @@
         android:title="@string/setting_font">
 
         <EditTextPreference
-            android:defaultValue="10"
+            android:defaultValue="12"
             android:key="pref_fontsize_timeline"
             android:summary="@string/setting_fontsize_timeline_info"
             android:title="@string/setting_fontsize_timeline" />
 
         <EditTextPreference
-            android:defaultValue="10"
+            android:defaultValue="12"
             android:key="pref_fontsize_user"
             android:summary="@string/setting_fontsize_user_info"
             android:title="@string/setting_fontsize_user" />
 
         <EditTextPreference
-            android:defaultValue="10"
+            android:defaultValue="12"
             android:key="pref_fontsize_client"
             android:summary="@string/setting_fontsize_client_info"
             android:title="@string/setting_fontsize_client" />
 
         <EditTextPreference
-            android:defaultValue="10"
+            android:defaultValue="12"
             android:key="pref_fontsize_button"
             android:summary="@string/setting_fontsize_button_info"
             android:title="@string/setting_fontsize_button" />
 
         <EditTextPreference
-            android:defaultValue="10"
+            android:defaultValue="12"
             android:key="pref_fontsize_card"
             android:summary="@string/setting_fontsize_card_info"
             android:title="@string/setting_fontsize_card" />
+
+        <EditTextPreference
+            android:defaultValue="25"
+            android:key="pref_icon_size"
+            android:summary="アイコンサイズを変更できます。デフォルト:25"
+            android:title="アイコンサイズを変更" />
 
         <!--
 

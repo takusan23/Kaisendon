@@ -669,9 +669,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         //viewHolder.fav_chip.setText(api.getFavCount());
         if (api.getFavCount() != null) {
             viewHolder.fav_TextView.setText(api.getFavCount());
+        } else {
+            viewHolder.fav_TextView.setText("0");
         }
         if (api.getBtCount() != null) {
             viewHolder.bt_TextView.setText(api.getBtCount());
+        } else {
+            viewHolder.bt_TextView.setText("0");
         }
         Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp, null);
         Drawable favIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp, null);
@@ -693,8 +697,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //viewHolder.bt_chip.setChipIcon(boostIcon);
             //viewHolder.option_chip.setChipIcon(menuIcon);
             viewHolder.fav_ImageView.setImageDrawable(favIcon);
-            viewHolder.bt_ImageView.setImageDrawable(favIcon);
-            viewHolder.option_ImageView.setImageDrawable(favIcon);
+            viewHolder.bt_ImageView.setImageDrawable(boostIcon);
+            viewHolder.option_ImageView.setImageDrawable(menuIcon);
             //背景色
             //viewHolder.fav_chip.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#000000")));
             //viewHolder.bt_chip.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#000000")));
@@ -741,7 +745,20 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.mainLinearLayout.addView(viewHolder.reaction_TextView, 2);
         }
 
+        //ボタンのサイズ変更機能
+        float factor = context.getResources().getDisplayMetrics().density;
+        int size = Integer.valueOf(pref_setting.getString("pref_icon_size", "25"));
+        int dp = (int) (size * factor);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(dp, dp);
+        viewHolder.fav_ImageView.setLayoutParams(layoutParams);
+        viewHolder.bt_ImageView.setLayoutParams(layoutParams);
+        viewHolder.option_ImageView.setLayoutParams(layoutParams);
+    }
 
+    //pxをdpに置換
+    private int convertPxToDp(Context context, int px) {
+        float d = context.getResources().getDisplayMetrics().density;
+        return (int) ((px / d) + 0.5);
     }
 
     /**
@@ -1561,10 +1578,11 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                     TextView follow_info = new TextView(context);
                                     Snackbar snackbar = Snackbar.make(v, "", Snackbar.LENGTH_SHORT);
                                     String finalProfile_note = profile_note;
-                                    v.post(() -> {
-                                        Bitmap bitmap = null;
-                                        try {
-                                            bitmap = Glide.with(context).asBitmap().load(avater_url).submit(100, 100).get();
+                                    Bitmap bitmap = null;
+                                    try {
+                                        bitmap = Glide.with(context).asBitmap().load(avater_url).submit(100, 100).get();
+                                        Bitmap finalBitmap = bitmap;
+                                        v.post(() -> {
                                             ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
                                             LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                                             progressBer_layoutParams.gravity = Gravity.CENTER;
@@ -1599,11 +1617,15 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                             userPage_Button.setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
-                                                    Intent intent = new Intent(context, UserActivity.class);
-                                                    //IDを渡す
-                                                    intent.putExtra("Account_ID", id);
-                                                    saveInstanceToken(item);
-                                                    context.startActivity(intent);
+                                                    if (!Boolean.valueOf(setting.isReadOnly())) {
+                                                        Intent intent = new Intent(context, UserActivity.class);
+                                                        //IDを渡す
+                                                        intent.putExtra("Account_ID", id);
+                                                        saveInstanceToken(item);
+                                                        context.startActivity(intent);
+                                                    } else {
+                                                        Toast.makeText(context, context.getString(R.string.read_only_no_use), Toast.LENGTH_SHORT).show();
+                                                    }
                                                 }
                                             });
 
@@ -1652,19 +1674,18 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                             snackBer_viewGrop.addView(account_info_LinearLayout, 0);
                                             snackBer_viewGrop.addView(snackber_LinearLayout, 1);
                                             //Bitmap
-                                            avater_ImageView.setImageBitmap(bitmap);
+                                            avater_ImageView.setImageBitmap(finalBitmap);
                                             snackbar.show();
-                                        } catch (ExecutionException e) {
-                                            e.printStackTrace();
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
-
+                                        });
+                                    } catch (ExecutionException e) {
+                                        e.printStackTrace();
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
 
                                     //フォローされているか（無駄にAPI叩いてね？）
                                     //読み取り専用だと叩けないので条件分岐
-                                    if (!Boolean.valueOf(setting.isReadOnly())){
+                                    if (!Boolean.valueOf(setting.isReadOnly())) {
                                         final String[] follow_back = {context.getString(R.string.follow_back_not)};
                                         String follow_url = "https://" + Instance + "/api/v1/accounts/relationships/?stream=user&access_token=" + AccessToken;
 

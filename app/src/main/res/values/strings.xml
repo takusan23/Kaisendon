@@ -621,5 +621,6 @@
     <string name="display_method">Display method</string>
     <string name="view_pager_mode">swipe switching mode</string>
     <string name="read_only_toot">You can not post in read-only mode. Please login.</string>
+    <string name="read_only_no_use">If it is read only, you can not use it from here. Please login.</string>
 
 </resources>

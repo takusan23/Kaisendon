@@ -122,7 +122,7 @@
                         android:id="@+id/custom_menu_read_only_instance_switch"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="ログインなしでローカルタイムラインを見る" />
+                        android:text="ログインなしでローカルタイムラインを見る\n(ローカルタイムライン限定です。のぞき見)" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -133,7 +133,7 @@
                             android:id="@+id/custom_menu_read_only_instance_textinput"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="ログイン無しでタイムラインを見る。" />
+                            android:hint="@string/instance_name" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>

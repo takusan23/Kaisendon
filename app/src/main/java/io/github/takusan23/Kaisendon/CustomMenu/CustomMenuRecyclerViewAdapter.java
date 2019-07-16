@@ -1558,155 +1558,167 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                     }
 
 
-                                    //フォローされているか（無駄にAPI叩いてね？）
-                                    final String[] follow_back = {context.getString(R.string.follow_back_not)};
-                                    String follow_url = "https://" + Instance + "/api/v1/accounts/relationships/?stream=user&access_token=" + AccessToken;
-
-                                    //パラメータを設定
-                                    HttpUrl.Builder builder = HttpUrl.parse(follow_url).newBuilder();
-                                    builder.addQueryParameter("id", String.valueOf(id));
-                                    String final_url = builder.build().toString();
-
-                                    //作成
-                                    Request request = new Request.Builder()
-                                            .url(final_url)
-                                            .get()
-                                            .build();
-
-                                    //GETリクエスト
-                                    OkHttpClient client = new OkHttpClient();
+                                    TextView follow_info = new TextView(context);
+                                    Snackbar snackbar = Snackbar.make(v, "", Snackbar.LENGTH_SHORT);
                                     String finalProfile_note = profile_note;
-                                    client.newCall(request).enqueue(new Callback() {
-                                        @Override
-                                        public void onFailure(Call call, IOException e) {
-
-                                        }
-
-                                        @Override
-                                        public void onResponse(Call call, Response response) throws IOException {
-                                            //JSON化
-                                            //System.out.println("レスポンス : " + response.body().string());
-                                            String response_string = response.body().string();
-                                            try {
-                                                JSONArray jsonArray = new JSONArray(response_string);
-                                                JSONObject jsonObject = jsonArray.getJSONObject(0);
-                                                boolean followed_by = jsonObject.getBoolean("followed_by");
-                                                if (followed_by) {
-                                                    follow_back[0] = context.getString(R.string.follow_back);
+                                    v.post(() -> {
+                                        Bitmap bitmap = null;
+                                        try {
+                                            bitmap = Glide.with(context).asBitmap().load(avater_url).submit(100, 100).get();
+                                            ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
+                                            LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                            progressBer_layoutParams.gravity = Gravity.CENTER;
+                                            //SnackBerを複数行対応させる
+                                            TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
+                                            snackBer_textView.setMaxLines(Integer.MAX_VALUE);
+                                            //てきすと
+                                            //snackBer_textView.setText(Html.fromHtml(profile_note,Html.FROM_HTML_MODE_COMPACT));
+                                            //複数行対応させたおかげでずれたので修正
+                                            ImageView avater_ImageView = new ImageView(context);
+                                            avater_ImageView.setLayoutParams(progressBer_layoutParams);
+                                            //LinearLayout動的に生成
+                                            LinearLayout snackber_LinearLayout = new LinearLayout(context);
+                                            snackber_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+                                            LinearLayout.LayoutParams warp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                            snackber_LinearLayout.setLayoutParams(warp);
+                                            //そこにTextViewをいれる（もとからあるTextViewは無視）
+                                            TextView snackber_TextView = new TextView(context);
+                                            PicassoImageGetter imageGetter = new PicassoImageGetter(snackber_TextView);
+                                            snackber_TextView.setLayoutParams(warp);
+                                            snackber_TextView.setTextColor(Color.parseColor("#ffffff"));
+                                            snackber_TextView.setText(Html.fromHtml(finalProfile_note, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
+                                            //ボタン追加
+                                            Button userPage_Button = new Button(context, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+                                            userPage_Button.setLayoutParams(warp);
+                                            userPage_Button.setBackground(context.getDrawable(R.drawable.button_style));
+                                            userPage_Button.setTextColor(Color.parseColor("#ffffff"));
+                                            userPage_Button.setText(R.string.user);
+                                            Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_person_black_24dp, null);
+                                            boostIcon.setTint(Color.parseColor("#ffffff"));
+                                            userPage_Button.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+                                            userPage_Button.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    Intent intent = new Intent(context, UserActivity.class);
+                                                    //IDを渡す
+                                                    intent.putExtra("Account_ID", id);
+                                                    saveInstanceToken(item);
+                                                    context.startActivity(intent);
                                                 }
-                                                Bitmap bitmap = Glide.with(context).asBitmap().load(avater_url).submit(100, 100).get();
-
-                                                v.post(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Snackbar snackbar = Snackbar.make(v, "", Snackbar.LENGTH_SHORT);
-                                                        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
-                                                        LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                                                        progressBer_layoutParams.gravity = Gravity.CENTER;
-                                                        //SnackBerを複数行対応させる
-                                                        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
-                                                        snackBer_textView.setMaxLines(Integer.MAX_VALUE);
-                                                        //てきすと
-                                                        //snackBer_textView.setText(Html.fromHtml(profile_note,Html.FROM_HTML_MODE_COMPACT));
-                                                        //複数行対応させたおかげでずれたので修正
-                                                        ImageView avater_ImageView = new ImageView(context);
-                                                        avater_ImageView.setLayoutParams(progressBer_layoutParams);
-                                                        //LinearLayout動的に生成
-                                                        LinearLayout snackber_LinearLayout = new LinearLayout(context);
-                                                        snackber_LinearLayout.setOrientation(LinearLayout.VERTICAL);
-                                                        LinearLayout.LayoutParams warp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                                                        snackber_LinearLayout.setLayoutParams(warp);
-                                                        //そこにTextViewをいれる（もとからあるTextViewは無視）
-                                                        TextView snackber_TextView = new TextView(context);
-                                                        PicassoImageGetter imageGetter = new PicassoImageGetter(snackber_TextView);
-                                                        snackber_TextView.setLayoutParams(warp);
-                                                        snackber_TextView.setTextColor(Color.parseColor("#ffffff"));
-                                                        snackber_TextView.setText(Html.fromHtml(finalProfile_note, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
-                                                        //ボタン追加
-                                                        Button userPage_Button = new Button(context, null, 0, R.style.Widget_AppCompat_Button_Borderless);
-                                                        userPage_Button.setLayoutParams(warp);
-                                                        userPage_Button.setBackground(context.getDrawable(R.drawable.button_style));
-                                                        userPage_Button.setTextColor(Color.parseColor("#ffffff"));
-                                                        userPage_Button.setText(R.string.user);
-                                                        Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_person_black_24dp, null);
-                                                        boostIcon.setTint(Color.parseColor("#ffffff"));
-                                                        userPage_Button.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
-                                                        userPage_Button.setOnClickListener(new View.OnClickListener() {
-                                                            @Override
-                                                            public void onClick(View v) {
-                                                                Intent intent = new Intent(context, UserActivity.class);
-                                                                //IDを渡す
-                                                                intent.putExtra("Account_ID", id);
-                                                                saveInstanceToken(item);
-                                                                context.startActivity(intent);
-                                                            }
-                                                        });
+                                            });
 
 
-                                                        //ふぉろー
-                                                        TextView follow_TextView = new TextView(context);
-                                                        follow_TextView.setTextColor(Color.parseColor("#ffffff"));
-                                                        follow_TextView.setText(context.getString(R.string.follow) + " : \n" + follow);
-                                                        Drawable done = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_done_black_24dp, null);
-                                                        done.setTint(Color.parseColor("#ffffff"));
-                                                        follow_TextView.setLayoutParams(warp);
-                                                        follow_TextView.setCompoundDrawablesWithIntrinsicBounds(done, null, null, null);
-                                                        //ふぉろわー
-                                                        TextView follower_TextView = new TextView(context);
-                                                        follower_TextView.setTextColor(Color.parseColor("#ffffff"));
-                                                        follower_TextView.setText(context.getString(R.string.follower) + " : \n" + follower);
-                                                        Drawable done_all = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_done_all_black_24dp, null);
-                                                        done_all.setTint(Color.parseColor("#ffffff"));
-                                                        follower_TextView.setLayoutParams(warp);
-                                                        follower_TextView.setCompoundDrawablesWithIntrinsicBounds(done_all, null, null, null);
+                                            //ふぉろー
+                                            TextView follow_TextView = new TextView(context);
+                                            follow_TextView.setTextColor(Color.parseColor("#ffffff"));
+                                            follow_TextView.setText(context.getString(R.string.follow) + " : \n" + follow);
+                                            Drawable done = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_done_black_24dp, null);
+                                            done.setTint(Color.parseColor("#ffffff"));
+                                            follow_TextView.setLayoutParams(warp);
+                                            follow_TextView.setCompoundDrawablesWithIntrinsicBounds(done, null, null, null);
+                                            //ふぉろわー
+                                            TextView follower_TextView = new TextView(context);
+                                            follower_TextView.setTextColor(Color.parseColor("#ffffff"));
+                                            follower_TextView.setText(context.getString(R.string.follower) + " : \n" + follower);
+                                            Drawable done_all = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_done_all_black_24dp, null);
+                                            done_all.setTint(Color.parseColor("#ffffff"));
+                                            follower_TextView.setLayoutParams(warp);
+                                            follower_TextView.setCompoundDrawablesWithIntrinsicBounds(done_all, null, null, null);
 
-                                                        //ふぉろーされているか
-                                                        TextView follow_info = new TextView(context);
-                                                        follow_info.setTextColor(Color.parseColor("#ffffff"));
-                                                        follow_info.setLayoutParams(warp);
-                                                        Drawable follow_info_drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_info_outline_black_24dp, null);
-                                                        follow_info_drawable.setTint(Color.parseColor("#ffffff"));
-                                                        follow_info.setCompoundDrawablesWithIntrinsicBounds(follow_info_drawable, null, null, null);
-                                                        //日本語のときだけ改行する
-                                                        StringBuilder stringBuilder = new StringBuilder(follow_back[0]);
-                                                        if (!follow_back[0].contains("Following") && !follow_back[0].contains("not following")) {
-                                                            follow_info.setText(stringBuilder.insert(4, "\n"));
-                                                        } else {
-                                                            follow_info.setText(follow_back[0]);
-                                                        }
+                                            //ふぉろーされているか
+                                            follow_info.setTextColor(Color.parseColor("#ffffff"));
+                                            follow_info.setLayoutParams(warp);
+                                            follow_info.setText(context.getString(R.string.loading));
+                                            Drawable follow_info_drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_info_outline_black_24dp, null);
+                                            follow_info_drawable.setTint(Color.parseColor("#ffffff"));
+                                            follow_info.setCompoundDrawablesWithIntrinsicBounds(follow_info_drawable, null, null, null);
 
 
-                                                        //ぷろが、ふぉろーふぉろわー、ふぉろーじょうたい、アカウントベージ移動、用LinearLayout
-                                                        LinearLayout account_info_LinearLayout = new LinearLayout(context);
-                                                        account_info_LinearLayout.setLayoutParams(warp);
-                                                        account_info_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+                                            //ぷろが、ふぉろーふぉろわー、ふぉろーじょうたい、アカウントベージ移動、用LinearLayout
+                                            LinearLayout account_info_LinearLayout = new LinearLayout(context);
+                                            account_info_LinearLayout.setLayoutParams(warp);
+                                            account_info_LinearLayout.setOrientation(LinearLayout.VERTICAL);
 
-                                                        //追加
-                                                        account_info_LinearLayout.addView(avater_ImageView);
-                                                        account_info_LinearLayout.addView(follow_info);
-                                                        account_info_LinearLayout.addView(follow_TextView);
-                                                        account_info_LinearLayout.addView(follower_TextView);
-                                                        account_info_LinearLayout.addView(userPage_Button);
+                                            //追加
+                                            account_info_LinearLayout.addView(avater_ImageView);
+                                            account_info_LinearLayout.addView(follow_info);
+                                            account_info_LinearLayout.addView(follow_TextView);
+                                            account_info_LinearLayout.addView(follower_TextView);
+                                            account_info_LinearLayout.addView(userPage_Button);
 
-                                                        //LinearLayoutについか
-                                                        snackber_LinearLayout.addView(snackber_TextView);
+                                            //LinearLayoutについか
+                                            snackber_LinearLayout.addView(snackber_TextView);
 
-                                                        snackBer_viewGrop.addView(account_info_LinearLayout, 0);
-                                                        snackBer_viewGrop.addView(snackber_LinearLayout, 1);
-                                                        //Bitmap
-                                                        avater_ImageView.setImageBitmap(bitmap);
-                                                        snackbar.show();
-                                                    }
-                                                });
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
-                                            } catch (ExecutionException e) {
-                                                e.printStackTrace();
-                                            }
+                                            snackBer_viewGrop.addView(account_info_LinearLayout, 0);
+                                            snackBer_viewGrop.addView(snackber_LinearLayout, 1);
+                                            //Bitmap
+                                            avater_ImageView.setImageBitmap(bitmap);
+                                            snackbar.show();
+                                        } catch (ExecutionException e) {
+                                            e.printStackTrace();
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
                                         }
                                     });
+
+
+                                    //フォローされているか（無駄にAPI叩いてね？）
+                                    //読み取り専用だと叩けないので条件分岐
+                                    if (!Boolean.valueOf(setting.isReadOnly())){
+                                        final String[] follow_back = {context.getString(R.string.follow_back_not)};
+                                        String follow_url = "https://" + Instance + "/api/v1/accounts/relationships/?stream=user&access_token=" + AccessToken;
+
+                                        //パラメータを設定
+                                        HttpUrl.Builder builder = HttpUrl.parse(follow_url).newBuilder();
+                                        builder.addQueryParameter("id", String.valueOf(id));
+                                        String final_url = builder.build().toString();
+
+                                        //作成
+                                        Request request = new Request.Builder()
+                                                .url(final_url)
+                                                .get()
+                                                .build();
+
+                                        //GETリクエスト
+                                        OkHttpClient client = new OkHttpClient();
+                                        client.newCall(request).enqueue(new Callback() {
+                                            @Override
+                                            public void onFailure(Call call, IOException e) {
+
+                                            }
+
+                                            @Override
+                                            public void onResponse(Call call, Response response) throws IOException {
+                                                //JSON化
+                                                //System.out.println("レスポンス : " + response.body().string());
+                                                String response_string = response.body().string();
+                                                try {
+                                                    JSONArray jsonArray = new JSONArray(response_string);
+                                                    JSONObject jsonObject = jsonArray.getJSONObject(0);
+                                                    boolean followed_by = jsonObject.getBoolean("followed_by");
+                                                    if (followed_by) {
+                                                        follow_back[0] = context.getString(R.string.follow_back);
+                                                    }
+
+                                                    v.post(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            //日本語のときだけ改行する
+                                                            StringBuilder stringBuilder = new StringBuilder(follow_back[0]);
+                                                            if (!follow_back[0].contains("Following") && !follow_back[0].contains("not following")) {
+                                                                follow_info.setText(stringBuilder.insert(4, "\n"));
+                                                            } else {
+                                                                follow_info.setText(follow_back[0]);
+                                                            }
+                                                            snackbar.show();
+                                                        }
+                                                    });
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        });
+                                    }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }

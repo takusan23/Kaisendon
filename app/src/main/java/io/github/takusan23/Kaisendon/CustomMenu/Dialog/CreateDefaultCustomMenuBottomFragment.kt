@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.preference.PreferenceManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper
@@ -35,6 +36,9 @@ class CreateDefaultCustomMenuBottomFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        //ダークモード
+        val darkModeSupport = DarkModeSupport(context!!)
+        darkModeSupport.setLayoutAllThemeColor(view as LinearLayout)
         //Activity切り替え
         create_custommenu_create_button.setOnClickListener {
             //カスタムメニュー作成

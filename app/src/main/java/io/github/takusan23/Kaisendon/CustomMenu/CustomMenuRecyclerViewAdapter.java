@@ -725,7 +725,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (item.get(6).contains("Mastodon")) {
             //ふぁぼした、もしくはふぁぼ押した
             if (api.getIsFav().contains("true") || item.get(5).contains("true")) {
-                Drawable isFavIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp_1, null);
+                Drawable isFavIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_border_black_24dp_2, null);
                 isFavIcon.setTint(Color.parseColor("#ffd700"));
                 //viewHolder.fav_chip.setChipIcon(isFavIcon);
                 //viewHolder.fav_chip.setChecked(true);
@@ -1097,7 +1097,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                     }
                                     if (endPoint.contains("favourite")) {
                                         Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.favourite_add) + " : " + id, Toast.LENGTH_SHORT).show();
-                                        Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                                        Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_border_black_24dp_2, null);
                                         favIcon.setTint(Color.parseColor("#ffd700"));
                                         imageView.setImageDrawable(favIcon);
                                         textView.setText(api.getFavCount());
@@ -1106,7 +1106,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                     }
                                     if (endPoint.contains("unfavourite")) {
                                         Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.delete_fav_toast) + " : " + id, Toast.LENGTH_SHORT).show();
-                                        Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_black_24dp_1, null);
+                                        Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_border_black_24dp_2, null);
                                         favIcon.setTint(Color.parseColor("#000000"));
                                         imageView.setImageDrawable(favIcon);
                                         textView.setText(api.getFavCount());
@@ -1737,7 +1737,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                                 } catch (JSONException e) {
                                                     e.printStackTrace();
                                                 }
-                                            }
+                                            }a
                                         });
                                     }
                                 } catch (JSONException e) {

@@ -12,6 +12,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
@@ -35,16 +36,21 @@ class BackupRestoreBottomDialog : BottomSheetDialogFragment() {
         val darkModeSupport = DarkModeSupport(context!!)
         darkModeSupport.setLayoutAllThemeColor(view as LinearLayout)
         backup_Button!!.setOnClickListener {
-            startBackupDB()
-            //終了
-            dismiss()
+            //確認Snackbar
+            Snackbar.make(view,"バックアップを実行しますか？",Snackbar.LENGTH_SHORT).setAction("実行") {
+                startBackupDB()
+                //終了
+                dismiss()
+            }.show()
         }
         restore_Button!!.setOnClickListener {
-            startRestore()
-            //終了
-            dismiss()
-            //再読み込み
-            context!!.startActivity(Intent(context, Home::class.java))
+            Snackbar.make(view,"リストアを実行しますか？",Snackbar.LENGTH_SHORT).setAction("実行") {
+                startRestore()
+                //終了
+                dismiss()
+                //再読み込み
+                context!!.startActivity(Intent(context, Home::class.java))
+            }.show()
         }
         //ぱす（Android Qから変わった
 /*

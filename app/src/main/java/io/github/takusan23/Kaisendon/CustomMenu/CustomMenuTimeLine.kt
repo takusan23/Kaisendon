@@ -580,7 +580,10 @@ class CustomMenuTimeLine : Fragment() {
         }
         val builder = HttpUrl.parse(url)?.newBuilder()
         builder?.addQueryParameter("limit", "40")
-        builder?.addQueryParameter("access_token", arguments?.getString("access_token"))
+        //読み取り専用？
+        if (!isReadOnly()) {
+            builder?.addQueryParameter("access_token", arguments?.getString("access_token"))
+        }
         if (max_id_id != null) {
             if (max_id_id.length != 0) {
                 builder?.addQueryParameter("max_id", max_id_id)
@@ -847,40 +850,53 @@ class CustomMenuTimeLine : Fragment() {
         if (instance_api_streaming_api_link.isEmpty()) {
             //既定
             when (arguments?.getString("content")) {
-                "/api/v1/timelines/home" -> link = "wss://$instance/api/v1/streaming/?stream=user&access_token=$access_token"
+                "/api/v1/timelines/home" -> link = "wss://$instance/api/v1/streaming/?stream=user"
                 "/api/v1/notifications" -> {
                     notification = true
-                    link = "wss://$instance/api/v1/streaming/?stream=user:notification&access_token=$access_token"
+                    link = "wss://$instance/api/v1/streaming/?stream=user:notification"
                 }
-                "/api/v1/timelines/public?local=true" -> link = "wss://$instance/api/v1/streaming/?stream=public:local&access_token=$access_token"
-                "/api/v1/timelines/public" -> link = "wss://$instance/api/v1/streaming/?stream=public&access_token=$access_token"
+                "/api/v1/timelines/public?local=true" -> link = "wss://$instance/api/v1/streaming/?stream=public:local"
+                "/api/v1/timelines/public" -> link = "wss://$instance/api/v1/streaming/?stream=public"
                 "/api/v1/timelines/direct" -> {
                     direct = true
-                    link = "wss://$instance/api/v1/streaming/?stream=direct&access_token=$access_token"
+                    link = "wss://$instance/api/v1/streaming/?stream=direct&"
                 }
-                "/api/v1/timelines/tag/" -> link = "wss://" + instance + "/api/v1/streaming/hashtag/?hashtag=" + arguments!!.getString("name") + "&access_token=" + access_token
-                "/api/v1/timelines/tag/?local=true" -> link = "wss://" + instance + "/api/v1/streaming/hashtag/local?hashtag=" + arguments!!.getString("name") + "&access_token=" + access_token
+                "/api/v1/timelines/tag/" -> link = "wss://" + instance + "/api/v1/streaming/hashtag/?hashtag=" + arguments!!.getString("name")
+                "/api/v1/timelines/tag/?local=true" -> link = "wss://" + instance + "/api/v1/streaming/hashtag/local?hashtag=" + arguments!!.getString("name")
             }
+            //読み取り専用でもローカルタイムラインなら接続可能？
+            val builder = HttpUrl.parse(link)?.newBuilder()
+            if (!isReadOnly()) {
+                builder?.addQueryParameter("access_token", access_token)
+            }
+            link = builder?.build().toString()
         } else {
             //特別リンクが設定されてる時
             when (arguments?.getString("content")) {
-                "/api/v1/timelines/home" -> link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=user&access_token=$access_token"
+                "/api/v1/timelines/home" -> link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=user"
                 "/api/v1/notifications" -> {
                     notification = true
-                    link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=user:notification&access_token=$access_token"
+                    link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=user:notification"
                 }
-                "/api/v1/timelines/public?local=true" -> link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=public:local&access_token=$access_token"
-                "/api/v1/timelines/public" -> link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=public&access_token=$access_token"
+                "/api/v1/timelines/public?local=true" -> link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=public:local"
+                "/api/v1/timelines/public" -> link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=public"
                 "/api/v1/timelines/direct" -> {
                     direct = true
-                    link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=direct&access_token=$access_token"
+                    link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=direct"
                 }
-                "/api/v1/timelines/tag/" -> link = "$instance_api_streaming_api_link/api/v1/streaming/hashtag/?hashtag=" + arguments!!.getString("name") + "&access_token=" + access_token
-                "/api/v1/timelines/tag/?local=true" -> link = "$instance_api_streaming_api_link/api/v1/streaming/hashtag/local?hashtag=" + arguments!!.getString("name") + "&access_token=" + access_token
+                "/api/v1/timelines/tag/" -> link = "$instance_api_streaming_api_link/api/v1/streaming/hashtag/?hashtag=" + arguments!!.getString("name")
+                "/api/v1/timelines/tag/?local=true" -> link = "$instance_api_streaming_api_link/api/v1/streaming/hashtag/local?hashtag=" + arguments!!.getString("name")
             }
+
+            //読み取り専用でもローカルタイムラインなら接続可能？
+            val builder = HttpUrl.parse(link)?.newBuilder()
+            if (!isReadOnly()) {
+                builder?.addQueryParameter("access_token", access_token)
+            }
+            link = builder?.build().toString()
         }
 
-        if ("sdk" == Build.PRODUCT) {
+        if (Build.PRODUCT.contains("sdk")) {
             // エミュレータの場合はIPv6を無効    ----1
             java.lang.System.setProperty("java.net.preferIPv6Addresses", "false")
             java.lang.System.setProperty("java.net.preferIPv4Stack", "true")

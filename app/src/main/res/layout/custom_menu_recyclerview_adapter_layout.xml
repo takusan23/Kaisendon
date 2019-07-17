@@ -216,7 +216,7 @@
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
                         android:focusable="true"
-                        app:srcCompat="@drawable/ic_star_black_24dp" />
+                        app:srcCompat="@drawable/ic_star_border_black_24dp" />
 
                     <TextView
                         android:id="@+id/custom_menu_adapter_Fav_TextView"

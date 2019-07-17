@@ -20,5 +20,7 @@ class CustomMenuSwipeSwitch : Fragment() {
         //Adapter
         val fragmentPagerAdapter = FragmentPagerAdapter(activity?.supportFragmentManager!!, context!!)
         swipe_switch_view_pager.adapter = fragmentPagerAdapter
+        //Title
+        activity?.title = getString(R.string.view_pager_mode)
     }
 }

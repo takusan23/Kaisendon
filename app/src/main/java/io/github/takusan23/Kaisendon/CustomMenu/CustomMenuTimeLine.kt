@@ -182,6 +182,12 @@ class CustomMenuTimeLine : Fragment() {
     //読み取り専用モード？
     private var isReadOnly = "false"
 
+/*
+    //ストリーミングのときに同じ内容が増えないようにするために
+    //追加前とこの変数と比較して、内容が増えてればnotifyItemInserted(0)を呼ぶことにする
+    private var tootListCount = 0
+*/
+
     /**
      * 変数 : url
      * これCustomMenuTimeLine単体だと動くけどDesktopModeだとおかしくなるのでこのメゾット使って
@@ -437,7 +443,11 @@ class CustomMenuTimeLine : Fragment() {
             } else {
                 //名前表示
                 //サブタイトル更新
-                loadAccountName()
+
+                //読み取り専用あんどAppBarを下にしたときは利用しない
+                if (isReadOnly() || pref_setting?.getBoolean("pref_bottom_navigation", false) ?: false) {
+                    loadAccountName()
+                }
 
                 //ストリーミングAPI。本来は無効のときチェックを付けてるけど保存時に反転してるのでおっけ
                 //無効・有効
@@ -532,7 +542,10 @@ class CustomMenuTimeLine : Fragment() {
             //引っ張って更新無効
             swipeRefreshLayout!!.isEnabled = false
             //アカウント情報
-            loadAccountName()
+            //読み取り専用あんどAppBarを下にしたときは利用しない
+            if (isReadOnly() || pref_setting?.getBoolean("pref_bottom_navigation", false) ?: false) {
+                loadAccountName()
+            }
             //時間指定待ち一覧を読み込む
             loadScheduled_statuses(view)
         } else if (isFollowSuggestions) {
@@ -540,7 +553,10 @@ class CustomMenuTimeLine : Fragment() {
             //引っ張って更新無効
             swipeRefreshLayout!!.isEnabled = false
             //アカウント情報
-            loadAccountName()
+            //読み取り専用あんどAppBarを下にしたときは利用しない
+            if (isReadOnly() || pref_setting?.getBoolean("pref_bottom_navigation", false) ?: false) {
+                loadAccountName()
+            }
             //フォロー推奨ユーザーを読み込む
             loadFollowSuggestions(view)
         }
@@ -865,11 +881,10 @@ class CustomMenuTimeLine : Fragment() {
                 "/api/v1/timelines/tag/?local=true" -> link = "wss://" + instance + "/api/v1/streaming/hashtag/local?hashtag=" + arguments!!.getString("name")
             }
             //読み取り専用でもローカルタイムラインなら接続可能？
-            val builder = HttpUrl.parse(link)?.newBuilder()
+            //HttpUrl.Builderはwssスキームがつかえないんだって。しらんかった
             if (!isReadOnly()) {
-                builder?.addQueryParameter("access_token", access_token)
+                link += "&access_token$access_token"
             }
-            link = builder?.build().toString()
         } else {
             //特別リンクが設定されてる時
             when (arguments?.getString("content")) {
@@ -889,11 +904,9 @@ class CustomMenuTimeLine : Fragment() {
             }
 
             //読み取り専用でもローカルタイムラインなら接続可能？
-            val builder = HttpUrl.parse(link)?.newBuilder()
             if (!isReadOnly()) {
-                builder?.addQueryParameter("access_token", access_token)
+                link += "&access_token$access_token"
             }
-            link = builder?.build().toString()
         }
 
         if (Build.PRODUCT.contains("sdk")) {
@@ -919,13 +932,15 @@ class CustomMenuTimeLine : Fragment() {
                             val jsonObject = JSONObject(message)
                             //一回文字列として取得してから再度JSONObjectにする
                             val payload = jsonObject.getString("payload")
-                            val toot_jsonObject = JSONObject(payload)
-                            //これでストリーミング有効・無効でもJSONパースになるので楽になる（？）
-                            val type = jsonObject.getString("event")
-                            //通知はParseしない
-                            if (!type.contains("notification")) {
+                            //updateのイベントだけ受け付ける
+                            //長年悩んだトゥートが増えるバグは新しいトゥート以外の内容でもRecyclerViewの０番目を更新するやつ呼んでたのが原因
+                            val event = jsonObject.getString("event")
+                            if (event.contains("update")) {
+                                val toot_jsonObject = JSONObject(payload)
+                                //これでストリーミング有効・無効でもJSONパースになるので楽になる（？）
                                 timelineJSONParse(toot_jsonObject, true)
                             }
+
                         } else if (finalNotification) {
                             val jsonObject = JSONObject(message)
                             val payload = jsonObject.getString("payload")
@@ -1240,7 +1255,7 @@ class CustomMenuTimeLine : Fragment() {
             //画像表示、こんてんとわーにんぐ
             Item.add("false")
             Item.add("false")
-
+            //数字控える
             if (streaming) {
                 recyclerViewList?.add(0, Item)
             } else {
@@ -1260,7 +1275,6 @@ class CustomMenuTimeLine : Fragment() {
                         } catch (e: JSONException) {
                             e.printStackTrace()
                         }
-
                     }
                 }
 

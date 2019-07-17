@@ -28,6 +28,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -240,6 +241,10 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         return viewHolder;
     }
 
+
+    public String getJSONString(int position){
+        return itemList.get(position).get(3).toString();
+    }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
@@ -562,7 +567,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      */
     private void setStatusClick(TextView textView, ImageView imageView, String type, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //クリックイベント
-        imageView.setOnClickListener(new View.OnClickListener() {
+        ((LinearLayout) imageView.getParent()).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Snackberのテキスト
@@ -627,7 +632,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      */
     private void setPostBtFav(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //Favourite+Boost
-        viewHolder.fav_ImageView.setOnLongClickListener(new View.OnLongClickListener() {
+        ((LinearLayout) viewHolder.fav_ImageView.getParent()).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 //Snackberのテキスト
@@ -678,7 +683,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.bt_TextView.setText("0");
         }
         Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp, null);
-        Drawable favIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_black_24dp, null);
+        Drawable favIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_border_black_24dp, null);
         Drawable menuIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_more_vert_black_24dp, null);
 
         Configuration conf = context.getResources().getConfiguration();
@@ -1737,7 +1742,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                                 } catch (JSONException e) {
                                                     e.printStackTrace();
                                                 }
-                                            }a
+                                            }
                                         });
                                     }
                                 } catch (JSONException e) {
@@ -1964,7 +1969,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      */
     private void showTootOption(ViewHolder viewHolder, MastodonTLAPIJSONParse api, ArrayList<String> item, CustomMenuJSONParse setting) {
         //ブックマークボタン
-        viewHolder.option_ImageView.setOnClickListener(new View.OnClickListener() {
+        ((LinearLayout) viewHolder.option_ImageView.getParent()).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TootOptionBottomDialog dialog = new TootOptionBottomDialog();

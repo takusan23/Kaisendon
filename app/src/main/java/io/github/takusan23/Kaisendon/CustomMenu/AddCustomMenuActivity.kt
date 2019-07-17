@@ -1109,6 +1109,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
     * */
     override fun onDestroy() {
         super.onDestroy()
+/*
         //更新・新規作成
         if (!intent.getBooleanExtra("delete_button", false)) {
             //新規作成
@@ -1118,6 +1119,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
             val name = intent.getStringExtra("name")
             updateSQLite(name)
         }
+*/
     }
 
     fun getPath(uri: Uri?): String {

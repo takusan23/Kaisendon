@@ -622,5 +622,10 @@
     <string name="view_pager_mode">swipe switching mode</string>
     <string name="read_only_toot">You can not post in read-only mode. Please login.</string>
     <string name="read_only_no_use">If it is read only, you can not use it from here. Please login.</string>
+    <string name="backup_snackbar">Do you want to run a backup?</string>
+    <string name="restore_snackbar">Do you want to perform a restore?</string>
+    <string name="execution">Execution</string>
+    <string name="create_custom_menu">Create CustomMenu</string>
+    <string name="create_custom_menu_description">It can also be created from the hambuger menu → settings.</string>
 
 </resources>

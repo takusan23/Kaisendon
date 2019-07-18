@@ -44,7 +44,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -483,12 +486,15 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      * 画像表示とか
      */
     private void loadAvatarImage(MastodonTLAPIJSONParse api, ViewHolder viewHolder, CustomMenuJSONParse setting) {
+//        RequestOptions requestOptions = new RequestOptions();
+//        requestOptions = requestOptions.transforms(new CenterCrop(),new RoundedCorners(10));
         if (getLoadImageConnection(viewHolder, setting)) {
             //既定でGIFは再生しない方向で
             if (pref_setting.getBoolean("pref_avater_gif", true)) {
                 //GIFアニメ再生させない
                 Glide.with(viewHolder.toot_avatar_ImageView.getContext())
                         .load(api.getAvatarUrlNotGIF())
+                        .apply(RequestOptions.bitmapTransform(new RoundedCorners(10)))
                         .into(viewHolder.toot_avatar_ImageView);
             } else {
                 //GIFアニメを再生

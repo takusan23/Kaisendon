@@ -705,6 +705,10 @@ class AddCustomMenuActivity : AppCompatActivity() {
                 menuBuilder.setCallback(object : MenuBuilder.Callback {
 
                     public override fun onMenuItemSelected(menuBuilder: MenuBuilder, menuItem: MenuItem): Boolean {
+
+                        //読み取り専用レイアウトけす
+                        custom_menu_account_linearlayout.visibility = View.GONE
+
                         when (menuItem.getItemId()) {
                             R.id.custom_menu_load_home -> {
                                 load_url = "/api/v1/timelines/home"
@@ -720,6 +724,8 @@ class AddCustomMenuActivity : AppCompatActivity() {
                                 load_url = "/api/v1/timelines/public?local=true"
                                 load_Button!!.setText(R.string.public_time_line)
                                 load_Button!!.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_train_black_24dp, 0, 0, 0)
+                                //ローカルTLのみ読み取り専用を許可する
+                                custom_menu_account_linearlayout.visibility = View.VISIBLE
                             }
                             R.id.custom_menu_load_federated -> {
                                 load_url = "/api/v1/timelines/public"

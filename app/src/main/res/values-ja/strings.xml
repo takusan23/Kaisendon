@@ -519,5 +519,10 @@
     <string name="view_pager_mode">スワイプ切り替えモード</string>
     <string name="read_only_toot">読み取り専用モードでは投稿することができません。ログインしてください。</string>
     <string name="read_only_no_use">読み取り専用の場合はここから先は利用できません。ログインしてください。</string>
+    <string name="backup_snackbar">バックアップを実行しますか？</string>
+    <string name="execution">実行</string>
+    <string name="restore_snackbar">リストアを実行しますか？</string>
+    <string name="create_custom_menu">カスタムメニューを作成</string>
+    <string name="create_custom_menu_description">ハンバーガーメニュー→設定からでも作成可能です。</string>
 
 </resources>

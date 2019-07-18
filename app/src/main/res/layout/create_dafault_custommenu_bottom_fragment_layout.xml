@@ -9,14 +9,14 @@
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="カスタムメニューを作成"
+        android:text="@string/create_custom_menu"
         android:textSize="16dp" />
 
     <TextView
         android:id="@+id/textView9"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="カスタムメニューは右上のハンバーガーメニューからも作成できます。" />
+        android:text="@string/create_custom_menu_description" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -60,6 +60,6 @@
             android:id="@+id/create_custommenu_create_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="作成" />
+            android:text="@string/custom_menu_add" />
     </LinearLayout>
 </LinearLayout>

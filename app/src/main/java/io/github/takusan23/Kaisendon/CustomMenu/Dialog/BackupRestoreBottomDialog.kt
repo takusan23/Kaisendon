@@ -37,14 +37,14 @@ class BackupRestoreBottomDialog : BottomSheetDialogFragment() {
         darkModeSupport.setLayoutAllThemeColor(view as LinearLayout)
         backup_Button!!.setOnClickListener {
             //確認Snackbar
-            Snackbar.make(view,"バックアップを実行しますか？",Snackbar.LENGTH_SHORT).setAction("実行") {
+            Snackbar.make(view,getString(R.string.backup_snackbar),Snackbar.LENGTH_SHORT).setAction(getString(R.string.execution)) {
                 startBackupDB()
                 //終了
                 dismiss()
             }.show()
         }
         restore_Button!!.setOnClickListener {
-            Snackbar.make(view,"リストアを実行しますか？",Snackbar.LENGTH_SHORT).setAction("実行") {
+            Snackbar.make(view,getString(R.string.restore_snackbar),Snackbar.LENGTH_SHORT).setAction(getString(R.string.execution)) {
                 startRestore()
                 //終了
                 dismiss()

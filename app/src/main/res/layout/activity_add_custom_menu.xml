@@ -106,7 +106,6 @@
                     android:src="@drawable/ic_person_black_24dp" />
 
                 <LinearLayout
-                    android:id="@+id/custom_menu_account_linearlayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
@@ -118,23 +117,31 @@
                         android:background="@drawable/button_style"
                         android:text="@string/custom_menu_account" />
 
-                    <Switch
-                        android:id="@+id/custom_menu_read_only_instance_switch"
+                    <LinearLayout
+                        android:id="@+id/custom_menu_account_linearlayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="ログインなしでローカルタイムラインを見る\n(ローカルタイムライン限定です。のぞき見)" />
+                        android:orientation="vertical"
+                        android:visibility="gone">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/custom_menu_read_only_instance_textinput"
+                        <Switch
+                            android:id="@+id/custom_menu_read_only_instance_switch"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/instance_name" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:text="ログインなしでローカルタイムラインを見る\n(ローカルタイムライン限定です。のぞき見)" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/custom_menu_read_only_instance_textinput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/instance_name" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
 
                 </LinearLayout>
 

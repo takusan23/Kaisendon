@@ -12,6 +12,7 @@ import android.database.CursorIndexOutOfBoundsException
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.*
 import android.graphics.drawable.Animatable
+import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
@@ -50,6 +51,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
+import io.github.takusan23.Kaisendon.APIJSONParse.GlideSupport
 import io.github.takusan23.Kaisendon.Activity.LoginActivity
 import io.github.takusan23.Kaisendon.CustomMenu.*
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog
@@ -146,6 +148,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     internal var Instance: String? = null
     internal var AccessToken: String? = null
     internal lateinit var snackber_Avatar: String
+    internal lateinit var snackber_Avatar_notGif: String
     internal lateinit var snackberAccountAvaterImageView: ImageView
     internal lateinit var snackberAccount_TextView: TextView
     internal lateinit var account_menuBuilder: MenuBuilder
@@ -436,6 +439,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val finalInstance = Instance
         val finalAccessToken = AccessToken
 
+
         //どろわーのイメージとか文字とか
         //LinearLayout linearLayout = (LinearLayout) findViewById(R.id.nav_header_home_linearlayout);
         val navHeaderView = navigationView.getHeaderView(0)
@@ -473,74 +477,6 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                             user_header = jsonObject.getString("header")
                             account_id = jsonObject.getString("id")
                             toot_count = jsonObject.getString("statuses_count")
-                            //カスタム絵文字適用
-                            if (emojis_show) {
-                                //他のところでは一旦配列に入れてるけど今回はここでしか使ってないから省くね
-                                val emojis = jsonObject.getJSONArray("emojis")
-                                for (i in 0 until emojis.length()) {
-                                    val emojiObject = emojis.getJSONObject(i)
-                                    val emoji_name = emojiObject.getString("shortcode")
-                                    val emoji_url = emojiObject.getString("url")
-                                    val custom_emoji_src = "<img src=\'$emoji_url\'>"
-                                    //display_name
-                                    if (display_name!!.contains(emoji_name)) {
-                                        //あったよ
-                                        display_name = display_name!!.replace(":$emoji_name:", custom_emoji_src)
-                                    }
-                                }
-                                if (!jsonObject.isNull("profile_emojis")) {
-                                    val profile_emojis = jsonObject.getJSONArray("profile_emojis")
-                                    for (i in 0 until profile_emojis.length()) {
-                                        val emojiObject = profile_emojis.getJSONObject(i)
-                                        val emoji_name = emojiObject.getString("shortcode")
-                                        val emoji_url = emojiObject.getString("url")
-                                        val custom_emoji_src = "<img src=\'$emoji_url\'>"
-                                        //display_name
-                                        if (display_name!!.contains(emoji_name)) {
-                                            //あったよ
-                                            display_name = display_name!!.replace(":$emoji_name:", custom_emoji_src)
-                                        }
-                                    }
-                                }
-                            }
-
-                            //UI Thread
-                            runOnUiThread {
-                                //表示設定
-                                if (setting_avater_hidden) {
-                                    avater_imageView.setImageResource(R.drawable.ic_person_black_24dp)
-                                    header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"))
-                                }
-                                //Wi-Fi
-                                if (setting_avater_wifi && networkCapabilities != null) {
-                                    if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                                        if (setting_avater_gif) {
-                                            //GIFアニメ再生させない
-                                            Picasso.get().load(user_avater).resize(100, 100).into(avater_imageView)
-                                            Picasso.get().load(user_header).into(header_imageView)
-                                        } else {
-                                            //GIFアニメを再生
-                                            Glide.with(applicationContext).load(user_avater).apply(RequestOptions().override(100, 100)).into(avater_imageView)
-                                            Glide.with(applicationContext).load(user_header).into(header_imageView)
-                                        }
-                                    }
-                                } else {
-                                    avater_imageView.setImageResource(R.drawable.ic_person_black_24dp)
-                                    header_imageView.setBackgroundColor(Color.parseColor("#c8c8c8"))
-                                }
-                                val imageGetter = PicassoImageGetter(user_account_textView)
-                                user_account_textView.text = Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null)
-                                user_id_textView.text = "@$user_id@$finalInstance"
-                                if (pref_setting.getBoolean("pref_subtitle_show", true)) {
-                                    //サブタイトルに名前を入れる
-                                    try {
-                                        supportActionBar?.setSubtitle(jsonObject.getString("display_name") + " ( @" + user_id + " / " + finalInstance + " )")
-                                    } catch (e: JSONException) {
-                                        e.printStackTrace()
-                                    }
-
-                                }
-                            }
 
                         } catch (e: JSONException) {
                             e.printStackTrace()
@@ -553,6 +489,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 }
             })
         }
+
 
 
         /*
@@ -1819,16 +1756,8 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         val AccessToken = pref_setting.getString("main_token", "")
         val Instance = pref_setting.getString("main_instance", "")
 
-        /*
-        boolean accessToken_boomelan = pref_setting.getBoolean("pref_advanced_setting_instance_change", false);
-        if (accessToken_boomelan) {
-            AccessToken = pref_setting.getString("pref_mastodon_accesstoken", "");
-            Instance = pref_setting.getString("pref_mastodon_instance", "");
-        } else {
-            AccessToken = pref_setting.getString("main_token", "");
-            Instance = pref_setting.getString("main_instance", "");
-        }
-*/
+        val glideSupport = GlideSupport()
+
         val url = "https://$Instance/api/v1/accounts/verify_credentials/?access_token=$AccessToken"
         //作成
         val request = Request.Builder()
@@ -1885,35 +1814,36 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     }
                     snackber_Name = "@$user_id@$Instance"
                     snackber_Avatar = jsonObject.getString("avatar")
+                    snackber_Avatar_notGif = jsonObject.getString("avatar_static")
                     //UIスレッド
                     runOnUiThread {
+                        //画像サイズ
+                        val layoutParams = LinearLayout.LayoutParams(150, LinearLayout.LayoutParams.MATCH_PARENT)
+                        snackberAccountAvaterImageView.layoutParams = layoutParams
                         //画像を入れる
                         //表示設定
                         if (setting_avater_hidden) {
                             snackberAccountAvaterImageView.setImageResource(R.drawable.ic_person_black_24dp)
                             snackberAccountAvaterImageView.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN)
                         }
-                        //Wi-Fi
+                        //GIF再生するか
+                        var url = snackber_Avatar
+                        if (setting_avater_gif) {
+                            //再生しない
+                            url = snackber_Avatar_notGif
+                        }
+                        //読み込む
                         if (setting_avater_wifi && networkCapabilities != null) {
                             if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                                if (setting_avater_gif) {
-                                    //GIFアニメ再生させない
-                                    Picasso.get()
-                                            .load(snackber_Avatar)
-                                            .resize(100, 100)
-                                            .placeholder(R.drawable.ic_refresh_black_24dp)
-                                            .into(snackberAccountAvaterImageView)
-                                } else {
-                                    //GIFアニメを再生
-                                    Glide.with(applicationContext)
-                                            .load(snackber_Avatar)
-                                            .apply(RequestOptions().override(100, 100).placeholder(R.drawable.ic_refresh_black_24dp))
-                                            .into(snackberAccountAvaterImageView)
-                                }
+                                //角丸設定込み
+                                glideSupport.loadGlide(url, snackberAccountAvaterImageView)
+                            } else {
+                                //キャッシュで読み込む
+                                glideSupport.loadGlideReadFromCache(url, snackberAccountAvaterImageView)
                             }
                         } else {
-                            snackberAccountAvaterImageView.setImageResource(R.drawable.ic_person_black_24dp)
-                            snackberAccountAvaterImageView.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN)
+                            //キャッシュで読み込む
+                            glideSupport.loadGlideReadFromCache(url, snackberAccountAvaterImageView)
                         }
                         //テキストビューに入れる
                         val imageGetter = PicassoImageGetter(snackberAccount_TextView)
@@ -2959,9 +2889,9 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                         }
                     }
                 }
-            }else{
+            } else {
                 //読み取り専用だと投稿権限ないよ！
-                Toast.makeText(this,getString(R.string.read_only_toot),Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.read_only_toot), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -2989,11 +2919,6 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         return qs
     }
 
-    fun removeViewPager() {
-        val viewPager = container_container.getChildAt(0) as ViewPager
-        container_container.removeView(viewPager)
-    }
-
     companion object {
         //添付メディア
         lateinit var post_media_id: ArrayList<String>
@@ -3019,6 +2944,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         toolBer = findViewById<View>(R.id.toolbar) as Toolbar
         fab = findViewById<View>(R.id.fab) as FloatingActionButton
         drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
+        val darkModeSupport = DarkModeSupport(this@Home)
 
         if (pref_setting.getBoolean("pref_bottom_navigation", false)) {
             // 上のバーとFabをけす
@@ -3035,12 +2961,16 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             bottomAppBar.addView(setTimelinQuickSettings())
             tlQuickSettingSnackber = TLQuickSettingSnackber(this@Home, navigationView)
             // ダークモード対応
-            val darkModeSupport = DarkModeSupport(this@Home)
             if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
                 bottomAppBar.backgroundTintList = resources.getColorStateList(android.R.color.black, theme)
+                //ナビゲーションバーの色を動的に変える
+                window.navigationBarColor = getColor(R.color.black)
+                //ActionBarの色設定
+                bottomAppBar.background = ColorDrawable(Color.parseColor("#000000"))
+            } else {
+                //ナビゲーションバーの色を動的に変える
+                window.navigationBarColor = getColor(R.color.colorPrimary)
             }
-            //ナビゲーションバーの色を動的に変える
-            window.navigationBarColor = getColor(R.color.colorPrimary)
         } else {
             setSupportActionBar(toolBer)
             val toggle = ActionBarDrawerToggle(
@@ -3051,6 +2981,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             /*クイック設定*/
             toolBer.addView(setTimelinQuickSettings())
             tlQuickSettingSnackber = TLQuickSettingSnackber(this@Home, navigationView)
+            //ActionBarの色設定
+            if (darkModeSupport.nightMode==Configuration.UI_MODE_NIGHT_YES){
+                toolBer.setBackgroundColor(Color.parseColor("#000000"))
+            }
         }
     }
 

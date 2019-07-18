@@ -6,7 +6,6 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorPrimaryDark</item>
-        <item name="android:navigationBarColor">@color/white</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -34,6 +33,13 @@
         <item name="windowNoTitle">true</item>
         <item name="android:tint">#ffffff</item>
         <item name="android:navigationBarColor">@color/background_material_dark</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/black</item>
+        <item name="android:colorBackground">@color/black</item>
+        <item name="background">@color/black</item>
     </style>
 
     <style name="OLED.ActionBer" parent="Theme.AppCompat">

@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Bundle;
@@ -68,6 +69,7 @@ import java.util.concurrent.ExecutionException;
 
 import io.github.takusan23.Kaisendon.APIJSONParse.ActivityPubJSONParse;
 import io.github.takusan23.Kaisendon.APIJSONParse.CustomMenuJSONParse;
+import io.github.takusan23.Kaisendon.APIJSONParse.GlideSupport;
 import io.github.takusan23.Kaisendon.APIJSONParse.MastodonAccountJSONParse;
 import io.github.takusan23.Kaisendon.APIJSONParse.MastodonScheduledStatusesJSONParse;
 import io.github.takusan23.Kaisendon.APIJSONParse.MastodonTLAPIJSONParse;
@@ -244,10 +246,6 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         return viewHolder;
     }
 
-
-    public String getJSONString(int position){
-        return itemList.get(position).get(3).toString();
-    }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
@@ -488,29 +486,49 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     private void loadAvatarImage(MastodonTLAPIJSONParse api, ViewHolder viewHolder, CustomMenuJSONParse setting) {
 //        RequestOptions requestOptions = new RequestOptions();
 //        requestOptions = requestOptions.transforms(new CenterCrop(),new RoundedCorners(10));
+        GlideSupport glideSupport = new GlideSupport();
         if (getLoadImageConnection(viewHolder, setting)) {
             //既定でGIFは再生しない方向で
             if (pref_setting.getBoolean("pref_avater_gif", true)) {
                 //GIFアニメ再生させない
-                Glide.with(viewHolder.toot_avatar_ImageView.getContext())
-                        .load(api.getAvatarUrlNotGIF())
-                        .apply(RequestOptions.bitmapTransform(new RoundedCorners(10)))
-                        .into(viewHolder.toot_avatar_ImageView);
+                String url = api.getAvatarUrlNotGIF();
+                //角を丸くするか
+                if (pref_setting.getBoolean("pref_avatar_round_corner", true)) {
+                    glideSupport.loadRoundCornerGlide(url, viewHolder.toot_avatar_ImageView);
+                } else {
+                    glideSupport.loadNormalGlide(url, viewHolder.toot_avatar_ImageView);
+                }
             } else {
                 //GIFアニメを再生
-                Glide.with(viewHolder.toot_avatar_ImageView.getContext())
-                        .load(api.getAvatarUrl())
-                        .into(viewHolder.toot_avatar_ImageView);
+                String url = api.getAvatarUrl();
+                //角を丸くするか
+                if (pref_setting.getBoolean("pref_avatar_round_corner", true)) {
+                    glideSupport.loadRoundCornerGlide(url, viewHolder.toot_avatar_ImageView);
+                } else {
+                    glideSupport.loadNormalGlide(url, viewHolder.toot_avatar_ImageView);
+                }
             }
         } else {
             //オフライン時でもキャッシュが存在すればキャッシュを読み込む
             if (pref_setting.getBoolean("pref_offline_cache_load", false)) {
                 if (pref_setting.getBoolean("pref_avater_gif", true)) {
                     //GIFアニメ再生させない
-                    loadOfflineGlide(api.getAvatarUrlNotGIF(), viewHolder, api);
+                    String url = api.getAvatarUrlNotGIF();
+                    //角を丸くするか
+                    if (pref_setting.getBoolean("pref_avatar_round_corner", true)) {
+                        glideSupport.loadOfflineRoundCornerGlide(url, viewHolder.toot_avatar_ImageView);
+                    } else {
+                        glideSupport.loadOfflineGlide(url, viewHolder.toot_avatar_ImageView);
+                    }
                 } else {
                     //GIFアニメを再生
-                    loadOfflineGlide(api.getAvatarUrl(), viewHolder, api);
+                    String url = api.getAvatarUrl();
+                    //角を丸くするか
+                    if (pref_setting.getBoolean("pref_avatar_round_corner", true)) {
+                        glideSupport.loadOfflineRoundCornerGlide(url, viewHolder.toot_avatar_ImageView);
+                    } else {
+                        glideSupport.loadOfflineGlide(url, viewHolder.toot_avatar_ImageView);
+                    }
                 }
             } else {
                 //Layout Remove
@@ -519,29 +537,6 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 }
             }
         }
-    }
-
-    //オフライン（キャッシュ）で読み込む？
-    private void loadOfflineGlide(String url, ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
-        Glide.with(viewHolder.toot_avatar_ImageView.getContext())
-                .load(url)
-                .onlyRetrieveFromCache(true)
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        //読み込めなかったらレイアウト消す
-                        if (((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()) != null) {
-                            ((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()).removeView(viewHolder.toot_avatar_ImageView);
-                        }
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        return false;
-                    }
-                })
-                .into(viewHolder.toot_avatar_ImageView);
     }
 
     /**
@@ -1590,109 +1585,116 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                     Snackbar snackbar = Snackbar.make(v, "", Snackbar.LENGTH_SHORT);
                                     String finalProfile_note = profile_note;
                                     Bitmap bitmap = null;
-                                    try {
-                                        bitmap = Glide.with(context).asBitmap().load(avater_url).submit(100, 100).get();
-                                        Bitmap finalBitmap = bitmap;
-                                        v.post(() -> {
-                                            ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
-                                            LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                                            progressBer_layoutParams.gravity = Gravity.CENTER;
-                                            //SnackBerを複数行対応させる
-                                            TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
-                                            snackBer_textView.setMaxLines(Integer.MAX_VALUE);
-                                            //てきすと
-                                            //snackBer_textView.setText(Html.fromHtml(profile_note,Html.FROM_HTML_MODE_COMPACT));
-                                            //複数行対応させたおかげでずれたので修正
-                                            ImageView avater_ImageView = new ImageView(context);
-                                            avater_ImageView.setLayoutParams(progressBer_layoutParams);
-                                            //LinearLayout動的に生成
-                                            LinearLayout snackber_LinearLayout = new LinearLayout(context);
-                                            snackber_LinearLayout.setOrientation(LinearLayout.VERTICAL);
-                                            LinearLayout.LayoutParams warp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                                            snackber_LinearLayout.setLayoutParams(warp);
-                                            //そこにTextViewをいれる（もとからあるTextViewは無視）
-                                            TextView snackber_TextView = new TextView(context);
-                                            PicassoImageGetter imageGetter = new PicassoImageGetter(snackber_TextView);
-                                            snackber_TextView.setLayoutParams(warp);
-                                            snackber_TextView.setTextColor(Color.parseColor("#ffffff"));
-                                            snackber_TextView.setText(Html.fromHtml(finalProfile_note, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
-                                            //ボタン追加
-                                            Button userPage_Button = new Button(context, null, 0, R.style.Widget_AppCompat_Button_Borderless);
-                                            userPage_Button.setLayoutParams(warp);
-                                            userPage_Button.setBackground(context.getDrawable(R.drawable.button_style));
-                                            userPage_Button.setTextColor(Color.parseColor("#ffffff"));
-                                            userPage_Button.setText(R.string.user);
-                                            Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_person_black_24dp, null);
-                                            boostIcon.setTint(Color.parseColor("#ffffff"));
-                                            userPage_Button.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
-                                            userPage_Button.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    if (!Boolean.valueOf(setting.isReadOnly())) {
-                                                        Intent intent = new Intent(context, UserActivity.class);
-                                                        //IDを渡す
-                                                        intent.putExtra("Account_ID", id);
-                                                        saveInstanceToken(item);
-                                                        context.startActivity(intent);
-                                                    } else {
-                                                        Toast.makeText(context, context.getString(R.string.read_only_no_use), Toast.LENGTH_SHORT).show();
-                                                    }
+                                    GlideSupport glideSupport = new GlideSupport();
+                                    v.post(() -> {
+                                        ViewGroup snackBer_viewGrop = (ViewGroup) snackbar.getView().findViewById(R.id.snackbar_text).getParent();
+                                        LinearLayout.LayoutParams progressBer_layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                        progressBer_layoutParams.gravity = Gravity.CENTER;
+                                        //SnackBerを複数行対応させる
+                                        TextView snackBer_textView = (TextView) snackBer_viewGrop.findViewById(R.id.snackbar_text);
+                                        snackBer_textView.setMaxLines(Integer.MAX_VALUE);
+                                        //てきすと
+                                        //snackBer_textView.setText(Html.fromHtml(profile_note,Html.FROM_HTML_MODE_COMPACT));
+                                        //複数行対応させたおかげでずれたので修正
+                                        ImageView avater_ImageView = new ImageView(context);
+                                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(150, 150);
+                                        layoutParams.gravity = Gravity.CENTER;
+                                        avater_ImageView.setLayoutParams(layoutParams);
+                                        //Wi-Fi接続状況確認
+                                        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                                        NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+                                        if (networkCapabilities != null) {
+                                            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                                                glideSupport.loadGlide(avater_url, avater_ImageView);
+                                            } else {
+                                                glideSupport.loadGlideReadFromCache(avater_url, avater_ImageView);
+                                            }
+                                        } else {
+                                            glideSupport.loadGlideReadFromCache(avater_url, avater_ImageView);
+                                        }
+                                        //LinearLayout動的に生成
+                                        LinearLayout snackber_LinearLayout = new LinearLayout(context);
+                                        snackber_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+                                        LinearLayout.LayoutParams warp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                        snackber_LinearLayout.setLayoutParams(warp);
+                                        //そこにTextViewをいれる（もとからあるTextViewは無視）
+                                        TextView snackber_TextView = new TextView(context);
+                                        PicassoImageGetter imageGetter = new PicassoImageGetter(snackber_TextView);
+                                        snackber_TextView.setLayoutParams(warp);
+                                        snackber_TextView.setTextColor(Color.parseColor("#ffffff"));
+                                        snackber_TextView.setText(Html.fromHtml(finalProfile_note, Html.FROM_HTML_MODE_LEGACY, imageGetter, null));
+                                        //ボタン追加
+                                        Button userPage_Button = new Button(context, null, 0, R.style.Widget_AppCompat_Button_Borderless);
+                                        userPage_Button.setLayoutParams(warp);
+                                        userPage_Button.setBackground(context.getDrawable(R.drawable.button_style));
+                                        userPage_Button.setTextColor(Color.parseColor("#ffffff"));
+                                        userPage_Button.setText(R.string.user);
+                                        Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_person_black_24dp, null);
+                                        boostIcon.setTint(Color.parseColor("#ffffff"));
+                                        userPage_Button.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
+                                        userPage_Button.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                if (!Boolean.valueOf(setting.isReadOnly())) {
+                                                    Intent intent = new Intent(context, UserActivity.class);
+                                                    //IDを渡す
+                                                    intent.putExtra("Account_ID", id);
+                                                    saveInstanceToken(item);
+                                                    context.startActivity(intent);
+                                                } else {
+                                                    Toast.makeText(context, context.getString(R.string.read_only_no_use), Toast.LENGTH_SHORT).show();
                                                 }
-                                            });
-
-
-                                            //ふぉろー
-                                            TextView follow_TextView = new TextView(context);
-                                            follow_TextView.setTextColor(Color.parseColor("#ffffff"));
-                                            follow_TextView.setText(context.getString(R.string.follow) + " : \n" + follow);
-                                            Drawable done = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_done_black_24dp, null);
-                                            done.setTint(Color.parseColor("#ffffff"));
-                                            follow_TextView.setLayoutParams(warp);
-                                            follow_TextView.setCompoundDrawablesWithIntrinsicBounds(done, null, null, null);
-                                            //ふぉろわー
-                                            TextView follower_TextView = new TextView(context);
-                                            follower_TextView.setTextColor(Color.parseColor("#ffffff"));
-                                            follower_TextView.setText(context.getString(R.string.follower) + " : \n" + follower);
-                                            Drawable done_all = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_done_all_black_24dp, null);
-                                            done_all.setTint(Color.parseColor("#ffffff"));
-                                            follower_TextView.setLayoutParams(warp);
-                                            follower_TextView.setCompoundDrawablesWithIntrinsicBounds(done_all, null, null, null);
-
-                                            //ふぉろーされているか
-                                            follow_info.setTextColor(Color.parseColor("#ffffff"));
-                                            follow_info.setLayoutParams(warp);
-                                            follow_info.setText(context.getString(R.string.loading));
-                                            Drawable follow_info_drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_info_outline_black_24dp, null);
-                                            follow_info_drawable.setTint(Color.parseColor("#ffffff"));
-                                            follow_info.setCompoundDrawablesWithIntrinsicBounds(follow_info_drawable, null, null, null);
-
-
-                                            //ぷろが、ふぉろーふぉろわー、ふぉろーじょうたい、アカウントベージ移動、用LinearLayout
-                                            LinearLayout account_info_LinearLayout = new LinearLayout(context);
-                                            account_info_LinearLayout.setLayoutParams(warp);
-                                            account_info_LinearLayout.setOrientation(LinearLayout.VERTICAL);
-
-                                            //追加
-                                            account_info_LinearLayout.addView(avater_ImageView);
-                                            account_info_LinearLayout.addView(follow_info);
-                                            account_info_LinearLayout.addView(follow_TextView);
-                                            account_info_LinearLayout.addView(follower_TextView);
-                                            account_info_LinearLayout.addView(userPage_Button);
-
-                                            //LinearLayoutについか
-                                            snackber_LinearLayout.addView(snackber_TextView);
-
-                                            snackBer_viewGrop.addView(account_info_LinearLayout, 0);
-                                            snackBer_viewGrop.addView(snackber_LinearLayout, 1);
-                                            //Bitmap
-                                            avater_ImageView.setImageBitmap(finalBitmap);
-                                            snackbar.show();
+                                            }
                                         });
-                                    } catch (ExecutionException e) {
-                                        e.printStackTrace();
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
+
+
+                                        //ふぉろー
+                                        TextView follow_TextView = new TextView(context);
+                                        follow_TextView.setTextColor(Color.parseColor("#ffffff"));
+                                        follow_TextView.setText(context.getString(R.string.follow) + " : \n" + follow);
+                                        Drawable done = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_done_black_24dp, null);
+                                        done.setTint(Color.parseColor("#ffffff"));
+                                        follow_TextView.setLayoutParams(warp);
+                                        follow_TextView.setCompoundDrawablesWithIntrinsicBounds(done, null, null, null);
+                                        //ふぉろわー
+                                        TextView follower_TextView = new TextView(context);
+                                        follower_TextView.setTextColor(Color.parseColor("#ffffff"));
+                                        follower_TextView.setText(context.getString(R.string.follower) + " : \n" + follower);
+                                        Drawable done_all = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_done_all_black_24dp, null);
+                                        done_all.setTint(Color.parseColor("#ffffff"));
+                                        follower_TextView.setLayoutParams(warp);
+                                        follower_TextView.setCompoundDrawablesWithIntrinsicBounds(done_all, null, null, null);
+
+                                        //ふぉろーされているか
+                                        follow_info.setTextColor(Color.parseColor("#ffffff"));
+                                        follow_info.setLayoutParams(warp);
+                                        follow_info.setText(context.getString(R.string.loading));
+                                        Drawable follow_info_drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_info_outline_black_24dp, null);
+                                        follow_info_drawable.setTint(Color.parseColor("#ffffff"));
+                                        follow_info.setCompoundDrawablesWithIntrinsicBounds(follow_info_drawable, null, null, null);
+
+
+                                        //ぷろが、ふぉろーふぉろわー、ふぉろーじょうたい、アカウントベージ移動、用LinearLayout
+                                        LinearLayout account_info_LinearLayout = new LinearLayout(context);
+                                        account_info_LinearLayout.setLayoutParams(warp);
+                                        account_info_LinearLayout.setOrientation(LinearLayout.VERTICAL);
+
+                                        //追加
+                                        account_info_LinearLayout.addView(avater_ImageView);
+                                        account_info_LinearLayout.addView(follow_info);
+                                        account_info_LinearLayout.addView(follow_TextView);
+                                        account_info_LinearLayout.addView(follower_TextView);
+                                        account_info_LinearLayout.addView(userPage_Button);
+
+                                        //LinearLayoutについか
+                                        snackber_LinearLayout.addView(snackber_TextView);
+
+                                        snackBer_viewGrop.addView(account_info_LinearLayout, 0);
+                                        snackBer_viewGrop.addView(snackber_LinearLayout, 1);
+                                        //Bitmap
+                                        //avater_ImageView.setImageBitmap(finalBitmap);
+                                        snackbar.show();
+                                    });
 
                                     //フォローされているか（無駄にAPI叩いてね？）
                                     //読み取り専用だと叩けないので条件分岐

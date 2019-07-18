@@ -40,6 +40,7 @@ import com.sys1yagi.mastodon4j.api.exception.Mastodon4jRequestException
 import com.sys1yagi.mastodon4j.api.method.Statuses
 import io.github.takusan23.Kaisendon.*
 import io.github.takusan23.Kaisendon.APIJSONParse.CustomMenuJSONParse
+import io.github.takusan23.Kaisendon.APIJSONParse.GlideSupport
 import io.github.takusan23.Kaisendon.APIJSONParse.MastodonTLAPIJSONParse
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.TLQuickSettingSnackber
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
@@ -445,7 +446,7 @@ class CustomMenuTimeLine : Fragment() {
                 //サブタイトル更新
 
                 //読み取り専用あんどAppBarを下にしたときは利用しない
-                if (isReadOnly() || pref_setting?.getBoolean("pref_bottom_navigation", false) ?: false) {
+                if (!isReadOnly()) {
                     loadAccountName()
                 }
 
@@ -542,8 +543,8 @@ class CustomMenuTimeLine : Fragment() {
             //引っ張って更新無効
             swipeRefreshLayout!!.isEnabled = false
             //アカウント情報
-            //読み取り専用あんどAppBarを下にしたときは利用しない
-            if (isReadOnly() || pref_setting?.getBoolean("pref_bottom_navigation", false) ?: false) {
+            //読み取り専用利用しない
+            if (!isReadOnly()) {
                 loadAccountName()
             }
             //時間指定待ち一覧を読み込む
@@ -553,8 +554,8 @@ class CustomMenuTimeLine : Fragment() {
             //引っ張って更新無効
             swipeRefreshLayout!!.isEnabled = false
             //アカウント情報
-            //読み取り専用あんどAppBarを下にしたときは利用しない
-            if (isReadOnly() || pref_setting?.getBoolean("pref_bottom_navigation", false) ?: false) {
+            //読み取り専用は利用しない
+            if (!isReadOnly()) {
                 loadAccountName()
             }
             //フォロー推奨ユーザーを読み込む
@@ -726,6 +727,7 @@ class CustomMenuTimeLine : Fragment() {
                         val username = jsonObject.getString("username")
                         account_id = jsonObject.getString("id")
                         val avatarUrl = jsonObject.getString("avatarUrl")
+                        val avatarUrlnotGif = jsonObject.getString("avatarUrl")
                         val bannerUrl = jsonObject.getString("bannerUrl")
                         if (pref_setting?.getBoolean("pref_custom_emoji", true) ?: true || java.lang.Boolean.valueOf(custom_emoji)) {
                             val emoji = jsonObject.getJSONArray("emojis")
@@ -797,8 +799,10 @@ class CustomMenuTimeLine : Fragment() {
                         follow = jsonObject.getString("following_count")
                         follower = jsonObject.getString("followers_count")
                         note = jsonObject.getString("note")
-                        val avatar = jsonObject.getString("avatar")
-                        val header = jsonObject.getString("header")
+                        var avatar = jsonObject.getString("avatar")
+                        val avatarNotGif = jsonObject.getString("avatar_static")
+                        var header = jsonObject.getString("header")
+                        val headerNotGif = jsonObject.getString("header_static")
                         account_JsonObject = jsonObject
                         //カスタム絵文字
                         if (java.lang.Boolean.valueOf(custom_emoji) || pref_setting?.getBoolean("pref_custom_emoji", true) ?: true) {
@@ -818,6 +822,10 @@ class CustomMenuTimeLine : Fragment() {
                         if (activity != null) {
                             activity?.runOnUiThread {
                                 //ドロワー
+                                if (pref_setting?.getBoolean("pref_avater_gif", true) ?: true) {
+                                    avatar = avatarNotGif
+                                    header = headerNotGif
+                                }
                                 setDrawerImageText(avatar, header, display_name, "@$username@$instance")
                                 //サブタイトル更新
                                 if (isDesktopMode) {
@@ -2016,6 +2024,12 @@ class CustomMenuTimeLine : Fragment() {
      * ドロワーの画像、文字を変更する
      */
     private fun setDrawerImageText(avatarUrl: String, headerUri: String, display_name: String?, username: String) {
+
+        //ImageViewのサイズ変更
+        val layoutParams = LinearLayout.LayoutParams(200, 200)
+        avater_imageView?.layoutParams = layoutParams
+        val glideSupport = GlideSupport()
+
         //Wi-Fi接続状況確認
         if (context != null && user_account_textView != null) {
             val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -2031,18 +2045,12 @@ class CustomMenuTimeLine : Fragment() {
                 //Wi-Fi時は読み込む
                 if (pref_setting?.getBoolean("pref_avater_wifi", true) ?: true) {
                     //既定でGIFは再生しない方向で
-                    if (pref_setting?.getBoolean("pref_avater_gif", true) ?: true) {
-                        //GIFアニメ再生させない
-                        Picasso.get().load(avatarUrl).resize(100, 100).into(avater_imageView)
-                        Picasso.get().load(headerUri).into(header_imageView)
-                    } else {
-                        //GIFアニメを再生
-                        Glide.with(context!!).load(avatarUrl).apply(RequestOptions().override(100, 100)).into(avater_imageView!!)
-                        Glide.with(context!!).load(headerUri).into(header_imageView!!)
-                    }
+                    //GIF/GIFじゃないは引数に入れる前から判断してる
+                    glideSupport.loadGlide(avatarUrl, avater_imageView!!)
+                    glideSupport.loadGlide(headerUri, header_imageView!!)
                 } else {
-                    avater_imageView?.setImageResource(R.drawable.ic_person_black_24dp)
-                    header_imageView?.setBackgroundColor(Color.parseColor("#c8c8c8"))
+                    glideSupport.loadGlideReadFromCache(avatarUrl, avater_imageView!!)
+                    glideSupport.loadGlideReadFromCache(headerUri, header_imageView!!)
                 }
                 //UserName
                 val imageGetter = PicassoImageGetter(user_account_textView!!)

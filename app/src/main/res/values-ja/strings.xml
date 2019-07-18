@@ -524,5 +524,7 @@
     <string name="restore_snackbar">リストアを実行しますか？</string>
     <string name="create_custom_menu">カスタムメニューを作成</string>
     <string name="create_custom_menu_description">ハンバーガーメニュー→設定からでも作成可能です。</string>
+    <string name="setting_glide_round_corner_description">アイコンの角を丸くできます。</string>
+    <string name="setting_glide_round_corner">アイコンの角を丸くする</string>
 
 </resources>

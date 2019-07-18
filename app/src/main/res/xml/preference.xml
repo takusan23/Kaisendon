@@ -80,6 +80,12 @@
             android:summary="@string/button_right_description"
             android:title="@string/button_right" />
 
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_avatar_round_corner"
+            android:summary="@string/setting_glide_round_corner_description"
+            android:title="@string/setting_glide_round_corner" />
+
         <!--
                 <ListPreference
                     android:defaultValue="HomeCard"
@@ -422,6 +428,8 @@
             android:key="pref_icon_size"
             android:summary="アイコンサイズを変更できます。デフォルト:25"
             android:title="アイコンサイズを変更" />
+
+
 
         <!--
 

@@ -627,5 +627,7 @@
     <string name="execution">Execution</string>
     <string name="create_custom_menu">Create CustomMenu</string>
     <string name="create_custom_menu_description">It can also be created from the hambuger menu → settings.</string>
+    <string name="setting_glide_round_corner">Round the corners of the icon</string>
+    <string name="setting_glide_round_corner_description">You can round the corner of the icon.</string>
 
 </resources>

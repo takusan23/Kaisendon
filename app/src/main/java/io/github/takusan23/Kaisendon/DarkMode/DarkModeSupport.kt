@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
+import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
 
 class DarkModeSupport/*テキストビューの染色だけならここからどうぞ*/

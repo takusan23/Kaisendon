@@ -2966,7 +2966,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 //ナビゲーションバーの色を動的に変える
                 window.navigationBarColor = getColor(R.color.black)
                 //ActionBarの色設定
-                bottomAppBar.background = ColorDrawable(Color.parseColor("#000000"))
+                bottomAppBar.backgroundTint = ColorStateList.valueOf(Color.parseColor("#000000"))
             } else {
                 //ナビゲーションバーの色を動的に変える
                 window.navigationBarColor = getColor(R.color.colorPrimary)

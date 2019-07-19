@@ -8,6 +8,8 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -336,6 +338,12 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.toot_user_TextView.append("@" + api.getAcct());
             viewHolder.toot_createAt_TextView.setText(getCreatedAtFormat(api.getCreatedAt()));
             viewHolder.toot_client_TextView.setText(api.getClient());
+
+            viewHolder.fav_ImageView.setImageTintList(null);
+            viewHolder.bt_ImageView.setImageTintList(null);
+            viewHolder.option_ImageView.setImageTintList(null);
+
+
             //viewHolder.toot_visibility_TextView.setText(api.getVisibility());
             visibilitySetIcon(api, viewHolder);
             //IDを配列に入れておく
@@ -693,9 +701,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         currecntNightMode = darkModeSupport.setIsDarkModeSelf(currecntNightMode);
 
         if (currecntNightMode == Configuration.UI_MODE_NIGHT_YES) {
-            boostIcon.setTint(Color.parseColor("#ffffff"));
-            favIcon.setTint(Color.parseColor("#ffffff"));
-            menuIcon.setTint(Color.parseColor("#ffffff"));
+            boostIcon.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
+            favIcon.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
+            menuIcon.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
             //viewHolder.toot_boost_TextView.setCompoundDrawablesWithIntrinsicBounds(boostIcon, null, null, null);
             //viewHolder.toot_favourite_TextView.setCompoundDrawablesWithIntrinsicBounds(favIcon, null, null, null);
             //viewHolder.toot_bookmark_TextView.setCompoundDrawablesRelativeWithIntrinsicBounds(menuIcon, null, null, null);
@@ -717,7 +725,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         //りぶろぐした、もしくは押した
         if (api.getIsBT().contains("true") || item.get(4).contains("true")) {
             Drawable isBoostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp_1, null);
-            isBoostIcon.setTint(Color.parseColor("#008000"));
+            isBoostIcon.setColorFilter(Color.parseColor("#008000"), PorterDuff.Mode.SRC_IN);
             //viewHolder.bt_chip.setChipIcon(isBoostIcon);
             //viewHolder.bt_chip.setChecked(true);
             viewHolder.bt_ImageView.setImageDrawable(isBoostIcon);
@@ -732,7 +740,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //ふぁぼした、もしくはふぁぼ押した
             if (api.getIsFav().contains("true") || item.get(5).contains("true")) {
                 Drawable isFavIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_border_black_24dp_2, null);
-                isFavIcon.setTint(Color.parseColor("#ffd700"));
+                isFavIcon.setColorFilter(Color.parseColor("#ffd700"), PorterDuff.Mode.SRC_IN);
                 //viewHolder.fav_chip.setChipIcon(isFavIcon);
                 //viewHolder.fav_chip.setChecked(true);
                 viewHolder.fav_ImageView.setImageDrawable(isFavIcon);

@@ -29,8 +29,10 @@ class GlideSupport() {
                 .listener(object : RequestListener<Drawable> {
                     override fun onLoadFailed(e: GlideException?, model: Any, target: Target<Drawable>, isFirstResource: Boolean): Boolean {
                         //読み込めなかったらレイアウト消す
-                        if (imageView.getParent() as LinearLayout != null) {
-                            (imageView.getParent() as LinearLayout).removeView(imageView)
+                        if (imageView.getParent() is  LinearLayout){
+                            if (imageView.getParent() as LinearLayout != null) {
+                                (imageView.getParent() as LinearLayout).removeView(imageView)
+                            }
                         }
                         return false
                     }
@@ -51,8 +53,10 @@ class GlideSupport() {
                 .listener(object : RequestListener<Drawable> {
                     override fun onLoadFailed(e: GlideException?, model: Any, target: Target<Drawable>, isFirstResource: Boolean): Boolean {
                         //読み込めなかったらレイアウト消す
-                        if (imageView.getParent() as LinearLayout != null) {
-                            (imageView.getParent() as LinearLayout).removeView(imageView)
+                        if (imageView.getParent() is  LinearLayout){
+                            if (imageView.getParent() as LinearLayout != null) {
+                                (imageView.getParent() as LinearLayout).removeView(imageView)
+                            }
                         }
                         return false
                     }

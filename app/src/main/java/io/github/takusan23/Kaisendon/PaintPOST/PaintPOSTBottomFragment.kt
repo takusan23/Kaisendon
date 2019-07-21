@@ -20,7 +20,7 @@ class PaintPOSTBottomFragment : BottomSheetDialogFragment() {
         var theme = R.style.BottomSheetDialogThemeAppTheme
         val darkModeSupport = DarkModeSupport(context!!)
         if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
-            theme = R.style.BottomSheetDialogThemeDarkTheme
+            //theme = R.style.BottomSheetDialogThemeDarkTheme
         }
         return theme
     }
@@ -31,9 +31,11 @@ class PaintPOSTBottomFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+/*
         //ダークモード対応
         val darkModeSupport = DarkModeSupport(context!!)
         darkModeSupport.setLayoutAllThemeColor(view as LinearLayout)
+*/
         val paintPOSTActivity = activity as PaintPOSTActivity
         val paintView = paintPOSTActivity.paint_view
         //押した時
@@ -44,7 +46,7 @@ class PaintPOSTBottomFragment : BottomSheetDialogFragment() {
         paint_color_black.setOnClickListener { paintPOSTActivity.colorInt = Color.BLACK }
         paint_color_blue.setOnClickListener { paintPOSTActivity.colorInt = Color.BLUE }
         paint_color_red.setOnClickListener { paintPOSTActivity.colorInt = Color.RED }
-        paint_color_green.setOnClickListener { paintPOSTActivity.colorInt = Color.GREEN }
+        paint_color_green.setOnClickListener { paintPOSTActivity.colorInt = Color.parseColor("#008000") }
         paint_color_yellow.setOnClickListener { paintPOSTActivity.colorInt = Color.YELLOW }
         paint_size_small.setOnClickListener { paintPOSTActivity.sizeFloat = 10f }
         paint_size_normal.setOnClickListener { paintPOSTActivity.sizeFloat = 25f }

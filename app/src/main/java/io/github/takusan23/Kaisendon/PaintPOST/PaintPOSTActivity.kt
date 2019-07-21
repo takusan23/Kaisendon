@@ -7,16 +7,13 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 
 import android.os.Bundle
-import android.view.Gravity
-import android.view.Menu
-import android.view.MenuItem
-import android.view.WindowManager
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 
 import io.github.takusan23.Kaisendon.R
 import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
 import android.content.Context.INPUT_METHOD_SERVICE
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import kotlinx.android.synthetic.main.activity_paint_post.*
 
@@ -28,10 +25,15 @@ class PaintPOSTActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+/*
         //ダークテーマに切り替える機能
         val darkModeSupport = DarkModeSupport(this)
         darkModeSupport.setActivityTheme(this)
+*/
         setContentView(R.layout.activity_paint_post)
+        //ハードウェアアクセラレーション？を無効にする
+        //これしないと消しゴム機能が使えない
+        paint_view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         //Fab押した時にパレット出す
         fab.setOnClickListener {
             val paintPOSTBottomFragment = PaintPOSTBottomFragment()

@@ -25,6 +25,7 @@ import android.speech.tts.TextToSpeech
 import android.text.Editable
 import android.text.Html
 import android.text.TextWatcher
+import android.util.TypedValue
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
@@ -61,9 +62,13 @@ import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment
 import io.github.takusan23.Kaisendon.Fragment.HelloFragment
 import io.github.takusan23.Kaisendon.Omake.LunchBonus
 import io.github.takusan23.Kaisendon.Omake.ShinchokuLayout
+import io.github.takusan23.Kaisendon.PaintPOST.PaintPOSTActivity
 import kotlinx.android.synthetic.main.app_bar_home2.*
 import kotlinx.android.synthetic.main.bottom_bar_layout.*
+import kotlinx.android.synthetic.main.content_account_info_update.view.*
 import kotlinx.android.synthetic.main.content_home2.*
+import kotlinx.android.synthetic.main.image_button_wave.view.*
+import kotlinx.android.synthetic.main.list_item.view.*
 import okhttp3.*
 import org.chromium.customtabsclient.shared.CustomTabsHelper
 import org.json.JSONArray
@@ -167,6 +172,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     internal var isMastodon_time_post: Boolean = false
     //投票
     internal lateinit var mastodon_vote_Button: ImageButton
+    internal lateinit var paintPOSTButton: ImageButton
     internal lateinit var toot_Button_LinearLayout: LinearLayout
     internal var isMastodon_vote = false
     internal var isMastodon_vote_layout = false
@@ -489,7 +495,6 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 }
             })
         }
-
 
 
         /*
@@ -1334,6 +1339,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
         })
 
+        //押したアニメーション
+        val typedValue = TypedValue()
+        theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, typedValue, true)
+
         //テキストボックス
         //Materialふうに
         val toot_textBox_LinearLayout = LinearLayout(this@Home)
@@ -1356,10 +1365,13 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         //画像追加
         val add_image_Button = ImageButton(this@Home)
         add_image_Button.setPadding(20, 20, 20, 20)
-        add_image_Button.setBackgroundColor(Color.parseColor("#00000000"))
+        add_image_Button.setBackgroundResource(typedValue.resourceId)
         add_image_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN)
         add_image_Button.setImageDrawable(getDrawable(R.drawable.ic_image_black_24dp))
+        setToolTipText(add_image_Button, getString(R.string.image_attachment))
         add_image_Button.setOnClickListener {
+            //キーボード隠す
+            closeKeyboard()
             val REQUEST_PERMISSION = 1000
             //ストレージ読み込みの権限があるか確認
             //許可してないときは許可を求める
@@ -1386,9 +1398,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         //公開範囲選択用Button
         toot_area_Button = ImageButton(this@Home)
         toot_area_Button.setPadding(20, 20, 20, 20)
-        toot_area_Button.setBackgroundColor(Color.parseColor("#00000000"))
+        toot_area_Button.setBackgroundResource(typedValue.resourceId)
         toot_area_Button.setImageDrawable(getDrawable(R.drawable.ic_public_black_24dp))
         toot_area_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN)
+        setToolTipText(toot_area_Button, getString(R.string.visibility))
         //toot_area_Button.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_public_black_24dp, 0, 0, 0);
         //メニューセット
         if (CustomMenuTimeLine.isMisskeyMode) {
@@ -1409,6 +1422,8 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         post_button.text = tootTextCount.toString() + "/" + "500 " + getString(R.string.toot_text)
         post_button.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT)
         post_button.setTextColor(Color.parseColor("#ffffff"))
+        post_button.setBackgroundResource(typedValue.resourceId)
+        post_button.setPadding(50,0,50,0)
         val toot_icon = ResourcesCompat.getDrawable(resources, R.drawable.ic_create_black_24dp, null)
         post_button.setCompoundDrawablesWithIntrinsicBounds(toot_icon, null, null, null)
         //POST statuses
@@ -1463,9 +1478,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         //端末情報とぅーと
         val device_Button = ImageButton(this@Home)
         device_Button.setPadding(20, 20, 20, 20)
-        device_Button.setBackgroundColor(Color.parseColor("#00000000"))
+        device_Button.setBackgroundResource(typedValue.resourceId)
         device_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN)
         device_Button.setImageDrawable(getDrawable(R.drawable.ic_perm_device_information_black_24dp))
+        setToolTipText(device_Button, getString(R.string.device_info))
         //ポップアップメニュー作成
         val device_menuBuilder = MenuBuilder(this@Home)
         val device_inflater = MenuInflater(this@Home)
@@ -1549,9 +1565,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         mastodon_time_post_LinearLayout.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         mastodon_time_post_Button = ImageButton(this@Home)
         mastodon_time_post_Button.setPadding(20, 20, 20, 20)
-        mastodon_time_post_Button.setBackgroundColor(Color.parseColor("#00000000"))
+        mastodon_time_post_Button.setBackgroundResource(typedValue.resourceId)
         mastodon_time_post_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN)
         mastodon_time_post_Button.setImageDrawable(getDrawable(R.drawable.ic_timer_black_24dp))
+        setToolTipText(mastodon_time_post_Button, getString(R.string.scheduled_statuses_name))
         mastodon_time_post_Button.setOnClickListener {
             //2番めに出す
             if (!isMastodon_time_post) {
@@ -1595,9 +1612,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         vote_LinearLayout.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, size.y / 2)
         mastodon_vote_Button = ImageButton(this@Home)
         mastodon_vote_Button.setPadding(20, 20, 20, 20)
-        mastodon_vote_Button.setBackgroundColor(Color.parseColor("#00000000"))
+        mastodon_vote_Button.setBackgroundResource(typedValue.resourceId)
         mastodon_vote_Button.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN)
         mastodon_vote_Button.setImageDrawable(getDrawable(R.drawable.ic_baseline_how_to_vote_24px))
+        setToolTipText(mastodon_vote_Button, getString(R.string.polls))
         mastodon_vote_Button.setOnClickListener {
             if (!isMastodon_vote_layout) {
                 isMastodon_vote_layout = true
@@ -1672,6 +1690,37 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
         })
 
+
+        //お絵かき投稿機能？
+        paintPOSTButton = ImageButton(this@Home)
+        paintPOSTButton.setPadding(20, 20, 20, 20)
+        paintPOSTButton.setBackgroundResource(typedValue.resourceId)
+        paintPOSTButton.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN)
+        paintPOSTButton.setImageDrawable(getDrawable(R.drawable.ic_gesture_black_24dp))
+        setToolTipText(paintPOSTButton, getString(R.string.polls))
+        paintPOSTButton.setOnClickListener {
+            //キーボード隠す
+            closeKeyboard()
+            //開発中メッセージ
+            val dialog = AlertDialog.Builder(this@Home)
+                    .setTitle(getString(R.string.paintPost))
+                    .setMessage("この機能は開発中です。\nこの機能は投稿時にお絵かき画像を添付できる機能です。")
+                    .setPositiveButton("お絵かき投稿を開く") { dialogInterface, i ->
+                        //お絵かきアクティビティへ移動
+                        val intent = Intent(this@Home, PaintPOSTActivity::class.java)
+                        startActivity(intent)
+                    }
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .show()
+            //https://stackoverflow.com/questions/9467026/changing-position-of-the-dialog-on-screen-android
+            val window = dialog.window
+            val layoutParams = window?.attributes
+            layoutParams?.gravity = Gravity.BOTTOM
+            layoutParams?.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND
+            window?.attributes = layoutParams
+        }
+
+
         //アカウント切り替えとか
         account_LinearLayout = LinearLayout(this)
         account_LinearLayout.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -1737,6 +1786,19 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         //SnackBerに追加
         snackBer_viewGrop.addView(snackber_LinearLayout)
+    }
+
+    fun setToolTipText(view: View, string: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            view.tooltipText = string
+        }
+    }
+
+    fun closeKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        if (this@Home.currentFocus != null) {
+            imm.hideSoftInputFromWindow(this@Home.currentFocus!!.windowToken, 0)
+        }
     }
 
 
@@ -2759,8 +2821,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                             toot_Button_LinearLayout.removeView(misskey_drive_Button)
                             toot_Button_LinearLayout.removeView(mastodon_time_post_Button)
                             toot_Button_LinearLayout.removeView(mastodon_vote_Button)
+                            toot_Button_LinearLayout.removeView(paintPOSTButton)
                             toot_Button_LinearLayout.addView(mastodon_time_post_Button)
                             toot_Button_LinearLayout.addView(mastodon_vote_Button)
+                            toot_Button_LinearLayout.addView(paintPOSTButton)
                             //デスクトップモード利用時はマルチアカウント表示できるように
                             if (fragment != null && fragment is DesktopFragment) {
                                 showMultiAccount()
@@ -2772,6 +2836,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                             toot_Button_LinearLayout.removeView(misskey_drive_Button)
                             toot_Button_LinearLayout.removeView(mastodon_time_post_Button)
                             toot_Button_LinearLayout.removeView(mastodon_vote_Button)
+                            toot_Button_LinearLayout.removeView(paintPOSTButton)
                             toot_Button_LinearLayout.addView(misskey_drive_Button)
                             //デスクトップモード利用時はマルチアカウント表示できるように
                             if (fragment != null && fragment is DesktopFragment) {
@@ -2808,8 +2873,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 toot_Button_LinearLayout.removeView(misskey_drive_Button)
                 toot_Button_LinearLayout.removeView(mastodon_time_post_Button)
                 toot_Button_LinearLayout.removeView(mastodon_vote_Button)
+                toot_Button_LinearLayout.removeView(paintPOSTButton)
                 toot_Button_LinearLayout.addView(mastodon_time_post_Button)
                 toot_Button_LinearLayout.addView(mastodon_vote_Button)
+                toot_Button_LinearLayout.addView(paintPOSTButton)
                 //デスクトップモード利用時はマルチアカウント表示できるように
                 if (fragment != null && fragment is DesktopFragment) {
                     showMultiAccount()
@@ -2846,6 +2913,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     toot_Button_LinearLayout.removeView(misskey_drive_Button)
                     toot_Button_LinearLayout.removeView(mastodon_time_post_Button)
                     toot_Button_LinearLayout.removeView(mastodon_vote_Button)
+                    toot_Button_LinearLayout.removeView(paintPOSTButton)
                     toot_Button_LinearLayout.addView(misskey_drive_Button)
                 } else {
                     //FAB押すたびにAPI叩くの直す
@@ -2868,8 +2936,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     toot_Button_LinearLayout.removeView(misskey_drive_Button)
                     toot_Button_LinearLayout.removeView(mastodon_time_post_Button)
                     toot_Button_LinearLayout.removeView(mastodon_vote_Button)
+                    toot_Button_LinearLayout.removeView(paintPOSTButton)
                     toot_Button_LinearLayout.addView(mastodon_time_post_Button)
                     toot_Button_LinearLayout.addView(mastodon_vote_Button)
+                    toot_Button_LinearLayout.addView(paintPOSTButton)
                 }
                 if (!toot_snackbar.isShown) {
                     toot_snackbar.show()
@@ -2982,7 +3052,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             toolBer.addView(setTimelinQuickSettings())
             tlQuickSettingSnackber = TLQuickSettingSnackber(this@Home, navigationView)
             //ActionBarの色設定
-            if (darkModeSupport.nightMode==Configuration.UI_MODE_NIGHT_YES){
+            if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
                 toolBer.setBackgroundColor(Color.parseColor("#000000"))
             }
         }

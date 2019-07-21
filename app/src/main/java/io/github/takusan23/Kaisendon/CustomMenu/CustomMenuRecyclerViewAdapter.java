@@ -1103,7 +1103,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                     if (endPoint.contains("reblog")) {
                                         Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.boost_ok) + " : " + id, Toast.LENGTH_SHORT).show();
                                         Drawable boostIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
-                                        boostIcon.setTint(Color.parseColor("#008000"));
+                                        boostIcon.setColorFilter(Color.parseColor("#008000"), PorterDuff.Mode.SRC_IN);
                                         textView.setText(api.getBtCount());
                                         imageView.setImageDrawable(boostIcon);
                                         //BTしたぜ！
@@ -1112,7 +1112,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                     if (endPoint.contains("favourite")) {
                                         Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.favourite_add) + " : " + id, Toast.LENGTH_SHORT).show();
                                         Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_border_black_24dp_2, null);
-                                        favIcon.setTint(Color.parseColor("#ffd700"));
+                                        favIcon.setColorFilter(Color.parseColor("#ffd700"), PorterDuff.Mode.SRC_IN);
                                         imageView.setImageDrawable(favIcon);
                                         textView.setText(api.getFavCount());
                                         //Favしたぜ！
@@ -1121,7 +1121,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                     if (endPoint.contains("unfavourite")) {
                                         Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.delete_fav_toast) + " : " + id, Toast.LENGTH_SHORT).show();
                                         Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_star_border_black_24dp_2, null);
-                                        favIcon.setTint(Color.parseColor("#000000"));
+                                        favIcon.setColorFilter(Color.parseColor("#000000"), PorterDuff.Mode.SRC_IN);
                                         imageView.setImageDrawable(favIcon);
                                         textView.setText(api.getFavCount());
                                         //Favしたぜ！
@@ -1130,7 +1130,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                                     if (endPoint.contains("unreblog")) {
                                         Toast.makeText(textView.getContext(), textView.getContext().getString(R.string.delete_bt_toast) + " : " + id, Toast.LENGTH_SHORT).show();
                                         Drawable favIcon = ResourcesCompat.getDrawable(textView.getContext().getResources(), R.drawable.ic_repeat_black_24dp_2, null);
-                                        favIcon.setTint(Color.parseColor("#000000"));
+                                        favIcon.setColorFilter(Color.parseColor("#000000"), PorterDuff.Mode.SRC_IN);
                                         imageView.setImageDrawable(favIcon);
                                         textView.setText(api.getBtCount());
                                         //BTしたぜ！

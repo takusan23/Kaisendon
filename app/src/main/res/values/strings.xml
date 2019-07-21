@@ -413,7 +413,7 @@
     <string name="widget_notification_channel">Widget Notification</string>
     <string name="setting_url_speech_title">Do not read the URL</string>
     <string name="setting_url_speech_message">To read the URL, read \"URL omission\"</string>
-    <string name="device_info">Terminal information</string>
+    <string name="device_info">Device information</string>
     <string name="device_name">Device name</string>
     <string name="android_version">Android Version</string>
     <string name="maker">Maker</string>
@@ -629,5 +629,10 @@
     <string name="create_custom_menu_description">It can also be created from the hambuger menu → settings.</string>
     <string name="setting_glide_round_corner">Round the corners of the icon</string>
     <string name="setting_glide_round_corner_description">You can round the corner of the icon.</string>
+    <string name="image_attachment">Image attachment</string>
+    <string name="visibility">Visibility</string>
+    <string name="scheduled_statuses_name">Scheduled statuses</string>
+    <string name="polls">Polls</string>
+    <string name="paintPost">Post a picture</string>
 
 </resources>

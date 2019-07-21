@@ -526,5 +526,10 @@
     <string name="create_custom_menu_description">ハンバーガーメニュー→設定からでも作成可能です。</string>
     <string name="setting_glide_round_corner_description">アイコンの角を丸くできます。</string>
     <string name="setting_glide_round_corner">アイコンの角を丸くする</string>
+    <string name="scheduled_statuses_name">時間指定投稿（予約投稿）</string>
+    <string name="visibility">公開範囲</string>
+    <string name="polls">投票</string>
+    <string name="image_attachment">画像添付</string>
+    <string name="paintPost">お絵かき投稿</string>
 
 </resources>

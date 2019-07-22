@@ -14,6 +14,7 @@ import androidx.preference.PreferenceManager
 
 import io.github.takusan23.Kaisendon.R
 import java.io.File
+import kotlin.math.round
 
 class SettingFragment : PreferenceFragmentCompat() {
 
@@ -31,7 +32,15 @@ class SettingFragment : PreferenceFragmentCompat() {
     }
 
     fun cacheClearDialog() {
+        //キャッシュディレクトリ
+        val cacheDirectory = context!!.cacheDir
+        //ばらまかれると嫌なので別にディレクトリ生成
+        val kaisendonCacheDirectory = File(cacheDirectory, "Kaisendon-PaintCache")
+        //設定項目取り出し
         val cache_clear = findPreference("pref_paint_cache_clear")
+        //なんとなく枚数と容量だす。
+        cache_clear.summary = cache_clear.summary.toString() + "\n枚数 : ${kaisendonCacheDirectory.listFiles().size} / 容量 : ${byteToMB(kaisendonCacheDirectory.length())} MB"
+        //押した時
         cache_clear.setOnPreferenceClickListener {
             //ダイアログ出す
             val dialog = AlertDialog.Builder(context)
@@ -40,10 +49,6 @@ class SettingFragment : PreferenceFragmentCompat() {
                     .setPositiveButton(getString(R.string.delete_ok), DialogInterface.OnClickListener { dialogInterface, i ->
                         //データ削除
                         if (context != null) {
-                            //キャッシュディレクトリ
-                            val cacheDirectory = context!!.cacheDir
-                            //ばらまかれると嫌なので別にディレクトリ生成
-                            val kaisendonCacheDirectory = File(cacheDirectory, "Kaisendon-PaintCache")
                             //存在チェック
                             if (kaisendonCacheDirectory.exists()) {
                                 //エラーチェック
@@ -76,6 +81,10 @@ class SettingFragment : PreferenceFragmentCompat() {
 
             true
         }
+    }
+
+    fun byteToMB(length: Long): Double {
+        return round(length / 1024.0 / 1024.0)
     }
 
 }

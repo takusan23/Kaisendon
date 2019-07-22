@@ -20,7 +20,7 @@ class PaintPOSTBottomFragment : BottomSheetDialogFragment() {
         var theme = R.style.BottomSheetDialogThemeAppTheme
         val darkModeSupport = DarkModeSupport(context!!)
         if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
-            //theme = R.style.BottomSheetDialogThemeDarkTheme
+            theme = R.style.BottomSheetDialogThemeDarkTheme
         }
         return theme
     }

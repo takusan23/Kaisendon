@@ -86,6 +86,14 @@
             android:summary="@string/setting_glide_round_corner_description"
             android:title="@string/setting_glide_round_corner" />
 
+        <Preference
+            android:key="pref_paint_cache_clear"
+            android:summary="キャッシュ領域にあるお絵かき投稿の画像データを削除できます。"
+            android:title="お絵かき投稿のキャッシュを削除" />
+
+
+
+
         <!--
                 <ListPreference
                     android:defaultValue="HomeCard"

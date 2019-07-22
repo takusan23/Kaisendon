@@ -482,6 +482,11 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         if (Boolean.valueOf(setting.getImage_load())) {
             mode = true;
         }
+        //設定のアバター非表示もーど
+        //非推奨。
+        if (pref_setting.getBoolean("pref_avater", false)) {
+            mode = true;
+        }
 
 
         return mode;

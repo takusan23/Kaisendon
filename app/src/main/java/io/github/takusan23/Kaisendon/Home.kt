@@ -425,6 +425,27 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             timer.schedule(task, 500)
         }
 
+        //お絵かき投稿から
+        if (intent.getBooleanExtra("paint_data", false)) {
+            //画像URI
+            val uri = Uri.parse(intent.getStringExtra("paint_uri"))
+            //画像配列に追加
+            if (uri != null) {
+                media_uri_list!!.add(uri)
+                ImageViewClick()
+                //0.5秒後に起動するように
+                val timer = Timer(false)
+                val task = object : TimerTask() {
+                    override fun run() {
+                        runOnUiThread {
+                            showTootShortcut()
+                            timer.cancel()
+                        }
+                    }
+                }
+                timer.schedule(task, 500)
+            }
+        }
 
         /*
         fab.setOnLongClickListener(new View.OnLongClickListener() {
@@ -1423,7 +1444,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         post_button.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT)
         post_button.setTextColor(Color.parseColor("#ffffff"))
         post_button.setBackgroundResource(typedValue.resourceId)
-        post_button.setPadding(50,0,50,0)
+        post_button.setPadding(50, 0, 50, 0)
         val toot_icon = ResourcesCompat.getDrawable(resources, R.drawable.ic_create_black_24dp, null)
         post_button.setCompoundDrawablesWithIntrinsicBounds(toot_icon, null, null, null)
         //POST statuses
@@ -2461,7 +2482,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         try {
             val file_name = getFileNameUri(uri)
             val extn = contentResolver.getType(uri)
-            requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn!!), uri_byte.getByte(uri)))
+
+            System.out.println(file_name + "/" + extn)
+
+            //requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn!!), uri_byte.getByte(uri)))
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -2540,9 +2564,16 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         Thread(Runnable {
             val uri_byte = UriToByte(this@Home);
             try {
-                val file_name = getFileNameUri(uri)
-                val extn = contentResolver.getType(uri)
-                requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn!!), uri_byte.getByte(uri)))
+                // file:// と content:// でわける
+                if (uri.scheme?.contains("file") ?: false) {
+                    val file_name = getFileSchemeFileName(uri)
+                    val extn = getFileSchemeFileExtension(uri)
+                    requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn!!), uri_byte.getByte(uri)))
+                } else {
+                    val file_name = getFileNameUri(uri)
+                    val extn = contentResolver.getType(uri)
+                    requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn!!), uri_byte.getByte(uri)))
+                }
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -2603,6 +2634,25 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
         }
         return file_name
+    }
+
+    /*
+    * Uri→FileName
+    * Fileスキーム限定
+    * */
+    fun getFileSchemeFileName(uri: Uri): String? {
+        //file://なので使える
+        val file = File(uri.path)
+        return file.name
+    }
+
+    /*
+    * Uri→Extension
+    * 拡張子取得。Kotlinだと楽だね！
+    * */
+    fun getFileSchemeFileExtension(uri: Uri): String? {
+        val file = File(uri.path)
+        return file.extension
     }
 
 

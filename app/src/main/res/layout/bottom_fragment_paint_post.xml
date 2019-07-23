@@ -21,7 +21,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="機能"
+                android:text="@string/edit"
                 android:textSize="16dp" />
 
             <LinearLayout
@@ -94,7 +94,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="色"
+                android:text="@string/paint_color"
                 android:textSize="16dp" />
 
             <LinearLayout
@@ -184,7 +184,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="太さ"
+                android:text="@string/paint_size"
                 android:textSize="16dp" />
 
             <LinearLayout

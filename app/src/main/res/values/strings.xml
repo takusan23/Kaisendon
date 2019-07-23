@@ -634,5 +634,19 @@
     <string name="scheduled_statuses_name">Scheduled statuses</string>
     <string name="polls">Polls</string>
     <string name="paintPost">Post a picture</string>
+    <string name="pref_paint_post_cache_clear">Delete the drawing post cache</string>
+    <string name="pref_paint_post_cache_description">You can delete the picture data of drawing post in the cache area.</string>
+    <string name="pref_read_from_cache">Read from cache</string>
+    <string name="pref_read_from_cache_description">When the image is not read, it is read by cache limitation.</string>
+    <string name="pref_icon_size">Change icon size</string>
+    <string name="pref_icon_size_description">You can change the icon size. Default: 25</string>
+    <string name="paint_error_bitmap_to_uri">Could not change from Bitmap to Uri</string>
+    <string name="paint_error_convert_to_bitmap">Could not convert to Bitmap</string>
+    <string name="paint_error_chache_directory">Could not save to cache directory</string>
+    <string name="paint_color_thickness_setting">Color, thickness setting</string>
+    <string name="paint_post_description">It is a function that you can attach the picture you drew when posting.</string>
+    <string name="open_painit_post">Open your drawing post</string>
+    <string name="paint_size">The thickness</string>
+    <string name="paint_color">Color</string>
 
 </resources>

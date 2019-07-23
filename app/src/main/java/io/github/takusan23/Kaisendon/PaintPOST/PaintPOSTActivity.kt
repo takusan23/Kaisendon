@@ -71,7 +71,7 @@ class PaintPOSTActivity : AppCompatActivity() {
 
                 val dialog = AlertDialog.Builder(this)
                         .setTitle(getString(R.string.toot_text))
-                        .setMessage("投稿してもよろしいですか？")
+                        .setMessage(getString(R.string.note_create_message))
                         .setPositiveButton(getString(R.string.toot_text)) { dialogInterface, i ->
                             //HomeへとばすIntent生成
                             val intent = Intent(this, Home::class.java)
@@ -93,10 +93,10 @@ class PaintPOSTActivity : AppCompatActivity() {
                                                 //画面推移
                                                 startActivity(intent)
                                             } else {
-                                                showToast("BitmapからUriへ変更できませんでした")
+                                                showToast(getString(R.string.paint_error_bitmap_to_uri))
                                             }
                                         } else {
-                                            showToast("Bitmapへ変換できませんでした")
+                                            showToast(getString(R.string.paint_error_convert_to_bitmap))
                                         }
                                         // possible to handle other result codes ...
                                     }, Handler())
@@ -118,7 +118,7 @@ class PaintPOSTActivity : AppCompatActivity() {
                                     //画面推移
                                     startActivity(intent)
                                 } else {
-                                    showToast("BitmapからUriへ変更できませんでした")
+                                    showToast(getString(R.string.paint_error_bitmap_to_uri))
                                 }
                             }
                         }
@@ -180,7 +180,7 @@ class PaintPOSTActivity : AppCompatActivity() {
             val paintUri = Uri.fromFile(file)
             return paintUri
         } else {
-            showToast("キャッシュディレクトリへ保存できませんでした")
+            showToast(getString(R.string.paint_error_chache_directory))
         }
         return null
     }

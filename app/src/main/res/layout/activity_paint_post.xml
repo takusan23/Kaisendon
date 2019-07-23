@@ -26,8 +26,8 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:tint="#ffffff"
-        android:tooltipText="色、太さの設定"
+        android:tooltipText="@string/paint_color_thickness_setting"
         app:backgroundTint="@color/colorPrimaryDark"
-        app:srcCompat="@drawable/ic_format_paint_black_24dp" />
+        app:srcCompat="@drawable/ic_gesture_black_24dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

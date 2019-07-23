@@ -531,5 +531,19 @@
     <string name="polls">投票</string>
     <string name="image_attachment">画像添付</string>
     <string name="paintPost">お絵かき投稿</string>
+    <string name="pref_icon_size">アイコンサイズを変更</string>
+    <string name="pref_icon_size_description">お気に入りボタン等のアイコンサイズを変更できます。デフォルト : 25</string>
+    <string name="pref_paint_post_cache_clear">お絵かき投稿の画像データ削除</string>
+    <string name="pref_paint_post_cache_description">キャッシュディレクトリにあるお絵かき投稿の画像データを削除します。</string>
+    <string name="pref_read_from_cache">キャッシュから読み込む</string>
+    <string name="pref_read_from_cache_description">画像を読み込まない時（モバイルデータ等）ではキャッシュを利用して取得しないようにします。</string>
+    <string name="paint_error_bitmap_to_uri">BitmapからUriへ変更できませんでした</string>
+    <string name="paint_error_convert_to_bitmap">Bitmapへ変換できませんでした</string>
+    <string name="paint_error_chache_directory">キャッシュディレクトリへ保存できませんでした</string>
+    <string name="paint_color_thickness_setting">色、太さの設定</string>
+    <string name="paint_post_description">投稿するときにお絵かきした画像を添付できる機能です。</string>
+    <string name="open_painit_post">お絵かき投稿を開く</string>
+    <string name="paint_size">太さ</string>
+    <string name="paint_color">色</string>
 
 </resources>

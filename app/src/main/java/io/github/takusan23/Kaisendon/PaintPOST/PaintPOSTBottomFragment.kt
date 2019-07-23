@@ -32,7 +32,7 @@ class PaintPOSTBottomFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 /*
-        //ダークモード対応
+        //ダークモード対応 Activityで設定すれば動く？
         val darkModeSupport = DarkModeSupport(context!!)
         darkModeSupport.setLayoutAllThemeColor(view as LinearLayout)
 */

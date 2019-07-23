@@ -1725,8 +1725,8 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             //開発中メッセージ
             val dialog = AlertDialog.Builder(this@Home)
                     .setTitle(getString(R.string.paintPost))
-                    .setMessage("この機能は開発中です。\nこの機能は投稿時にお絵かき画像を添付できる機能です。")
-                    .setPositiveButton("お絵かき投稿を開く") { dialogInterface, i ->
+                    .setMessage(getString(R.string.paint_post_description))
+                    .setPositiveButton(getString(R.string.open_painit_post)) { dialogInterface, i ->
                         //お絵かきアクティビティへ移動
                         val intent = Intent(this@Home, PaintPOSTActivity::class.java)
                         startActivity(intent)

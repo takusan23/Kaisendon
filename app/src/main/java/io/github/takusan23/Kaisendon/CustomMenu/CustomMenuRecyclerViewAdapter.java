@@ -22,6 +22,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.view.Gravity;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -584,6 +585,10 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         ((LinearLayout) imageView.getParent()).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //感触フィードバックをつける？
+                if (pref_setting.getBoolean("pref_post_haptics", false)) {
+                    imageView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK);
+                }
                 //Snackberのテキスト
                 String message = "";
                 String button = "";

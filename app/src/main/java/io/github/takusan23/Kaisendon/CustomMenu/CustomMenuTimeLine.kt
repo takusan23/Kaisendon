@@ -16,6 +16,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
 import android.os.Vibrator
 import android.speech.tts.TextToSpeech
 import android.text.Html
@@ -2147,7 +2148,14 @@ class CustomMenuTimeLine : Fragment() {
                             toast.show()
                             if (pref_setting!!.getBoolean("pref_notification_vibrate", true) && vibrator != null) {
                                 val pattern = longArrayOf(100, 100, 100, 100)
-                                vibrator!!.vibrate(pattern, -1)
+                                //バイブなんか非推奨になってた（）書き直した
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    vibrator?.vibrate(
+                                            VibrationEffect.createWaveform(pattern, VibrationEffect.DEFAULT_AMPLITUDE)
+                                    )
+                                } else {
+                                    vibrator?.vibrate(pattern, -1)
+                                }
                             }
                         }
                         // }

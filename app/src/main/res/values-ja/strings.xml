@@ -545,5 +545,8 @@
     <string name="open_painit_post">お絵かき投稿を開く</string>
     <string name="paint_size">太さ</string>
     <string name="paint_color">色</string>
+    <string name="toot_error_empty">内容を入力してください。または画像を追加してください。</string>
+    <string name="pref_haptic_feedback_description">お気に入り、ブースト、投稿ボタンを押す時に押した感覚を得られます。</string>
+    <string name="pref_haptic_feedback">Haptic Feedback を利用する (実験中)</string>
 
 </resources>

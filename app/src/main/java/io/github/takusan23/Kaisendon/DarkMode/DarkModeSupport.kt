@@ -150,10 +150,10 @@ class DarkModeSupport/*テキストビューの染色だけならここからど
     }
 
     /*Drawableに染色する*/
-    private fun setDrawableColor(drawable: Drawable): Drawable {
+    fun setDrawableColor(drawable: Drawable): Drawable {
         when (nightMode) {
-            Configuration.UI_MODE_NIGHT_NO -> drawable.setTint(Color.parseColor("#ffffff"))
-            Configuration.UI_MODE_NIGHT_YES -> drawable.setTint(Color.parseColor("#000000"))
+            Configuration.UI_MODE_NIGHT_NO -> drawable.setTint(Color.parseColor("#000000"))
+            Configuration.UI_MODE_NIGHT_YES -> drawable.setTint(Color.parseColor("#ffffff"))
         }
         return drawable
     }

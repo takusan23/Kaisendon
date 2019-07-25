@@ -14,8 +14,11 @@ import io.github.takusan23.Kaisendon.R
 import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.DialogInterface
+import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -27,6 +30,8 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.FileProvider
 import kotlinx.android.synthetic.main.activity_paint_post.*
 import com.google.android.gms.common.util.IOUtils.toByteArray
+import kotlinx.android.synthetic.main.activity_paint_post.fab
+import kotlinx.android.synthetic.main.app_bar_home2.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -43,9 +48,21 @@ class PaintPOSTActivity : AppCompatActivity() {
 
         //ダークテーマに切り替える機能
         val darkModeSupport = DarkModeSupport(this)
-        darkModeSupport.setActivityTheme(this)
-
         setContentView(R.layout.activity_paint_post)
+        //テーマ切り替え
+        when (darkModeSupport.nightMode) {
+            Configuration.UI_MODE_NIGHT_YES -> {
+                //ダークモード限定
+                //ダークモードのテーマはBackgroundまで変えるのでキャンバスが黒くなる
+                val color = Color.parseColor("#000000")
+                window.statusBarColor = color
+                window.navigationBarColor = color
+                val colorDrawable = ColorDrawable()
+                colorDrawable.color = color
+                supportActionBar?.setBackgroundDrawable(colorDrawable)
+                setTheme(R.style.OLED_Theme)
+            }
+        }
         //ハードウェアアクセラレーション？を無効にする
         //これしないと消しゴム機能が使えない
         paint_view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -187,6 +204,13 @@ class PaintPOSTActivity : AppCompatActivity() {
 
     fun showToast(message: String) {
         Toast.makeText(this@PaintPOSTActivity, message, Toast.LENGTH_SHORT).show()
+    }
+
+    /*
+    * PaintViewを返す
+    * */
+    fun getPaintView(): PaintView {
+        return paint_view
     }
 
 }

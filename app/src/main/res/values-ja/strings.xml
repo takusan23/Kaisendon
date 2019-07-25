@@ -548,5 +548,7 @@
     <string name="toot_error_empty">内容を入力してください。または画像を追加してください。</string>
     <string name="pref_haptic_feedback_description">お気に入り、ブースト、投稿ボタンを押す時に押した感覚を得られます。</string>
     <string name="pref_haptic_feedback">Haptic Feedback を利用する (実験中)</string>
+    <string name="paint_post_all_clear_dialog_title">はじめに戻す</string>
+    <string name="paint_post_all_clear_dialog_message">書いた内容をすべて削除します。</string>
 
 </resources>

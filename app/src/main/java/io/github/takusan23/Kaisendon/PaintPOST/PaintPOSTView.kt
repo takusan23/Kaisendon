@@ -156,5 +156,26 @@ class PaintView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         invalidate()
     }
 
+    /*
+    * 現在のモードがペンかどうか
+    * */
+    fun isPenMode(): Boolean {
+        //透明じゃなければ
+        if (color != Color.TRANSPARENT) {
+            return true
+        }
+        return false
+    }
 
+
+    /*
+    * 現在のモードが消しゴムかどうか
+    * */
+    fun isEraserMode(): Boolean {
+        //透明かどうか
+        if (color == Color.TRANSPARENT) {
+            return true
+        }
+        return false
+    }
 }

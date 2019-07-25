@@ -110,6 +110,7 @@
 
         <Button
             android:id="@+id/login_button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/button_style"

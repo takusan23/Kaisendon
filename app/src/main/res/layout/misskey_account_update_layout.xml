@@ -99,6 +99,7 @@
 
             <Button
                 android:id="@+id/birthday_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/button_style_white"
@@ -138,6 +139,7 @@
 
                     <Button
                         android:id="@+id/account_update_avatar_button"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -159,6 +161,7 @@
 
                     <Button
                         android:id="@+id/account_update_header_button"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"

@@ -567,7 +567,7 @@ class CustomMenuTimeLine : Fragment() {
 
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item?.itemId == R.id.bottom_app_bar_menu_scroll) {
             // BottomAppBarのときはTextView無いので指定のボタンを押したときに動くようにしてます
             recyclerView!!.smoothScrollToPosition(0)

@@ -29,6 +29,7 @@
 
     <Button
         android:id="@+id/zyanken_setup_connection"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="接続" />

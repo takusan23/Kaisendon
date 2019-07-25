@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
@@ -48,7 +49,13 @@ class DarkModeSupport/*テキストビューの染色だけならここからど
         //テーマ切り替え
         when (nightMode) {
             Configuration.UI_MODE_NIGHT_NO -> activity.setTheme(R.style.AppTheme)
-            Configuration.UI_MODE_NIGHT_YES -> activity.setTheme(R.style.OLED_ActionBer)
+            Configuration.UI_MODE_NIGHT_YES -> {
+                activity.setTheme(R.style.OLED_ActionBer)
+                //ActionBarの色つける
+                val colorDrawable = ColorDrawable()
+                colorDrawable.color = Color.parseColor("#000000")
+                (activity as AppCompatActivity).supportActionBar?.setBackgroundDrawable(colorDrawable)
+            }
         }
     }
 
@@ -170,7 +177,7 @@ class DarkModeSupport/*テキストビューの染色だけならここからど
             Configuration.UI_MODE_NIGHT_YES -> {
                 //view.setItemBackgroundResource(R.color.black);
                 view.itemTextColor = ColorStateList.valueOf(context.resources.getColor(R.color.white, null))
-                view.itemIconTintList = null
+                view.itemIconTintList = ColorStateList.valueOf(context.resources.getColor(R.color.white, null))
             }
         }
     }

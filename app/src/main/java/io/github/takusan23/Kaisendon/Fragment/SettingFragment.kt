@@ -1,6 +1,6 @@
 package io.github.takusan23.Kaisendon.Fragment
 
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -42,43 +42,44 @@ class SettingFragment : PreferenceFragmentCompat() {
         cache_clear.summary = cache_clear.summary.toString() + "\n枚数 : ${kaisendonCacheDirectory.listFiles().size} / 容量 : ${byteToMB(kaisendonCacheDirectory.length())} MB"
         //押した時
         cache_clear.setOnPreferenceClickListener {
-            //ダイアログ出す
-            val dialog = AlertDialog.Builder(context)
-                    .setTitle("キャッシュ削除")
-                    .setMessage("お絵かき投稿の画像データを削除します")
-                    .setPositiveButton(getString(R.string.delete_ok), DialogInterface.OnClickListener { dialogInterface, i ->
-                        //データ削除
-                        if (context != null) {
-                            //存在チェック
-                            if (kaisendonCacheDirectory.exists()) {
-                                //エラーチェック
-                                var errorCount = 0
-                                //中身消す
-                                for (fileItem: File in kaisendonCacheDirectory.listFiles()) {
-                                    if (!fileItem.delete()) {
-                                        errorCount++
+            context?.let {
+                //ダイアログ出す
+                val dialog = AlertDialog.Builder(context!!)
+                        .setTitle("キャッシュ削除")
+                        .setMessage("お絵かき投稿の画像データを削除します")
+                        .setPositiveButton(getString(R.string.delete_ok), DialogInterface.OnClickListener { dialogInterface, i ->
+                            //データ削除
+                            if (context != null) {
+                                //存在チェック
+                                if (kaisendonCacheDirectory.exists()) {
+                                    //エラーチェック
+                                    var errorCount = 0
+                                    //中身消す
+                                    for (fileItem: File in kaisendonCacheDirectory.listFiles()) {
+                                        if (!fileItem.delete()) {
+                                            errorCount++
+                                        }
+                                    }
+                                    //しっかり削除できたか
+                                    if (errorCount == 0) {
+                                        //成功
+                                        Toast.makeText(context, getString(R.string.delete), Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        //えらー
+                                        Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show()
                                     }
                                 }
-                                //しっかり削除できたか
-                                if (errorCount == 0) {
-                                    //成功
-                                    Toast.makeText(context, getString(R.string.delete), Toast.LENGTH_SHORT).show()
-                                } else {
-                                    //えらー
-                                    Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show()
-                                }
                             }
-                        }
-                    })
-                    .setNegativeButton(getString(R.string.cancel), null)
-                    .show()
-            //下に置くコード
-            val window = dialog.window
-            val layoutParams = window?.attributes
-            layoutParams?.gravity = Gravity.BOTTOM
-            layoutParams?.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND
-            window?.attributes = layoutParams
-
+                        })
+                        .setNegativeButton(getString(R.string.cancel), null)
+                        .show()
+                //下に置くコード
+                val window = dialog.window
+                val layoutParams = window?.attributes
+                layoutParams?.gravity = Gravity.BOTTOM
+                layoutParams?.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND
+                window?.attributes = layoutParams
+            }
             true
         }
     }

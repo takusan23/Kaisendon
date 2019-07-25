@@ -1,6 +1,6 @@
 package io.github.takusan23.Kaisendon.Activity
 
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.DialogInterface

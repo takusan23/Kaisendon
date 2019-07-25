@@ -41,6 +41,7 @@
 
         <Button
             android:id="@+id/time_post_button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="#00000000"
@@ -67,6 +68,7 @@
 
         <Button
             android:id="@+id/time_post_time_button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="#00000000"

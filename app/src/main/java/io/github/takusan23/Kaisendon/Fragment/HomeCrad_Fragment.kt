@@ -3,7 +3,7 @@ package io.github.takusan23.Kaisendon.Fragment
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -269,7 +269,7 @@ class HomeCrad_Fragment : Fragment() {
             val accessToken_boomelan = pref_setting.getBoolean("pref_toot_dialog", false)
             if (accessToken_boomelan) {
 
-                val alertDialog = AlertDialog.Builder(context)
+                val alertDialog = AlertDialog.Builder(context!!)
                 alertDialog.setTitle(R.string.confirmation)
                 alertDialog.setMessage(R.string.toot_dialog)
                 alertDialog.setPositiveButton(R.string.toot) { dialog, which ->
@@ -1192,7 +1192,7 @@ class HomeCrad_Fragment : Fragment() {
             //ストレージ読み込みの権限があるか確認
             //許可してないときは許可を求める
             if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                AlertDialog.Builder(activity)
+                AlertDialog.Builder(activity!!)
                         .setTitle(getString(R.string.permission_dialog_titile))
                         .setMessage(getString(R.string.permission_dialog_message))
                         .setPositiveButton(getString(R.string.permission_ok)) { dialog, which ->
@@ -1210,7 +1210,7 @@ class HomeCrad_Fragment : Fragment() {
 
 
                 val items = arrayOf(finalBackground_mode, getString(R.string.background_image_change), getString(R.string.background_image_delete), finalBackground_fit_image, getString(R.string.background_image_transparency_titile))
-                AlertDialog.Builder(activity)
+                AlertDialog.Builder(activity!!)
                         .setTitle(R.string.setting_background_image)
                         .setItems(items) { dialog, which ->
                             //有効無効
@@ -1251,7 +1251,7 @@ class HomeCrad_Fragment : Fragment() {
                                 //ダイアログ
                                 val editText_Transparency = EditText(context)
                                 editText_Transparency.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-                                val alertDialog_editTranspatency = AlertDialog.Builder(activity)
+                                val alertDialog_editTranspatency = AlertDialog.Builder(activity!!)
                                 alertDialog_editTranspatency.setView(editText_Transparency)
                                 alertDialog_editTranspatency.setTitle(getString(R.string.background_image_transparency_titile))
                                         .setMessage(getString(R.string.background_image_transparency_message))

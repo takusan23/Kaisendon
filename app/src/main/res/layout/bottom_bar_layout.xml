@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/Theme.MaterialComponents"
     tools:context=".Home">
 
     <include layout="@layout/content_home2" />
@@ -25,9 +26,11 @@
         android:id="@+id/bottom_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_create_black_24dp"
         android:visibility="visible"
-        app:layout_anchor="@id/bottomAppBar" />
+        app:backgroundTint="@color/colorPrimaryDark"
+        app:layout_anchor="@id/bottomAppBar"
+        app:srcCompat="@drawable/ic_create_black_24dp"
+        app:tint="#ffffff" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

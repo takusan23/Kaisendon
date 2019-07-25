@@ -1,6 +1,7 @@
 package io.github.takusan23.Kaisendon
 
 import android.Manifest
+import androidx.appcompat.app.AlertDialog
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
@@ -1342,6 +1343,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         val view = this@Home.findViewById<View>(R.id.container_public)
         toot_snackbar = Snackbar.make(view, "", Snackbar.LENGTH_INDEFINITE)
+        toot_snackbar.setBackgroundTint(Color.parseColor("#4c4c4c"))
         //Snackber生成
         val snackBer_viewGrop = toot_snackbar.view.findViewById<View>(R.id.snackbar_text).parent as ViewGroup
         val progressBer_layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -3091,6 +3093,8 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 drawer.openDrawer(Gravity.LEFT)
             }
             bottom_fab.setOnClickListener { showTootShortcut() }
+            //一応代入
+            fab = bottom_fab
             //追加されてなければ追加
             bottomAppBar.addView(setTimelinQuickSettings())
             tlQuickSettingSnackber = TLQuickSettingSnackber(this@Home, navigationView)

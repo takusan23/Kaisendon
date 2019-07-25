@@ -20,7 +20,7 @@ class FragmentPagerAdapter(fm: FragmentManager, context: Context) : FragmentPage
         fragmentList = customMenuLoadSupport.loadMenuViewPager()
     }
 
-    override fun getItem(position: Int): Fragment? {
+    override fun getItem(position: Int): Fragment {
         return fragmentList.get(position)
     }
 

@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:tint="#ffffff"
+        app:tint="#ffffff"
         android:tooltipText="@string/paint_color_thickness_setting"
         app:backgroundTint="@color/colorPrimaryDark"
         app:srcCompat="@drawable/ic_gesture_black_24dp" />

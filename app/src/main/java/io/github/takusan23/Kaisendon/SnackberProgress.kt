@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.bottom_bar_layout.*
 
 object SnackberProgress {
     internal var snackbar: Snackbar? = null
@@ -21,6 +22,10 @@ object SnackberProgress {
             //有効無効
             if (showMode) {
                 snackbar = Snackbar.make(view!!, message, Snackbar.LENGTH_INDEFINITE)
+                if (context is Home){
+                    val home = (context as Home)
+                    snackbar?.setAnchorView(home.fab)
+                }
                 val snackBer_viewGrop = snackbar!!.view.findViewById<View>(R.id.snackbar_text).parent as ViewGroup
                 //SnackBerを複数行対応させる
                 val snackBer_textView = snackBer_viewGrop.findViewById<View>(R.id.snackbar_text) as TextView

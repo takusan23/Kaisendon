@@ -3,7 +3,7 @@ package io.github.takusan23.Kaisendon.CustomMenu
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.ContentValues
 import android.content.DialogInterface
 import android.content.Intent
@@ -112,6 +112,7 @@ class AddCustomMenuActivity : AppCompatActivity() {
         //ダークモード設定
         val darkModeSupport = DarkModeSupport(this)
         darkModeSupport.setActivityTheme(this)
+
         setContentView(R.layout.activity_add_custom_menu)
         pref_setting = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
 
@@ -163,6 +164,8 @@ class AddCustomMenuActivity : AppCompatActivity() {
         darkModeSupport.setSwitchThemeColor(custom_emoji_Switch!!)
         darkModeSupport.setSwitchThemeColor(one_hand_Switch!!)
         darkModeSupport.setSwitchThemeColor(gif_Switch!!)
+
+        background_image_ImageView?.imageTintList = null
 
         //SQLite
         if (helper == null) {

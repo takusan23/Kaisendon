@@ -18,9 +18,10 @@
 
     <Button
         android:id="@+id/bookmark_backup_restore_button"
-        android:background="@drawable/button_style"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/button_style"
         android:text="@string/tootbookmark_backup_restore_button_title" />
 
 </LinearLayout>

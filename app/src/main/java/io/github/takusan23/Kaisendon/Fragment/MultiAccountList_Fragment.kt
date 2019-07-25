@@ -1,6 +1,6 @@
 package io.github.takusan23.Kaisendon.Fragment
 
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
@@ -206,7 +206,7 @@ class MultiAccountList_Fragment : Fragment() {
 
         //長押しで消せるように
         listView.onItemLongClickListener = AdapterView.OnItemLongClickListener { parent, view, position, id ->
-            AlertDialog.Builder(activity)
+            AlertDialog.Builder(activity!!)
                     .setTitle(R.string.account_delete_title)
                     .setMessage(R.string.account_delete_message)
                     .setPositiveButton(R.string.ok) { dialog, which ->

@@ -57,8 +57,8 @@ class TootOptionBottomDialog : BottomSheetDialogFragment() {
     override fun getTheme(): Int {
         var theme = R.style.BottomSheetDialogThemeAppTheme
         val darkModeSupport = DarkModeSupport(context!!)
-        if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES){
-            theme =  R.style.BottomSheetDialogThemeDarkTheme
+        if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
+            theme = R.style.BottomSheetDialogThemeDarkTheme
         }
         return theme
     }
@@ -192,7 +192,7 @@ class TootOptionBottomDialog : BottomSheetDialogFragment() {
                             }
                         }
                         dialog.arguments = bundle
-                        dialog.show(fragmentManager, "lockback_tl")
+                        fragmentManager?.let { it1 -> dialog.show(it1, "lockback_tl") }
                         return false
                     }
 

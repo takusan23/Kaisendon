@@ -32,6 +32,7 @@
 
             <Button
                 android:id="@+id/toot_shortcut_toot_area"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -40,6 +41,7 @@
 
             <Button
                 android:id="@+id/toot_shortcut_add_toot"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -51,6 +53,7 @@
 
     <Button
         android:id="@+id/toot_shortcut_send"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/toot_shortcut_send" />

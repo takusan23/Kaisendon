@@ -43,6 +43,7 @@
         android:orientation="horizontal">
 
         <Button
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:id="@+id/backup_restore_backup_Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,6 +53,7 @@
             android:text="バックアップ" />
 
         <Button
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:id="@+id/backup_restore_restore_Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -9,6 +9,7 @@
 
     <Button
         android:id="@+id/account_transport_button"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/ic_watch_black_24dp"
@@ -16,6 +17,7 @@
 
     <Button
         android:id="@+id/toot_shortcut_setting"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/ic_create_black_24dp_black"

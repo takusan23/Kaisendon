@@ -2,7 +2,7 @@ package io.github.takusan23.Kaisendon
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.*
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap

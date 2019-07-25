@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimary</item>
@@ -25,7 +25,7 @@
 
     <!--ダークテーマ　ホームのみ-->
 
-    <style name="OLED_Theme" parent="Theme.AppCompat">
+    <style name="OLED_Theme" parent="Theme.MaterialComponents">
         <item name="colorAccent">@color/colorPrimaryDark</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:colorBackground">@color/background_material_dark</item>
@@ -42,7 +42,11 @@
         <item name="background">@color/black</item>
     </style>
 
-    <style name="OLED.ActionBer" parent="Theme.AppCompat">
+    <!--いつもつかうやつ-->
+
+    <style name="OLED.ActionBer" parent="Theme.MaterialComponents">
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:colorBackground">#000000</item>
         <item name="android:tint">#ffffff</item>
     </style>

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.view.*
@@ -85,6 +86,7 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
     private fun setSnackBer(): Snackbar {
         val view = context!!.findViewById<View>(R.id.container_public)
         val snackbar = Snackbar.make(view, "", Snackbar.LENGTH_INDEFINITE)
+        snackbar.setBackgroundTint(Color.parseColor("#4c4c4c"))
         val snackBer_viewGrop = snackbar.view.findViewById<View>(R.id.snackbar_text).parent as ViewGroup
         //TextViewを非表示にする
         val snackBer_textView = snackBer_viewGrop.findViewById<View>(R.id.snackbar_text) as TextView

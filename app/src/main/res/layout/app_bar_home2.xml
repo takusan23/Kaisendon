@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container_public"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".Home">
+    android:layout_height="match_parent">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -25,14 +24,15 @@
     <include layout="@layout/content_home2" />
 
 
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_create_black_24dp" />
+        app:backgroundTint="@color/colorPrimaryDark"
+        app:srcCompat="@drawable/ic_create_black_24dp"
+        app:tint="#ffffff" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

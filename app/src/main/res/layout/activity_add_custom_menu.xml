@@ -87,6 +87,7 @@
 
                 <Button
                     android:id="@+id/custom_menu_load"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -112,6 +113,7 @@
 
                     <Button
                         android:id="@+id/custom_menu_account"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/button_style"
@@ -207,6 +209,7 @@
 
                         <Button
                             android:id="@+id/custom_background_image_button"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
@@ -215,6 +218,7 @@
 
                         <Button
                             android:id="@+id/custom_background_image_reset_button"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
@@ -295,6 +299,7 @@
 
                     <Button
                         android:id="@+id/custom_menu_font"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
@@ -302,6 +307,7 @@
 
                     <Button
                         android:id="@+id/custom_menu_font_reset"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"

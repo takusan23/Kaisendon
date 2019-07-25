@@ -924,6 +924,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //Cardのレイアウト適用
             layoutInflater.inflate(R.layout.custom_menu_recycler_adapter_card_layout, viewHolder.toot_card_LinearLayout);
             viewHolder.card_ImageView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_card_imageView);
+            viewHolder.card_ImageView.setImageTintList(null);
             viewHolder.card_TextView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_card_textView);
             if (getLoadImageConnection(viewHolder, setting) && api.getCardImage() != null && viewHolder.card_ImageView != null) {
                 Glide.with(viewHolder.card_ImageView.getContext()).load(api.getCardImage()).into(viewHolder.card_ImageView);
@@ -1601,6 +1602,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
                                     TextView follow_info = new TextView(context);
                                     Snackbar snackbar = Snackbar.make(v, "", Snackbar.LENGTH_SHORT);
+                                    snackbar.setBackgroundTint(Color.parseColor("#4c4c4c"));
                                     String finalProfile_note = profile_note;
                                     Bitmap bitmap = null;
                                     GlideSupport glideSupport = new GlideSupport();

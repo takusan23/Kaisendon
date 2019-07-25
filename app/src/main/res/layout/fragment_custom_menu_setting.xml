@@ -13,6 +13,7 @@
 
         <Button
             android:id="@+id/add_custom_menu_button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -21,6 +22,7 @@
 
         <Button
             android:id="@+id/custom_menu_backup_restore"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"

@@ -32,20 +32,21 @@
 
             <Button
                 android:id="@+id/custom_streaming_setting"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
-<!--
-            <EditText
-                android:id="@+id/custom_streaming_toot_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="5"
-                android:ems="10"
-                android:hint="@string/nagaoshi_toot"
-                android:inputType="textPersonName" />
--->
+            <!--
+                        <EditText
+                            android:id="@+id/custom_streaming_toot_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5"
+                            android:ems="10"
+                            android:hint="@string/nagaoshi_toot"
+                            android:inputType="textPersonName" />
+            -->
 
 
         </LinearLayout>

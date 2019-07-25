@@ -1,38 +1,38 @@
 -- Merging decision tree log ---
 provider#androidx.browser.customtabs.browseractions.BrowserServiceFileProvider
-INJECTED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:21:9-29:20
+INJECTED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:21:9-29:20
 	android:grantUriPermissions
-		ADDED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:25:13-47
+		ADDED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:25:13-47
 	android:authorities
-		INJECTED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml
-		ADDED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:23:13-64
+		INJECTED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml
+		ADDED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:23:13-64
 	android:exported
-		ADDED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:24:13-37
+		ADDED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:24:13-37
 	android:name
-		ADDED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:22:13-70
+		ADDED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:22:13-70
 manifest
-ADDED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:17:1-31:12
-INJECTED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:17:1-31:12
-INJECTED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:17:1-31:12
+ADDED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:17:1-31:12
+INJECTED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:17:1-31:12
+INJECTED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:17:1-31:12
 	package
-		ADDED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:18:11-48
-		INJECTED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml
-		INJECTED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml
+		ADDED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:18:11-48
+		INJECTED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml
+		INJECTED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml
 	xmlns:android
-		ADDED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:17:11-69
+		ADDED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:17:11-69
 application
-ADDED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:20:5-30:19
+ADDED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:20:5-30:19
 uses-sdk
-INJECTED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml reason: use-sdk injection requested
-INJECTED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml
-INJECTED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml
+INJECTED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml
+INJECTED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml
 	android:minSdkVersion
-		INJECTED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml
-		ADDED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml
-		INJECTED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml
+		INJECTED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml
+		ADDED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml
+		INJECTED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml
 meta-data#android.support.FILE_PROVIDER_PATHS
-ADDED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:26:13-28:64
+ADDED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:26:13-28:64
 	android:resource
-		ADDED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:28:17-62
+		ADDED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:28:17-62
 	android:name
-		ADDED from C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:27:17-67
+		ADDED from C:\Users\takusan23\Desktop\6.10\Kaisendon\customtabs\AndroidManifest.xml:27:17-67

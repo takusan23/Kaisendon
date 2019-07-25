@@ -8,8 +8,8 @@ android {
         applicationId 'io.github.takusan23.Kaisendon'
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 37
-        versionName "6.0.4"
+        versionCode 39
+        versionName "6.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true

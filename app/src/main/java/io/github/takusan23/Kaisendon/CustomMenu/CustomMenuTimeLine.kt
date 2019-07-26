@@ -59,6 +59,7 @@ import java.net.URISyntaxException
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.concurrent.thread
 
 
 /**
@@ -411,9 +412,6 @@ class CustomMenuTimeLine : Fragment() {
 
                 //最後までスクロール
                 recyclerView!!.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                        super.onScrollStateChanged(recyclerView, newState)
-                    }
 
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         super.onScrolled(recyclerView, dx, dy)
@@ -458,7 +456,6 @@ class CustomMenuTimeLine : Fragment() {
                     //有効
                     //引っ張って更新無効
                     swipeRefreshLayout!!.isEnabled = false
-                    //通知以外
                     if (!url!!.contains("/api/v1/notifications")) {
                         loadTimeline("")
                         //ストリーミング
@@ -487,8 +484,15 @@ class CustomMenuTimeLine : Fragment() {
                 }
                 //引っ張って更新
                 swipeRefreshLayout!!.setOnRefreshListener {
-                    adapter!!.clear()
+
+                    //customMenuRecyclerViewAdapter!!.clear()
                     recyclerViewList!!.clear()
+                    customMenuRecyclerViewAdapter!!.notifyDataSetChanged()
+
+                    //位置リセット
+                    position = 0
+                    y = 0
+
                     //トゥートカウンター
                     countTextView!!.text = ""
                     akeome_count = 0
@@ -504,9 +508,6 @@ class CustomMenuTimeLine : Fragment() {
 
                 //最後までスクロール
                 recyclerView!!.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                        super.onScrollStateChanged(recyclerView, newState)
-                    }
 
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         super.onScrolled(recyclerView, dx, dy)
@@ -568,7 +569,7 @@ class CustomMenuTimeLine : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item?.itemId == R.id.bottom_app_bar_menu_scroll) {
+        if (item.itemId == R.id.bottom_app_bar_menu_scroll) {
             // BottomAppBarのときはTextView無いので指定のボタンを押したときに動くようにしてます
             recyclerView!!.smoothScrollToPosition(0)
         }
@@ -586,7 +587,7 @@ class CustomMenuTimeLine : Fragment() {
         //パラメータを設定
         //最終的なURL(static使いまくったらDesktopMode実装で困った（）
         //ハッシュタグはそのままURLが利用できないので修正
-        if (url?.contains("/api/v1/timelines/tag/") ?: false) {
+        if (url?.contains("/api/v1/timelines/tag/") == true) {
             if (url == "?local=true") {
                 url = "https://" + instance + "/api/v1/timelines/tag/" + arguments?.getString("name") + "?local=true"
             } else {
@@ -659,22 +660,23 @@ class CustomMenuTimeLine : Fragment() {
 
                                 //ListItem listItem = new ListItem(Item);
                                 recyclerViewList?.add(Item)
-
-                                activity?.runOnUiThread {
-                                    if (recyclerViewLayoutManager != null) {
-                                        (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
-                                    }
-                                    //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                                    recyclerView?.adapter = customMenuRecyclerViewAdapter
-                                    SnackberProgress.closeProgressSnackber()
-                                    scroll = false
-                                }
                             }
+                        }
+                        //Adapter更新
+                        activity?.runOnUiThread {
+                            if (recyclerViewLayoutManager != null) {
+                                (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
+                            }
+                            //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                            //recyclerView?.adapter = customMenuRecyclerViewAdapter
+                            customMenuRecyclerViewAdapter?.notifyDataSetChanged()
+                            SnackberProgress.closeProgressSnackber()
+                            scroll = false
                         }
                         //最後のIDを更新する
                         val last_toot = jsonArray.getJSONObject(39)
                         max_id = last_toot.getString("id")
-                        if (swipeRefreshLayout?.isRefreshing ?: false) {
+                        if (swipeRefreshLayout?.isRefreshing == true) {
                             activity?.runOnUiThread { swipeRefreshLayout?.isRefreshing = false }
                         }
                     } catch (e: JSONException) {
@@ -730,7 +732,7 @@ class CustomMenuTimeLine : Fragment() {
                         val avatarUrl = jsonObject.getString("avatarUrl")
                         val avatarUrlnotGif = jsonObject.getString("avatarUrl")
                         val bannerUrl = jsonObject.getString("bannerUrl")
-                        if (pref_setting?.getBoolean("pref_custom_emoji", true) ?: true || java.lang.Boolean.valueOf(custom_emoji)) {
+                        if (pref_setting?.getBoolean("pref_custom_emoji", true) != false || java.lang.Boolean.valueOf(custom_emoji)) {
                             val emoji = jsonObject.getJSONArray("emojis")
                             for (e in 0 until emoji.length()) {
                                 val emoji_jsonObject = emoji.getJSONObject(e)
@@ -806,7 +808,7 @@ class CustomMenuTimeLine : Fragment() {
                         val headerNotGif = jsonObject.getString("header_static")
                         account_JsonObject = jsonObject
                         //カスタム絵文字
-                        if (java.lang.Boolean.valueOf(custom_emoji) || pref_setting?.getBoolean("pref_custom_emoji", true) ?: true) {
+                        if (java.lang.Boolean.valueOf(custom_emoji) || pref_setting?.getBoolean("pref_custom_emoji", true) != false) {
                             val emojis = jsonObject.getJSONArray("emojis")
                             for (i in 0 until emojis.length()) {
                                 val emojiObject = emojis.getJSONObject(i)
@@ -814,7 +816,7 @@ class CustomMenuTimeLine : Fragment() {
                                 val emoji_url = emojiObject.getString("url")
                                 val custom_emoji_src = "<img src=\'$emoji_url\'>"
                                 //display_name
-                                if (display_name?.contains(emoji_name) ?: false) {
+                                if (display_name?.contains(emoji_name) == true) {
                                     //あったよ
                                     display_name = display_name?.replace(":$emoji_name:", custom_emoji_src)
                                 }
@@ -823,7 +825,7 @@ class CustomMenuTimeLine : Fragment() {
                         if (activity != null) {
                             activity?.runOnUiThread {
                                 //ドロワー
-                                if (pref_setting?.getBoolean("pref_avater_gif", true) ?: true) {
+                                if (pref_setting?.getBoolean("pref_avater_gif", true) != false) {
                                     avatar = avatarNotGif
                                     header = headerNotGif
                                 }
@@ -869,9 +871,9 @@ class CustomMenuTimeLine : Fragment() {
         var direct = false
 
         /*
-        * もし/api/v1/instanceからurls.streaming_apiが違ったときに動く
-        * isEmpty()でfalseのときは別リンクが設定されてる
-        * */
+         * もし/api/v1/instanceからurls.streaming_apiが違ったときに動く
+         * isEmpty()でfalseのときは別リンクが設定されてる
+         * */
         if (instance_api_streaming_api_link.isEmpty()) {
             //既定
             when (arguments?.getString("content")) {
@@ -917,7 +919,6 @@ class CustomMenuTimeLine : Fragment() {
                 link += "&access_token$access_token"
             }
         }
-
         if (Build.PRODUCT.contains("sdk")) {
             // エミュレータの場合はIPv6を無効    ----1
             java.lang.System.setProperty("java.net.preferIPv6Addresses", "false")
@@ -997,11 +998,7 @@ class CustomMenuTimeLine : Fragment() {
                 }
 
                 override fun onClose(code: Int, reason: String, remote: Boolean) {
-                    //404エラーは再接続？
-                    //何回もAPI叩かれると困る
-                    if (instance_api_streaming_api_link.isEmpty() && reason.contains("404")) {
-                        getInstanceUrlsStreamingAPI()
-                    }
+
                 }
 
                 override fun onError(ex: Exception) {
@@ -1011,11 +1008,15 @@ class CustomMenuTimeLine : Fragment() {
                             Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show()
                         }
                     }
+
+
                     //404エラーは再接続？
                     //何回もAPI叩かれると困る
                     if (instance_api_streaming_api_link.isEmpty()) {
                         getInstanceUrlsStreamingAPI()
+                        useStreamingAPI()
                     }
+
                 }
             }
             //接続
@@ -1024,7 +1025,6 @@ class CustomMenuTimeLine : Fragment() {
         } catch (e: URISyntaxException) {
             e.printStackTrace()
         }
-
     }
 
     /*
@@ -1032,7 +1032,7 @@ class CustomMenuTimeLine : Fragment() {
     * */
     fun getInstanceUrlsStreamingAPI() {
         //APIを叩く
-        val url = "https://$instance/api/v1/accounts/$account_id"
+        val url = "https://$instance/api/v1/instance"
         //作成
         val request = Request.Builder()
                 .url(url)
@@ -1040,26 +1040,16 @@ class CustomMenuTimeLine : Fragment() {
                 .build()
         //GETリクエスト
         val okHttpClient = OkHttpClient()
-        okHttpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                activity?.runOnUiThread {
-                    Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
-                }
+        val response = okHttpClient.newCall(request).execute()
+        //JSONパース
+        if (response.isSuccessful) {
+            val jsonObject = JSONObject(response.body()?.string())
+            instance_api_streaming_api_link = jsonObject.getJSONObject("urls").getString("streaming_api")
+        } else {
+            activity?.runOnUiThread {
+                Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show()
             }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (!response.isSuccessful) {
-                    activity?.runOnUiThread {
-                        Toast.makeText(getContext(), getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    val jsonObject = JSONObject(response.body()?.string())
-                    instance_api_streaming_api_link = jsonObject.getJSONObject("urls").getString("streaming_api")
-                    //websocket再接続する
-                    useStreamingAPI()
-                }
-            }
-        })
+        }
     }
 
     /**
@@ -1313,7 +1303,7 @@ class CustomMenuTimeLine : Fragment() {
                     }
                 }
                 /*TTS*/
-                if (tlQuickSettingSnackber != null && tlQuickSettingSnackber?.timelineTTS ?: false) {
+                if (tlQuickSettingSnackber != null && tlQuickSettingSnackber?.timelineTTS == true) {
                     //インスタンス生成
                     if (tts == null) {
                         tts = TextToSpeech(context, TextToSpeech.OnInitListener { i ->
@@ -1330,7 +1320,7 @@ class CustomMenuTimeLine : Fragment() {
                         val api = MastodonTLAPIJSONParse(context!!, toot_jsonObject.toString(), setting, 0)
                         //正規表現でURL消す
                         var text = Html.fromHtml(api.toot_text, Html.FROM_HTML_MODE_COMPACT).toString()
-                        if (pref_setting?.getBoolean("pref_speech_url", true) ?: true) {
+                        if (pref_setting?.getBoolean("pref_speech_url", true) != false) {
                             text = text.replace("(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+".toRegex(), "URL省略")
                         }
                         tts?.speak(text, TextToSpeech.QUEUE_ADD, null, "tts")
@@ -1526,7 +1516,7 @@ class CustomMenuTimeLine : Fragment() {
                 jsonObject.put("untilId", id)
             }
             //TLで自分の投稿を見れるように
-            if (url?.contains("timeline") ?: true) {
+            if (url?.contains("timeline") != false) {
                 jsonObject.put("includeLocalRenotes", true)
                 jsonObject.put("includeMyRenotes", true)
                 jsonObject.put("includeRenotedMyNotes", true)
@@ -1924,13 +1914,6 @@ class CustomMenuTimeLine : Fragment() {
     }
 
     /**
-     * replaceしたときに最後に呼ばれるところ
-     */
-    override fun onResume() {
-        super.onResume()
-    }
-
-    /**
      * トゥートカウンターようれいあうと
      */
     private fun setTootCounterLayout() {
@@ -2038,13 +2021,13 @@ class CustomMenuTimeLine : Fragment() {
             //一応Nullチェック
             if (header_imageView != null) {
                 //画像読み込むか
-                if (pref_setting?.getBoolean("pref_drawer_avater", false) ?: false) {
+                if (pref_setting?.getBoolean("pref_drawer_avater", false) == true) {
                     //読み込まない
                     avater_imageView?.setImageResource(R.drawable.ic_person_black_24dp)
                     header_imageView?.setBackgroundColor(Color.parseColor("#c8c8c8"))
                 }
                 //Wi-Fi時は読み込む
-                if (pref_setting?.getBoolean("pref_avater_wifi", true) ?: true) {
+                if (pref_setting?.getBoolean("pref_avater_wifi", true) != false) {
                     //既定でGIFは再生しない方向で
                     //GIF/GIFじゃないは引数に入れる前から判断してる
                     glideSupport.loadGlide(avatarUrl, avater_imageView!!)
@@ -2100,18 +2083,20 @@ class CustomMenuTimeLine : Fragment() {
      * *
      */
     private fun setStreamingNotification() {
-        val url = "wss://$instance/api/v1/streaming/?stream=user&access_token=$access_token"
+        //StreamingAPIのLink違う時
+        val url = "wss://$instance/api/v1/streaming/?stream=user:notification&access_token=$access_token"
         if (context != null) {
             vibrator = context?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         }
         try {
             notification_WebSocketClient = object : WebSocketClient(URI(url)) {
                 override fun onOpen(handshakedata: ServerHandshake) {
-
+                    System.out.println("通知おーぷん")
                 }
 
                 override fun onMessage(message: String) {
                     try {
+                        System.out.println(message)
                         val jsonObject = JSONObject(message)
                         //if (jsonObject.getString("type").equals("notification")) {
                         val `object` = jsonObject.getString("payload")
@@ -2134,18 +2119,24 @@ class CustomMenuTimeLine : Fragment() {
                         //トースト出す
                         val finalDisplay_name = display_name
                         activity?.runOnUiThread {
+
                             //カスタムトースト
                             val toast = Toast(context)
                             val inflater = layoutInflater
                             val layout = inflater.inflate(R.layout.notification_toast_layout, null)
-                            val toast_text = layout.findViewById<TextView>(R.id.notification_text)
+
+                            //文字
+                            val toast_text = layout.findViewById<TextView>(R.id.notification_toast_textView)
                             val picassoImageGetter = PicassoImageGetter(toast_text)
                             toast_text.text = Html.fromHtml(CustomMenuRecyclerViewAdapter.toNotificationType(context, type) + "<br>" + finalDisplay_name, Html.FROM_HTML_MODE_COMPACT, picassoImageGetter, null)
-                            val toast_imageview = layout.findViewById<AppCompatImageView>(R.id.notification_icon)
+                            val toast_imageview = layout.findViewById<AppCompatImageView>(R.id.notification_toast_icon_imageView)
+                            //アイコン
                             toast_imageview.setImageDrawable(getNotificationIcon(type))
+                            //レイアウト適用
                             toast.view = layout
                             toast.duration = Toast.LENGTH_LONG
                             toast.show()
+
                             if (pref_setting!!.getBoolean("pref_notification_vibrate", true) && vibrator != null) {
                                 val pattern = longArrayOf(100, 100, 100, 100)
                                 //バイブなんか非推奨になってた（）書き直した
@@ -2157,6 +2148,7 @@ class CustomMenuTimeLine : Fragment() {
                                     vibrator?.vibrate(pattern, -1)
                                 }
                             }
+
                         }
                         // }
                     } catch (e: JSONException) {
@@ -2170,7 +2162,12 @@ class CustomMenuTimeLine : Fragment() {
                 }
 
                 override fun onError(ex: Exception) {
-
+                    //404エラーは再接続？
+                    //何回もAPI叩かれると困る
+                    if (instance_api_streaming_api_link.isEmpty()) {
+                        getInstanceUrlsStreamingAPI()
+                        useStreamingAPI()
+                    }
                 }
             }
             //接続
@@ -2386,7 +2383,7 @@ class CustomMenuTimeLine : Fragment() {
                         if (end[0] - start[0] > 400 && y_start[0] - y_end[0] < 100 && y_start[0] - y_end[0] > -100) {
                             //ドロワー開く。getActivity()あってよかた
                             val drawer = activity?.findViewById<View>(R.id.drawer_layout) as DrawerLayout
-                            drawer?.openDrawer(Gravity.LEFT)
+                            drawer.openDrawer(Gravity.LEFT)
                         }
                     }
                 }
@@ -2488,14 +2485,34 @@ class CustomMenuTimeLine : Fragment() {
     override fun onStart() {
         super.onStart()
         //アプリを表示させたらストリーミングAPI接続する
-        if (webSocketClient?.isClosed ?: false) {
+        if (webSocketClient?.isClosed == true) {
             useStreamingAPI()
             //Snackbar.make(view!!, "タイムラインのストリーミングAPIへ再接続しました。", Snackbar.LENGTH_SHORT).show()
         }
-        if (notification_WebSocketClient?.isClosed ?: false) {
+        if (notification_WebSocketClient?.isClosed == true) {
             setStreamingNotification()
             //Snackbar.make(view!!, "通知のストリーミングAPIへ再接続しました。", Snackbar.LENGTH_SHORT).show()
         }
+    }
+
+    //画像表示させるか
+    fun getImageLoad(): Boolean {
+        val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        //設定からアバター画像読み込まないの場合
+        if (pref_setting?.getBoolean("setting_avater_get", false) == true) {
+            return false
+        }
+        //Wi-Fi接続時
+        if (pref_setting?.getBoolean("setting_avater_wifi_get_info", true) != false) {
+            return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        }
+        //CustomMenuの設定で有効?
+        //今回はデフォで有効にしている。
+        if (image_load?.toBoolean() ?: true) {
+            return true
+        }
+        return false
     }
 
 

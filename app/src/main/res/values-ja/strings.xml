@@ -47,8 +47,8 @@
     <string name="dialog_nicoru">ニコる</string>
     <string name="dialog_nicoru_info">ニコりますか</string>
     <string name="boost_message">"ブーストしました : "</string>
-    <string name="setting_avater_get">アバターを非表示</string>
-    <string name="setting_avater_get_info">通信量節約のためにアバター画像を取得しない</string>
+    <string name="setting_avater_get">画像を非表示</string>
+    <string name="setting_avater_get_info">通信量節約のために画像を取得しない</string>
     <string name="setting_no_sleep">スリープを無効</string>
     <string name="setting_no_sleep_info">スリープを無効にできます</string>
     <string name="setting_no_sleep_timeline">タイムラインアクセス時はスリープを無効</string>

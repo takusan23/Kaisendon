@@ -415,6 +415,10 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
         snackbar.dismiss()
     }
 
+    fun isShown(): Boolean {
+        return snackbar.isShown
+    }
+
     /*配列を設定*/
     fun setList(list: ArrayList<String>) {
         this.list = list

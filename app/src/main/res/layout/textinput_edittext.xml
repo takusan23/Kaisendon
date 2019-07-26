@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:theme="@style/Theme.MaterialComponents">
+    android:theme="@style/Theme.MaterialComponents"> <!--この行にあるthemeを付け足す。-->
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/name_TextInputLayout"

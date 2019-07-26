@@ -13,11 +13,13 @@
             android:summary="@string/setting_avater_get_info"
             android:title="@string/setting_avater_get" />
 
+<!--
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_drawer_avater"
             android:summary="@string/setting_drawer_avater_header_hidden_info"
             android:title="@string/setting_drawer_avater_header_hidden" />
+-->
 
         <!--
                 <CheckBoxPreference

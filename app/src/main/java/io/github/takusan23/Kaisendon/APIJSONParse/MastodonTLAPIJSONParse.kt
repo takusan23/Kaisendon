@@ -94,6 +94,8 @@ class MastodonTLAPIJSONParse//インスタンス
         private set
     var ReblogToot: String? = null
         private set
+    var accountStatusCount: String? = "0"
+        private set
 
 
     fun getIsFav(): String {
@@ -152,6 +154,7 @@ class MastodonTLAPIJSONParse//インスタンス
                 note = account_JsonObject.getString("note")
                 follow_count = account_JsonObject.getString("following_count")
                 follower_count = account_JsonObject.getString("followers_count")
+                accountStatusCount = account_JsonObject.getString("statuses_count")
                 //Local、その他同じクライアントのユーザー
                 if (!toot_JsonObject.isNull("application")) {
                     client = toot_JsonObject.getJSONObject("application").getString("name")

@@ -4,25 +4,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/toast_layout_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/redius_shape"
-    android:orientation="horizontal"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:padding="8dp">
 
-    <ImageView
-        android:id="@+id/notification_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginRight="8dp"
-        android:inputType="textMultiLine" />
-
-    <TextView
-        android:id="@+id/notification_text"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="にゃーん"
-        android:textColor="#FFF" />
+        android:layout_height="match_parent"
+        android:layout_margin="2dp"
+        app:cardBackgroundColor="@color/colorPrimaryDark"
+        app:cardCornerRadius="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:padding="10sp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="5sp">
+
+                <ImageView
+                    android:id="@+id/notification_toast_icon_imageView"
+                    android:layout_width="30sp"
+                    android:layout_height="30sp"
+                    android:tint="@color/white"
+                    app:srcCompat="@drawable/ic_star_border_black_24dp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/notification_toast_textView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5sp"
+                android:text="通知テスト"
+                android:textColor="@color/white" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
 </LinearLayout>

@@ -1098,6 +1098,8 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             drawer.closeDrawer(GravityCompat.START)
         } else if (toot_snackbar.isShown) {
             toot_snackbar.dismiss()
+        }else if(tlQuickSettingSnackber?.isShown() ?: false){
+            tlQuickSettingSnackber?.dismissSnackBer()
         } else {
             //　終了ダイアログ 修正（Android Qで動かないので）
             AlertDialog.Builder(this@Home)

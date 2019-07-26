@@ -12,6 +12,7 @@ import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.icu.text.UFormat;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -54,6 +55,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.material.snackbar.Snackbar;
+import com.sys1yagi.mastodon4j.api.entity.Card;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONArray;
@@ -124,6 +126,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
+        public CardView parentCardView;
         public TextView toot_text_TextView;
         public TextView toot_user_TextView;
         public LinearLayout account_LinearLayout;
@@ -185,6 +188,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
 
         public ViewHolder(@NonNull View itemView, Context context) {
             super(itemView);
+            parentCardView = itemView.findViewById(R.id.custom_menu_adapter_parentCardView);
             mainLinearLayout = itemView.findViewById(R.id.custom_menu_adapter_mainLinearLayout);
             account_LinearLayout = itemView.findViewById(R.id.custom_menu_adapter_account_linearlayout);
             toot_text_TextView = itemView.findViewById(R.id.custom_menu_adapter_text);
@@ -427,6 +431,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 setContentWarning(viewHolder, api, item);
                 //固定トゥート
                 setPinnedIcon(viewHolder, api);
+                //しんかこ！
+                setNewUserEnvelop(viewHolder, api);
             }
         } else if (isScheduled_statuses) {
             MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
@@ -959,18 +965,40 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.reblog_toot_text_TextView = viewHolder.itemView.findViewById(R.id.custom_menu_adapter_reblog_text);
             if (viewHolder.reblog_avatar_ImageView != null && viewHolder.reblog_user_TextView != null && viewHolder.reblog_toot_text_TextView != null && viewHolder.toot_user_TextView != null && viewHolder.toot_text_TextView != null && viewHolder.reblog_avatar_ImageView != null) {
                 //入れる
+                GlideSupport glideSupport = new GlideSupport();
                 if (getLoadImageConnection(viewHolder, setting)) {
-                    //既定でGIFは再生しない方向で
-                    if (pref_setting.getBoolean("pref_avater_gif", true)) {
-                        //GIFアニメ再生させない
-                        Glide.with(context).load(api.getBtAvatarUrlNotGif()).into(viewHolder.reblog_avatar_ImageView);
+                    //GIFアニメ再生させない
+                    String url = api.getBtAvatarUrlNotGif();
+                    if (!pref_setting.getBoolean("pref_avater_gif", true)) {
+                        //GIF有効
+                        url = api.getBtAvatarUrl();
+                    }
+                    //角を丸くするか
+                    if (pref_setting.getBoolean("pref_avatar_round_corner", true)) {
+                        glideSupport.loadRoundCornerGlide(url, viewHolder.reblog_avatar_ImageView);
                     } else {
-                        //GIFアニメを再生
-                        Glide.with(context).load(api.getBtAvatarUrl()).into(viewHolder.reblog_avatar_ImageView);
+                        glideSupport.loadNormalGlide(url, viewHolder.reblog_avatar_ImageView);
                     }
                 } else {
-                    if (viewHolder.reblog_avatar_ImageView != null) {
-                        ((LinearLayout) viewHolder.reblog_avatar_ImageView.getParent()).removeView(viewHolder.reblog_avatar_ImageView);
+                    //オフライン時でもキャッシュが存在すればキャッシュを読み込む
+                    if (pref_setting.getBoolean("pref_offline_cache_load", false)) {
+                        //GIFアニメ再生させない
+                        String url = api.getAvatarUrlNotGIF();
+                        if (!pref_setting.getBoolean("pref_avater_gif", true)) {
+                            //GIFアニメを再生
+                            url = api.getAvatarUrl();
+                        }
+                        //角を丸くするか
+                        if (pref_setting.getBoolean("pref_avatar_round_corner", true)) {
+                            glideSupport.loadOfflineRoundCornerGlide(url, viewHolder.reblog_avatar_ImageView);
+                        } else {
+                            glideSupport.loadOfflineGlide(url, viewHolder.reblog_avatar_ImageView);
+                        }
+                    } else {
+                        //Layout Remove
+                        if (((LinearLayout) viewHolder.reblog_avatar_ImageView.getParent()) != null) {
+                            ((LinearLayout) viewHolder.reblog_avatar_ImageView.getParent()).removeView(viewHolder.reblog_avatar_ImageView);
+                        }
                     }
                 }
                 PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.reblog_toot_text_TextView);
@@ -2600,6 +2628,15 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.toot_pinned_ImageView.setImageResource(R.drawable.ic_attachment_black_24dp);
         }
     }
+
+    //しんかこ！
+    private void setNewUserEnvelop(ViewHolder viewHolder, MastodonTLAPIJSONParse api) {
+        if (Integer.valueOf(api.getAccountStatusCount()) == 1) {
+            //CardView取得。背景色変える？
+            viewHolder.parentCardView.setCardBackgroundColor(Color.parseColor("#ffebee"));
+        }
+    }
+
 
     // 右側にボタンを寄せる
     private void setRightChip(ViewHolder viewHolder) {

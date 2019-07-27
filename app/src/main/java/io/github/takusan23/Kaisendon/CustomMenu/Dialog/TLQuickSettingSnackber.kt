@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.Point
 import android.net.Uri
 import android.os.Build
 import android.view.*
@@ -16,16 +17,15 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import io.github.takusan23.Kaisendon.Activity.KonoAppNiTuite
 import io.github.takusan23.Kaisendon.Activity.LoginActivity
 import io.github.takusan23.Kaisendon.Activity.UserActivity
-import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuLoadSupport
-import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper
-import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSwipeSwitch
-import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
+import io.github.takusan23.Kaisendon.CustomMenu.*
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment
 import io.github.takusan23.Kaisendon.FloatingTL.FloatingTL
@@ -35,11 +35,12 @@ import io.github.takusan23.Kaisendon.Omake.KaisendonLife
 import io.github.takusan23.Kaisendon.R
 import org.chromium.customtabsclient.shared.CustomTabsHelper
 import java.util.*
+import kotlin.collections.ArrayList
 
 class TLQuickSettingSnackber(private val context: Activity?, view: View) {
     /*SnackBer*/
     //表示
-    val snackbar: Snackbar
+    lateinit var snackbar: Snackbar
 
     private var bottomNavigationView: BottomNavigationView? = null
     private var title_textview: TextView? = null
@@ -57,9 +58,23 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
     private var darkModeSupport: DarkModeSupport? = null
     private var icon: ImageView? = null
     private val tl_qs_color_edittext_linearlayout: LinearLayout? = null
+    //通知
+    lateinit var recyclerViewLinearLayout: LinearLayout
+    lateinit var recyclerViewNotification: RecyclerView
+    lateinit var customMenuRecyclerViewAdapter: CustomMenuRecyclerViewAdapter
+    var recyclerViewList = arrayListOf<ArrayList<*>>()
+    lateinit var recyclerViewLayoutManager: RecyclerView.LayoutManager
+    lateinit var notificationShowImageView: ImageView
+    lateinit var closeImageView: ImageView
 
+    init {
+        snackbar = setSnackBer()
+    }
 
-    /*読み上げするかを返す*/
+/*
+    */
+/*読み上げするかを返す*//*
+
     val timelineTTS: Boolean
         get() {
             var `is` = false
@@ -69,7 +84,9 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
             return `is`
         }
 
-    /*ハイライトする文字を返す*/
+    */
+/*ハイライトする文字を返す*//*
+
     val highlightText: String
         get() {
             var text = ""
@@ -78,10 +95,10 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
             }
             return text
         }
-
     init {
         this.snackbar = setSnackBer()
     }
+*/
 
     private fun setSnackBer(): Snackbar {
         val view = context!!.findViewById<View>(R.id.container_public)
@@ -101,27 +118,67 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
         pref_setting = PreferenceManager.getDefaultSharedPreferences(context)
         bottomNavigationView = main_LinearLayout.findViewById(R.id.tl_qs_menu)
         title_textview = main_LinearLayout.findViewById(R.id.tl_qs_title_textview)
-        tts_Switch = main_LinearLayout.findViewById(R.id.tl_qs_tts_switch)
-        sleep_Switch = main_LinearLayout.findViewById(R.id.tl_qs_sleep)
-        color_EditText = main_LinearLayout.findViewById(R.id.tl_qs_color_edittext)
+        //tts_Switch = main_LinearLayout.findViewById(R.id.tl_qs_tts_switch)
+        //sleep_Switch = main_LinearLayout.findViewById(R.id.tl_qs_sleep)
+        //color_EditText = main_LinearLayout.findViewById(R.id.tl_qs_color_edittext)
         icon = main_LinearLayout.findViewById(R.id.imageView2)
         navigationView = context.findViewById(R.id.nav_view)
         customMenuLoadSupport = CustomMenuLoadSupport(context, navigationView!!)
         switch_LinearLayout = main_LinearLayout.findViewById(R.id.tl_qs_switch_linearlayout)
-
+        recyclerViewLinearLayout = main_LinearLayout.findViewById(R.id.tl_qs_notification_linearlayout)
+        recyclerViewNotification = main_LinearLayout.findViewById(R.id.tl_qs_notification_recycler_view)
+        notificationShowImageView = main_LinearLayout.findViewById(R.id.tl_qs_notification_show_imageview)
+        closeImageView = main_LinearLayout.findViewById(R.id.tl_qs_close_imageview)
         darkModeSupport = DarkModeSupport(context)
         darkModeSupport!!.setBottomNavigationBerThemeColor(bottomNavigationView!!)
+
+
 
         setClickEvent()
         setDarkmodeSwitch()
         setSleep()
+        setNotificationRecyclerView()
 
-        title_textview?.setOnClickListener {
+        closeImageView.setOnClickListener {
             snackbar.dismiss()
         }
 
-
         return snackbar
+    }
+
+    private fun setNotificationRecyclerView() {
+        //通知RecyclerView
+        recyclerViewList = java.util.ArrayList()
+        //ここから下三行必須
+        recyclerViewNotification.setHasFixedSize(true)
+        val mLayoutManager = LinearLayoutManager(context)
+        recyclerViewNotification.layoutManager = mLayoutManager
+        customMenuRecyclerViewAdapter = CustomMenuRecyclerViewAdapter(recyclerViewList)
+        recyclerViewNotification.adapter = customMenuRecyclerViewAdapter
+        recyclerViewLayoutManager = recyclerViewNotification.layoutManager as LinearLayoutManager
+
+        val viewTreeObserver = recyclerViewNotification.viewTreeObserver
+        viewTreeObserver.addOnGlobalLayoutListener {
+            //高さ調整
+            val display = context?.windowManager?.defaultDisplay
+            val size = Point()
+            display?.getSize(size)
+            val height = size.y / 5
+            val layoutParams = LinearLayout.LayoutParams(recyclerViewNotification.width, height)
+            recyclerViewNotification.layoutParams = layoutParams
+        }
+
+        //非表示できるようにする
+        (notificationShowImageView.parent as LinearLayout).setOnClickListener {
+            if (recyclerViewNotification.visibility == View.GONE) {
+                notificationShowImageView.setImageResource(R.drawable.ic_expand_more_black_24dp)
+                recyclerViewNotification.visibility = View.VISIBLE
+                customMenuRecyclerViewAdapter.notifyDataSetChanged()
+            } else {
+                notificationShowImageView.setImageResource(R.drawable.ic_expand_less_black_24dp)
+                recyclerViewNotification.visibility = View.GONE
+            }
+        }
     }
 
     private fun setClickEvent() {
@@ -131,7 +188,7 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
                 R.id.tl_qs_account -> setAccountPopupMenu()
                 R.id.tl_qs_bookmark -> setBookmark()
                 R.id.tl_qs_edit -> {
-                    Toast.makeText(context,"未実装",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "未実装", Toast.LENGTH_SHORT).show()
                 }
                 R.id.tl_qs_display_method -> showDisplayMethodMenu()
                 R.id.tl_qs_sonota -> setSonotaMenu()
@@ -359,7 +416,7 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
     }
 
     /*スワイプ切り替えモード（開発中）*/
-    private fun showSwipeSwitchingMode(){
+    private fun showSwipeSwitchingMode() {
         val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
         transaction.replace(R.id.container_container, CustomMenuSwipeSwitch(), "swipe_switch")
         transaction.commit()
@@ -408,6 +465,7 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
     fun showSnackBer() {
         //表示
         snackbar.show()
+        customMenuRecyclerViewAdapter.notifyDataSetChanged()
     }
 
     fun dismissSnackBer() {

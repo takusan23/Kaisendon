@@ -296,21 +296,30 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
         }
 
         //デスクトップモードかPiP利用時は簡略表示する
-        Fragment fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentById(R.id.container_container);
-        Fragment pip_Fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentByTag("pip_fragment");
-        if (fragment instanceof DesktopFragment) {
-            GIFEmoji gif = new GIFEmoji();
-            MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting, gif.getTextViewHeight(viewHolder.toot_text_TextView));
-            setAccountLayout(viewHolder);
-            setDesktopTootOption(viewHolder, api, item, setting);
+        if (context instanceof AppCompatActivity) {
+            Fragment fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentById(R.id.container_container);
+            Fragment pip_Fragment = ((AppCompatActivity) context).getSupportFragmentManager().findFragmentByTag("pip_fragment");
+            if (fragment instanceof DesktopFragment) {
+                GIFEmoji gif = new GIFEmoji();
+                MastodonTLAPIJSONParse api = new MastodonTLAPIJSONParse(viewHolder.toot_text_TextView.getContext(), item.get(3), setting, gif.getTextViewHeight(viewHolder.toot_text_TextView));
+                setAccountLayout(viewHolder);
+                setDesktopTootOption(viewHolder, api, item, setting);
+            }
+            if (pip_Fragment != null) {
+                setPiPLayout(viewHolder);
+            }
         }
-        if (pip_Fragment != null) {
-            setPiPLayout(viewHolder);
-        }
+
         //読み取り専用の場合
         if (Boolean.valueOf(setting.isReadOnly())) {
             setReadOnlyLayout(viewHolder);
         }
+
+        //タイムラインメニューの通知（ストリーミング）は背景が黒なので
+        if (item.get(0).contains("TLQSNotification")) {
+            setIconWhite(viewHolder);
+        }
+
         //TL/それ以外
         if (!isScheduled_statuses && !isFollowSuggestions && !isMisskeyFollowes && !isMastodonFollowes && !isActivityPubViewer) {
             //レイアウト
@@ -321,14 +330,16 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //カスタム絵文字
             PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
             PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.toot_user_TextView);
-            //色を変える機能
             String text = api.getToot_text();
+/*
+            //色を変える機能
             if (context instanceof Home) {
                 String highlight = ((Home) context).getTlQuickSettingSnackber().getHighlightText();
                 if (!highlight.equals("")) {
                     text = text.replace(highlight, "<font color=\"red\">" + highlight + "</font>");
                 }
             }
+*/
             //SetText
             if (Boolean.valueOf(setting.getGif())) {
                 GIFEmoji gifEmoji = new GIFEmoji();
@@ -1005,12 +1016,14 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 PicassoImageGetter user_ImageGetter = new PicassoImageGetter(viewHolder.reblog_user_TextView);
                 //色を変える機能
                 String text = api.getBtTootText();
+/*
                 if (context instanceof Home) {
                     String highlight = ((Home) context).getTlQuickSettingSnackber().getHighlightText();
                     if (!highlight.equals("")) {
                         text = text.replace(highlight, "<font color=\"red\">" + highlight + "</font>");
                     }
                 }
+*/
                 viewHolder.reblog_user_TextView.setText(Html.fromHtml(api.getBtAccountDisplayName(), Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
                 viewHolder.reblog_toot_text_TextView.setText(Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT, user_ImageGetter, null));
                 viewHolder.reblog_user_TextView.append("@" + api.getBtAccountAcct());
@@ -2604,12 +2617,14 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                     PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.toot_text_TextView);
                     //色を変える機能
                     String text = api.getToot_text();
+/*
                     if (context instanceof Home) {
                         String highlight = ((Home) context).getTlQuickSettingSnackber().getHighlightText();
                         if (!highlight.equals("")) {
                             text = text.replace(highlight, "<font color=\"red\">" + highlight + "</font>");
                         }
                     }
+*/
                     if (!Boolean.valueOf(item.get(11))) {
                         item.set(11, "true");
                         viewHolder.toot_text_TextView.append(Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT, toot_ImageGetter, null));
@@ -2635,6 +2650,23 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             //CardView取得。背景色変える？
             viewHolder.parentCardView.setCardBackgroundColor(Color.parseColor("#ffebee"));
         }
+    }
+
+    //タイムラインメニューよう通知用
+    private void setIconWhite(ViewHolder viewHolder) {
+        Drawable boostIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_repeat_black_24dp, null);
+        Drawable favIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_star_border_black_24dp, null);
+        Drawable menuIcon = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_more_vert_black_24dp, null);
+        boostIcon.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
+        favIcon.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
+        menuIcon.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN);
+        viewHolder.fav_ImageView.setImageDrawable(favIcon);
+        viewHolder.bt_ImageView.setImageDrawable(boostIcon);
+        viewHolder.option_ImageView.setImageDrawable(menuIcon);
+        //Toot詳細も白アイコン
+        viewHolder.date_icon_ImageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.white)));
+        viewHolder.visibility_icon_ImageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.white)));
+        viewHolder.client_icon_ImageView.setImageTintList(ColorStateList.valueOf(context.getColor(R.color.white)));
     }
 
 

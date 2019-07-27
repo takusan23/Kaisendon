@@ -67,7 +67,7 @@ import kotlin.concurrent.thread
  */
 class CustomMenuTimeLine : Fragment() {
 
-    private var pref_setting: SharedPreferences? = null
+    lateinit var pref_setting: SharedPreferences
 
     private var parent_linearlayout: LinearLayout? = null
 
@@ -1302,7 +1302,10 @@ class CustomMenuTimeLine : Fragment() {
                         (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(pos + 1, top)
                     }
                 }
-                /*TTS*/
+/*
+                */
+/*TTS*//*
+
                 if (tlQuickSettingSnackber != null && tlQuickSettingSnackber?.timelineTTS == true) {
                     //インスタンス生成
                     if (tts == null) {
@@ -1331,6 +1334,7 @@ class CustomMenuTimeLine : Fragment() {
                         tts?.shutdown()
                     }
                 }
+*/
             }
         }
     }
@@ -2078,6 +2082,7 @@ class CustomMenuTimeLine : Fragment() {
         return createdAt as String
     }
 
+
     /**
      * 通知（どん
      * *
@@ -2096,7 +2101,6 @@ class CustomMenuTimeLine : Fragment() {
 
                 override fun onMessage(message: String) {
                     try {
-                        System.out.println(message)
                         val jsonObject = JSONObject(message)
                         //if (jsonObject.getString("type").equals("notification")) {
                         val `object` = jsonObject.getString("payload")
@@ -2118,17 +2122,49 @@ class CustomMenuTimeLine : Fragment() {
                         }
                         //トースト出す
                         val finalDisplay_name = display_name
+
+                        //通知RecyclerView
+                        if (activity is Home) {
+                            val home = activity as Home
+                            //RecyclerViewで使うの
+                            val notificationList = home.tlQuickSettingSnackber?.recyclerViewList
+                            //配列を作成
+                            val Item = ArrayList<String>()
+                            //メモとか通知とかに
+                            Item.add("TLQSNotification")
+                            //内容
+                            Item.add(url)
+                            //ユーザー名
+                            Item.add("")
+                            //時間、クライアント名等
+                            Item.add(payload_JsonObject.toString())
+                            //ぶーすとした？
+                            Item.add("false")
+                            //ふぁぼした？
+                            Item.add("false")
+                            //Mastodon / Misskey
+                            Item.add("Mastodon")
+                            //Insatnce/AccessToken
+                            Item.add(instance ?: "")
+                            Item.add(access_token ?: "")
+                            //設定ファイルJSON
+                            Item.add(json_data ?: "")
+                            //画像表示、こんてんとわーにんぐ
+                            Item.add("false")
+                            Item.add("false")
+                            notificationList?.add(Item)
+                        }
+
                         activity?.runOnUiThread {
 
                             //カスタムトースト
                             val toast = Toast(context)
                             val inflater = layoutInflater
                             val layout = inflater.inflate(R.layout.notification_toast_layout, null)
-
                             //文字
                             val toast_text = layout.findViewById<TextView>(R.id.notification_toast_textView)
                             val picassoImageGetter = PicassoImageGetter(toast_text)
-                            toast_text.text = Html.fromHtml(CustomMenuRecyclerViewAdapter.toNotificationType(context, type) + "<br>" + finalDisplay_name, Html.FROM_HTML_MODE_COMPACT, picassoImageGetter, null)
+                            toast_text.text = Html.fromHtml(CustomMenuRecyclerViewAdapter.toNotificationType(context, type) + "<br>" + finalDisplay_name + "@" + acct, Html.FROM_HTML_MODE_COMPACT, picassoImageGetter, null)
                             val toast_imageview = layout.findViewById<AppCompatImageView>(R.id.notification_toast_icon_imageView)
                             //アイコン
                             toast_imageview.setImageDrawable(getNotificationIcon(type))
@@ -2320,7 +2356,7 @@ class CustomMenuTimeLine : Fragment() {
                                 Item.add("false")
                                 Item.add("false")
 
-                                recyclerViewList?.add(Item)
+                                recyclerViewList?.add(0, Item)
                                 activity?.runOnUiThread {
                                     if (recyclerViewLayoutManager != null) {
                                         (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
@@ -2347,7 +2383,7 @@ class CustomMenuTimeLine : Fragment() {
         var drawable = context!!.getDrawable(R.drawable.ic_notifications_black_24dp)
         when (type) {
             "follow" -> drawable = context!!.getDrawable(R.drawable.ic_person_add_black_24dp)
-            "favourite" -> drawable = context!!.getDrawable(R.drawable.ic_star_black_24dp)
+            "favourite" -> drawable = context!!.getDrawable(R.drawable.ic_star_border_black_24dp)
             "reblog" -> drawable = context!!.getDrawable(R.drawable.ic_repeat_black_24dp)
             "mention" -> drawable = context!!.getDrawable(R.drawable.ic_announcement_black_24dp)
             "reaction" -> drawable = context!!.getDrawable(R.drawable.ic_audiotrack_black_24dp)
@@ -2474,12 +2510,19 @@ class CustomMenuTimeLine : Fragment() {
     override fun onStop() {
         super.onStop()
         //アプリが後ろに移動したらストリーミングAPI切る
-        if (webSocketClient?.isClosed == false) {
-            webSocketClient?.close()
+        //設定を読み込む
+        if (!pref_setting.getBoolean("pref_timeline_streaming_background", false)) {
+            if (webSocketClient?.isClosed == false) {
+                webSocketClient?.close()
+            }
         }
-        if (notification_WebSocketClient?.isClosed == false) {
-            notification_WebSocketClient?.close()
+        //通知Ver
+        if (!pref_setting.getBoolean("pref_notification_streaming_background", false)) {
+            if (notification_WebSocketClient?.isClosed == false) {
+                notification_WebSocketClient?.close()
+            }
         }
+
     }
 
     override fun onStart() {

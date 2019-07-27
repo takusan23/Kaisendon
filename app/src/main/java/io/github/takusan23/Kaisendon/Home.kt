@@ -14,6 +14,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.graphics.*
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
@@ -47,6 +48,8 @@ import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.badge.BadgeDrawable
+import com.google.android.material.badge.BadgeUtils
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
@@ -1098,7 +1101,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             drawer.closeDrawer(GravityCompat.START)
         } else if (toot_snackbar.isShown) {
             toot_snackbar.dismiss()
-        }else if(tlQuickSettingSnackber?.isShown() ?: false){
+        } else if (tlQuickSettingSnackber?.isShown() ?: false) {
             tlQuickSettingSnackber?.dismissSnackBer()
         } else {
             //　終了ダイアログ 修正（Android Qで動かないので）
@@ -3035,6 +3038,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     }
 
     /*タイムラインクイック設定ボタン生成*/
+    @SuppressLint("RestrictedApi")
     private fun setTimelinQuickSettings(): ImageView {
         val qs = ImageView(this)
         qs.setImageResource(R.drawable.tl_quick_setting_icon)

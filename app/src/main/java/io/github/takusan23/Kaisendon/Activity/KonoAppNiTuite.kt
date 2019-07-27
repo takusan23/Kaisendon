@@ -71,7 +71,7 @@ class KonoAppNiTuite : AppCompatActivity() {
         if (iconImageView != null) {
             iconImageView!!.imageTintList = null
         }
-
+        
         version_TextView!!.text = getString(R.string.version) + " " + release_ver_6 + "\r\n" + release_name_6
 
         /**

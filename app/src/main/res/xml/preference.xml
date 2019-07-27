@@ -13,13 +13,13 @@
             android:summary="@string/setting_avater_get_info"
             android:title="@string/setting_avater_get" />
 
-<!--
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_drawer_avater"
-            android:summary="@string/setting_drawer_avater_header_hidden_info"
-            android:title="@string/setting_drawer_avater_header_hidden" />
--->
+        <!--
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="pref_drawer_avater"
+                    android:summary="@string/setting_drawer_avater_header_hidden_info"
+                    android:title="@string/setting_drawer_avater_header_hidden" />
+        -->
 
         <!--
                 <CheckBoxPreference
@@ -54,6 +54,7 @@
             android:key="pref_offline_cache_load"
             android:summary="@string/pref_read_from_cache_description"
             android:title="@string/pref_read_from_cache" />
+
 
         <!--
                 <CheckBoxPreference
@@ -214,6 +215,26 @@
             android:key="WidgetTLType"
             android:summary="@string/setting_widget_load_title"
             android:title="@string/setting_widget_load_message" />
+
+    </PreferenceCategory>
+
+
+    <!--ストリーミング設定-->
+
+    <PreferenceCategory android:title="ストリーミング設定">
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_timeline_streaming_background"
+            android:summary="アプリから離れた場合でもタイムラインのストリーミングを続けます。"
+            android:title="ストリーミングを続ける" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_notification_streaming_background"
+            android:summary="アプリから離れた場合でも通知のストリーミングを続けます。"
+            android:title="通知ストリーミングを続ける" />
+
 
     </PreferenceCategory>
 

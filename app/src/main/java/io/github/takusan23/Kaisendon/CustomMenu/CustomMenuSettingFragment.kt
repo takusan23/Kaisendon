@@ -72,7 +72,13 @@ class CustomMenuSettingFragment : Fragment() {
 
 
         //追加画面
-        add_Button!!.setOnClickListener { startActivity(Intent(context, AddCustomMenuActivity::class.java)) }
+        add_Button!!.setOnClickListener {
+            //startActivity(Intent(context, AddCustomMenuActivity::class.java))
+            val fragment = AddCustomMenuBottomFragment()
+            if (activity != null) {
+                fragment.show(activity!!.supportFragmentManager, "add_custom_menu")
+            }
+        }
 
         //バックアップ、リストアメニュー
         backup_restore_Button!!.setOnClickListener {
@@ -333,7 +339,6 @@ class CustomMenuSettingFragment : Fragment() {
         navigationView.inflateMenu(R.menu.custom_menu)
         customMenuLoadSupport.loadCustomMenu(null)
     }
-
 
 
 }

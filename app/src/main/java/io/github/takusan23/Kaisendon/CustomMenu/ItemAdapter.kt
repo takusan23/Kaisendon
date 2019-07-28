@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.view.*
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
@@ -30,7 +31,12 @@ internal class ItemAdapter(list: ArrayList<Pair<Long, String>>, private val mLay
         val text = mItemList[position].second
         holder.mText.text = text
         holder.itemView.tag = mItemList[position]
-        setPopupMenu(holder)
+        //setPopupMenu(holder)
+
+        //コピーボタン、削除ボタン
+        setCopyButton(holder)
+        setDeleteButton(holder)
+
         holder.mText.setOnClickListener {
             val intent = Intent(holder.itemView.context, AddCustomMenuActivity::class.java)
             intent.putExtra("delete_button", true)
@@ -61,9 +67,13 @@ internal class ItemAdapter(list: ArrayList<Pair<Long, String>>, private val mLay
 
     internal inner class ViewHolder(itemView: View) : DragItemAdapter.ViewHolder(itemView, mGrabHandleId, mDragOnLongPress) {
         var mText: TextView
+        var deleteButton: ImageView
+        var copyButton: ImageView
 
         init {
             mText = itemView.findViewById<View>(R.id.text) as TextView
+            deleteButton = itemView.findViewById(R.id.drag_item_delete_button)
+            copyButton = itemView.findViewById(R.id.drag_item_copy_button)
         }
 
         override fun onItemClicked(view: View?) {
@@ -83,6 +93,29 @@ internal class ItemAdapter(list: ArrayList<Pair<Long, String>>, private val mLay
 
     }
 
+
+    /*
+    * コピーボタン
+    * */
+    private fun setCopyButton(viewHolder: ViewHolder) {
+        val title = viewHolder.mText.text.toString()
+        val context = viewHolder.mText.context
+        viewHolder.copyButton.setOnClickListener {
+            copyCustomMenu(title, context, viewHolder)
+        }
+    }
+
+    /*
+    * 削除ボタン
+    * */
+    private fun setDeleteButton(viewHolder: ViewHolder) {
+        val title = viewHolder.mText.text.toString()
+        val context = viewHolder.mText.context
+        viewHolder.deleteButton.setOnClickListener {
+            deleteCustomMenu(title, context, viewHolder)
+        }
+    }
+
     /*メニュー作成*/
     @SuppressLint("RestrictedApi")
     private fun setPopupMenu(viewHolder: ViewHolder) {
@@ -99,7 +132,7 @@ internal class ItemAdapter(list: ArrayList<Pair<Long, String>>, private val mLay
             menuBuilder.setCallback(object : MenuBuilder.Callback {
                 override fun onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean {
                     when (item.itemId) {
-                        R.id.custom_menu_long_copy -> copyCustomMenu(viewHolder.mText.text.toString(), context)
+                        R.id.custom_menu_long_copy -> copyCustomMenu(viewHolder.mText.text.toString(), context, viewHolder)
                         R.id.custom_menu_long_delete -> deleteCustomMenu(viewHolder.mText.text.toString(), context, viewHolder)
                     }
                     return false
@@ -114,26 +147,28 @@ internal class ItemAdapter(list: ArrayList<Pair<Long, String>>, private val mLay
     }
 
     /*データベースコピー*/
-    private fun copyCustomMenu(name: String, context: Context) {
-        var setting = ""
-        //読み込む
-        val cursor = db!!.query(
-                "custom_menudb",
-                arrayOf("setting"),
-                "name=?",
-                arrayOf(name), null, null, null
-        )
-        cursor.moveToFirst()
-        for (i in 0 until cursor.count) {
-            setting = cursor.getString(0)
-            cursor.moveToNext()
-        }
-        cursor.close()
-        val values = ContentValues()
-        values.put("name", name + " (" + context.getString(R.string.copy) + ")")
-        values.put("setting", setting)
-        db!!.insert("custom_menudb", null, values)
-        reStartFragment(context)
+    private fun copyCustomMenu(name: String, context: Context, viewHolder: ViewHolder) {
+        Snackbar.make(viewHolder.mText, context.getString(R.string.custom_setting_copy_message), Snackbar.LENGTH_SHORT).setAction(context.getString(R.string.duplicate), View.OnClickListener {
+            var setting = ""
+            //読み込む
+            val cursor = db!!.query(
+                    "custom_menudb",
+                    arrayOf("setting"),
+                    "name=?",
+                    arrayOf(name), null, null, null
+            )
+            cursor.moveToFirst()
+            for (i in 0 until cursor.count) {
+                setting = cursor.getString(0)
+                cursor.moveToNext()
+            }
+            cursor.close()
+            val values = ContentValues()
+            values.put("name", name + " (" + context.getString(R.string.copy) + ")")
+            values.put("setting", setting)
+            db!!.insert("custom_menudb", null, values)
+            reStartFragment(context)
+        }).show()
     }
 
     /*削除機能つける？*/

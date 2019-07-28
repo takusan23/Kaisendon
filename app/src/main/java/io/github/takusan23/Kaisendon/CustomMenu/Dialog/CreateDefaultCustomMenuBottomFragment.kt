@@ -1,12 +1,15 @@
 package io.github.takusan23.Kaisendon.CustomMenu.Dialog
 
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.LinearLayout
 import androidx.preference.PreferenceManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -128,5 +131,20 @@ class CreateDefaultCustomMenuBottomFragment : BottomSheetDialogFragment() {
         super.onDestroy()
         val homecard = Intent(context, Home::class.java)
         startActivity(homecard)
+    }
+
+    /*
+    * 幅を設定する
+    * */
+    override fun onResume() {
+        super.onResume()
+        // https://stackoverflow.com/questions/38436130/how-to-set-max-width-for-bottomsheetdialogfragment/38477466
+        val windowManager = activity?.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val display = windowManager.defaultDisplay
+        val displayMetrics = DisplayMetrics()
+        display.getMetrics(displayMetrics)
+        val width = if (displayMetrics.widthPixels < 1280) displayMetrics.widthPixels else 1280
+        val height = -1 // MATCH_PARENT
+        dialog?.getWindow()?.setLayout(width, height)
     }
 }

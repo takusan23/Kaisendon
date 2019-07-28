@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableString
+import android.util.DisplayMetrics
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -431,4 +432,20 @@ class TootOptionBottomDialog : BottomSheetDialogFragment() {
         }
         return title
     }
+
+    /*
+    * 幅を設定する
+    * */
+    override fun onResume() {
+        super.onResume()
+        // https://stackoverflow.com/questions/38436130/how-to-set-max-width-for-bottomsheetdialogfragment/38477466
+        val windowManager = activity?.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val display = windowManager.defaultDisplay
+        val displayMetrics = DisplayMetrics()
+        display.getMetrics(displayMetrics)
+        val width = if (displayMetrics.widthPixels < 1280) displayMetrics.widthPixels else 1280
+        val height = -1 // MATCH_PARENT
+        dialog?.getWindow()?.setLayout(width, height)
+    }
+
 }

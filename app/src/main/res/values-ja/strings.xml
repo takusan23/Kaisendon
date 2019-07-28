@@ -550,5 +550,8 @@
     <string name="pref_haptic_feedback">Haptic Feedback を利用する (実験中)</string>
     <string name="paint_post_all_clear_dialog_title">はじめに戻す</string>
     <string name="paint_post_all_clear_dialog_message">書いた内容をすべて削除します。</string>
+    <string name="custom_setting_copy_message">カスタムメニューを複製しますか？</string>
+    <string name="duplicate">複製</string>
+    <string name="add">追加</string>
 
 </resources>

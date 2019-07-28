@@ -653,5 +653,8 @@
     <string name="pref_haptic_feedback_description">You can get the feeling of pressing the favorite, boost, and post buttons.</string>
     <string name="paint_post_all_clear_dialog_title">Back to the beginning</string>
     <string name="paint_post_all_clear_dialog_message">I will delete everything I wrote.</string>
+    <string name="custom_setting_copy_message">Do you want to duplicate custom menu?</string>
+    <string name="duplicate">Duplicate</string>
+    <string name="add">Add</string>
 
 </resources>

@@ -1,11 +1,14 @@
 package io.github.takusan23.Kaisendon.CustomMenu.Dialog
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.preference.PreferenceManager
@@ -43,8 +46,8 @@ class LockBackTimelineBottomFragment : BottomSheetDialogFragment() {
     override fun getTheme(): Int {
         var theme = R.style.BottomSheetDialogThemeAppTheme
         val darkModeSupport = DarkModeSupport(context!!)
-        if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES){
-            theme =  R.style.BottomSheetDialogThemeDarkTheme
+        if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
+            theme = R.style.BottomSheetDialogThemeDarkTheme
         }
         return theme
     }
@@ -208,6 +211,21 @@ class LockBackTimelineBottomFragment : BottomSheetDialogFragment() {
     fun getOriginalToot() {
         val builder = HttpUrl.parse("https://${instance}/api/v1/statuses/${id}")!!.newBuilder()
         callAPI(builder.build().toString(), false, true)
+    }
+
+    /*
+    * 幅を設定する
+    * * */
+    override fun onResume() {
+        super.onResume()
+        // https://stackoverflow.com/questions/38436130/how-to-set-max-width-for-bottomsheetdialogfragment/38477466
+        val windowManager = activity?.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val display = windowManager.defaultDisplay
+        val displayMetrics = DisplayMetrics()
+        display.getMetrics(displayMetrics)
+        val width = if (displayMetrics.widthPixels < 1280) displayMetrics.widthPixels else 1280
+        val height = -1 // MATCH_PARENT
+        dialog?.getWindow()?.setLayout(width, height)
     }
 }
 

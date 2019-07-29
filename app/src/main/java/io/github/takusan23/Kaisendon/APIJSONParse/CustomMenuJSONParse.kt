@@ -50,6 +50,9 @@ class CustomMenuJSONParse(json_data: String) {
         internal set
     var setting = ""
         internal set
+    var json_data = ""
+    var timeline_strinaming = ""
+    var notification_streaming = ""
     var no_fav_icon: String? = null
         private set
     var yes_fav_icon: String? = null
@@ -61,36 +64,45 @@ class CustomMenuJSONParse(json_data: String) {
 
     private fun json_parse(json_data: String) {
         try {
+
             val jsonObject = JSONObject(json_data)
-            name = jsonObject.getString("name")
-            content = jsonObject.getString("content")
-            instance = jsonObject.getString("instance")
-            access_token = jsonObject.getString("access_token")
-            image_load = jsonObject.getString("image_load")
-            dialog = jsonObject.getString("dialog")
-            dark_mode = jsonObject.getString("dark_mode")
-            position = jsonObject.getString("position")
-            streaming = jsonObject.getString("streaming")
-            subtitle = jsonObject.getString("subtitle")
-            image_url = jsonObject.getString("image_url")
-            background_transparency = jsonObject.getString("background_transparency")
-            background_screen_fit = jsonObject.getString("background_screen_fit")
-            quick_profile = jsonObject.getString("quick_profile")
-            toot_counter = jsonObject.getString("toot_counter")
-            custom_emoji = jsonObject.getString("custom_emoji")
-            gif = jsonObject.getString("gif")
-            font = jsonObject.getString("font")
-            one_hand = jsonObject.getString("one_hand")
-            misskey = jsonObject.getString("misskey")
-            misskey_username = jsonObject.getString("misskey_username")
-            setting = jsonObject.getString("setting")
-            if (!jsonObject.isNull("read_only")) {
-                isReadOnly = jsonObject.getString("read_only")
-            }
+            this.json_data = json_data
+            name = getStringJsonCheck(jsonObject, "name")
+            content = getStringJsonCheck(jsonObject, "content")
+            instance = getStringJsonCheck(jsonObject, "instance")
+            access_token = getStringJsonCheck(jsonObject, "access_token")
+            image_load = getStringJsonCheck(jsonObject, "image_load")
+            dialog = getStringJsonCheck(jsonObject, "dialog")
+            dark_mode = getStringJsonCheck(jsonObject, "dark_mode")
+            position = getStringJsonCheck(jsonObject, "position")
+            streaming = getStringJsonCheck(jsonObject, "streaming")
+            subtitle = getStringJsonCheck(jsonObject, "subtitle")
+            image_url = getStringJsonCheck(jsonObject, "image_url")
+            background_transparency = getStringJsonCheck(jsonObject, "background_transparency")
+            background_screen_fit = getStringJsonCheck(jsonObject, "background_screen_fit")
+            quick_profile = getStringJsonCheck(jsonObject, "quick_profile")
+            toot_counter = getStringJsonCheck(jsonObject, "toot_counter")
+            custom_emoji = getStringJsonCheck(jsonObject, "custom_emoji")
+            gif = getStringJsonCheck(jsonObject, "gif")
+            font = getStringJsonCheck(jsonObject, "font")
+            one_hand = getStringJsonCheck(jsonObject, "one_hand")
+            misskey = getStringJsonCheck(jsonObject, "misskey")
+            misskey_username = getStringJsonCheck(jsonObject, "misskey_username")
+            setting = getStringJsonCheck(jsonObject, "setting")
+            isReadOnly = getStringJsonCheck(jsonObject, "read_only")
+
 
         } catch (e: JSONException) {
             e.printStackTrace()
         }
-
     }
+
+    fun getStringJsonCheck(jsonObject: JSONObject, string: String): String {
+        if (jsonObject.has(string)) {
+            return jsonObject.getString(string)
+        } else {
+            return ""
+        }
+    }
+
 }

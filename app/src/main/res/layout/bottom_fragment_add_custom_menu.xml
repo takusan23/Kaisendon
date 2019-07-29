@@ -393,17 +393,16 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/imageView8"
+                android:id="@+id/imageView6"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_format_paint_black_24dp" />
+                android:src="@drawable/ic_info_outline_black_24dp_2" />
 
             <Switch
-                android:id="@+id/custom_menu_darkmode"
+                android:id="@+id/custom_menu_dialog"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:enabled="false"
-                android:text="@string/custom_menu_darkmode" />
+                android:text="@string/custom_menu_dialog" />
         </LinearLayout>
 
 

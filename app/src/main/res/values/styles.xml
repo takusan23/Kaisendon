@@ -99,9 +99,10 @@
     <style name="BottomSheetDialogThemeAppTheme" parent="@style/Theme.Design.Light.BottomSheetDialog">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@color/white</item>
-        <item name="android:textColorSecondary">@color/white</item>
-        <item name="android:textColorPrimary">@color/white</item>
         <item name="android:windowIsFloating">false</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorPrimaryDark</item>
         <item name="bottomSheetStyle">@style/BottomSheet</item>
     </style>
 
@@ -114,9 +115,12 @@
     <style name="BottomSheetDialogThemeDarkTheme" parent="@style/Theme.Design.Light.BottomSheetDialog">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@color/black</item>
-        <item name="android:textColorSecondary">@color/black</item>
-        <item name="android:textColorPrimary">@color/black</item>
         <item name="android:windowIsFloating">false</item>
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorBackground">#000000</item>
+        <item name="android:tint">#ffffff</item>
+        <item name="android:editTextColor">#ffffff</item>
         <item name="bottomSheetStyle">@style/BottomSheetDark</item>
     </style>
 

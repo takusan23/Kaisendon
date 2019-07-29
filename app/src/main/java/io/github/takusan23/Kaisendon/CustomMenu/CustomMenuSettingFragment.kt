@@ -209,7 +209,7 @@ class CustomMenuSettingFragment : Fragment() {
             cursor.moveToNext()
         }
         dragListView!!.setLayoutManager(LinearLayoutManager(context))
-        val listAdapter = ItemAdapter(testArrayList, R.layout.list_item, R.id.image, false)
+        val listAdapter = ItemAdapter(activity as AppCompatActivity, testArrayList, R.layout.list_item, R.id.image, false)
         dragListView!!.setAdapter(listAdapter, true)
         dragListView!!.setCanDragHorizontally(false)
         cursor.close()

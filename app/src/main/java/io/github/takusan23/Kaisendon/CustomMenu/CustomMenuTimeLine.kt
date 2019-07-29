@@ -185,6 +185,9 @@ class CustomMenuTimeLine : Fragment() {
     //読み取り専用モード？
     private var isReadOnly = "false"
 
+    //設定内容
+    private var settings_jsonString: String = ""
+    lateinit var customMenuJSONParse: CustomMenuJSONParse
 /*
     //ストリーミングのときに同じ内容が増えないようにするために
     //追加前とこの変数と比較して、内容が増えてればnotifyItemInserted(0)を呼ぶことにする
@@ -192,12 +195,11 @@ class CustomMenuTimeLine : Fragment() {
 */
 
     /**
-     * 変数 : url
      * これCustomMenuTimeLine単体だと動くけどDesktopModeだとおかしくなるのでこのメゾット使って
      */
     private//最終的なURL(static使いまくったらDesktopMode実装で困った（）
     val desktopModeURL: String
-        get() = "https://" + arguments?.getString("instance") + arguments?.getString("content")
+        get() = "https://" + customMenuJSONParse.instance + customMenuJSONParse.content
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -214,30 +216,34 @@ class CustomMenuTimeLine : Fragment() {
         imageView = view.findViewById(R.id.custom_tl_background_imageview)
 
         //データ受け取り
-        misskey = arguments!!.getString("misskey")
+
+        settings_jsonString = arguments!!.getString("setting_json").toString()
+        customMenuJSONParse = CustomMenuJSONParse(settings_jsonString)
+
+        misskey = customMenuJSONParse.misskey
         isMisskeyMode = java.lang.Boolean.valueOf(misskey)
-        url = arguments!!.getString("content")
-        instance = arguments!!.getString("instance")
-        access_token = arguments!!.getString("access_token")
-        json_data = arguments!!.getString("json")
-        streaming = arguments!!.getString("streaming")
-        subtitle = arguments!!.getString("subtitle")
-        dialog = arguments!!.getString("dialog")
-        image_load = arguments!!.getString("image_load")
-        image_url = arguments!!.getString("image_url")
-        background_transparency = arguments!!.getString("background_transparency")
-        background_screen_fit = java.lang.Boolean.valueOf(arguments!!.getString("background_screen_fit"))
-        quick_profile = arguments!!.getString("quick_profile")
-        toot_counter = arguments!!.getString("toot_counter")
-        custom_emoji = arguments!!.getString("custom_emoji")
-        gif = arguments!!.getString("gif")
-        font = arguments!!.getString("font")
-        misskey_username = arguments!!.getString("misskey_username")
-        one_hand = arguments!!.getString("one_hand")
-        name = arguments!!.getString("name")
-        no_fav_icon = arguments!!.getString("no_fav_icon")
-        yes_fav_icon = arguments!!.getString("yes_fav_icon")
-        isReadOnly = arguments?.getString("read_only") ?: "false"
+        url = customMenuJSONParse.content
+        instance = customMenuJSONParse.instance
+        access_token = customMenuJSONParse.access_token
+        json_data = customMenuJSONParse.json_data
+        streaming = customMenuJSONParse.streaming
+        subtitle = customMenuJSONParse.subtitle
+        dialog = customMenuJSONParse.dialog
+        image_load = customMenuJSONParse.image_load
+        image_url = customMenuJSONParse.image_url
+        background_transparency = customMenuJSONParse.background_transparency
+        background_screen_fit = java.lang.Boolean.valueOf(customMenuJSONParse.background_screen_fit)
+        quick_profile = customMenuJSONParse.quick_profile
+        toot_counter = customMenuJSONParse.toot_counter
+        custom_emoji = customMenuJSONParse.custom_emoji
+        gif = customMenuJSONParse.gif
+        font = customMenuJSONParse.font
+        misskey_username = customMenuJSONParse.misskey_username
+        one_hand = customMenuJSONParse.one_hand
+        name = customMenuJSONParse.name
+//        no_fav_icon = arguments!!.getString("no_fav_icon")
+//        yes_fav_icon = arguments!!.getString("yes_fav_icon")
+        isReadOnly = customMenuJSONParse.isReadOnly
 
         // onOptionsItemSelectedが呼ばれない対策
         setHasOptionsMenu(true)
@@ -266,7 +272,7 @@ class CustomMenuTimeLine : Fragment() {
             (context as AppCompatActivity).title = getString(R.string.desktop_mode)
         } else {
             //タイトル
-            (context as AppCompatActivity).title = setName(url!!, arguments!!.getString("name"))
+            (context as AppCompatActivity).title = setName(url!!, customMenuJSONParse.name)
             if (!isMisskeyMode) {
                 val editor = pref_setting!!.edit()
                 editor.putString("main_instance", instance)
@@ -381,7 +387,7 @@ class CustomMenuTimeLine : Fragment() {
             if (isMisskeyMode) {
                 loadMisskeyAccountName()
                 //くるくる
-                SnackberProgress.showProgressSnackber(view, context!!, getString(R.string.loading) + "\n" + arguments!!.getString("content"))
+                SnackberProgress.showProgressSnackber(view, context!!, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
                 //通知以外
                 if (!url!!.contains("notifications")) {
                     //普通にAPI叩く
@@ -399,7 +405,7 @@ class CustomMenuTimeLine : Fragment() {
                     //トゥートカウンター
                     countTextView!!.text = ""
                     akeome_count = 0
-                    SnackberProgress.showProgressSnackber(view, context!!, getString(R.string.loading) + "\n" + arguments!!.getString("content"))
+                    SnackberProgress.showProgressSnackber(view, context!!, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
                     //通知以外
                     if (!url!!.contains("notifications")) {
                         //普通にAPI叩く
@@ -425,7 +431,7 @@ class CustomMenuTimeLine : Fragment() {
                                 position = (recyclerViewLayoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                                 y = recyclerView.getChildAt(0).top
                                 if (recyclerViewList!!.size >= 20) {
-                                    SnackberProgress.showProgressSnackber(view, context!!, getString(R.string.loading) + "\n" + arguments!!.getString("content"))
+                                    SnackberProgress.showProgressSnackber(view, context!!, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
                                     scroll = true
                                     //通知以外
                                     if (!url!!.contains("notifications")) {
@@ -451,7 +457,7 @@ class CustomMenuTimeLine : Fragment() {
 
                 //ストリーミングAPI。本来は無効のときチェックを付けてるけど保存時に反転してるのでおっけ
                 //無効・有効
-                SnackberProgress.showProgressSnackber(view, context!!, getString(R.string.loading) + "\n" + arguments!!.getString("content"))
+                SnackberProgress.showProgressSnackber(view, context!!, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
                 if (java.lang.Boolean.valueOf(streaming)) {
                     //有効
                     //引っ張って更新無効
@@ -496,7 +502,7 @@ class CustomMenuTimeLine : Fragment() {
                     //トゥートカウンター
                     countTextView!!.text = ""
                     akeome_count = 0
-                    SnackberProgress.showProgressSnackber(view, context!!, getString(R.string.loading) + "\n" + arguments!!.getString("content"))
+                    SnackberProgress.showProgressSnackber(view, context!!, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
                     //通知以外
                     if (!url!!.contains("/api/v1/notifications")) {
                         //普通にAPI叩く
@@ -520,10 +526,10 @@ class CustomMenuTimeLine : Fragment() {
                                 position = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                                 y = recyclerView.getChildAt(0).top
                                 if (recyclerViewList!!.size >= 20) {
-                                    SnackberProgress.showProgressSnackber(view, context!!, getString(R.string.loading) + "\n" + arguments!!.getString("content"))
+                                    SnackberProgress.showProgressSnackber(view, context!!, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
                                     scroll = true
                                     //通知以外
-                                    if (!this@CustomMenuTimeLine.arguments!!.getString("content")!!.contains("/api/v1/notifications")) {
+                                    if (!customMenuJSONParse.content.contains("/api/v1/notifications")) {
                                         //普通にAPI叩く
                                         loadTimeline(max_id)
                                     } else {
@@ -589,9 +595,9 @@ class CustomMenuTimeLine : Fragment() {
         //ハッシュタグはそのままURLが利用できないので修正
         if (url?.contains("/api/v1/timelines/tag/") == true) {
             if (url == "?local=true") {
-                url = "https://" + instance + "/api/v1/timelines/tag/" + arguments?.getString("name") + "?local=true"
+                url = "https://" + instance + "/api/v1/timelines/tag/" + customMenuJSONParse.name + "?local=true"
             } else {
-                url = " https://" + instance + "/api/v1/timelines/tag/" + arguments?.getString("name")
+                url = " https://" + instance + "/api/v1/timelines/tag/" + customMenuJSONParse.name
             }
         } else {
             //ハッシュタグ以外はここから取れる
@@ -601,7 +607,7 @@ class CustomMenuTimeLine : Fragment() {
         builder?.addQueryParameter("limit", "40")
         //読み取り専用？
         if (!isReadOnly()) {
-            builder?.addQueryParameter("access_token", arguments?.getString("access_token"))
+            builder?.addQueryParameter("access_token", customMenuJSONParse.access_token)
         }
         if (max_id_id != null) {
             if (max_id_id.length != 0) {
@@ -876,7 +882,7 @@ class CustomMenuTimeLine : Fragment() {
          * */
         if (instance_api_streaming_api_link.isEmpty()) {
             //既定
-            when (arguments?.getString("content")) {
+            when (customMenuJSONParse.content) {
                 "/api/v1/timelines/home" -> link = "wss://$instance/api/v1/streaming/?stream=user"
                 "/api/v1/notifications" -> {
                     notification = true
@@ -888,8 +894,8 @@ class CustomMenuTimeLine : Fragment() {
                     direct = true
                     link = "wss://$instance/api/v1/streaming/?stream=direct&"
                 }
-                "/api/v1/timelines/tag/" -> link = "wss://" + instance + "/api/v1/streaming/hashtag/?hashtag=" + arguments!!.getString("name")
-                "/api/v1/timelines/tag/?local=true" -> link = "wss://" + instance + "/api/v1/streaming/hashtag/local?hashtag=" + arguments!!.getString("name")
+                "/api/v1/timelines/tag/" -> link = "wss://" + instance + "/api/v1/streaming/hashtag/?hashtag=" + customMenuJSONParse.name
+                "/api/v1/timelines/tag/?local=true" -> link = "wss://" + instance + "/api/v1/streaming/hashtag/local?hashtag=" + customMenuJSONParse.name
             }
             //読み取り専用でもローカルタイムラインなら接続可能？
             //HttpUrl.Builderはwssスキームがつかえないんだって。しらんかった
@@ -898,7 +904,7 @@ class CustomMenuTimeLine : Fragment() {
             }
         } else {
             //特別リンクが設定されてる時
-            when (arguments?.getString("content")) {
+            when (customMenuJSONParse.content) {
                 "/api/v1/timelines/home" -> link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=user"
                 "/api/v1/notifications" -> {
                     notification = true
@@ -910,8 +916,8 @@ class CustomMenuTimeLine : Fragment() {
                     direct = true
                     link = "$instance_api_streaming_api_link/api/v1/streaming/?stream=direct"
                 }
-                "/api/v1/timelines/tag/" -> link = "$instance_api_streaming_api_link/api/v1/streaming/hashtag/?hashtag=" + arguments!!.getString("name")
-                "/api/v1/timelines/tag/?local=true" -> link = "$instance_api_streaming_api_link/api/v1/streaming/hashtag/local?hashtag=" + arguments!!.getString("name")
+                "/api/v1/timelines/tag/" -> link = "$instance_api_streaming_api_link/api/v1/streaming/hashtag/?hashtag=" + customMenuJSONParse.name
+                "/api/v1/timelines/tag/?local=true" -> link = "$instance_api_streaming_api_link/api/v1/streaming/hashtag/local?hashtag=" + customMenuJSONParse.name
             }
 
             //読み取り専用でもローカルタイムラインなら接続可能？
@@ -1182,7 +1188,7 @@ class CustomMenuTimeLine : Fragment() {
                     //通知更新
                     recyclerViewList?.clear()
                     if (context != null) {
-                        SnackberProgress.showProgressSnackber(sw, context!!, getString(R.string.loading) + "\n" + arguments?.getString("content"))
+                        SnackberProgress.showProgressSnackber(sw, context!!, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
                     }
                     if (java.lang.Boolean.valueOf(misskey)) {
                         loadMisskeyTimeline(null, true)
@@ -1993,7 +1999,7 @@ class CustomMenuTimeLine : Fragment() {
         //タイトルも
         val title_TextView = TextView(context)
         title_TextView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        title_TextView.text = arguments?.getString("name")
+        title_TextView.text = customMenuJSONParse.name
         title_TextView.textSize = 24f
         //追加
         one_hand_LinearLayout.addView(title_TextView)
@@ -2220,7 +2226,7 @@ class CustomMenuTimeLine : Fragment() {
     private fun loadScheduled_statuses(view: View) {
         //作成
         val url = url + "?access_token=" + access_token
-        SnackberProgress.showProgressSnackber(view, view.context, getString(R.string.loading) + "\n" + arguments?.getString("content"))
+        SnackberProgress.showProgressSnackber(view, view.context, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
         val request = Request.Builder()
                 .url(url)
                 .get()
@@ -2305,7 +2311,7 @@ class CustomMenuTimeLine : Fragment() {
     private fun loadFollowSuggestions(view: View) {
         //作成
         val url = url + "?access_token=" + access_token
-        SnackberProgress.showProgressSnackber(view, view.context, getString(R.string.loading) + "\n" + arguments?.getString("content"))
+        SnackberProgress.showProgressSnackber(view, view.context, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
         val request = Request.Builder()
                 .url(url)
                 .get()

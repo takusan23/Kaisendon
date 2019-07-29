@@ -5,8 +5,10 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.*
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.database.sqlite.SQLiteDatabase
+import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
@@ -15,10 +17,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.view.*
-import android.widget.LinearLayout
-import android.widget.PopupMenu
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
@@ -33,7 +32,6 @@ import com.google.android.material.tabs.TabLayout
 import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
-import kotlinx.android.synthetic.main.activity_add_custom_menu.*
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.*
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_background_image_button
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_background_image_imageview
@@ -43,7 +41,6 @@ import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_men
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_menu_background_screen_fit_switch
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_menu_background_transoarency_edittext_edittext
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_menu_custom_emoji
-import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_menu_darkmode
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_menu_font
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_menu_font_reset
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_menu_gif
@@ -89,11 +86,8 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
     //misskey
     private var misskey_username = ""
 
-    /*
 
-        */
-/*はじっこを丸くする*//*
-
+    /*はじっこを丸くする*/
     override fun getTheme(): Int {
         var theme = R.style.BottomSheetDialogThemeAppTheme
         val darkModeSupport = DarkModeSupport(context!!)
@@ -103,17 +97,21 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         return theme
     }
 
-*/
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.bottom_fragment_add_custom_menu, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(context)
+
         //ダークモード対応
         val darkModeSupport = DarkModeSupport(context!!)
         darkModeSupport.setLayoutAllThemeColor(view as LinearLayout)
-
-        pref_setting = PreferenceManager.getDefaultSharedPreferences(context)
+        if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
+            add_custom_menu_tablayout.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#000000"))
+        }
 
         //データベース
         //SQLite
@@ -146,6 +144,14 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
             }
         })
 
+
+        //削除ボタン
+        //ListViewから来たとき
+        if (arguments?.getBoolean("delete_button", false) ?: false) {
+            loadSQLite(arguments!!.getString("name"))
+        }
+
+
         //メニュー
         setLoadMenu()
 
@@ -162,35 +168,47 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         }
 
         custom_menu_save_button.setOnClickListener { v ->
-            //新規作成
-            //SnackBer
-            Snackbar.make(v, R.string.custom_add_message, Snackbar.LENGTH_SHORT).setAction(R.string.register) {
-                saveSQLite()
-                //戻る
-                startActivity(Intent(context, Home::class.java))
-            }.show()
-
-/*
+            val delete = arguments?.getBoolean("delete_button") ?: false
             //更新・新規作成
-            if (!intent.getBooleanExtra("delete_button", false)) {
+            if (!delete) {
                 //新規作成
-                //SnackBer
-                Snackbar.make(v, R.string.custom_add_message, Snackbar.LENGTH_SHORT).setAction(R.string.register) {
-                    saveSQLite()
-                    //戻る
-                    startActivity(Intent(this, Home::class.java))
-                }.show()
+                //Dialog
+                val dialog = AlertDialog.Builder(context!!)
+                        .setTitle(R.string.custom_menu_add)
+                        .setMessage(R.string.custom_add_message)
+                        .setPositiveButton(R.string.register) { dialogInterface, i ->
+                            saveSQLite()
+                            //戻る
+                            startActivity(Intent(context, Home::class.java))
+                        }
+                        .setNegativeButton(getString(R.string.cancel), null)
+                        .show()
+                //https://stackoverflow.com/questions/9467026/changing-position-of-the-dialog-on-screen-android
+                val window = dialog.window
+                val layoutParams = window?.attributes
+                layoutParams?.gravity = Gravity.BOTTOM
+                layoutParams?.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND
+                window?.attributes = layoutParams
             } else {
-                //SnackBer
-                Snackbar.make(v, R.string.custom_menu_update, Snackbar.LENGTH_SHORT).setAction(R.string.update) {
-                    //更新
-                    val name = intent.getStringExtra("name")
-                    updateSQLite(name)
-                    //戻る
-                    startActivity(Intent(this, Home::class.java))
-                }.show()
+                val dialog = AlertDialog.Builder(context!!)
+                        .setTitle(R.string.custom_menu_add)
+                        .setMessage(R.string.custom_menu_update)
+                        .setPositiveButton(R.string.update) { dialogInterface, i ->
+                            //更新
+                            val name = arguments?.getString("name")
+                            updateSQLite(name)
+                            //戻る
+                            startActivity(Intent(context, Home::class.java))
+                        }
+                        .setNegativeButton(getString(R.string.cancel), null)
+                        .show()
+                //https://stackoverflow.com/questions/9467026/changing-position-of-the-dialog-on-screen-android
+                val window = dialog.window
+                val layoutParams = window?.attributes
+                layoutParams?.gravity = Gravity.BOTTOM
+                layoutParams?.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND
+                window?.attributes = layoutParams
             }
-*/
         }
 
 
@@ -826,7 +844,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         val jsonObject = JSONObject()
         try {
             jsonObject.put("misskey", (misskey_switch.isChecked()).toString())
-            jsonObject.put("name", name_editText.getText().toString())
+            jsonObject.put("name", custom_menu_name_edittext_edittext.getText().toString())
             jsonObject.put("memo", "")
             jsonObject.put("content", load_url)
             jsonObject.put("instance", getInstanceName())
@@ -855,7 +873,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
             e.printStackTrace()
         }
 
-        values.put("name", name_editText.getText().toString())
+        values.put("name", custom_menu_name_edittext_edittext.getText().toString())
         values.put("setting", jsonObject.toString())
         db.insert("custom_menudb", null, values)
     }
@@ -869,7 +887,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         val jsonObject = JSONObject()
         try {
             jsonObject.put("misskey", (misskey_switch.isChecked()).toString())
-            jsonObject.put("name", name_editText.getText().toString())
+            jsonObject.put("name", custom_menu_name_edittext_edittext.getText().toString())
             jsonObject.put("memo", "")
             jsonObject.put("content", load_url)
             jsonObject.put("instance", getInstanceName())
@@ -898,7 +916,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
             e.printStackTrace()
         }
 
-        values.put("name", name_editText.getText().toString())
+        values.put("name", custom_menu_name_edittext_edittext.getText().toString())
         values.put("setting", jsonObject.toString())
         db.update("custom_menudb", values, "name=?", arrayOf<String>(name!!))
     }
@@ -922,7 +940,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
             try {
                 val jsonObject = JSONObject(cursor.getString(0))
                 misskey_switch.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("misskey")))
-                name_editText.setText(jsonObject.getString("name"))
+                custom_menu_name_edittext_edittext.setText(jsonObject.getString("name"))
                 urlToContent(jsonObject.getString("content"))
                 instance = jsonObject.getString("instance")
                 custom_menu_account.setText(instance)

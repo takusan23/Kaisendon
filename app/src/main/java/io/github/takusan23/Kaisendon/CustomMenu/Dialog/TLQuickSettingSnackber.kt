@@ -26,7 +26,7 @@ import io.github.takusan23.Kaisendon.Activity.KonoAppNiTuite
 import io.github.takusan23.Kaisendon.Activity.LoginActivity
 import io.github.takusan23.Kaisendon.Activity.UserActivity
 import io.github.takusan23.Kaisendon.CustomMenu.*
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment
 import io.github.takusan23.Kaisendon.FloatingTL.FloatingTL
 import io.github.takusan23.Kaisendon.Fragment.*
@@ -34,7 +34,6 @@ import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.Omake.KaisendonLife
 import io.github.takusan23.Kaisendon.R
 import org.chromium.customtabsclient.shared.CustomTabsHelper
-import java.util.*
 import kotlin.collections.ArrayList
 
 class TLQuickSettingSnackber(private val context: Activity?, view: View) {

@@ -12,7 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.preference.PreferenceManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.R
 import okhttp3.*
 import org.json.JSONException

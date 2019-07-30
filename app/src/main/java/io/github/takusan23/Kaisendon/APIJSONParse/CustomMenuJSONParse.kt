@@ -51,12 +51,15 @@ class CustomMenuJSONParse(json_data: String) {
     var setting = ""
         internal set
     var json_data = ""
-    var timeline_strinaming = ""
-    var notification_streaming = ""
-    var no_fav_icon: String? = null
-        private set
-    var yes_fav_icon: String? = null
-        private set
+    //テーマ機能
+    var theme_data = false  //テーマ設定があるか
+    var theme_darkmode = ""
+    var theme_status_bar_color = ""
+    var theme_nav_bar_color = ""
+    var theme_tool_bar_color = ""
+    var theme_background_color = ""
+    var theme_toot_background_color = ""
+    var theme_text_icon_color = ""
 
     init {
         json_parse(json_data)
@@ -89,9 +92,19 @@ class CustomMenuJSONParse(json_data: String) {
             misskey = getStringJsonCheck(jsonObject, "misskey")
             misskey_username = getStringJsonCheck(jsonObject, "misskey_username")
             setting = getStringJsonCheck(jsonObject, "setting")
-            isReadOnly = getStringJsonCheck(jsonObject, "read_only")
-
-
+            isReadOnly = getStringJsonCheckReturnText(jsonObject, "read_only", "false")
+            //テーマ機能
+            if (jsonObject.has("theme")) {
+                theme_data = true
+                val themeJsonObject = jsonObject.getJSONObject("theme")
+                theme_darkmode = getStringJsonCheckReturnText(themeJsonObject, "theme_darkmode", "false")
+                theme_status_bar_color = getStringJsonCheck(themeJsonObject, "theme_status_bar_color")
+                theme_nav_bar_color = getStringJsonCheck(themeJsonObject, "theme_nav_bar_color")
+                theme_tool_bar_color = getStringJsonCheck(themeJsonObject, "theme_tool_bar_color")
+                theme_background_color = getStringJsonCheck(themeJsonObject, "theme_background_color")
+                theme_toot_background_color = getStringJsonCheck(themeJsonObject, "theme_toot_background_color")
+                theme_text_icon_color = getStringJsonCheck(themeJsonObject, "theme_text_icon_color")
+            }
         } catch (e: JSONException) {
             e.printStackTrace()
         }
@@ -102,6 +115,14 @@ class CustomMenuJSONParse(json_data: String) {
             return jsonObject.getString(string)
         } else {
             return ""
+        }
+    }
+
+    fun getStringJsonCheckReturnText(jsonObject: JSONObject, string: String, error: String): String {
+        if (jsonObject.has(string)) {
+            return jsonObject.getString(string)
+        } else {
+            return error
         }
     }
 

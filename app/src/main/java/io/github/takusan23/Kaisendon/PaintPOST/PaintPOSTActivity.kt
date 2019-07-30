@@ -1,20 +1,15 @@
 package io.github.takusan23.Kaisendon.PaintPOST
 
 import androidx.appcompat.app.AlertDialog
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 
 import android.os.Bundle
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 
 import io.github.takusan23.Kaisendon.R
-import android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS
-import android.content.Context.INPUT_METHOD_SERVICE
-import android.content.DialogInterface
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Rect
@@ -23,16 +18,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.view.*
-import android.view.inputmethod.InputMethodManager
-import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.FileProvider
 import kotlinx.android.synthetic.main.activity_paint_post.*
-import com.google.android.gms.common.util.IOUtils.toByteArray
 import kotlinx.android.synthetic.main.activity_paint_post.fab
-import kotlinx.android.synthetic.main.app_bar_home2.*
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*

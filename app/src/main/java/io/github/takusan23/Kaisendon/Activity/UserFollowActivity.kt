@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuRecyclerViewAdapter
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.R
 import io.github.takusan23.Kaisendon.SnackberProgress
 import okhttp3.*

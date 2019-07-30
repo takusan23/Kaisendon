@@ -23,13 +23,12 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.APIJSONParse.CustomMenuJSONParse
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.*
@@ -55,7 +54,6 @@ import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_men
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_menu_tootcounter
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.font_textView
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.misskey_switch
-import kotlinx.android.synthetic.main.textinput_edittext.*
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONException
@@ -843,32 +841,45 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         //JSON化
         val jsonObject = JSONObject()
         try {
-            jsonObject.put("misskey", (misskey_switch.isChecked()).toString())
-            jsonObject.put("name", custom_menu_name_edittext_edittext.getText().toString())
-            jsonObject.put("memo", "")
-            jsonObject.put("content", load_url)
-            jsonObject.put("instance", getInstanceName())
-            jsonObject.put("access_token", access_token ?: "")
-            jsonObject.put("image_load", (custom_menu_image.isChecked()).toString())
-            jsonObject.put("dialog", (custom_menu_dialog.isChecked()).toString())
-            //jsonObject.put("dark_mode", (custom_menu_darkmode.isChecked()).toString())
-            jsonObject.put("position", "")
-            jsonObject.put("streaming", (!custom_menu_streaming.isChecked()).toString()) //反転させてONのときStereaming有効に
-            jsonObject.put("subtitle", custom_menu_subtitle_edittext_edittext.getText().toString())
-            jsonObject.put("image_url", image_url)
-            jsonObject.put("background_transparency", custom_menu_background_transoarency_edittext_edittext.getText().toString())
-            jsonObject.put("background_screen_fit", (custom_menu_background_screen_fit_switch.isChecked()).toString())
-            jsonObject.put("quick_profile", (custom_menu_quickprofile.isChecked()).toString())
-            jsonObject.put("toot_counter", (custom_menu_tootcounter.isChecked()).toString())
-            jsonObject.put("custom_emoji", (custom_menu_custom_emoji.isChecked()).toString())
-            jsonObject.put("gif", (custom_menu_gif.isChecked()).toString())
-            jsonObject.put("font", (font_path).toString())
-            jsonObject.put("one_hand", (custom_menu_one_hand.isChecked()).toString())
-            jsonObject.put("misskey_username", misskey_username)
-            //jsonObject.put("no_fav_icon", no_fav_icon_path)
-            //jsonObject.put("yes_fav_icon", yes_fav_icon_path)
-            jsonObject.put("read_only", custom_menu_read_only_instance_switch.isChecked.toString())
-            jsonObject.put("setting", "")
+            //必須項目が埋まってるか確認
+            if (custom_menu_name_edittext_edittext.getText().toString().isNotEmpty() && load_url?.isNotEmpty() ?: false) {
+                //アクセストークンが無くてもローカルTL（読み取り専用）なら許可
+                if (access_token?.isEmpty() ?: false || load_url?.contains("/api/v1/timelines/public?local=true") ?: false) {
+                    jsonObject.put("misskey", (misskey_switch.isChecked()).toString())
+                    jsonObject.put("name", custom_menu_name_edittext_edittext.getText().toString())
+                    jsonObject.put("memo", "")
+                    jsonObject.put("content", load_url)
+                    jsonObject.put("instance", getInstanceName())
+                    jsonObject.put("access_token", access_token ?: "")
+                    jsonObject.put("image_load", (custom_menu_image.isChecked()).toString())
+                    jsonObject.put("dialog", (custom_menu_dialog.isChecked()).toString())
+                    jsonObject.put("position", "")
+                    jsonObject.put("streaming", (!custom_menu_streaming.isChecked()).toString()) //反転させてONのときStereaming有効に
+                    jsonObject.put("subtitle", custom_menu_subtitle_edittext_edittext.getText().toString())
+                    jsonObject.put("image_url", image_url)
+                    jsonObject.put("background_transparency", custom_menu_background_transoarency_edittext_edittext.getText().toString())
+                    jsonObject.put("background_screen_fit", (custom_menu_background_screen_fit_switch.isChecked()).toString())
+                    jsonObject.put("quick_profile", (custom_menu_quickprofile.isChecked()).toString())
+                    jsonObject.put("toot_counter", (custom_menu_tootcounter.isChecked()).toString())
+                    jsonObject.put("custom_emoji", (custom_menu_custom_emoji.isChecked()).toString())
+                    jsonObject.put("gif", (custom_menu_gif.isChecked()).toString())
+                    jsonObject.put("font", (font_path).toString())
+                    jsonObject.put("one_hand", (custom_menu_one_hand.isChecked()).toString())
+                    jsonObject.put("misskey_username", misskey_username)
+                    jsonObject.put("read_only", custom_menu_read_only_instance_switch.isChecked.toString())
+                    jsonObject.put("setting", "")
+                    //テーマ用JSONオブジェクト
+                    val themeJsonObject = JSONObject()
+                    themeJsonObject.put("theme_darkmode", theme_darkmode_switch.isChecked().toString())
+                    themeJsonObject.put("theme_status_bar_color", theme_status_bar_color_edittext.text.toString())
+                    themeJsonObject.put("theme_nav_bar_color", theme_nav_bar_color_edittext.text.toString())
+                    themeJsonObject.put("theme_tool_bar_color", theme_tool_bar_color_edittext.text.toString())
+                    themeJsonObject.put("theme_background_color", theme_background_color_edittext.text.toString())
+                    themeJsonObject.put("theme_toot_background_color", theme_toot_background_color_edittext.text.toString())
+                    themeJsonObject.put("theme_text_icon_color", theme_text_icon_color_edittext.text.toString())
+                    jsonObject.put("theme", themeJsonObject)
+                }
+            }
         } catch (e: JSONException) {
             e.printStackTrace()
         }
@@ -912,6 +923,16 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
             //jsonObject.put("yes_fav_icon", yes_fav_icon_path)
             jsonObject.put("read_only", custom_menu_read_only_instance_switch.isChecked.toString())
             jsonObject.put("setting", "")
+            //テーマ用JSONオブジェクト
+            val themeJsonObject = JSONObject()
+            themeJsonObject.put("theme_darkmode", theme_darkmode_switch.isChecked().toString())
+            themeJsonObject.put("theme_status_bar_color", theme_status_bar_color_edittext.text.toString())
+            themeJsonObject.put("theme_nav_bar_color", theme_nav_bar_color_edittext.text.toString())
+            themeJsonObject.put("theme_tool_bar_color", theme_tool_bar_color_edittext.text.toString())
+            themeJsonObject.put("theme_background_color", theme_background_color_edittext.text.toString())
+            themeJsonObject.put("theme_toot_background_color", theme_toot_background_color_edittext.text.toString())
+            themeJsonObject.put("theme_text_icon_color", theme_text_icon_color_edittext.text.toString())
+            jsonObject.put("theme", themeJsonObject)
         } catch (e: JSONException) {
             e.printStackTrace()
         }
@@ -939,38 +960,42 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         for (i in 0 until cursor.getCount()) {
             try {
                 val jsonObject = JSONObject(cursor.getString(0))
-                misskey_switch.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("misskey")))
-                custom_menu_name_edittext_edittext.setText(jsonObject.getString("name"))
-                urlToContent(jsonObject.getString("content"))
-                instance = jsonObject.getString("instance")
+                val customMenuJSONParse = CustomMenuJSONParse(jsonObject.toString())
+                misskey_switch.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.misskey))
+                custom_menu_name_edittext_edittext.setText(customMenuJSONParse.name)
+                urlToContent(customMenuJSONParse.content)
+                instance = customMenuJSONParse.instance
                 custom_menu_account.setText(instance)
-                if (!jsonObject.isNull("access_token")) {
-                    access_token = jsonObject.getString("access_token")
-                }
-                custom_menu_image.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("image_load")))
+                access_token = customMenuJSONParse.access_token
+                custom_menu_image.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.image_load))
                 //custom_menu_darkmode.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("dark_mode")))
-                custom_menu_streaming.setChecked(!java.lang.Boolean.valueOf(jsonObject.getString("streaming")))
-                custom_menu_dialog.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("dialog")))
-                custom_menu_subtitle_edittext_edittext.setText(jsonObject.getString("subtitle"))
-                custom_background_image_button.setText(jsonObject.getString("image_url"))
-                image_url = jsonObject.getString("image_url")
+                custom_menu_streaming.setChecked(!java.lang.Boolean.valueOf(customMenuJSONParse.streaming))
+                custom_menu_dialog.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.dialog))
+                custom_menu_subtitle_edittext_edittext.setText(customMenuJSONParse.subtitle)
+                custom_background_image_button.setText(customMenuJSONParse.image_url)
+                image_url = customMenuJSONParse.image_url
                 custom_background_image_button.setText(image_url)
-                Glide.with(this).load(jsonObject.getString("image_url")).into(custom_background_image_imageview)
-                custom_menu_background_transoarency_edittext_edittext.setText(jsonObject.getString("background_transparency"))
-                custom_menu_background_screen_fit_switch.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("background_screen_fit")))
-                custom_menu_quickprofile.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("quick_profile")))
-                custom_menu_tootcounter.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("toot_counter")))
-                custom_menu_custom_emoji.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("custom_emoji")))
-                custom_menu_gif.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("gif")))
-                custom_menu_one_hand.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("one_hand")))
-                custom_menu_font.setText(jsonObject.getString("font"))
-                font_path = jsonObject.getString("font")
-                if (!jsonObject.isNull("read_only")) {
-                    isReadOnly = jsonObject.getString("read_only").toBoolean() ?: false
-                    custom_menu_read_only_instance_switch.isChecked = isReadOnly
-                    custom_menu_read_only_instance_textinput.setText(instance)
-                }
-
+                Glide.with(this).load(customMenuJSONParse.image_url).into(custom_background_image_imageview)
+                custom_menu_background_transoarency_edittext_edittext.setText(customMenuJSONParse.background_transparency)
+                custom_menu_background_screen_fit_switch.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.background_screen_fit))
+                custom_menu_quickprofile.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.quick_profile))
+                custom_menu_tootcounter.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.toot_counter))
+                custom_menu_custom_emoji.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.custom_emoji))
+                custom_menu_gif.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.gif))
+                custom_menu_one_hand.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.one_hand))
+                custom_menu_font.setText(customMenuJSONParse.font)
+                font_path = customMenuJSONParse.font
+                isReadOnly = customMenuJSONParse.isReadOnly.toBoolean()
+                custom_menu_read_only_instance_switch.isChecked = isReadOnly
+                custom_menu_read_only_instance_textinput.setText(instance)
+                //テーマ
+                theme_darkmode_switch.isChecked = customMenuJSONParse.theme_darkmode.toBoolean()
+                theme_status_bar_color_edittext.setText(customMenuJSONParse.theme_status_bar_color)
+                theme_nav_bar_color_edittext.setText(customMenuJSONParse.theme_nav_bar_color)
+                theme_tool_bar_color_edittext.setText(customMenuJSONParse.theme_tool_bar_color)
+                theme_background_color_edittext.setText(customMenuJSONParse.theme_background_color)
+                theme_toot_background_color_edittext.setText(customMenuJSONParse.theme_toot_background_color)
+                theme_text_icon_color_edittext.setText(customMenuJSONParse.theme_text_icon_color)
             } catch (e: JSONException) {
                 e.printStackTrace()
             }

@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuRecyclerViewAdapter
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.R
 import okhttp3.*
 import org.json.JSONArray

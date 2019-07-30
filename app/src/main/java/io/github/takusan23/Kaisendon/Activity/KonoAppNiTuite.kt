@@ -12,7 +12,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.preference.PreferenceManager
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.R
 import okhttp3.*
 import org.chromium.customtabsclient.shared.CustomTabsHelper

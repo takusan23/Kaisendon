@@ -3,11 +3,8 @@ package io.github.takusan23.Kaisendon.Activity
 import androidx.appcompat.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.res.Configuration
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Point
@@ -16,10 +13,8 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.text.Html
 import android.text.util.Linkify
-import android.view.Display
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -52,14 +47,12 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.ArrayList
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.PicassoImageGetter
-import io.github.takusan23.Kaisendon.Preference_ApplicationContext
 import io.github.takusan23.Kaisendon.R
 import okhttp3.Call
 import okhttp3.Callback

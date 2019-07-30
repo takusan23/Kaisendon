@@ -1,4 +1,4 @@
-package io.github.takusan23.Kaisendon.DarkMode
+package io.github.takusan23.Kaisendon.Theme
 
 import android.app.Activity
 import android.content.Context
@@ -16,7 +16,6 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
-import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
 
 class DarkModeSupport/*テキストビューの染色だけならここからどうぞ*/

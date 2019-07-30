@@ -1,22 +1,15 @@
 package io.github.takusan23.Kaisendon.PaintPOST
 
-import android.app.Dialog
-import android.content.DialogInterface
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
-import android.graphics.ColorFilter
 import android.os.Bundle
 import android.view.*
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.snackbar.Snackbar
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.R
-import kotlinx.android.synthetic.main.activity_paint_post.*
 import kotlinx.android.synthetic.main.bottom_fragment_paint_post.*
 
 class PaintPOSTBottomFragment : BottomSheetDialogFragment() {

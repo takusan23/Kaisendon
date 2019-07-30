@@ -21,7 +21,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.CalenderDialog
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.Preference_ApplicationContext.Companion.context
 import io.github.takusan23.Kaisendon.R
 import io.github.takusan23.Kaisendon.SnackberProgress

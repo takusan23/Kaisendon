@@ -8,13 +8,10 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.icu.text.UFormat;
 import android.net.ConnectivityManager;
-import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,12 +30,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.cardview.widget.CardView;
@@ -47,15 +42,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.Target;
 import com.google.android.material.snackbar.Snackbar;
-import com.sys1yagi.mastodon4j.api.entity.Card;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONArray;
@@ -80,7 +67,7 @@ import io.github.takusan23.Kaisendon.APIJSONParse.MastodonScheduledStatusesJSONP
 import io.github.takusan23.Kaisendon.APIJSONParse.MastodonTLAPIJSONParse;
 import io.github.takusan23.Kaisendon.Activity.UserActivity;
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.TootOptionBottomDialog;
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport;
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport;
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment;
 import io.github.takusan23.Kaisendon.HTMLMarkdown.GIFEmoji;
 import io.github.takusan23.Kaisendon.Home;
@@ -117,6 +104,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     private ArrayList<String> type_face_String;
     private ArrayList<Typeface> type_face_list;
     private boolean isReadOnly = false;
+    public String toot_backgroundColor = "";
+    public String iconColor = "";
+
     //アイコンの配列
     private ArrayList<String> no_fav_icon_String;
     private ArrayList<Drawable> no_fav_icon_list;
@@ -444,6 +434,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 setPinnedIcon(viewHolder, api);
                 //しんかこ！
                 setNewUserEnvelop(viewHolder, api);
+                //テーマ機能
+                setTootBackgroundColor(viewHolder);
+                setTextIconColor(viewHolder);
             }
         } else if (isScheduled_statuses) {
             MastodonScheduledStatusesJSONParse api = new MastodonScheduledStatusesJSONParse(item.get(3));
@@ -2679,6 +2672,37 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             actionLinearLayout.setLayoutParams(layoutParams);
         }
     }
+
+    //背景色設定
+    public void setTootBackgroundColor(ViewHolder viewHolder) {
+        if (!toot_backgroundColor.isEmpty()) {
+            viewHolder.parentCardView.setCardBackgroundColor(Color.parseColor(toot_backgroundColor));
+        }
+    }
+
+    //アイコン、文字の色設定
+    public void setTextIconColor(ViewHolder viewHolder) {
+        if (!toot_backgroundColor.isEmpty()) {
+            int color = Color.parseColor(iconColor);
+            //TextView
+            viewHolder.fav_TextView.setTextColor(color);
+            viewHolder.bt_TextView.setTextColor(color);
+            viewHolder.toot_client_TextView.setTextColor(color);
+            viewHolder.toot_visibility_TextView.setTextColor(color);
+            viewHolder.toot_createAt_TextView.setTextColor(color);
+            viewHolder.toot_text_TextView.setTextColor(color);
+            viewHolder.toot_user_TextView.setTextColor(color);
+            viewHolder.reaction_TextView.setTextColor(color);
+            viewHolder.notification_type_TextView.setTextColor(color);
+            //viewHolder.reblog_user_TextView.setTextColor(color);
+            //viewHolder.reblog_toot_text_TextView.setTextColor(color);
+            //Toot詳細も白アイコン
+            viewHolder.date_icon_ImageView.setImageTintList(ColorStateList.valueOf(color));
+            viewHolder.visibility_icon_ImageView.setImageTintList(ColorStateList.valueOf(color));
+            viewHolder.client_icon_ImageView.setImageTintList(ColorStateList.valueOf(color));
+        }
+    }
+
 
     //公開範囲を今更ながらアイコン表示に変える
     private void visibilitySetIcon(MastodonTLAPIJSONParse api, ViewHolder viewHolder) {

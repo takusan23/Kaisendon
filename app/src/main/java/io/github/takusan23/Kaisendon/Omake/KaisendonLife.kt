@@ -2,13 +2,11 @@ package io.github.takusan23.Kaisendon.Omake
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.provider.Settings
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.R
-import kotlinx.android.synthetic.main.activity_kaisendon_life.*
 
 class KaisendonLife : AppCompatActivity() {
 

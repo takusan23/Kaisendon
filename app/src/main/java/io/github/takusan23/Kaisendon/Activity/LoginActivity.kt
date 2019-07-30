@@ -2,7 +2,6 @@ package io.github.takusan23.Kaisendon.Activity
 
 import android.app.Activity
 import android.app.ProgressDialog
-import android.content.ContentValues
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
@@ -13,14 +12,12 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import com.google.android.material.textfield.TextInputLayout
-import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.CreateDefaultCustomMenuBottomFragment
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
 import io.github.takusan23.Kaisendon.SnackberProgress
 import okhttp3.*
-import okhttp3.internal.Internal.instance
 import org.chromium.customtabsclient.shared.CustomTabsHelper
 import org.json.JSONArray
 import org.json.JSONException

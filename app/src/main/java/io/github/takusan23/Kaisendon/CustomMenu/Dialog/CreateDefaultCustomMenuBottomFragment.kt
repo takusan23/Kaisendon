@@ -14,7 +14,7 @@ import android.widget.LinearLayout
 import androidx.preference.PreferenceManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
 import kotlinx.android.synthetic.main.create_dafault_custommenu_bottom_fragment_layout.*

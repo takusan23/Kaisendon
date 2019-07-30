@@ -23,7 +23,7 @@ import io.github.takusan23.Kaisendon.Activity.UserActivity
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuLoadSupport
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.R
 import io.github.takusan23.Kaisendon.TootBookmark_SQLite
 import org.chromium.customtabsclient.shared.CustomTabsHelper

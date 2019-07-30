@@ -30,10 +30,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.squareup.picasso.Picasso
 import com.sys1yagi.mastodon4j.MastodonClient
 import com.sys1yagi.mastodon4j.api.Shutdownable
 import com.sys1yagi.mastodon4j.api.entity.Notification
@@ -42,10 +40,10 @@ import com.sys1yagi.mastodon4j.api.method.Statuses
 import io.github.takusan23.Kaisendon.*
 import io.github.takusan23.Kaisendon.APIJSONParse.CustomMenuJSONParse
 import io.github.takusan23.Kaisendon.APIJSONParse.GlideSupport
-import io.github.takusan23.Kaisendon.APIJSONParse.MastodonTLAPIJSONParse
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.TLQuickSettingSnackber
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment
+import io.github.takusan23.Kaisendon.Theme.ColorThemeSupport
 import okhttp3.*
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -59,7 +57,6 @@ import java.net.URISyntaxException
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.concurrent.thread
 
 
 /**
@@ -97,7 +94,7 @@ class CustomMenuTimeLine : Fragment() {
     private var max_id: String? = null
 
     private var linearLayout: LinearLayout? = null
-    private var recyclerView: RecyclerView? = null
+    var recyclerView: RecyclerView? = null
     private var swipeRefreshLayout: SwipeRefreshLayout? = null
     private var adapter: HomeTimeLineAdapter? = null
     private var imageView: ImageView? = null
@@ -157,7 +154,7 @@ class CustomMenuTimeLine : Fragment() {
     private var vibrator: Vibrator? = null
     //時間指定投稿待ち一覧モード
     private var isScheduled_statuses = false
-    private var customMenuRecyclerViewAdapter: CustomMenuRecyclerViewAdapter? = null
+    var customMenuRecyclerViewAdapter: CustomMenuRecyclerViewAdapter? = null
     //フォロー推奨ユーザー表示モード
     private var isFollowSuggestions = false
 
@@ -377,6 +374,11 @@ class CustomMenuTimeLine : Fragment() {
         recyclerView!!.adapter = customMenuRecyclerViewAdapter
         recyclerViewLayoutManager = recyclerView!!.layoutManager
 
+
+        //テーマ設定
+        ColorThemeSupport((activity as AppCompatActivity), customMenuJSONParse)
+
+        //ひらきやすく
         addNavigationOpen()
 
         //TL読み込み

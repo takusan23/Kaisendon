@@ -29,11 +29,10 @@ import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import io.github.takusan23.Kaisendon.DarkMode.DarkModeSupport
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
 import kotlinx.android.synthetic.main.activity_add_custom_menu.*
-import kotlinx.android.synthetic.main.activity_add_custom_menu.view.*
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONException

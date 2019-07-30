@@ -60,6 +60,8 @@ class CustomMenuJSONParse(json_data: String) {
     var theme_background_color = ""
     var theme_toot_background_color = ""
     var theme_text_icon_color = ""
+    var theme_post_button_background_color = ""
+    var theme_post_button_icon_color = ""
 
     init {
         json_parse(json_data)
@@ -104,6 +106,8 @@ class CustomMenuJSONParse(json_data: String) {
                 theme_background_color = getStringJsonCheck(themeJsonObject, "theme_background_color")
                 theme_toot_background_color = getStringJsonCheck(themeJsonObject, "theme_toot_background_color")
                 theme_text_icon_color = getStringJsonCheck(themeJsonObject, "theme_text_icon_color")
+                theme_post_button_background_color = getStringJsonCheck(themeJsonObject, "theme_post_button_background_color")
+                theme_post_button_icon_color = getStringJsonCheck(themeJsonObject, "theme_post_button_icon_color")
             }
         } catch (e: JSONException) {
             e.printStackTrace()

@@ -2677,12 +2677,24 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
     public void setTootBackgroundColor(ViewHolder viewHolder) {
         if (!toot_backgroundColor.isEmpty()) {
             viewHolder.parentCardView.setCardBackgroundColor(Color.parseColor(toot_backgroundColor));
+            if (viewHolder.card_TextView != null) {
+                if (viewHolder.card_TextView.getParent().getParent() instanceof CardView) {
+                    CardView cardView = (CardView) viewHolder.card_TextView.getParent().getParent();
+                    cardView.setCardBackgroundColor(Color.parseColor(toot_backgroundColor));
+                }
+            }
+            if (viewHolder.reblog_toot_text_TextView != null) {
+                if (viewHolder.reblog_toot_text_TextView.getParent().getParent() instanceof CardView) {
+                    CardView cardView = (CardView) viewHolder.reblog_toot_text_TextView.getParent().getParent();
+                    cardView.setCardBackgroundColor(Color.parseColor(toot_backgroundColor));
+                }
+            }
         }
     }
 
     //アイコン、文字の色設定
     public void setTextIconColor(ViewHolder viewHolder) {
-        if (!toot_backgroundColor.isEmpty()) {
+        if (!iconColor.isEmpty()) {
             int color = Color.parseColor(iconColor);
             //TextView
             viewHolder.fav_TextView.setTextColor(color);
@@ -2694,8 +2706,13 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.toot_user_TextView.setTextColor(color);
             viewHolder.reaction_TextView.setTextColor(color);
             viewHolder.notification_type_TextView.setTextColor(color);
-            //viewHolder.reblog_user_TextView.setTextColor(color);
-            //viewHolder.reblog_toot_text_TextView.setTextColor(color);
+            if (viewHolder.reblog_user_TextView != null) {
+                viewHolder.reblog_user_TextView.setTextColor(color);
+                viewHolder.reblog_toot_text_TextView.setTextColor(color);
+            }
+            if (viewHolder.card_TextView != null) {
+                viewHolder.card_TextView.setTextColor(color);
+            }
             //Toot詳細も白アイコン
             viewHolder.date_icon_ImageView.setImageTintList(ColorStateList.valueOf(color));
             viewHolder.visibility_icon_ImageView.setImageTintList(ColorStateList.valueOf(color));

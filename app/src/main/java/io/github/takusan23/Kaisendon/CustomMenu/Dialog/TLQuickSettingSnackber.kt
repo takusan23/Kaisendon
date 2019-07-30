@@ -10,6 +10,7 @@ import android.graphics.Color
 import android.graphics.Point
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -186,9 +187,7 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
             when (menuItem.itemId) {
                 R.id.tl_qs_account -> setAccountPopupMenu()
                 R.id.tl_qs_bookmark -> setBookmark()
-                R.id.tl_qs_edit -> {
-                    Toast.makeText(context, "未実装", Toast.LENGTH_SHORT).show()
-                }
+                R.id.tl_qs_edit -> showCustomMenuEditor()
                 R.id.tl_qs_display_method -> showDisplayMethodMenu()
                 R.id.tl_qs_sonota -> setSonotaMenu()
             }
@@ -458,6 +457,19 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
                 editor.apply()
             }
             switch_LinearLayout!!.addView(sw)
+        }
+    }
+
+    /*編集画面出す*/
+    private fun showCustomMenuEditor() {
+        val fragment = (context as AppCompatActivity).supportFragmentManager.findFragmentById(R.id.container_container)
+        if (fragment is CustomMenuTimeLine) {
+            val customMenuBottomFragment = AddCustomMenuBottomFragment()
+            val bundle = Bundle()
+            bundle.putBoolean("delete_button", true)
+            bundle.putString("name", fragment.customMenuJSONParse.name)
+            customMenuBottomFragment.arguments = bundle
+            customMenuBottomFragment.show((context as AppCompatActivity).supportFragmentManager, "add_custom_menu")
         }
     }
 

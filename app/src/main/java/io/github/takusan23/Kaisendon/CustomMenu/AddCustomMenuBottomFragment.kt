@@ -7,6 +7,7 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Color
 import android.graphics.Typeface
@@ -54,6 +55,7 @@ import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_men
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.custom_menu_tootcounter
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.font_textView
 import kotlinx.android.synthetic.main.bottom_fragment_add_custom_menu.misskey_switch
+import kotlinx.android.synthetic.main.fragment_custom_menu_setting.*
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONException
@@ -103,7 +105,6 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         pref_setting = PreferenceManager.getDefaultSharedPreferences(context)
-
         //ダークモード対応
         val darkModeSupport = DarkModeSupport(context!!)
         darkModeSupport.setLayoutAllThemeColor(view as LinearLayout)
@@ -147,6 +148,8 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         //ListViewから来たとき
         if (arguments?.getBoolean("delete_button", false) ?: false) {
             loadSQLite(arguments!!.getString("name"))
+            custom_menu_title_textview.setText(context?.getString(R.string.custom_menu_update_title))
+            custom_menu_save_button.setText(context?.getString(R.string.apply))
         }
 
 
@@ -189,7 +192,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                 window?.attributes = layoutParams
             } else {
                 val dialog = AlertDialog.Builder(context!!)
-                        .setTitle(R.string.custom_menu_add)
+                        .setTitle(R.string.custom_menu_update_title)
                         .setMessage(R.string.custom_menu_update)
                         .setPositiveButton(R.string.update) { dialogInterface, i ->
                             //更新
@@ -877,6 +880,8 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                     themeJsonObject.put("theme_background_color", theme_background_color_edittext.text.toString())
                     themeJsonObject.put("theme_toot_background_color", theme_toot_background_color_edittext.text.toString())
                     themeJsonObject.put("theme_text_icon_color", theme_text_icon_color_edittext.text.toString())
+                    themeJsonObject.put("theme_post_button_background_color", theme_post_button_background_color_edittext.text.toString())
+                    themeJsonObject.put("theme_post_button_icon_color", theme_post_button_icon_color_edittext.text.toString())
                     jsonObject.put("theme", themeJsonObject)
                 }
             }
@@ -932,6 +937,8 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
             themeJsonObject.put("theme_background_color", theme_background_color_edittext.text.toString())
             themeJsonObject.put("theme_toot_background_color", theme_toot_background_color_edittext.text.toString())
             themeJsonObject.put("theme_text_icon_color", theme_text_icon_color_edittext.text.toString())
+            themeJsonObject.put("theme_post_button_background_color", theme_post_button_background_color_edittext.text.toString())
+            themeJsonObject.put("theme_post_button_icon_color", theme_post_button_icon_color_edittext.text.toString())
             jsonObject.put("theme", themeJsonObject)
         } catch (e: JSONException) {
             e.printStackTrace()
@@ -996,6 +1003,8 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                 theme_background_color_edittext.setText(customMenuJSONParse.theme_background_color)
                 theme_toot_background_color_edittext.setText(customMenuJSONParse.theme_toot_background_color)
                 theme_text_icon_color_edittext.setText(customMenuJSONParse.theme_text_icon_color)
+                theme_post_button_background_color_edittext.setText(customMenuJSONParse.theme_post_button_background_color)
+                theme_post_button_icon_color_edittext.setText(customMenuJSONParse.theme_post_button_icon_color)
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
@@ -1017,6 +1026,12 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         return imagePath
     }
 
+    private fun dpToPx(dp: Int): Int {
+        // https://developer.android.com/guide/practices/screens_support.html#dips-pels
+        val density = Resources.getSystem().getDisplayMetrics().density
+        return (dp * density + 0.5f).toInt()
+    }
+
 
     /* 幅を設定する*/
     override fun onResume() {
@@ -1026,7 +1041,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         val display = windowManager.defaultDisplay
         val displayMetrics = DisplayMetrics()
         display.getMetrics(displayMetrics)
-        val width = if (displayMetrics.widthPixels < 1280) displayMetrics.widthPixels else 1280
+        val width = if (displayMetrics.widthPixels < 1980) displayMetrics.widthPixels else 1980
         val height = -1 // MATCH_PARENT
         dialog?.getWindow()?.setLayout(width, height)
     }

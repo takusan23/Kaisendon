@@ -553,5 +553,6 @@
     <string name="custom_setting_copy_message">カスタムメニューを複製しますか？</string>
     <string name="duplicate">複製</string>
     <string name="add">追加</string>
+    <string name="apply">適用</string>
 
 </resources>

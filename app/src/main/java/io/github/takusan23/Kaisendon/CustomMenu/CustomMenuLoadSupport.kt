@@ -115,9 +115,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                 read_only = getStringNullCheck(jsonObject, "read_only", "false")
                 val bundle = Bundle()
 
-                bundle.putString("setting_json",json)
-                bundle.putString("content", content)
-
+                bundle.putString("setting_json", cursor.getString(1))
                 val customMenuTimeLine = CustomMenuTimeLine()
                 customMenuTimeLine.arguments = bundle
                 //名前控える
@@ -136,56 +134,10 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
         } else {
             for (i in 0 until cursor.count) {
                 try {
-                    val jsonObject = JSONObject(cursor.getString(1))
-                    json = jsonObject.toString()
-                    name = jsonObject.getString("name")
-                    content = jsonObject.getString("content")
-                    instance = jsonObject.getString("instance")
-                    access_token = jsonObject.getString("access_token")
-                    image_load = jsonObject.getString("image_load")
-                    dialog = jsonObject.getString("dialog")
-                    //dark_mode = jsonObject.getString("dark_mode")
-                    position = jsonObject.getString("position")
-                    streaming = jsonObject.getString("streaming")
-                    subtitle = jsonObject.getString("subtitle")
-                    image_url = jsonObject.getString("image_url")
-                    background_transparency = jsonObject.getString("background_transparency")
-                    background_screen_fit = jsonObject.getString("background_screen_fit")
-                    quick_profile = jsonObject.getString("quick_profile")
-                    toot_counter = jsonObject.getString("toot_counter")
-                    custom_emoji = jsonObject.getString("custom_emoji")
-                    gif = jsonObject.getString("gif")
-                    font = jsonObject.getString("font")
-                    one_hand = jsonObject.getString("one_hand")
-                    misskey = jsonObject.getString("misskey")
-                    misskey_username = jsonObject.getString("misskey_username")
-                    setting = jsonObject.getString("setting")
-                    read_only = getStringNullCheck(jsonObject, "read_only", "false")
-                    //メニュー追加
-                    val finalName = name
-                    val finalContent = content
-                    val finalInstance = instance
-                    val finalAccess_token = access_token
-                    val finalImage_load = image_load
-                    val finalDialog = dialog
-                    val finalDark_mode = dark_mode
-                    val finalPosition = position
-                    val finalStreaming = streaming
-                    val finalSubtitle = subtitle
-                    val finalImage_url = image_url
-                    val finalBackground_transparency = background_transparency
-                    val finalBackground_screen_fit = background_screen_fit
-                    val finalQuick_profile = quick_profile
-                    val finalToot_counter = toot_counter
-                    val finalCustom_emoji = custom_emoji
-                    val finalGif = gif
-                    val finalFont = font
-                    val finalOne_hand = one_hand
-                    val finalSetting = setting
-                    val finalMisskey = misskey
-                    val finalMisskey_username = misskey_username
-                    val finalReadOnly = read_only
-                    val finalJson = json
+                    val json_string = cursor.getString(1)
+                    val jsonObject = JSONObject(json_string)
+                    val name = jsonObject.getString("name")
+                    val content = jsonObject.getString("content")
                     val item = navigationView.menu.add(getDrawerMenuTitle(content, name)).setIcon(urlToContent(content))
                     item.setOnMenuItemClickListener {
                         //チェック外し
@@ -198,11 +150,11 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                         //Fragment切り替え
                         //受け渡す
                         val bundle = Bundle()
-                        bundle.putString("setting_json",json)
+                        bundle.putString("setting_json", json_string)
                         val customMenuTimeLine = CustomMenuTimeLine()
                         customMenuTimeLine.arguments = bundle
                         //名前控える
-                        saveLastOpenCustomMenu(finalName)
+                        saveLastOpenCustomMenu(name)
                         //置き換え
                         val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
                         transaction.replace(R.id.container_container, customMenuTimeLine)
@@ -213,30 +165,10 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                     e.printStackTrace()
                     //なくてもとりあえず追加する
                     //メニュー追加
-                    val finalName = name
-                    val finalContent = content
-                    val finalInstance = instance
-                    val finalAccess_token = access_token
-                    val finalImage_load = image_load
-                    val finalDialog = dialog
-                    val finalDark_mode = dark_mode
-                    val finalPosition = position
-                    val finalStreaming = streaming
-                    val finalSubtitle = subtitle
-                    val finalImage_url = image_url
-                    val finalBackground_transparency = background_transparency
-                    val finalBackground_screen_fit = background_screen_fit
-                    val finalQuick_profile = quick_profile
-                    val finalToot_counter = toot_counter
-                    val finalCustom_emoji = custom_emoji
-                    val finalGif = gif
-                    val finalFont = font
-                    val finalOne_hand = one_hand
-                    val finalSetting = setting
-                    val finalMisskey = misskey
-                    val finalMisskey_username = misskey_username
-                    val finalReadOnly = read_only
-                    val finalJson = json
+                    val json_string = cursor.getString(1)
+                    val jsonObject = JSONObject(json_string)
+                    val name = jsonObject.getString("name")
+                    val content = jsonObject.getString("content")
                     val item = navigationView.menu.add(getDrawerMenuTitle(content, name)).setIcon(urlToContent(content))
                     item.setOnMenuItemClickListener {
                         //チェック外し
@@ -249,11 +181,11 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                         //Fragment切り替え
                         //受け渡す
                         val bundle = Bundle()
-                        bundle.putString("setting_json",json)
+                        bundle.putString("setting_json", json_string)
                         val customMenuTimeLine = CustomMenuTimeLine()
                         customMenuTimeLine.arguments = bundle
                         //名前控える
-                        saveLastOpenCustomMenu(finalName)
+                        saveLastOpenCustomMenu(name)
                         //置き換え
                         val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
                         transaction.replace(R.id.container_container, customMenuTimeLine)
@@ -385,7 +317,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                 //Fragment切り替え
                 //受け渡す
                 val bundle = Bundle()
-                bundle.putString("setting_json",json)
+                bundle.putString("setting_json", json)
                 val customMenuTimeLine = CustomMenuTimeLine()
                 customMenuTimeLine.arguments = bundle
                 argumentList.add(customMenuTimeLine)
@@ -420,7 +352,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                 //Fragment切り替え
                 //受け渡す
                 val bundle = Bundle()
-                bundle.putString("setting_json",json)
+                bundle.putString("setting_json", json)
                 val customMenuTimeLine = CustomMenuTimeLine()
                 customMenuTimeLine.arguments = bundle
                 argumentList.add(customMenuTimeLine)

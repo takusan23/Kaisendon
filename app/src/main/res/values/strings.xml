@@ -656,5 +656,6 @@
     <string name="custom_setting_copy_message">Do you want to duplicate custom menu?</string>
     <string name="duplicate">Duplicate</string>
     <string name="add">Add</string>
+    <string name="apply">Apply</string>
 
 </resources>

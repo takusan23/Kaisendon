@@ -2566,6 +2566,9 @@ class CustomMenuTimeLine : Fragment() {
         return false
     }
 
+    fun getCustomMenuJsonParse(): CustomMenuJSONParse {
+        return customMenuJSONParse
+    }
 
     companion object {
 

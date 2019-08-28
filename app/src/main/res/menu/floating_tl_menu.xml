@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/home_menu_floating_kaisendon_mini"
+        android:icon="@drawable/ic_picture_in_picture_alt_black_24dp"
+        android:title="かいせんどんミニ" />
+    <item
         android:id="@+id/home_menu_floating_bubble"
         android:icon="@drawable/ic_toll_black_24dp"
         android:title="@string/bubble" />

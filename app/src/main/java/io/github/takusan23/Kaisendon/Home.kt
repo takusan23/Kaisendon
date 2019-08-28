@@ -212,11 +212,16 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     //アカウント情報一回一回取ってくるの通信量的にどうなのってことで
     var tootSnackbarCustomMenuName = ""
 
+    //
+    lateinit var popupView: View
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         //設定のプリファレンス
         pref_setting = getDefaultSharedPreferences(this@Home)
+
+        popupView = layoutInflater.inflate(R.layout.overlay_player_layout, null)
 
         //Wi-Fi接続状況確認
         val connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -2862,107 +2867,106 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     private fun showTootShortcut() {
         val fragment = supportFragmentManager.findFragmentById(R.id.container_container)
         //CustomMenuTimeLine以外で投稿画面を開かないようにする
-        if (fragment is CustomMenuTimeLine) {
-            val customMenuTimeLine = fragment as CustomMenuTimeLine
-            if (fragment != null && fragment is DesktopFragment) {
-                //DesktopModeはPopupMenuからMastodon/Misskeyを選ぶ
-                //Misskeyアカウントが登録されていなければ話にならない
-                if (pref_setting.getString("misskey_instance_list", "") != "") {
-                    //ポップアップメニュー作成
-                    val sns_PopupMenu = PopupMenu(this, fab)
-                    sns_PopupMenu.inflate(R.menu.desktop_mode_sns_menu)
-                    //クリックイベント
-                    sns_PopupMenu.setOnMenuItemClickListener { item ->
-                        when (item.itemId) {
-                            R.id.desktop_mode_menu_mastodon -> {
-                                getAccount()
-                                setMastodonVisibilityMenu(toot_area_Button)
-                                toot_Button_LinearLayout.removeView(misskey_drive_Button)
-                                toot_Button_LinearLayout.removeView(mastodon_time_post_Button)
-                                toot_Button_LinearLayout.removeView(mastodon_vote_Button)
-                                toot_Button_LinearLayout.removeView(paintPOSTButton)
-                                toot_Button_LinearLayout.addView(mastodon_time_post_Button)
-                                toot_Button_LinearLayout.addView(mastodon_vote_Button)
-                                toot_Button_LinearLayout.addView(paintPOSTButton)
-                                //デスクトップモード利用時はマルチアカウント表示できるように
-                                if (fragment != null && fragment is DesktopFragment) {
-                                    showMultiAccount()
-                                }
-                            }
-                            R.id.desktop_mode_menu_misskey -> if (pref_setting.getString("misskey_instance_list", "") != "") {
-                                getMisskeyAccount()
-                                setMisskeyVisibilityMenu(toot_area_Button)
-                                toot_Button_LinearLayout.removeView(misskey_drive_Button)
-                                toot_Button_LinearLayout.removeView(mastodon_time_post_Button)
-                                toot_Button_LinearLayout.removeView(mastodon_vote_Button)
-                                toot_Button_LinearLayout.removeView(paintPOSTButton)
-                                toot_Button_LinearLayout.addView(misskey_drive_Button)
-                                //デスクトップモード利用時はマルチアカウント表示できるように
-                                if (fragment != null && fragment is DesktopFragment) {
-                                    showMisskeyMultiAccount()
-                                }
+        if (fragment is DesktopFragment) {
+            //DesktopModeはPopupMenuからMastodon/Misskeyを選ぶ
+            //Misskeyアカウントが登録されていなければ話にならない
+            if (pref_setting.getString("misskey_instance_list", "") != "") {
+                //ポップアップメニュー作成
+                val sns_PopupMenu = PopupMenu(this, fab)
+                sns_PopupMenu.inflate(R.menu.desktop_mode_sns_menu)
+                //クリックイベント
+                sns_PopupMenu.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.desktop_mode_menu_mastodon -> {
+                            getAccount()
+                            setMastodonVisibilityMenu(toot_area_Button)
+                            toot_Button_LinearLayout.removeView(misskey_drive_Button)
+                            toot_Button_LinearLayout.removeView(mastodon_time_post_Button)
+                            toot_Button_LinearLayout.removeView(mastodon_vote_Button)
+                            toot_Button_LinearLayout.removeView(paintPOSTButton)
+                            toot_Button_LinearLayout.addView(mastodon_time_post_Button)
+                            toot_Button_LinearLayout.addView(mastodon_vote_Button)
+                            toot_Button_LinearLayout.addView(paintPOSTButton)
+                            //デスクトップモード利用時はマルチアカウント表示できるように
+                            if (fragment != null && fragment is DesktopFragment) {
+                                showMultiAccount()
                             }
                         }
-                        toot_snackbar.show()
-                        //ふぉーかす
-                        toot_EditText.requestFocus()
-                        //キーボード表示
-                        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                        imm?.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
-                        false
-                    }
-                    //すでにTootSnackberが表示されている場合は消して、ポップアップメニューを表示する
-                    if (toot_snackbar.isShown) {
-                        toot_snackbar.dismiss()
-                        //キーボード非表示
-                        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                        if (imm != null) {
-                            if (this@Home.currentFocus != null) {
-                                imm.hideSoftInputFromWindow(this@Home.currentFocus!!.windowToken, 0)
+                        R.id.desktop_mode_menu_misskey -> if (pref_setting.getString("misskey_instance_list", "") != "") {
+                            getMisskeyAccount()
+                            setMisskeyVisibilityMenu(toot_area_Button)
+                            toot_Button_LinearLayout.removeView(misskey_drive_Button)
+                            toot_Button_LinearLayout.removeView(mastodon_time_post_Button)
+                            toot_Button_LinearLayout.removeView(mastodon_vote_Button)
+                            toot_Button_LinearLayout.removeView(paintPOSTButton)
+                            toot_Button_LinearLayout.addView(misskey_drive_Button)
+                            //デスクトップモード利用時はマルチアカウント表示できるように
+                            if (fragment != null && fragment is DesktopFragment) {
+                                showMisskeyMultiAccount()
                             }
                         }
-                        sns_PopupMenu.show()
-                    } else {
-                        sns_PopupMenu.show()
                     }
+                    toot_snackbar.show()
+                    //ふぉーかす
+                    toot_EditText.requestFocus()
+                    //キーボード表示
+                    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm?.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+                    false
+                }
+                //すでにTootSnackberが表示されている場合は消して、ポップアップメニューを表示する
+                if (toot_snackbar.isShown) {
+                    toot_snackbar.dismiss()
+                    //キーボード非表示
+                    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    if (imm != null) {
+                        if (this@Home.currentFocus != null) {
+                            imm.hideSoftInputFromWindow(this@Home.currentFocus!!.windowToken, 0)
+                        }
+                    }
+                    sns_PopupMenu.show()
                 } else {
-                    //Mastodonのみ表示
-                    getAccount()
-                    setMastodonVisibilityMenu(toot_area_Button)
-                    toot_Button_LinearLayout.removeView(misskey_drive_Button)
-                    toot_Button_LinearLayout.removeView(mastodon_time_post_Button)
-                    toot_Button_LinearLayout.removeView(mastodon_vote_Button)
-                    toot_Button_LinearLayout.removeView(paintPOSTButton)
-                    toot_Button_LinearLayout.addView(mastodon_time_post_Button)
-                    toot_Button_LinearLayout.addView(mastodon_vote_Button)
-                    toot_Button_LinearLayout.addView(paintPOSTButton)
-                    //デスクトップモード利用時はマルチアカウント表示できるように
-                    if (fragment != null && fragment is DesktopFragment) {
-                        showMultiAccount()
-                    }
-                    if (!toot_snackbar.isShown) {
-                        toot_snackbar.show()
-                        //ふぉーかす
-                        toot_EditText.requestFocus()
-                        //キーボード表示
-                        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                        imm?.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
-                    } else {
-                        toot_snackbar.dismiss()
-                        //クローズでソフトキーボード非表示
-                        fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp))
-                        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                        if (imm != null) {
-                            if (this@Home.currentFocus != null) {
-                                imm.hideSoftInputFromWindow(this@Home.currentFocus!!.windowToken, 0)
-                            }
+                    sns_PopupMenu.show()
+                }
+            } else {
+                //Mastodonのみ表示
+                getAccount()
+                setMastodonVisibilityMenu(toot_area_Button)
+                toot_Button_LinearLayout.removeView(misskey_drive_Button)
+                toot_Button_LinearLayout.removeView(mastodon_time_post_Button)
+                toot_Button_LinearLayout.removeView(mastodon_vote_Button)
+                toot_Button_LinearLayout.removeView(paintPOSTButton)
+                toot_Button_LinearLayout.addView(mastodon_time_post_Button)
+                toot_Button_LinearLayout.addView(mastodon_vote_Button)
+                toot_Button_LinearLayout.addView(paintPOSTButton)
+                //デスクトップモード利用時はマルチアカウント表示できるように
+                if (fragment != null && fragment is DesktopFragment) {
+                    showMultiAccount()
+                }
+                if (!toot_snackbar.isShown) {
+                    toot_snackbar.show()
+                    //ふぉーかす
+                    toot_EditText.requestFocus()
+                    //キーボード表示
+                    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm?.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+                } else {
+                    toot_snackbar.dismiss()
+                    //クローズでソフトキーボード非表示
+                    fab.setImageDrawable(getDrawable(R.drawable.ic_create_black_24dp))
+                    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    if (imm != null) {
+                        if (this@Home.currentFocus != null) {
+                            imm.hideSoftInputFromWindow(this@Home.currentFocus!!.windowToken, 0)
                         }
                     }
                 }
-            } else {
-                //ユーザー情報を取得
-                //カスタムメニューが読み取り専用だったら動かないようにする
-                if (!customMenuTimeLine.isReadOnly()) {
+            }
+        } else {
+            //ユーザー情報を取得
+            //カスタムメニューが読み取り専用だったら動かないようにする
+            if (fragment is CustomMenuTimeLine) {
+                if (!fragment.isReadOnly()) {
                     //MisskeyモードでMisskeyアカウントが登録されれいるときのみ表示
                     //避けたかったけどどうしてもisMisskeyMode()必要だから使う
                     if (CustomMenuTimeLine.isMisskeyMode && pref_setting.getString("misskey_instance_list", "") != "") {
@@ -3087,7 +3091,9 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             bottomAppBar.setNavigationOnClickListener() {
                 drawer.openDrawer(Gravity.LEFT)
             }
-            bottom_fab.setOnClickListener { showTootShortcut() }
+            bottom_fab.setOnClickListener {
+                showTootShortcut()
+            }
             //一応代入
             fab = bottom_fab
             //追加されてなければ追加

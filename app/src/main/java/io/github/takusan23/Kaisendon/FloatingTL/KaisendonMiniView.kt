@@ -1,0 +1,281 @@
+package io.github.takusan23.Kaisendon.FloatingTL
+
+import android.content.Context
+import android.graphics.PixelFormat
+import android.graphics.Point
+import android.os.Build
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.WindowManager
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
+import io.github.takusan23.Kaisendon.APIJSONParse.CustomMenuJSONParse
+import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuRecyclerViewAdapter
+import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
+import io.github.takusan23.Kaisendon.Fragment.HelloFragment
+import io.github.takusan23.Kaisendon.Home
+import io.github.takusan23.Kaisendon.R
+import io.github.takusan23.Kaisendon.SnackberProgress
+import kotlinx.android.synthetic.main.overlay_player_layout.view.*
+import okhttp3.*
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
+import java.util.ArrayList
+
+class KaisendonMiniView(val context: Context, val jsonString: String) {
+
+    var popupView: View = (context as Home).popupView
+    val activity = (context as AppCompatActivity)
+    //RecyclerView
+    val recyclerViewList: ArrayList<ArrayList<*>>? = arrayListOf()
+    private var recyclerViewLayoutManager: RecyclerView.LayoutManager? = null
+    private var customMenuRecyclerViewAdapter: CustomMenuRecyclerViewAdapter? = null
+
+    val customMenuJSONParse = CustomMenuJSONParse(jsonString)
+
+    val misskey = customMenuJSONParse.misskey
+    val isMisskeyMode = java.lang.Boolean.valueOf(misskey)
+    var url = customMenuJSONParse.content
+    val instance = customMenuJSONParse.instance
+    val access_token = customMenuJSONParse.access_token
+    val isReadOnly = customMenuJSONParse.isReadOnly.toBoolean()
+
+    //かいせんどんミニ表示
+    fun showKaisendonMini() {
+        val windowManager =
+                (context as AppCompatActivity).windowManager
+        val width = 600
+        val height = 800
+        //レイアウト読み込み
+        val layoutInflater = LayoutInflater.from(context)
+
+        // オーバーレイViewの設定をする
+        val params = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            WindowManager.LayoutParams(
+                    width,
+                    height,
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                    PixelFormat.TRANSLUCENT
+            )
+        } else {
+            WindowManager.LayoutParams(
+                    width,
+                    height,
+                    WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                    PixelFormat.TRANSLUCENT
+            )
+        }
+        //popupView = layoutInflater.inflate(R.layout.overlay_player_layout, null)
+        //表示
+        windowManager.addView(popupView, params)
+
+        //移動
+        //画面サイズ
+        val displaySize: Point by lazy {
+            val display = windowManager.defaultDisplay
+            val size = Point()
+            display.getSize(size)
+            size
+        }
+        //https://qiita.com/farman0629/items/ce547821dd2e16e4399e
+        popupView.kaisendon_mini_drag_button.setOnLongClickListener {
+            //長押し判定
+            popupView.kaisendon_mini_drag_button.setOnTouchListener { view, motionEvent ->
+                // タップした位置を取得する
+                val x = motionEvent.rawX.toInt()
+                val y = motionEvent.rawY.toInt()
+
+                when (motionEvent.action) {
+                    // Viewを移動させてるときに呼ばれる
+                    MotionEvent.ACTION_MOVE -> {
+                        // 中心からの座標を計算する
+                        val centerX = x - (displaySize.x / 2)
+                        val centerY = y - (displaySize.y / 2)
+
+                        // オーバーレイ表示領域の座標を移動させる
+                        params.x = centerX
+                        params.y = centerY
+
+                        // 移動した分を更新する
+                        windowManager.updateViewLayout(popupView, params)
+                    }
+                }
+                false
+            }
+            true//OnclickListener呼ばないようにtrue
+        }
+
+        //閉じるボタン
+        popupView.kaisendon_mini_close_button.setOnClickListener {
+            windowManager.removeView(popupView)
+        }
+
+        //ここから下三行必須
+        popupView.kaisendon_mini_recyclerview.setHasFixedSize(true)
+        val mLayoutManager = LinearLayoutManager(context)
+        popupView.kaisendon_mini_recyclerview.layoutManager = mLayoutManager
+        customMenuRecyclerViewAdapter = CustomMenuRecyclerViewAdapter(recyclerViewList!!)
+        popupView.kaisendon_mini_recyclerview.adapter = customMenuRecyclerViewAdapter
+        recyclerViewLayoutManager = popupView.kaisendon_mini_recyclerview.layoutManager
+
+
+        loadTimeline("")
+        //投稿
+        popupView.kaisendon_mini_post_button.setOnClickListener {
+            mastodonStatusPOST()
+        }
+        //更新
+        popupView.kaisendon_mini_update_button.setOnClickListener {
+            recyclerViewList.clear()
+            loadTimeline("")
+        }
+
+    }
+
+    /*MastodonStatusPOST*/
+    private fun mastodonStatusPOST() {
+        try {
+            val url = "https://$instance/api/v1/statuses/?access_token=$access_token"
+            val postJsonObject = JSONObject()
+            postJsonObject.put("status", popupView.kaisendon_mini_edittext.text.toString())
+            val requestBody_json = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), postJsonObject.toString())
+            val request = Request.Builder()
+                    .url(url)
+                    .post(requestBody_json)
+                    .build()
+            //POST
+            val client = OkHttpClient()
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    activity.runOnUiThread { Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_SHORT).show() }
+                }
+
+                @Throws(IOException::class)
+                override fun onResponse(call: Call, response: Response) {
+                    if (!response.isSuccessful) {
+                        //失敗
+                        activity.runOnUiThread { Toast.makeText(context, context.getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                    } else {
+                        activity.runOnUiThread {
+                            Toast.makeText(context, context.getString(R.string.toot_ok), Toast.LENGTH_SHORT).show()
+                            popupView.kaisendon_mini_edittext.setText("")
+                        }
+                    }
+                }
+            })
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+    }
+
+
+    private fun loadTimeline(max_id_id: String?) {
+        //パラメータを設定
+        //最終的なURL(static使いまくったらDesktopMode実装で困った（）
+        //ハッシュタグはそのままURLが利用できないので修正
+        if (url.contains("/api/v1/timelines/tag/")) {
+            if (url == "?local=true") {
+                url = "https://" + instance + "/api/v1/timelines/tag/" + customMenuJSONParse.name + "?local=true"
+            } else {
+                url = " https://" + instance + "/api/v1/timelines/tag/" + customMenuJSONParse.name
+            }
+        } else {
+            //ハッシュタグ以外はここから取れる
+            url = "https://" + customMenuJSONParse.instance + customMenuJSONParse.content
+        }
+        val builder = HttpUrl.parse(url)?.newBuilder()
+        builder?.addQueryParameter("limit", "40")
+        //読み取り専用？
+        if (!isReadOnly) {
+            builder?.addQueryParameter("access_token", customMenuJSONParse.access_token)
+        }
+        if (max_id_id != null) {
+            if (max_id_id.length != 0) {
+                builder?.addQueryParameter("max_id", max_id_id)
+            }
+        }
+        val max_id_final_url = builder?.build().toString()
+        //作成
+        val request = Request.Builder()
+                .url(max_id_final_url)
+                .get()
+                .build()
+
+        //GETリクエスト
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                activity.runOnUiThread { Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_SHORT).show() }
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                //成功時
+                if (response.isSuccessful) {
+                    val response_string = response.body()?.string()
+                    println(response_string)
+                    var jsonArray: JSONArray? = null
+                    try {
+                        jsonArray = JSONArray(response_string)
+                        for (i in 0 until jsonArray.length()) {
+                            val toot_jsonObject = jsonArray.getJSONObject(i)
+                            //配列を作成
+                            val Item = ArrayList<String>()
+                            //メモとか通知とかに
+                            Item.add("CustomMenu Local")
+                            //内容
+                            Item.add(CustomMenuTimeLine.url ?: "")
+                            //ユーザー名
+                            Item.add("")
+                            //JSONObject
+                            Item.add(toot_jsonObject.toString())
+                            //ぶーすとした？
+                            Item.add("false")
+                            //ふぁぼした？
+                            Item.add("false")
+                            //Mastodon / Misskey
+                            Item.add("Mastodon")
+                            //Insatnce/AccessToken
+                            Item.add(instance ?: "")
+                            Item.add(access_token ?: "")
+                            //設定ファイルJSON
+                            Item.add(jsonString ?: "")
+                            //画像表示、こんてんとわーにんぐ
+                            Item.add("false")
+                            Item.add("false")
+                            //ListItem listItem = new ListItem(Item);
+                            recyclerViewList?.add(Item)
+                            activity.runOnUiThread {
+                                customMenuRecyclerViewAdapter?.notifyDataSetChanged()
+                            }
+                        }
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                } else {
+                    //失敗時
+                    activity.runOnUiThread { Toast.makeText(context, context.getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                }
+            }
+        })
+    }
+
+
+}

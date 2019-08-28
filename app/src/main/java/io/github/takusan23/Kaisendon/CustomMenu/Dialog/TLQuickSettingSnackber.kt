@@ -2,20 +2,24 @@ package io.github.takusan23.Kaisendon.CustomMenu.Dialog
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.PixelFormat
 import android.graphics.Point
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
+import androidx.browser.customtabs.CustomTabsClient.getPackageName
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,6 +34,7 @@ import io.github.takusan23.Kaisendon.CustomMenu.*
 import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment
 import io.github.takusan23.Kaisendon.FloatingTL.FloatingTL
+import io.github.takusan23.Kaisendon.FloatingTL.KaisendonMiniView
 import io.github.takusan23.Kaisendon.Fragment.*
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.Omake.KaisendonLife
@@ -66,6 +71,8 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
     lateinit var recyclerViewLayoutManager: RecyclerView.LayoutManager
     lateinit var notificationShowImageView: ImageView
     lateinit var closeImageView: ImageView
+    //ポップアップ再生
+    lateinit var popupView: View
 
     init {
         snackbar = setSnackBer()
@@ -200,7 +207,7 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
         if (context != null) {
             val fragment = (context as AppCompatActivity).supportFragmentManager.findFragmentById(R.id.container_container)
             if (fragment is CustomMenuTimeLine) {
-                val floatingTL = FloatingTL(context, fragment.arguments!!.getString("json")!!)
+                val floatingTL = FloatingTL(context, fragment.arguments!!.getString("setting_json")!!)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     floatingTL.setNotification(isPiP)
                 }
@@ -209,6 +216,29 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
             }
         }
     }
+
+    /*かいせんどんミニのパーミッション*/
+    fun showKaisendonMiniPermission() {
+        val fragment = (context as AppCompatActivity).supportFragmentManager.findFragmentById(R.id.container_container)
+        val json = fragment?.arguments!!.getString("setting_json")
+        //ポップアップ再生。コメント付き
+        if (!Settings.canDrawOverlays(context)) {
+            //RuntimePermissionに対応させる
+            // 権限取得
+            val intent =
+                    Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:${context?.getPackageName()}")
+                    );
+            context?.startActivityForResult(intent, 114)
+        } else {
+            if (json != null) {
+                val kaisendonMiniView = KaisendonMiniView(context, json)
+                kaisendonMiniView.showKaisendonMini()
+            }
+        }
+    }
+
 
     /*デスクトップモード*/
     private fun setDesktopMode() {
@@ -373,6 +403,7 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
                     when (item.itemId) {
                         R.id.home_menu_floating_pip -> showFloatingTL(true)
                         R.id.home_menu_floating_bubble -> showFloatingTL(false)
+                        R.id.home_menu_floating_kaisendon_mini -> showKaisendonMiniPermission()
                     }
                     return false
                 }

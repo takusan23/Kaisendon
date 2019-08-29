@@ -47,7 +47,7 @@ class KaisendonMiniView(val context: Context, val jsonString: String) {
 
     val misskey = customMenuJSONParse.misskey
     val isMisskeyMode = java.lang.Boolean.valueOf(misskey)
-    var url = customMenuJSONParse.content
+    var content = customMenuJSONParse.content
     val instance = customMenuJSONParse.instance
     val access_token = customMenuJSONParse.access_token
     val isReadOnly = customMenuJSONParse.isReadOnly.toBoolean()
@@ -129,8 +129,13 @@ class KaisendonMiniView(val context: Context, val jsonString: String) {
 
         //閉じるボタン
         popupView.kaisendon_mini_close_button.setOnClickListener {
+
             windowManager.removeView(popupView)
-            webSocket.close()
+
+            if (this@KaisendonMiniView::webSocket.isInitialized) {
+                //初期化済みなら閉じる
+                webSocket.close()
+            }
         }
 
         //ここから下三行必須
@@ -160,17 +165,38 @@ class KaisendonMiniView(val context: Context, val jsonString: String) {
             mastodonStatusPOST()
         }
         //更新
+        val url = "https://$instance/$content"
         popupView.kaisendon_mini_update_button.setOnClickListener {
             recyclerViewList.clear()
-            val url = "https://$instance/api/v1/timelines/public?local=true"
-            //StreamingAPI
-            val streamingLink = mastodonTimelineAPICall.restAPIURLToWebSocketURL(url, null)
-            println(streamingLink)
-            webSocket = mastodonTimelineAPICall.useStreamingAPI(streamingLink)
             //普通のAPIも叩く
             mastodonTimelineAPICall.callMastodonTLAPI(url)
         }
+        //ストリーミングAPI
+        popupView.kaisendon_mini_streaming_button.setOnClickListener {
+            //StreamingAPI
+            if (this@KaisendonMiniView::webSocket.isInitialized) {
+                connectionStreaming(mastodonTimelineAPICall, url)
+            } else {
+                if (webSocket.isClosed) {
+                    disconnectStreaming()
+                } else {
+                    connectionStreaming(mastodonTimelineAPICall, url)
+                }
+            }
+        }
+    }
 
+    //ストリーミング接続
+    fun connectionStreaming(mastodonTimelineAPICall: MastodonTimelineAPICall, url: String) {
+        Toast.makeText(context, context.getString(R.string.streaming_connect), Toast.LENGTH_SHORT).show()
+        val streamingLink = mastodonTimelineAPICall.restAPIURLToWebSocketURL(url, null)
+        webSocket = mastodonTimelineAPICall.useStreamingAPI(streamingLink)
+    }
+
+    //ストリーミング切断
+    fun disconnectStreaming() {
+        Toast.makeText(context, context.getString(R.string.streaming_disconnect), Toast.LENGTH_SHORT).show()
+        webSocket.close()
     }
 
     /*MastodonStatusPOST*/

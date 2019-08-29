@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
+import io.github.takusan23.Kaisendon.APIJSONParse.CustomMenuJSONParse
 import io.github.takusan23.Kaisendon.Activity.KonoAppNiTuite
 import io.github.takusan23.Kaisendon.Activity.LoginActivity
 import io.github.takusan23.Kaisendon.Activity.UserActivity
@@ -221,6 +222,7 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
     fun showKaisendonMiniPermission() {
         val fragment = (context as AppCompatActivity).supportFragmentManager.findFragmentById(R.id.container_container)
         val json = fragment?.arguments!!.getString("setting_json")
+        val customMenuJSONParse = CustomMenuJSONParse(json ?: "")
         //ポップアップ再生。コメント付き
         if (!Settings.canDrawOverlays(context)) {
             //RuntimePermissionに対応させる
@@ -233,8 +235,11 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
             context?.startActivityForResult(intent, 114)
         } else {
             if (json != null) {
-                val kaisendonMiniView = KaisendonMiniView(context, json)
-                kaisendonMiniView.showKaisendonMini()
+                //Mastodon限定
+                if (!customMenuJSONParse.misskey.toBoolean()) {
+                    val kaisendonMiniView = KaisendonMiniView(context, json)
+                    kaisendonMiniView.showKaisendonMini()
+                }
             }
         }
     }

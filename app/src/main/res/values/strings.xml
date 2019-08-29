@@ -657,5 +657,8 @@
     <string name="duplicate">Duplicate</string>
     <string name="add">Add</string>
     <string name="apply">Apply</string>
+    <string name="move">move</string>
+    <string name="streaming_connect">Connect to streaming</string>
+    <string name="streaming_disconnect">Disconnect streaming</string>
 
 </resources>

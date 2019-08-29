@@ -554,5 +554,8 @@
     <string name="duplicate">複製</string>
     <string name="add">追加</string>
     <string name="apply">適用</string>
+    <string name="move">移動</string>
+    <string name="streaming_connect">ストリーミングへ接続します</string>
+    <string name="streaming_disconnect">ストリーミングを切断します</string>
 
 </resources>

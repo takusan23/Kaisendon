@@ -13,9 +13,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import io.github.takusan23.Kaisendon.APICall.MastodonTimelineAPICall
 import io.github.takusan23.Kaisendon.APIJSONParse.CustomMenuJSONParse
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuRecyclerViewAdapter
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
@@ -25,6 +27,7 @@ import io.github.takusan23.Kaisendon.R
 import io.github.takusan23.Kaisendon.SnackberProgress
 import kotlinx.android.synthetic.main.overlay_player_layout.view.*
 import okhttp3.*
+import org.java_websocket.client.WebSocketClient
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -38,7 +41,7 @@ class KaisendonMiniView(val context: Context, val jsonString: String) {
     //RecyclerView
     val recyclerViewList: ArrayList<ArrayList<*>>? = arrayListOf()
     private var recyclerViewLayoutManager: RecyclerView.LayoutManager? = null
-    private var customMenuRecyclerViewAdapter: CustomMenuRecyclerViewAdapter? = null
+    private var customMenuRecyclerViewAdapter: KaisendonMiniRecyclerViewAdapter? = null
 
     val customMenuJSONParse = CustomMenuJSONParse(jsonString)
 
@@ -48,6 +51,8 @@ class KaisendonMiniView(val context: Context, val jsonString: String) {
     val instance = customMenuJSONParse.instance
     val access_token = customMenuJSONParse.access_token
     val isReadOnly = customMenuJSONParse.isReadOnly.toBoolean()
+
+    lateinit var webSocket: WebSocketClient
 
     //かいせんどんミニ表示
     fun showKaisendonMini() {
@@ -125,18 +130,31 @@ class KaisendonMiniView(val context: Context, val jsonString: String) {
         //閉じるボタン
         popupView.kaisendon_mini_close_button.setOnClickListener {
             windowManager.removeView(popupView)
+            webSocket.close()
         }
 
         //ここから下三行必須
         popupView.kaisendon_mini_recyclerview.setHasFixedSize(true)
         val mLayoutManager = LinearLayoutManager(context)
         popupView.kaisendon_mini_recyclerview.layoutManager = mLayoutManager
-        customMenuRecyclerViewAdapter = CustomMenuRecyclerViewAdapter(recyclerViewList!!)
+        customMenuRecyclerViewAdapter = KaisendonMiniRecyclerViewAdapter(recyclerViewList!!)
         popupView.kaisendon_mini_recyclerview.adapter = customMenuRecyclerViewAdapter
         recyclerViewLayoutManager = popupView.kaisendon_mini_recyclerview.layoutManager
 
+        //RecyclerViewに区切り線引く
+        val itemDecoration = DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
+        popupView.kaisendon_mini_recyclerview.addItemDecoration(itemDecoration)
 
-        loadTimeline("")
+        //MastodonのAPI叩く
+        val mastodonTimelineAPICall = MastodonTimelineAPICall(activity)
+        //設定
+        mastodonTimelineAPICall.itemList = recyclerViewList
+        mastodonTimelineAPICall.recyclerView = popupView.kaisendon_mini_recyclerview
+        mastodonTimelineAPICall.recyclerViewLayoutManager = recyclerViewLayoutManager as LinearLayoutManager
+        mastodonTimelineAPICall.accessToken = access_token
+        mastodonTimelineAPICall.instance = instance
+        mastodonTimelineAPICall.customMenuJSON = customMenuJSONParse.json_data
+
         //投稿
         popupView.kaisendon_mini_post_button.setOnClickListener {
             mastodonStatusPOST()
@@ -144,7 +162,13 @@ class KaisendonMiniView(val context: Context, val jsonString: String) {
         //更新
         popupView.kaisendon_mini_update_button.setOnClickListener {
             recyclerViewList.clear()
-            loadTimeline("")
+            val url = "https://$instance/api/v1/timelines/public?local=true"
+            //StreamingAPI
+            val streamingLink = mastodonTimelineAPICall.restAPIURLToWebSocketURL(url, null)
+            println(streamingLink)
+            webSocket = mastodonTimelineAPICall.useStreamingAPI(streamingLink)
+            //普通のAPIも叩く
+            mastodonTimelineAPICall.callMastodonTLAPI(url)
         }
 
     }
@@ -183,98 +207,6 @@ class KaisendonMiniView(val context: Context, val jsonString: String) {
         } catch (e: JSONException) {
             e.printStackTrace()
         }
-    }
-
-
-    private fun loadTimeline(max_id_id: String?) {
-        //パラメータを設定
-        //最終的なURL(static使いまくったらDesktopMode実装で困った（）
-        //ハッシュタグはそのままURLが利用できないので修正
-        if (url.contains("/api/v1/timelines/tag/")) {
-            if (url == "?local=true") {
-                url = "https://" + instance + "/api/v1/timelines/tag/" + customMenuJSONParse.name + "?local=true"
-            } else {
-                url = " https://" + instance + "/api/v1/timelines/tag/" + customMenuJSONParse.name
-            }
-        } else {
-            //ハッシュタグ以外はここから取れる
-            url = "https://" + customMenuJSONParse.instance + customMenuJSONParse.content
-        }
-        val builder = HttpUrl.parse(url)?.newBuilder()
-        builder?.addQueryParameter("limit", "40")
-        //読み取り専用？
-        if (!isReadOnly) {
-            builder?.addQueryParameter("access_token", customMenuJSONParse.access_token)
-        }
-        if (max_id_id != null) {
-            if (max_id_id.length != 0) {
-                builder?.addQueryParameter("max_id", max_id_id)
-            }
-        }
-        val max_id_final_url = builder?.build().toString()
-        //作成
-        val request = Request.Builder()
-                .url(max_id_final_url)
-                .get()
-                .build()
-
-        //GETリクエスト
-        val client = OkHttpClient()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                activity.runOnUiThread { Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_SHORT).show() }
-            }
-
-            @Throws(IOException::class)
-            override fun onResponse(call: Call, response: Response) {
-                //成功時
-                if (response.isSuccessful) {
-                    val response_string = response.body()?.string()
-                    println(response_string)
-                    var jsonArray: JSONArray? = null
-                    try {
-                        jsonArray = JSONArray(response_string)
-                        for (i in 0 until jsonArray.length()) {
-                            val toot_jsonObject = jsonArray.getJSONObject(i)
-                            //配列を作成
-                            val Item = ArrayList<String>()
-                            //メモとか通知とかに
-                            Item.add("CustomMenu Local")
-                            //内容
-                            Item.add(CustomMenuTimeLine.url ?: "")
-                            //ユーザー名
-                            Item.add("")
-                            //JSONObject
-                            Item.add(toot_jsonObject.toString())
-                            //ぶーすとした？
-                            Item.add("false")
-                            //ふぁぼした？
-                            Item.add("false")
-                            //Mastodon / Misskey
-                            Item.add("Mastodon")
-                            //Insatnce/AccessToken
-                            Item.add(instance ?: "")
-                            Item.add(access_token ?: "")
-                            //設定ファイルJSON
-                            Item.add(jsonString ?: "")
-                            //画像表示、こんてんとわーにんぐ
-                            Item.add("false")
-                            Item.add("false")
-                            //ListItem listItem = new ListItem(Item);
-                            recyclerViewList?.add(Item)
-                            activity.runOnUiThread {
-                                customMenuRecyclerViewAdapter?.notifyDataSetChanged()
-                            }
-                        }
-                    } catch (e: JSONException) {
-                        e.printStackTrace()
-                    }
-                } else {
-                    //失敗時
-                    activity.runOnUiThread { Toast.makeText(context, context.getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
-                }
-            }
-        })
     }
 
 

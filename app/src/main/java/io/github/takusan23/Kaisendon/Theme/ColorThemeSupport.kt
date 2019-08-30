@@ -119,15 +119,16 @@ class ColorThemeSupport(val activity: AppCompatActivity, val customMenuJSONParse
     /*背景色*/
     fun setBackgroundColor() {
         if (customMenuJSONParse.theme_background_color.isNotEmpty()) {
-            //背景画像が優先される
-            if (customMenuJSONParse.image_url.isEmpty()) {
-                //Fragment取得
-                val fragment = activity.supportFragmentManager.findFragmentById(R.id.container_container)
-                if (fragment is CustomMenuTimeLine) {
-                    //FragmentがCustomMenuTimeLineだったら動く
-                    fragment.recyclerView?.background = ColorDrawable(convertColorInt(customMenuJSONParse.theme_background_color))
-                }
+
+            //背景色と背景画像を共存できるようにする。背景色に透明度が設定されてれば特に問題なさそうなので
+
+            //Fragment取得
+            val fragment = activity.supportFragmentManager.findFragmentById(R.id.container_container)
+            if (fragment is CustomMenuTimeLine) {
+                //FragmentがCustomMenuTimeLineだったら動く
+                fragment.recyclerView?.background = ColorDrawable(convertColorInt(customMenuJSONParse.theme_background_color))
             }
+
         }
     }
 

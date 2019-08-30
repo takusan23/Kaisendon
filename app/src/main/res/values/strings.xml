@@ -660,5 +660,15 @@
     <string name="move">move</string>
     <string name="streaming_connect">Connect to streaming</string>
     <string name="streaming_disconnect">Disconnect streaming</string>
+    <string name="custom_menu_theme_status_bar_color">Status bar color</string>
+    <string name="custom_menu_theme_navi_color">Navigation bar color</string>
+    <string name="custom_menu_theme_background_color">Background color</string>
+    <string name="custom_menu_theme_toolbar_color">Toolbar color</string>
+    <string name="custom_menu_theme_toot_background_color">Toot background color</string>
+    <string name="custom_menu_theme_toot_icon_text_color">Text color / icon color</string>
+    <string name="custom_menu_theme_post_button_color">Post button color</string>
+    <string name="custom_menu_theme_post_button_icon_color">Post button icon color</string>
+    <string name="custom_menu_theme_title">Appearance setting (Enter with color code)</string>
+    <string name="custom_menu_theme_darkmode">Use even when using dark mode</string>
 
 </resources>

@@ -393,33 +393,37 @@ class TLQuickSettingSnackber(private val context: Activity?, view: View) {
     /*フローティングメニュー*/
     @SuppressLint("RestrictedApi")
     private fun showFloatingMenu() {
+        //QのユーザーはBubbleかPiPか選べるように
+        //ポップアップメニュー作成
+        val menuBuilder = MenuBuilder(context!!)
+        val inflater = MenuInflater(context)
+        inflater.inflate(R.menu.floating_tl_menu, menuBuilder)
+        val optionsMenu = MenuPopupHelper(context, menuBuilder, bottomNavigationView!!)
+        optionsMenu.setForceShowIcon(true)
+        menuBuilder.setCallback(object : MenuBuilder.Callback {
+            override fun onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean {
+                when (item.itemId) {
+                    R.id.home_menu_floating_pip -> showFloatingTL(true)
+                    R.id.home_menu_floating_bubble -> showFloatingTL(false)
+                    R.id.home_menu_floating_kaisendon_mini -> showKaisendonMiniPermission()
+                }
+                return false
+            }
+
+            override fun onMenuModeChange(menu: MenuBuilder) {
+
+            }
+        })
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            //QのユーザーはBubbleかPiPか選べるように
-            //ポップアップメニュー作成
-            val menuBuilder = MenuBuilder(context!!)
-            val inflater = MenuInflater(context)
-            inflater.inflate(R.menu.floating_tl_menu, menuBuilder)
-            val optionsMenu = MenuPopupHelper(context, menuBuilder, bottomNavigationView!!)
-            optionsMenu.setForceShowIcon(true)
             //表示
             optionsMenu.show()
-            menuBuilder.setCallback(object : MenuBuilder.Callback {
-                override fun onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean {
-                    when (item.itemId) {
-                        R.id.home_menu_floating_pip -> showFloatingTL(true)
-                        R.id.home_menu_floating_bubble -> showFloatingTL(false)
-                        R.id.home_menu_floating_kaisendon_mini -> showKaisendonMiniPermission()
-                    }
-                    return false
-                }
-
-                override fun onMenuModeChange(menu: MenuBuilder) {
-
-                }
-            })
+        } else if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            //Android Pie以前ではBubbleのAPIが無いのでメニュー非表示
+            menuBuilder.findItem(R.id.home_menu_floating_bubble).isVisible = false
+            //表示
+            optionsMenu.show()
         } else {
-            //PiPで起動
-            showFloatingTL(true)
+            showKaisendonMiniPermission()
         }
     }
 

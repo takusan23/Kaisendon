@@ -557,5 +557,15 @@
     <string name="move">移動</string>
     <string name="streaming_connect">ストリーミングへ接続します</string>
     <string name="streaming_disconnect">ストリーミングを切断します</string>
+    <string name="custom_menu_theme_toot_icon_text_color">文字色 / 背景色</string>
+    <string name="custom_menu_theme_toot_background_color">トゥートの背景色</string>
+    <string name="custom_menu_theme_toolbar_color">ツールバーの背景色</string>
+    <string name="custom_menu_theme_status_bar_color">ステータスバーの背景色</string>
+    <string name="custom_menu_theme_post_button_icon_color">投稿ボタンのアイコンの色</string>
+    <string name="custom_menu_theme_post_button_color">投稿ボタンの色</string>
+    <string name="custom_menu_theme_navi_color">ナビゲーションバーの色</string>
+    <string name="custom_menu_theme_background_color">背景色（背景画像も利用する場合は透明度設定してね）</string>
+    <string name="custom_menu_theme_darkmode">ダークモード利用時でも利用する</string>
+    <string name="custom_menu_theme_title">外観設定（カラーコードで入力してね）</string>
 
 </resources>

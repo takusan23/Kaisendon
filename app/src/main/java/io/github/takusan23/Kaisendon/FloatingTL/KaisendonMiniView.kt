@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import io.github.takusan23.Kaisendon.APICall.MastodonTimelineAPICall
 import io.github.takusan23.Kaisendon.APIJSONParse.CustomMenuJSONParse
-import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuRecyclerViewAdapter
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
 import io.github.takusan23.Kaisendon.Fragment.HelloFragment
 import io.github.takusan23.Kaisendon.Home
@@ -174,13 +173,16 @@ class KaisendonMiniView(val context: Context, val jsonString: String) {
         //ストリーミングAPI
         popupView.kaisendon_mini_streaming_button.setOnClickListener {
             //StreamingAPI
-            if (this@KaisendonMiniView::webSocket.isInitialized) {
+            if (!this@KaisendonMiniView::webSocket.isInitialized) {
                 connectionStreaming(mastodonTimelineAPICall, url)
+                popupView.kaisendon_mini_streaming_button.setImageDrawable(context.getDrawable(R.drawable.ic_close_black_24dp))
             } else {
                 if (webSocket.isClosed) {
                     disconnectStreaming()
+                    popupView.kaisendon_mini_streaming_button.setImageDrawable(context.getDrawable(R.drawable.ic_directions_run_black_24dp))
                 } else {
                     connectionStreaming(mastodonTimelineAPICall, url)
+                    popupView.kaisendon_mini_streaming_button.setImageDrawable(context.getDrawable(R.drawable.ic_close_black_24dp))
                 }
             }
         }

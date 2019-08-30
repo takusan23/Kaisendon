@@ -404,14 +404,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:gravity="center_vertical"
-                            android:text="外観の色設定（カラーコードで入力してください。）" />
+                            android:text="@string/custom_menu_theme_title" />
                     </LinearLayout>
 
                     <Switch
                         android:id="@+id/theme_darkmode_switch"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="ダークモード利用時も適用する" />
+                        android:text="@string/custom_menu_theme_darkmode" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -422,7 +422,7 @@
                             android:id="@+id/theme_status_bar_color_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="ステータスバーの色"
+                            android:hint="@string/custom_menu_theme_status_bar_color"
                             android:inputType="text"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -436,7 +436,7 @@
                             android:id="@+id/theme_nav_bar_color_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="ナビゲーションバーの色"
+                            android:hint="@string/custom_menu_theme_navi_color"
                             android:inputType="text"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -450,7 +450,7 @@
                             android:id="@+id/theme_tool_bar_color_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="ツールバーの色"
+                            android:hint="@string/custom_menu_theme_toolbar_color"
                             android:inputType="text"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -464,7 +464,7 @@
                             android:id="@+id/theme_background_color_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="背景色（背景画像が優先されます）"
+                            android:hint="@string/custom_menu_theme_background_color"
                             android:inputType="text"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -478,7 +478,7 @@
                             android:id="@+id/theme_toot_background_color_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="トゥートの背景色"
+                            android:hint="@string/custom_menu_theme_toot_background_color"
                             android:inputType="text"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -492,7 +492,7 @@
                             android:id="@+id/theme_text_icon_color_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="文字色・アイコンの色"
+                            android:hint="@string/custom_menu_theme_toot_icon_text_color"
                             android:inputType="text"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -506,7 +506,7 @@
                             android:id="@+id/theme_post_button_background_color_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="投稿ボタンの背景色"
+                            android:hint="@string/custom_menu_theme_post_button_color"
                             android:inputType="text"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -520,7 +520,7 @@
                             android:id="@+id/theme_post_button_icon_color_edittext"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="投稿ボタンのアイコンの色"
+                            android:hint="@string/custom_menu_theme_post_button_icon_color"
                             android:inputType="text"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>

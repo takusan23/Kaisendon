@@ -567,5 +567,8 @@
     <string name="custom_menu_theme_background_color">背景色（背景画像も利用する場合は透明度設定してね）</string>
     <string name="custom_menu_theme_darkmode">ダークモード利用時でも利用する</string>
     <string name="custom_menu_theme_title">外観設定（カラーコードで入力してね）</string>
+    <string name="custom_menu_editor_details">詳細</string>
+    <string name="custom_menu_editor_required">必須設定</string>
+    <string name="custom_menu_editor_theme">見た目</string>
 
 </resources>

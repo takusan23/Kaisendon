@@ -32,9 +32,11 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:tint">#ffffff</item>
+        <item name="android:textColor">#ffffff</item>
         <item name="android:navigationBarColor">@color/background_material_dark</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
 
     <style name="DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:background">@color/black</item>
@@ -48,6 +50,7 @@
         <item name="colorAccent">@color/colorPrimaryDark</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:colorBackground">#000000</item>
+        <item name="android:textColor">#ffffff</item>
         <item name="android:tint">#ffffff</item>
     </style>
 

@@ -79,6 +79,11 @@ class KaisendonMiniRecyclerViewAdapter(private val arrayListArrayAdapter: ArrayL
             postTootAction(api.toot_ID.toString(), accessToken, "reblog", holder)
         }
 
+        //ダークモードでImageViewにinitがかかるので修正
+        holder.usetImageView.imageTintList=null
+        holder.favImageButton.imageTintList=null
+        holder.btImageButton.imageTintList=null
+
     }
 
     override fun getItemCount(): Int {

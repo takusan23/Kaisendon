@@ -1,0 +1,43 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<!--
+3 Copyright (C) 2015 The Android Open Source Project
+4
+5     Licensed under the Apache License, Version 2.0 (the "License");
+6     you may not use this file except in compliance with the License.
+7     You may obtain a copy of the License at
+8
+9          http://www.apache.org/licenses/LICENSE-2.0
+10
+11     Unless required by applicable law or agreed to in writing, software
+12     distributed under the License is distributed on an "AS IS" BASIS,
+13     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+14     See the License for the specific language governing permissions and
+15     limitations under the License.
+16-->
+17<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+18    package="androidx.browser.customtabs" >
+19
+20    <uses-sdk android:minSdkVersion="16" />
+20-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml
+21
+22    <application>
+22-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:20:5-30:19
+23        <provider
+24            android:name="androidx.browser.customtabs.browseractions.BrowserServiceFileProvider"
+24-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:22:13-70
+25            android:authorities="androidx.browser.customtabs.image_provider"
+25-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:23:13-64
+26            android:exported="false"
+26-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:24:13-37
+27            android:grantUriPermissions="true" >
+27-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:25:13-47
+28            <meta-data
+28-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:26:13-28:64
+29                android:name="android.support.FILE_PROVIDER_PATHS"
+29-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:27:17-67
+30                android:resource="@xml/image_share_filepaths" />
+30-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:28:17-62
+31        </provider>
+32    </application>
+33
+34</manifest>

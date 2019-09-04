@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/custom_menu_edit_parent_linearlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -37,19 +38,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:icon="@drawable/ic_info_outline_black_24dp"
-            android:text="必須設定" />
+            android:text="@string/custom_menu_editor_required" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:icon="@drawable/ic_format_paint_black_24dp"
-            android:text="見た目" />
+            android:text="@string/custom_menu_editor_theme" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:icon="@drawable/ic_check_box_black_24dp"
-            android:text="詳細設定" />
+            android:text="@string/custom_menu_editor_details" />
 
     </com.google.android.material.tabs.TabLayout>
 

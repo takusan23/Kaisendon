@@ -110,6 +110,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         darkModeSupport.setLayoutAllThemeColor(view as LinearLayout)
         if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
             add_custom_menu_tablayout.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#000000"))
+            darkModeSupport.setAllChildViewSwitchColor(custom_menu_edit_parent_linearlayout)
         }
 
         //データベース
@@ -130,13 +131,13 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 setAllGoneVisibility()
                 when (tab?.text) {
-                    "必須設定" -> {
+                    getString(R.string.custom_menu_editor_required) -> {
                         required_linearlayout.visibility = View.VISIBLE
                     }
-                    "見た目" -> {
+                    getString(R.string.custom_menu_editor_theme) -> {
                         appearance_linearlayout.visibility = View.VISIBLE
                     }
-                    "詳細設定" -> {
+                    getString(R.string.custom_menu_editor_details) -> {
                         advance_linearlayout.visibility = View.VISIBLE
                     }
                 }

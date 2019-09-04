@@ -2,6 +2,7 @@ package io.github.takusan23.Kaisendon.Activity
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -40,7 +41,8 @@ class KonoAppNiTuite : AppCompatActivity() {
     private val release_name_6 = "たまごどん"
     //private val release_ver_6 = "6.0.4"
     //private val release_ver_6 = "6.1.0"
-    private val release_ver_6 = "6.2.0 Beta 1"
+    //private val release_ver_6 = "6.2.0 Beta 1"
+    private val release_ver_6 = "6.2.0 2019/09/01"
 
     private var version_TextView: TextView? = null
     private var pref_setting: SharedPreferences? = null
@@ -71,7 +73,12 @@ class KonoAppNiTuite : AppCompatActivity() {
         if (iconImageView != null) {
             iconImageView!!.imageTintList = null
         }
-        
+
+        //BottomNavBarのダークモード
+        if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
+            darkModeSupport.setBottomNavigationBerThemeColor(bottomNavigationView!!)
+        }
+
         version_TextView!!.text = getString(R.string.version) + " " + release_ver_6 + "\r\n" + release_name_6
 
         /**

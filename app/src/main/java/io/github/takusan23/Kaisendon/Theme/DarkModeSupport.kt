@@ -147,6 +147,22 @@ class DarkModeSupport/*テキストビューの染色だけならここからど
         }
     }
 
+    /**スイッチのテキストカラー*/
+    fun setAllChildViewSwitchColor(layout: LinearLayout) {
+        for (count in 0 until layout.childCount) {
+            var view = layout.getChildAt(count)
+            if (view is LinearLayout) {
+                setAllChildViewSwitchColor(view)
+            }
+            if (view is ScrollView) {
+                setAllChildViewSwitchColor(view.getChildAt(0) as LinearLayout)
+            }
+            if (view is Switch) {
+                (view as Switch).setTextColor(ColorStateList.valueOf(Color.WHITE))
+            }
+        }
+    }
+
     fun setDrawableStartTextViewColor(layout: LinearLayout) {
         for (i in 0 until layout.childCount) {
             if (layout.getChildAt(i) is TextView) {

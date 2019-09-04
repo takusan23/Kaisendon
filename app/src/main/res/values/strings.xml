@@ -670,5 +670,8 @@
     <string name="custom_menu_theme_post_button_icon_color">Post button icon color</string>
     <string name="custom_menu_theme_title">Appearance setting (Enter with color code)</string>
     <string name="custom_menu_theme_darkmode">Use even when using dark mode</string>
+    <string name="custom_menu_editor_required">Required settings</string>
+    <string name="custom_menu_editor_theme">Appearance</string>
+    <string name="custom_menu_editor_details">Details</string>
 
 </resources>

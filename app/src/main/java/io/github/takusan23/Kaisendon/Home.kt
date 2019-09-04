@@ -215,6 +215,9 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     //
     lateinit var popupView: View
 
+    //新しいトゥート画面
+    lateinit var tootCardView: TootCardView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -362,6 +365,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         //Misskey
         //setNewNote_Snackber();
         tootSnackBer()
+
+        tootCardView = TootCardView(this, false)
+        home_activity_frame_layout.addView(tootCardView.linearLayout)
+
 
         setAppBar()
 
@@ -3092,7 +3099,14 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 drawer.openDrawer(Gravity.LEFT)
             }
             bottom_fab.setOnClickListener {
-                showTootShortcut()
+
+                if (tootCardView.isShow) {
+                    tootCardView.cardViewHide()
+                } else {
+                    tootCardView.cardViewShow()
+                }
+
+                //showTootShortcut()
             }
             //一応代入
             fab = bottom_fab

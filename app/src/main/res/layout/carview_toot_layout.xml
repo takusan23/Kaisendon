@@ -107,7 +107,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/toot_card_time_textview"
+                        android:id="@+id/toot_card_scheduled_time_textview"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"

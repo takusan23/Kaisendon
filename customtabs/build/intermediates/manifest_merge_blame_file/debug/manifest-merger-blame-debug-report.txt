@@ -18,25 +18,25 @@
 18    package="androidx.browser.customtabs" >
 19
 20    <uses-sdk android:minSdkVersion="16" />
-20-->C:\Users\takusan23\Desktop\Android Depelopment\Kaisendon\customtabs\AndroidManifest.xml
+20-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml
 21
 22    <application>
-22-->C:\Users\takusan23\Desktop\Android Depelopment\Kaisendon\customtabs\AndroidManifest.xml:20:5-30:19
+22-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:20:5-30:19
 23        <provider
 24            android:name="androidx.browser.customtabs.browseractions.BrowserServiceFileProvider"
-24-->C:\Users\takusan23\Desktop\Android Depelopment\Kaisendon\customtabs\AndroidManifest.xml:22:13-70
+24-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:22:13-70
 25            android:authorities="androidx.browser.customtabs.image_provider"
-25-->C:\Users\takusan23\Desktop\Android Depelopment\Kaisendon\customtabs\AndroidManifest.xml:23:13-64
+25-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:23:13-64
 26            android:exported="false"
-26-->C:\Users\takusan23\Desktop\Android Depelopment\Kaisendon\customtabs\AndroidManifest.xml:24:13-37
+26-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:24:13-37
 27            android:grantUriPermissions="true" >
-27-->C:\Users\takusan23\Desktop\Android Depelopment\Kaisendon\customtabs\AndroidManifest.xml:25:13-47
+27-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:25:13-47
 28            <meta-data
-28-->C:\Users\takusan23\Desktop\Android Depelopment\Kaisendon\customtabs\AndroidManifest.xml:26:13-28:64
+28-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:26:13-28:64
 29                android:name="android.support.FILE_PROVIDER_PATHS"
-29-->C:\Users\takusan23\Desktop\Android Depelopment\Kaisendon\customtabs\AndroidManifest.xml:27:17-67
+29-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:27:17-67
 30                android:resource="@xml/image_share_filepaths" />
-30-->C:\Users\takusan23\Desktop\Android Depelopment\Kaisendon\customtabs\AndroidManifest.xml:28:17-62
+30-->C:\Users\takusan23\Desktop\Kaisendon\customtabs\AndroidManifest.xml:28:17-62
 31        </provider>
 32    </application>
 33

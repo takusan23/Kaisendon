@@ -138,7 +138,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
     }
 
     //文字数カウント
-    fun setTextLengthCount(){
+    fun setTextLengthCount() {
 
     }
 

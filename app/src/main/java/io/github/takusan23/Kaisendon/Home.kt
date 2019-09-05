@@ -252,7 +252,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         setContentView(R.layout.activity_home)
 
-        //navigationView = findViewById(R.id.nav_view)
+        navigationView = findViewById(R.id.nav_view)
         customMenuLoadSupport = CustomMenuLoadSupport(this, navigationView)
 
         //アプリ起動カウント
@@ -3048,7 +3048,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
             bottom_fab.setOnClickListener {
 
-                if (tootCardView.isShow) {
+                if (tootCardView.cardView.visibility == View.VISIBLE) {
                     tootCardView.cardViewHide()
                 } else {
                     tootCardView.cardViewShow()

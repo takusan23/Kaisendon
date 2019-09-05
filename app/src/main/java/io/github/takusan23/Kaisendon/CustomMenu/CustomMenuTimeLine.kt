@@ -44,6 +44,7 @@ import io.github.takusan23.Kaisendon.CustomMenu.Dialog.TLQuickSettingSnackber
 import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment
 import io.github.takusan23.Kaisendon.Theme.ColorThemeSupport
+import kotlinx.android.synthetic.main.app_bar_home2.*
 import okhttp3.*
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -245,8 +246,6 @@ class CustomMenuTimeLine : Fragment() {
         // onOptionsItemSelectedが呼ばれない対策
         setHasOptionsMenu(true)
 
-        //TootCardView更新
-        (activity as Home).tootCardView = TootCardView(activity!!, misskey?.toBoolean() ?: false)
 
         //Navication Drawer
         if (activity != null) {
@@ -286,6 +285,13 @@ class CustomMenuTimeLine : Fragment() {
                 editor.apply()
             }
         }
+
+
+        //TootCardView更新
+        (activity as Home).tootCardView = TootCardView(activity!!, misskey?.toBoolean() ?: false)
+        (activity as Home).home_activity_frame_layout.removeAllViews()
+        (activity as Home).home_activity_frame_layout.addView((activity as Home).tootCardView.linearLayout)
+
 
         //トゥートカウンター
         countTextView = TextView(context)

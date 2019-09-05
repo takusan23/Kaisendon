@@ -2,7 +2,7 @@ package io.github.takusan23.Kaisendon.CustomMenu.Dialog
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.ListView
 import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.ListItem
 import io.github.takusan23.Kaisendon.R
 import io.github.takusan23.Kaisendon.SimpleAdapter
@@ -84,6 +85,14 @@ class MisskeyDriveBottomDialog : BottomSheetDialogFragment() {
                     activity!!.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
                 } else {
                     setJSONParse(response_string)
+                    listView!!.setOnItemClickListener { adapterView, view, i, l ->
+                        //追加
+                        val id = (adapterView as ListItem).listItem?.get(4)?:""
+                        val home = (activity as Home)
+                        home.tootCardView.postMediaList.add(id)
+                        home.tootCardView.setAttachImageLinearLayout()
+                        this@MisskeyDriveBottomDialog.dismiss()
+                    }
                 }
             }
         })

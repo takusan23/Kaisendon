@@ -293,7 +293,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="40sp"
                 android:orientation="horizontal"
                 android:padding="5sp">
 
@@ -350,14 +350,26 @@
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     app:srcCompat="@drawable/ic_gesture_black_24dp" />
+
+                <ImageButton
+                    android:id="@+id/toot_card_misskey_drive"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_cloud_queue_black_24dp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:padding="10dp"
                 android:orientation="horizontal">
 
                 <Button
+                    android:padding="5dp"
                     android:id="@+id/toot_card_post_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

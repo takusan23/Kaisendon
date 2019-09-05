@@ -245,6 +245,9 @@ class CustomMenuTimeLine : Fragment() {
         // onOptionsItemSelectedが呼ばれない対策
         setHasOptionsMenu(true)
 
+        //TootCardView更新
+        (activity as Home).tootCardView = TootCardView(activity!!, misskey?.toBoolean() ?: false)
+
         //Navication Drawer
         if (activity != null) {
             val navigationView = activity!!.findViewById<NavigationView>(R.id.nav_view)
@@ -1344,61 +1347,136 @@ class CustomMenuTimeLine : Fragment() {
                     }
                 }
 */
-    }
-}
-
-
-/**
- * 通知のJSONParse
- *
- * @param streaming ストリーミングAPIの場合はtrue
- */
-private fun notificationJSONPase(toot_text_account: JSONObject, toot_text_jsonObject: JSONObject, type: String, streaming: Boolean) {
-
-    if (activity != null && isAdded) {
-
-        //配列を作成
-        val Item = ArrayList<String>()
-        //メモとか通知とかに
-        Item.add(url ?: "")
-        //内容
-        Item.add("")
-        //ユーザー名
-        Item.add("")
-        //時間、クライアント名等
-        Item.add(toot_text_jsonObject.toString())
-        //ぶーすとした？
-        Item.add("false")
-        //ふぁぼした？
-        Item.add("false")
-        //Mastodon / Misskey
-        Item.add("Mastodon")
-        //Insatnce/AccessToken
-        Item.add(instance ?: "")
-        Item.add(access_token ?: "")
-        //設定ファイルJSON
-        Item.add(json_data ?: "")
-        //画像表示、こんてんとわーにんぐ
-        Item.add("false")
-        Item.add("false")
-
-        if (streaming) {
-            recyclerViewList?.add(0, Item)
-        } else {
-            recyclerViewList?.add(Item)
         }
+    }
 
-        activity?.runOnUiThread {
-            if (recyclerViewLayoutManager != null) {
-                (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
+
+    /**
+     * 通知のJSONParse
+     *
+     * @param streaming ストリーミングAPIの場合はtrue
+     */
+    private fun notificationJSONPase(toot_text_account: JSONObject, toot_text_jsonObject: JSONObject, type: String, streaming: Boolean) {
+
+        if (activity != null && isAdded) {
+
+            //配列を作成
+            val Item = ArrayList<String>()
+            //メモとか通知とかに
+            Item.add(url ?: "")
+            //内容
+            Item.add("")
+            //ユーザー名
+            Item.add("")
+            //時間、クライアント名等
+            Item.add(toot_text_jsonObject.toString())
+            //ぶーすとした？
+            Item.add("false")
+            //ふぁぼした？
+            Item.add("false")
+            //Mastodon / Misskey
+            Item.add("Mastodon")
+            //Insatnce/AccessToken
+            Item.add(instance ?: "")
+            Item.add(access_token ?: "")
+            //設定ファイルJSON
+            Item.add(json_data ?: "")
+            //画像表示、こんてんとわーにんぐ
+            Item.add("false")
+            Item.add("false")
+
+            if (streaming) {
+                recyclerViewList?.add(0, Item)
+            } else {
+                recyclerViewList?.add(Item)
             }
-            //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-            recyclerView?.adapter = customMenuRecyclerViewAdapter
-            SnackberProgress.closeProgressSnackber()
-            scroll = false
 
-            /*
-                if (streaming) {
+            activity?.runOnUiThread {
+                if (recyclerViewLayoutManager != null) {
+                    (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
+                }
+                //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                recyclerView?.adapter = customMenuRecyclerViewAdapter
+                SnackberProgress.closeProgressSnackber()
+                scroll = false
+
+                /*
+                    if (streaming) {
+                        adapter.insert(listItem, 0);
+                        // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
+                        int pos = listView.getFirstVisiblePosition();
+                        int top = 0;
+                        if (listView.getChildCount() > 0) {
+                            top = listView.getChildAt(0).getTop();
+                        }
+                        listView.setAdapter(adapter);
+                        // 要素追加前の状態になるようセットする
+                        adapter.notifyDataSetChanged();
+                        //一番上なら追いかける
+                        if (pos == 0) {
+                            listView.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listView.smoothScrollToPosition(0);
+                                }
+                            });
+                        } else {
+                            listView.setSelectionFromTop(pos + 1, top);
+                        }
+                    } else {
+                        adapter.add(listItem);
+                        adapter.notifyDataSetChanged();
+                        listView.setAdapter(adapter);
+                        SnackberProgress.closeProgressSnackber();
+                        listView.setSelectionFromTop(position, y);
+                        scroll = false;
+                    }
+    */
+            }
+        }
+    }
+
+    /**
+     * ダイレクトメッセージ（ストリーミングAPI）
+     */
+    private fun streamingAPIDirect(jsonObject: JSONObject) {
+
+        if (activity != null && isAdded) {
+
+            //配列を作成
+            val Item = ArrayList<String>()
+            //メモとか通知とかに
+            Item.add("CustomMenu")
+            //内容
+            Item.add(url ?: "")
+            //ユーザー名
+            Item.add("")
+            //時間、クライアント名等
+            Item.add(jsonObject.toString())
+            //ぶーすとした？
+            Item.add("false")
+            //ふぁぼした？
+            Item.add("false")
+            //Mastodon / Misskey
+            Item.add("Mastodon")
+            //Insatnce/AccessToken
+            Item.add(instance ?: "")
+            Item.add(access_token ?: "")
+            //設定ファイルJSON
+            Item.add(json_data ?: "")
+            //画像表示、こんてんとわーにんぐ
+            Item.add("false")
+            Item.add("false")
+
+            recyclerViewList?.add(0, Item)
+
+            activity?.runOnUiThread {
+                if (recyclerViewLayoutManager != null) {
+                    (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
+                }
+                //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                recyclerView?.adapter = customMenuRecyclerViewAdapter
+                /*
                     adapter.insert(listItem, 0);
                     // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
                     int pos = listView.getFirstVisiblePosition();
@@ -1420,851 +1498,854 @@ private fun notificationJSONPase(toot_text_account: JSONObject, toot_text_jsonOb
                     } else {
                         listView.setSelectionFromTop(pos + 1, top);
                     }
+
+                    //カウンター
+                    if (Boolean.valueOf(toot_counter)) {
+                        if (count_text != null) {
+                            //含んでいるか
+                            if (finalToot_text.contains(count_text)) {
+                                String count_template = " : ";
+                                akeome_count++;
+                                countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
+                            }
+                        }
+                    }
+    */
+            }
+        }
+    }
+
+    /**
+     * MisskeyAPI
+     * note/timeline
+     *
+     * @param id           追加読み込み時に利用。<br></br>追加読込しない場合は**null**を入れてね
+     * @param notification 通知の場合は**true**
+     */
+    private fun loadMisskeyTimeline(id: String?, notification: Boolean) {
+        val jsonObject = JSONObject()
+        try {
+            jsonObject.put("i", access_token)
+            jsonObject.put("limit", 100)
+            if (id != null) {
+                jsonObject.put("untilId", id)
+            }
+            //TLで自分の投稿を見れるように
+            if (url?.contains("timeline") != false) {
+                jsonObject.put("includeLocalRenotes", true)
+                jsonObject.put("includeMyRenotes", true)
+                jsonObject.put("includeRenotedMyNotes", true)
+            }
+            if (notification) {
+                //通知フィルター機能
+                val filter = JSONArray()
+                if (fav_filter) {
+                    filter.put("reaction")
+                }
+                if (bt_filter) {
+                    filter.put("renote")
+                }
+                if (mention_filter) {
+                    filter.put("mention")
+                }
+                if (follow_filter) {
+                    filter.put("follow")
+                }
+                if (vote_filter) {
+                    filter.put("poll_vote")
+                }
+                jsonObject.put("includeTypes", filter)
+            }
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+
+        //System.out.println(jsonObject.toString());
+        val requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString())
+        //作成
+        val request = Request.Builder()
+                .url(url ?: "")
+                .post(requestBody)
+                .build()
+        //GETリクエスト
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                val response_string = response.body()?.string()
+                //System.out.println(response_string);
+                if (!response.isSuccessful) {
+                    //失敗時
+                    if (activity != null) {
+                        activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                    }
                 } else {
+                    try {
+                        val jsonArray = JSONArray(response_string)
+                        for (i in 0 until jsonArray.length()) {
+                            val jsonObject = jsonArray.getJSONObject(i)
+                            if (!notification) {
+                                setMisskeyTLParse(jsonObject)
+                            } else {
+                                setMisskeyNotification(jsonObject)
+                            }
+                        }
+                        if (activity != null) {
+                            activity?.runOnUiThread { swipeRefreshLayout?.isRefreshing = false }
+                        }
+                        //最後のIDを保存
+                        val last = jsonArray.getJSONObject(99)
+                        this@CustomMenuTimeLine.untilId = last.getString("id")
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+
+                }
+            }
+        })
+    }
+
+    /**
+     * Misskey JSON TL Parse
+     *
+     * @param jsonObject JSONオブジェクト
+     */
+    private fun setMisskeyTLParse(jsonObject: JSONObject) {
+        //AppCompatActivity activity = (AppCompatActivity)getContext();
+
+        if (activity != null && isAdded) {
+            //配列を作成
+            val Item = ArrayList<String>()
+            //メモとか通知とかに
+            Item.add("CustomMenu")
+            //内容
+            Item.add(url ?: "")
+            //ユーザー名
+            Item.add("")
+            //時間、クライアント名等
+            Item.add(jsonObject.toString())
+            //ぶーすとした？
+            Item.add("false")
+            //ふぁぼした？
+            Item.add("")
+            //Mastodon / Misskey
+            Item.add("Misskey")
+            //Insatnce/AccessToken
+            Item.add(instance ?: "")
+            Item.add(access_token ?: "")
+            //設定ファイルJSON
+            Item.add(json_data ?: "")
+            //画像表示、こんてんとわーにんぐ
+            Item.add("false")
+            Item.add("false")
+
+            recyclerViewList?.add(Item)
+
+            activity?.runOnUiThread {
+                if (recyclerViewLayoutManager != null) {
+                    (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
+                }
+                //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                recyclerView?.adapter = customMenuRecyclerViewAdapter
+                SnackberProgress.closeProgressSnackber()
+                scroll = false
+                /*
                     adapter.add(listItem);
                     adapter.notifyDataSetChanged();
                     listView.setAdapter(adapter);
+                    //くるくる終了
                     SnackberProgress.closeProgressSnackber();
                     listView.setSelectionFromTop(position, y);
                     scroll = false;
+    */
+            }
+        }
+    }
+
+    /**
+     * Misskey通知
+     */
+    private fun setMisskeyNotification(jsonObject: JSONObject) {
+        if (activity != null && isAdded) {
+
+            //配列を作成
+            val Item = ArrayList<String>()
+            //メモとか通知とかに
+            Item.add(url ?: "")
+            //内容
+            Item.add("")
+            //ユーザー名
+            Item.add("")
+            //時間、クライアント名等
+            Item.add(jsonObject.toString())
+            //ぶーすとした？
+            Item.add("false")
+            //ふぁぼした？
+            Item.add("")
+            //Mastodon / Misskey
+            Item.add("Misskey")
+            //Insatnce/AccessToken
+            Item.add(instance ?: "")
+            Item.add(access_token ?: "")
+            //設定ファイルJSON
+            Item.add(json_data ?: "")
+            //画像表示、こんてんとわーにんぐ
+            Item.add("false")
+            Item.add("false")
+
+            recyclerViewList?.add(Item)
+
+            activity?.runOnUiThread {
+                if (recyclerViewLayoutManager != null) {
+                    (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
                 }
-*/
+                //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                recyclerView?.adapter = customMenuRecyclerViewAdapter
+                SnackberProgress.closeProgressSnackber()
+                scroll = false
+                /*
+                    adapter.add(listItem);
+                    adapter.notifyDataSetChanged();
+                    listView.setAdapter(adapter);
+                    //くるくる終了
+                    SnackberProgress.closeProgressSnackber();
+                    listView.setSelectionFromTop(position, y);
+                    scroll = false;
+    */
+            }
         }
-    }
-}
 
-/**
- * ダイレクトメッセージ（ストリーミングAPI）
- */
-private fun streamingAPIDirect(jsonObject: JSONObject) {
-
-    if (activity != null && isAdded) {
-
-        //配列を作成
-        val Item = ArrayList<String>()
-        //メモとか通知とかに
-        Item.add("CustomMenu")
-        //内容
-        Item.add(url ?: "")
-        //ユーザー名
-        Item.add("")
-        //時間、クライアント名等
-        Item.add(jsonObject.toString())
-        //ぶーすとした？
-        Item.add("false")
-        //ふぁぼした？
-        Item.add("false")
-        //Mastodon / Misskey
-        Item.add("Mastodon")
-        //Insatnce/AccessToken
-        Item.add(instance ?: "")
-        Item.add(access_token ?: "")
-        //設定ファイルJSON
-        Item.add(json_data ?: "")
-        //画像表示、こんてんとわーにんぐ
-        Item.add("false")
-        Item.add("false")
-
-        recyclerViewList?.add(0, Item)
-
-        activity?.runOnUiThread {
-            if (recyclerViewLayoutManager != null) {
-                (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
-            }
-            //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-            recyclerView?.adapter = customMenuRecyclerViewAdapter
-            /*
-                adapter.insert(listItem, 0);
-                // 画面上で最上部に表示されているビューのポジションとTopを記録しておく
-                int pos = listView.getFirstVisiblePosition();
-                int top = 0;
-                if (listView.getChildCount() > 0) {
-                    top = listView.getChildAt(0).getTop();
-                }
-                listView.setAdapter(adapter);
-                // 要素追加前の状態になるようセットする
-                adapter.notifyDataSetChanged();
-                //一番上なら追いかける
-                if (pos == 0) {
-                    listView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            listView.smoothScrollToPosition(0);
-                        }
-                    });
-                } else {
-                    listView.setSelectionFromTop(pos + 1, top);
-                }
-
-                //カウンター
-                if (Boolean.valueOf(toot_counter)) {
-                    if (count_text != null) {
-                        //含んでいるか
-                        if (finalToot_text.contains(count_text)) {
-                            String count_template = " : ";
-                            akeome_count++;
-                            countTextView.setText(count_text + count_template + String.valueOf(akeome_count));
-                        }
-                    }
-                }
-*/
-        }
-    }
-}
-
-/**
- * MisskeyAPI
- * note/timeline
- *
- * @param id           追加読み込み時に利用。<br></br>追加読込しない場合は**null**を入れてね
- * @param notification 通知の場合は**true**
- */
-private fun loadMisskeyTimeline(id: String?, notification: Boolean) {
-    val jsonObject = JSONObject()
-    try {
-        jsonObject.put("i", access_token)
-        jsonObject.put("limit", 100)
-        if (id != null) {
-            jsonObject.put("untilId", id)
-        }
-        //TLで自分の投稿を見れるように
-        if (url?.contains("timeline") != false) {
-            jsonObject.put("includeLocalRenotes", true)
-            jsonObject.put("includeMyRenotes", true)
-            jsonObject.put("includeRenotedMyNotes", true)
-        }
-        if (notification) {
-            //通知フィルター機能
-            val filter = JSONArray()
-            if (fav_filter) {
-                filter.put("reaction")
-            }
-            if (bt_filter) {
-                filter.put("renote")
-            }
-            if (mention_filter) {
-                filter.put("mention")
-            }
-            if (follow_filter) {
-                filter.put("follow")
-            }
-            if (vote_filter) {
-                filter.put("poll_vote")
-            }
-            jsonObject.put("includeTypes", filter)
-        }
-    } catch (e: JSONException) {
-        e.printStackTrace()
     }
 
-    //System.out.println(jsonObject.toString());
-    val requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString())
-    //作成
-    val request = Request.Builder()
-            .url(url ?: "")
-            .post(requestBody)
-            .build()
-    //GETリクエスト
-    val client = OkHttpClient()
-    client.newCall(request).enqueue(object : Callback {
-        override fun onFailure(call: Call, e: IOException) {
-            e.printStackTrace()
-            activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
-        }
 
-        @Throws(IOException::class)
-        override fun onResponse(call: Call, response: Response) {
-            val response_string = response.body()?.string()
-            //System.out.println(response_string);
-            if (!response.isSuccessful) {
-                //失敗時
-                if (activity != null) {
-                    activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
-                }
-            } else {
-                try {
-                    val jsonArray = JSONArray(response_string)
-                    for (i in 0 until jsonArray.length()) {
-                        val jsonObject = jsonArray.getJSONObject(i)
-                        if (!notification) {
-                            setMisskeyTLParse(jsonObject)
-                        } else {
-                            setMisskeyNotification(jsonObject)
-                        }
-                    }
-                    if (activity != null) {
-                        activity?.runOnUiThread { swipeRefreshLayout?.isRefreshing = false }
-                    }
-                    //最後のIDを保存
-                    val last = jsonArray.getJSONObject(99)
-                    this@CustomMenuTimeLine.untilId = last.getString("id")
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                }
+    /**
+     * ストリーミングAPI版通知Parse
+     */
+    private fun streamingNotificationParse(notification: Notification) {
+        val user_name = arrayOf(notification.account!!.displayName)
+        var type = notification.type
+        val user_avater_url = notification.account!!.avatar
+        val user_id = notification.account!!.userName
+        val user = notification.account!!.acct
 
+        val account_id = notification.account!!.id
+
+        var toot_text_id_string: String? = null
+
+        val toot_text = arrayOf<String>()
+        var toot_text_time: String? = null
+        var layout_type: String? = null
+        var toot_text_id: Long = 0
+
+        when (type) {
+            "mention" -> {
+                type = getString(R.string.notification_mention)
+                layout_type = "Notification_mention"
+            }
+            "reblog" -> {
+                type = getString(R.string.notification_Boost)
+                layout_type = "Notification_reblog"
+            }
+            "favourite" -> {
+                type = getString(R.string.notification_favourite)
+                layout_type = "Notification_favourite"
+            }
+            "follow" -> {
+                type = getString(R.string.notification_followed)
+                layout_type = "Notification_follow"
             }
         }
-    })
-}
-
-/**
- * Misskey JSON TL Parse
- *
- * @param jsonObject JSONオブジェクト
- */
-private fun setMisskeyTLParse(jsonObject: JSONObject) {
-    //AppCompatActivity activity = (AppCompatActivity)getContext();
-
-    if (activity != null && isAdded) {
-        //配列を作成
-        val Item = ArrayList<String>()
-        //メモとか通知とかに
-        Item.add("CustomMenu")
-        //内容
-        Item.add(url ?: "")
-        //ユーザー名
-        Item.add("")
-        //時間、クライアント名等
-        Item.add(jsonObject.toString())
-        //ぶーすとした？
-        Item.add("false")
-        //ふぁぼした？
-        Item.add("")
-        //Mastodon / Misskey
-        Item.add("Misskey")
-        //Insatnce/AccessToken
-        Item.add(instance ?: "")
-        Item.add(access_token ?: "")
-        //設定ファイルJSON
-        Item.add(json_data ?: "")
-        //画像表示、こんてんとわーにんぐ
-        Item.add("false")
-        Item.add("false")
-
-        recyclerViewList?.add(Item)
-
-        activity?.runOnUiThread {
-            if (recyclerViewLayoutManager != null) {
-                (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
-            }
-            //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-            recyclerView?.adapter = customMenuRecyclerViewAdapter
-            SnackberProgress.closeProgressSnackber()
-            scroll = false
-            /*
-                adapter.add(listItem);
-                adapter.notifyDataSetChanged();
-                listView.setAdapter(adapter);
-                //くるくる終了
-                SnackberProgress.closeProgressSnackber();
-                listView.setSelectionFromTop(position, y);
-                scroll = false;
-*/
-        }
-    }
-}
-
-/**
- * Misskey通知
- */
-private fun setMisskeyNotification(jsonObject: JSONObject) {
-    if (activity != null && isAdded) {
-
-        //配列を作成
-        val Item = ArrayList<String>()
-        //メモとか通知とかに
-        Item.add(url ?: "")
-        //内容
-        Item.add("")
-        //ユーザー名
-        Item.add("")
-        //時間、クライアント名等
-        Item.add(jsonObject.toString())
-        //ぶーすとした？
-        Item.add("false")
-        //ふぁぼした？
-        Item.add("")
-        //Mastodon / Misskey
-        Item.add("Misskey")
-        //Insatnce/AccessToken
-        Item.add(instance ?: "")
-        Item.add(access_token ?: "")
-        //設定ファイルJSON
-        Item.add(json_data ?: "")
-        //画像表示、こんてんとわーにんぐ
-        Item.add("false")
-        Item.add("false")
-
-        recyclerViewList?.add(Item)
-
-        activity?.runOnUiThread {
-            if (recyclerViewLayoutManager != null) {
-                (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
-            }
-            //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-            recyclerView?.adapter = customMenuRecyclerViewAdapter
-            SnackberProgress.closeProgressSnackber()
-            scroll = false
-            /*
-                adapter.add(listItem);
-                adapter.notifyDataSetChanged();
-                listView.setAdapter(adapter);
-                //くるくる終了
-                SnackberProgress.closeProgressSnackber();
-                listView.setSelectionFromTop(position, y);
-                scroll = false;
-*/
-        }
-    }
-
-}
-
-
-/**
- * ストリーミングAPI版通知Parse
- */
-private fun streamingNotificationParse(notification: Notification) {
-    val user_name = arrayOf(notification.account!!.displayName)
-    var type = notification.type
-    val user_avater_url = notification.account!!.avatar
-    val user_id = notification.account!!.userName
-    val user = notification.account!!.acct
-
-    val account_id = notification.account!!.id
-
-    var toot_text_id_string: String? = null
-
-    val toot_text = arrayOf<String>()
-    var toot_text_time: String? = null
-    var layout_type: String? = null
-    var toot_text_id: Long = 0
-
-    when (type) {
-        "mention" -> {
-            type = getString(R.string.notification_mention)
-            layout_type = "Notification_mention"
-        }
-        "reblog" -> {
-            type = getString(R.string.notification_Boost)
-            layout_type = "Notification_reblog"
-        }
-        "favourite" -> {
-            type = getString(R.string.notification_favourite)
-            layout_type = "Notification_favourite"
-        }
-        "follow" -> {
-            type = getString(R.string.notification_followed)
-            layout_type = "Notification_follow"
-        }
-    }
-    //Followの通知のときにgetContent()するとNullでえらーでるのでtry/catch処理
-    try {
-        toot_text[0] = notification.status!!.content
-        toot_text_id = notification.status!!.id
-        toot_text_id_string = toot_text_id.toString()
-    } catch (e: NullPointerException) {
-        toot_text[0] = ""
-        toot_text_id = 0
-        toot_text_id_string = toot_text_id.toString()
-    }
-
-    //時間フォーマット
-    toot_text_time = getCreatedAtFormat(toot_text_time)
-
-    //カスタム絵文字
-    if (pref_setting!!.getBoolean("pref_custom_emoji", true) || java.lang.Boolean.valueOf(custom_emoji)) {
-
+        //Followの通知のときにgetContent()するとNullでえらーでるのでtry/catch処理
         try {
-            //本文
-            val emoji_List = notification.status!!.emojis
-            emoji_List.forEach { emoji ->
-                val emoji_name = emoji.shortcode
-                val emoji_url = emoji.url
-                val custom_emoji_src = "<img src=\'$emoji_url\'>"
-                toot_text[0] = toot_text[0].replace(":$emoji_name:", custom_emoji_src)
-            }
-
+            toot_text[0] = notification.status!!.content
+            toot_text_id = notification.status!!.id
+            toot_text_id_string = toot_text_id.toString()
         } catch (e: NullPointerException) {
             toot_text[0] = ""
             toot_text_id = 0
             toot_text_id_string = toot_text_id.toString()
         }
 
-        //DisplayNameのほう
-        val account_emoji_List = notification.account!!.emojis
-        account_emoji_List.forEach { emoji ->
-            val emoji_name = emoji.shortcode
-            val emoji_url = emoji.url
-            val custom_emoji_src = "<img src=\'$emoji_url\'>"
-            user_name[0] = user_name[0].replace(":$emoji_name:", custom_emoji_src)
-        }
-    }
+        //時間フォーマット
+        toot_text_time = getCreatedAtFormat(toot_text_time)
 
+        //カスタム絵文字
+        if (pref_setting!!.getBoolean("pref_custom_emoji", true) || java.lang.Boolean.valueOf(custom_emoji)) {
 
-    val mediaURL = arrayOf<String>(null!!, null!!, null!!, null!!)
-    var media_url_1: String? = null
-    var media_url_2: String? = null
-    var media_url_3: String? = null
-    var media_url_4: String? = null
-    //めでぃあ
-    //配列に入れる形で
-    try {
-        val i = intArrayOf(0)
-        val list = notification.status!!.mediaAttachments
-        list.forEach { media ->
-            mediaURL[i[0]] = media.url
-            i[0]++
-        }
-        //配列から文字列に
-        media_url_1 = mediaURL[0]
-        media_url_2 = mediaURL[1]
-        media_url_3 = mediaURL[2]
-        media_url_4 = mediaURL[3]
-    } catch (e: NullPointerException) {
-        //配列から文字列に
-        media_url_1 = null
-        media_url_2 = null
-        media_url_3 = null
-        media_url_4 = null
-    }
+            try {
+                //本文
+                val emoji_List = notification.status!!.emojis
+                emoji_List.forEach { emoji ->
+                    val emoji_name = emoji.shortcode
+                    val emoji_url = emoji.url
+                    val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                    toot_text[0] = toot_text[0].replace(":$emoji_name:", custom_emoji_src)
+                }
 
-
-    //Card
-    val card = ArrayList<String>()
-    var cardTitle: String? = null
-    var cardURL: String? = null
-    var cardDescription: String? = null
-    var cardImage: String? = null
-
-    try {
-        val statuses = Statuses(client!!).getCard(toot_text_id).execute()
-        if (!statuses.url.isEmpty()) {
-            cardTitle = statuses.title
-            cardURL = statuses.url
-            cardDescription = statuses.description
-            cardImage = statuses.image
-
-            card.add(statuses.title)
-            card.add(statuses.url)
-            card.add(statuses.description)
-            card.add(statuses.image!!)
-        }
-    } catch (e: Mastodon4jRequestException) {
-        e.printStackTrace()
-    }
-
-    if (activity != null && isAdded) {
-
-        //配列を作成
-        val Item = ArrayList<String>()
-        //メモとか通知とかに
-        Item.add(layout_type!!)
-        //内容
-        Item.add(toot_text[0])
-        //ユーザー名
-        Item.add(user_name[0] + " @" + user + type)
-        //時間、クライアント名等
-        Item.add("トゥートID : " + toot_text_id_string + " / " + getString(R.string.time) + " : " + toot_text_time)
-        //Toot ID 文字列版
-        Item.add(toot_text_id_string!!)
-        //アバターURL
-        Item.add(user_avater_url)
-        //アカウントID
-        Item.add(account_id.toString())
-        //ユーザーネーム
-        Item.add(user)
-        //メディア
-        Item.add(media_url_1!!)
-        Item.add(media_url_2!!)
-        Item.add(media_url_3!!)
-        Item.add(media_url_4!!)
-        //カード
-        Item.add(cardTitle!!)
-        Item.add(cardURL!!)
-        Item.add(cardDescription!!)
-        Item.add(cardImage!!)
-        recyclerViewList!!.add(0, Item)
-
-        activity!!.runOnUiThread {
-            if (recyclerViewLayoutManager != null) {
-                (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
+            } catch (e: NullPointerException) {
+                toot_text[0] = ""
+                toot_text_id = 0
+                toot_text_id_string = toot_text_id.toString()
             }
-            //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-            recyclerView!!.adapter = customMenuRecyclerViewAdapter
-            /*
-                position = listView.getFirstVisiblePosition();
-                y = listView.getChildAt(0).getTop();
-                adapter.insert(listItem, 0);
-                listView.setAdapter(adapter);
-                //System.out.println("TOP == " + top);
-                // 要素追加前の状態になるようセットする
-                adapter.notifyDataSetChanged();
-                listView.setSelectionFromTop(position, y);
-                //ストリーミングAPI前のStatus取得
-                //loadNotification(max_id);
-*/
-        }
-    }
-}
 
-override fun onDestroy() {
-    super.onDestroy()
-    shutdownable?.shutdown()
-    if (webSocketClient != null) {
-        //終了
-        webSocketClient?.close()
-    }
-    if (notification_WebSocketClient != null) {
-        notification_WebSocketClient?.close()
-    }
-    if (tts != null) {
-        tts!!.shutdown()
-    }
-    //OLEDとかかかわらず戻す
-    //getActivity().setTheme(R.style.AppTheme);
-    //((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#2196f3"));
-}
-
-/**
- * トゥートカウンターようれいあうと
- */
-private fun setTootCounterLayout() {
-    //カウンターようレイアウト
-    val LayoutlayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-    val countLinearLayout = LinearLayout(context)
-    countLinearLayout.orientation = LinearLayout.HORIZONTAL
-    countLinearLayout.layoutParams = LayoutlayoutParams
-    linearLayout?.addView(countLinearLayout, 0)
-    //いろいろ
-    val countEditText = EditText(context)
-    val countButton = Button(context)
-    val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-    layoutParams.weight = 1f
-    countTextView?.layoutParams = layoutParams
-    countEditText.layoutParams = layoutParams
-    countButton.background = context?.getDrawable(R.drawable.button_style_white)
-    countButton.text = ">"
-    countEditText.hint = getString(R.string.toot_count_hint)
-    //背景
-    var background = "ffffff"
-    if (java.lang.Boolean.valueOf(dark_mode)) {
-        background = "000000"
-    }
-
-    countLinearLayout.addView(countEditText)
-    countLinearLayout.addView(countButton)
-    countLinearLayout.addView(countTextView)
-
-    //テキストを決定
-    activity?.runOnUiThread {
-        countButton.setOnClickListener {
-            count_text = countEditText.text.toString()
-            akeome_count = 0
-            countTextView?.text = "$count_text : $akeome_count"
-        }
-        //長押しでコピー
-        countTextView?.setOnLongClickListener {
-            val clipboardManager = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            clipboardManager.setPrimaryClip(ClipData.newPlainText("", akeome_count.toString()))
-            Toast.makeText(context, R.string.copy, Toast.LENGTH_SHORT).show()
-            false
-        }
-    }
-}
-
-/**
- * 片手モード
- */
-private fun one_hand_mode() {
-    val one_hand_LinearLayout = LinearLayout(context)
-    val one_hand_layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
-    one_hand_LinearLayout.orientation = LinearLayout.VERTICAL
-    one_hand_layoutParams.weight = 1f
-    one_hand_LinearLayout.layoutParams = one_hand_layoutParams
-    one_hand_LinearLayout.gravity = Gravity.CENTER
-    //使いみち誰か（）
-    //TL領域を広げるとかする
-    val textView = TextView(context)
-    textView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-    textView.textSize = 18f
-    textView.text = getString(R.string.custom_menu_tl_up)
-    //領域広げる
-    one_hand_LinearLayout.setOnClickListener {
-        if (textView.text.toString().contains(getString(R.string.custom_menu_tl_up))) {
-            textView.text = getString(R.string.custom_menu_tl_down)
-            one_hand_layoutParams.weight = 2f
-        } else {
-            textView.text = getString(R.string.custom_menu_tl_up)
-            one_hand_layoutParams.weight = 1f
-        }
-    }
-    //タイトルも
-    val title_TextView = TextView(context)
-    title_TextView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-    title_TextView.text = customMenuJSONParse.name
-    title_TextView.textSize = 24f
-    //追加
-    one_hand_LinearLayout.addView(title_TextView)
-    one_hand_LinearLayout.addView(textView)
-    //ダークモード対応
-    if (dark_theme) {
-        title_TextView.setTextColor(Color.parseColor("#ffffff"))
-        textView.setTextColor(Color.parseColor("#ffffff"))
-        one_hand_LinearLayout.setBackgroundColor(Color.parseColor("#000000"))
-    }
-    //半分
-    parent_linearlayout?.addView(one_hand_LinearLayout, 0)
-}
-
-/**
- * ドロワーの画像、文字を変更する
- */
-private fun setDrawerImageText(avatarUrl: String, headerUri: String, display_name: String?, username: String) {
-
-    //ImageViewのサイズ変更
-    val layoutParams = LinearLayout.LayoutParams(200, 200)
-    avater_imageView?.layoutParams = layoutParams
-    val glideSupport = GlideSupport()
-
-    //Wi-Fi接続状況確認
-    if (context != null && user_account_textView != null) {
-        val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-        //一応Nullチェック
-        if (header_imageView != null) {
-            //画像読み込むか
-            if (pref_setting?.getBoolean("pref_drawer_avater", false) == true) {
-                //読み込まない
-                avater_imageView?.setImageResource(R.drawable.ic_person_black_24dp)
-                header_imageView?.setBackgroundColor(Color.parseColor("#c8c8c8"))
+            //DisplayNameのほう
+            val account_emoji_List = notification.account!!.emojis
+            account_emoji_List.forEach { emoji ->
+                val emoji_name = emoji.shortcode
+                val emoji_url = emoji.url
+                val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                user_name[0] = user_name[0].replace(":$emoji_name:", custom_emoji_src)
             }
-            //Wi-Fi時は読み込む
-            if (pref_setting?.getBoolean("pref_avater_wifi", true) != false) {
-                //既定でGIFは再生しない方向で
-                //GIF/GIFじゃないは引数に入れる前から判断してる
-                glideSupport.loadGlide(avatarUrl, avater_imageView!!)
-                glideSupport.loadGlide(headerUri, header_imageView!!)
+        }
+
+
+        val mediaURL = arrayOf<String>(null!!, null!!, null!!, null!!)
+        var media_url_1: String? = null
+        var media_url_2: String? = null
+        var media_url_3: String? = null
+        var media_url_4: String? = null
+        //めでぃあ
+        //配列に入れる形で
+        try {
+            val i = intArrayOf(0)
+            val list = notification.status!!.mediaAttachments
+            list.forEach { media ->
+                mediaURL[i[0]] = media.url
+                i[0]++
+            }
+            //配列から文字列に
+            media_url_1 = mediaURL[0]
+            media_url_2 = mediaURL[1]
+            media_url_3 = mediaURL[2]
+            media_url_4 = mediaURL[3]
+        } catch (e: NullPointerException) {
+            //配列から文字列に
+            media_url_1 = null
+            media_url_2 = null
+            media_url_3 = null
+            media_url_4 = null
+        }
+
+
+        //Card
+        val card = ArrayList<String>()
+        var cardTitle: String? = null
+        var cardURL: String? = null
+        var cardDescription: String? = null
+        var cardImage: String? = null
+
+        try {
+            val statuses = Statuses(client!!).getCard(toot_text_id).execute()
+            if (!statuses.url.isEmpty()) {
+                cardTitle = statuses.title
+                cardURL = statuses.url
+                cardDescription = statuses.description
+                cardImage = statuses.image
+
+                card.add(statuses.title)
+                card.add(statuses.url)
+                card.add(statuses.description)
+                card.add(statuses.image!!)
+            }
+        } catch (e: Mastodon4jRequestException) {
+            e.printStackTrace()
+        }
+
+        if (activity != null && isAdded) {
+
+            //配列を作成
+            val Item = ArrayList<String>()
+            //メモとか通知とかに
+            Item.add(layout_type!!)
+            //内容
+            Item.add(toot_text[0])
+            //ユーザー名
+            Item.add(user_name[0] + " @" + user + type)
+            //時間、クライアント名等
+            Item.add("トゥートID : " + toot_text_id_string + " / " + getString(R.string.time) + " : " + toot_text_time)
+            //Toot ID 文字列版
+            Item.add(toot_text_id_string!!)
+            //アバターURL
+            Item.add(user_avater_url)
+            //アカウントID
+            Item.add(account_id.toString())
+            //ユーザーネーム
+            Item.add(user)
+            //メディア
+            Item.add(media_url_1!!)
+            Item.add(media_url_2!!)
+            Item.add(media_url_3!!)
+            Item.add(media_url_4!!)
+            //カード
+            Item.add(cardTitle!!)
+            Item.add(cardURL!!)
+            Item.add(cardDescription!!)
+            Item.add(cardImage!!)
+            recyclerViewList!!.add(0, Item)
+
+            activity!!.runOnUiThread {
+                if (recyclerViewLayoutManager != null) {
+                    (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
+                }
+                //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                recyclerView!!.adapter = customMenuRecyclerViewAdapter
+                /*
+                    position = listView.getFirstVisiblePosition();
+                    y = listView.getChildAt(0).getTop();
+                    adapter.insert(listItem, 0);
+                    listView.setAdapter(adapter);
+                    //System.out.println("TOP == " + top);
+                    // 要素追加前の状態になるようセットする
+                    adapter.notifyDataSetChanged();
+                    listView.setSelectionFromTop(position, y);
+                    //ストリーミングAPI前のStatus取得
+                    //loadNotification(max_id);
+    */
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        shutdownable?.shutdown()
+        if (webSocketClient != null) {
+            //終了
+            webSocketClient?.close()
+        }
+        if (notification_WebSocketClient != null) {
+            notification_WebSocketClient?.close()
+        }
+        if (tts != null) {
+            tts!!.shutdown()
+        }
+        //OLEDとかかかわらず戻す
+        //getActivity().setTheme(R.style.AppTheme);
+        //((Home) getActivity()).getToolBer().setBackgroundColor(Color.parseColor("#2196f3"));
+    }
+
+    /**
+     * トゥートカウンターようれいあうと
+     */
+    private fun setTootCounterLayout() {
+        //カウンターようレイアウト
+        val LayoutlayoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        val countLinearLayout = LinearLayout(context)
+        countLinearLayout.orientation = LinearLayout.HORIZONTAL
+        countLinearLayout.layoutParams = LayoutlayoutParams
+        linearLayout?.addView(countLinearLayout, 0)
+        //いろいろ
+        val countEditText = EditText(context)
+        val countButton = Button(context)
+        val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        layoutParams.weight = 1f
+        countTextView?.layoutParams = layoutParams
+        countEditText.layoutParams = layoutParams
+        countButton.background = context?.getDrawable(R.drawable.button_style_white)
+        countButton.text = ">"
+        countEditText.hint = getString(R.string.toot_count_hint)
+        //背景
+        var background = "ffffff"
+        if (java.lang.Boolean.valueOf(dark_mode)) {
+            background = "000000"
+        }
+
+        countLinearLayout.addView(countEditText)
+        countLinearLayout.addView(countButton)
+        countLinearLayout.addView(countTextView)
+
+        //テキストを決定
+        activity?.runOnUiThread {
+            countButton.setOnClickListener {
+                count_text = countEditText.text.toString()
+                akeome_count = 0
+                countTextView?.text = "$count_text : $akeome_count"
+            }
+            //長押しでコピー
+            countTextView?.setOnLongClickListener {
+                val clipboardManager = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                clipboardManager.setPrimaryClip(ClipData.newPlainText("", akeome_count.toString()))
+                Toast.makeText(context, R.string.copy, Toast.LENGTH_SHORT).show()
+                false
+            }
+        }
+    }
+
+    /**
+     * 片手モード
+     */
+    private fun one_hand_mode() {
+        val one_hand_LinearLayout = LinearLayout(context)
+        val one_hand_layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+        one_hand_LinearLayout.orientation = LinearLayout.VERTICAL
+        one_hand_layoutParams.weight = 1f
+        one_hand_LinearLayout.layoutParams = one_hand_layoutParams
+        one_hand_LinearLayout.gravity = Gravity.CENTER
+        //使いみち誰か（）
+        //TL領域を広げるとかする
+        val textView = TextView(context)
+        textView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        textView.textSize = 18f
+        textView.text = getString(R.string.custom_menu_tl_up)
+        //領域広げる
+        one_hand_LinearLayout.setOnClickListener {
+            if (textView.text.toString().contains(getString(R.string.custom_menu_tl_up))) {
+                textView.text = getString(R.string.custom_menu_tl_down)
+                one_hand_layoutParams.weight = 2f
             } else {
-                glideSupport.loadGlideReadFromCache(avatarUrl, avater_imageView!!)
-                glideSupport.loadGlideReadFromCache(headerUri, header_imageView!!)
+                textView.text = getString(R.string.custom_menu_tl_up)
+                one_hand_layoutParams.weight = 1f
             }
-            //UserName
-            val imageGetter = PicassoImageGetter(user_account_textView!!)
-            user_account_textView?.text = Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null)
-            user_id_textView?.text = username
+        }
+        //タイトルも
+        val title_TextView = TextView(context)
+        title_TextView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        title_TextView.text = customMenuJSONParse.name
+        title_TextView.textSize = 24f
+        //追加
+        one_hand_LinearLayout.addView(title_TextView)
+        one_hand_LinearLayout.addView(textView)
+        //ダークモード対応
+        if (dark_theme) {
+            title_TextView.setTextColor(Color.parseColor("#ffffff"))
+            textView.setTextColor(Color.parseColor("#ffffff"))
+            one_hand_LinearLayout.setBackgroundColor(Color.parseColor("#000000"))
+        }
+        //半分
+        parent_linearlayout?.addView(one_hand_LinearLayout, 0)
+    }
 
+    /**
+     * ドロワーの画像、文字を変更する
+     */
+    private fun setDrawerImageText(avatarUrl: String, headerUri: String, display_name: String?, username: String) {
+
+        //ImageViewのサイズ変更
+        val layoutParams = LinearLayout.LayoutParams(200, 200)
+        avater_imageView?.layoutParams = layoutParams
+        val glideSupport = GlideSupport()
+
+        //Wi-Fi接続状況確認
+        if (context != null && user_account_textView != null) {
+            val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            //一応Nullチェック
+            if (header_imageView != null) {
+                //画像読み込むか
+                if (pref_setting?.getBoolean("pref_drawer_avater", false) == true) {
+                    //読み込まない
+                    avater_imageView?.setImageResource(R.drawable.ic_person_black_24dp)
+                    header_imageView?.setBackgroundColor(Color.parseColor("#c8c8c8"))
+                }
+                //Wi-Fi時は読み込む
+                if (pref_setting?.getBoolean("pref_avater_wifi", true) != false) {
+                    //既定でGIFは再生しない方向で
+                    //GIF/GIFじゃないは引数に入れる前から判断してる
+                    glideSupport.loadGlide(avatarUrl, avater_imageView!!)
+                    glideSupport.loadGlide(headerUri, header_imageView!!)
+                } else {
+                    glideSupport.loadGlideReadFromCache(avatarUrl, avater_imageView!!)
+                    glideSupport.loadGlideReadFromCache(headerUri, header_imageView!!)
+                }
+                //UserName
+                val imageGetter = PicassoImageGetter(user_account_textView!!)
+                user_account_textView?.text = Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null)
+                user_id_textView?.text = username
+
+            }
         }
     }
-}
 
-/**
- * 時刻をフォーマットして返す
- */
-private fun getCreatedAtFormat(createdAt: String?): String {
-    var createdAt = createdAt
-    //フォーマットを規定の設定にする？
-    //ここtrueにした
-    if (pref_setting!!.getBoolean("pref_custom_time_format", true)) {
-        //時差計算？
-        if (simpleDateFormat == null && japanDateFormat == null && calendar == null) {
-            simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-            simpleDateFormat?.timeZone = TimeZone.getTimeZone("UTC")
-            //日本用フォーマット
-            japanDateFormat = SimpleDateFormat(pref_setting!!.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS")!!)
-            japanDateFormat?.timeZone = TimeZone.getTimeZone(TimeZone.getDefault().id)
-            calendar = Calendar.getInstance()
+    /**
+     * 時刻をフォーマットして返す
+     */
+    private fun getCreatedAtFormat(createdAt: String?): String {
+        var createdAt = createdAt
+        //フォーマットを規定の設定にする？
+        //ここtrueにした
+        if (pref_setting!!.getBoolean("pref_custom_time_format", true)) {
+            //時差計算？
+            if (simpleDateFormat == null && japanDateFormat == null && calendar == null) {
+                simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                simpleDateFormat?.timeZone = TimeZone.getTimeZone("UTC")
+                //日本用フォーマット
+                japanDateFormat = SimpleDateFormat(pref_setting!!.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS")!!)
+                japanDateFormat?.timeZone = TimeZone.getTimeZone(TimeZone.getDefault().id)
+                calendar = Calendar.getInstance()
+            }
+            try {
+                val date = simpleDateFormat!!.parse(createdAt!!)
+                calendar?.time = date!!
+                //タイムゾーンを設定
+                //calendar.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
+                calendar?.add(Calendar.HOUR, +Integer.valueOf(pref_setting!!.getString("pref_time_add", "9")!!))
+                //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
+                createdAt = japanDateFormat?.format(calendar!!.time)
+            } catch (e: ParseException) {
+                e.printStackTrace()
+            }
+
+        }
+        return createdAt as String
+    }
+
+
+    /**
+     * 通知（どん
+     * *
+     */
+    private fun setStreamingNotification() {
+        //StreamingAPIのLink違う時
+        val url = "wss://$instance/api/v1/streaming/?stream=user:notification&access_token=$access_token"
+        if (context != null) {
+            vibrator = context?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         }
         try {
-            val date = simpleDateFormat!!.parse(createdAt!!)
-            calendar?.time = date!!
-            //タイムゾーンを設定
-            //calendar.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
-            calendar?.add(Calendar.HOUR, +Integer.valueOf(pref_setting!!.getString("pref_time_add", "9")!!))
-            //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
-            createdAt = japanDateFormat?.format(calendar!!.time)
-        } catch (e: ParseException) {
-            e.printStackTrace()
-        }
+            notification_WebSocketClient = object : WebSocketClient(URI(url)) {
+                override fun onOpen(handshakedata: ServerHandshake) {
+                    System.out.println("通知おーぷん")
+                }
 
-    }
-    return createdAt as String
-}
-
-
-/**
- * 通知（どん
- * *
- */
-private fun setStreamingNotification() {
-    //StreamingAPIのLink違う時
-    val url = "wss://$instance/api/v1/streaming/?stream=user:notification&access_token=$access_token"
-    if (context != null) {
-        vibrator = context?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    }
-    try {
-        notification_WebSocketClient = object : WebSocketClient(URI(url)) {
-            override fun onOpen(handshakedata: ServerHandshake) {
-                System.out.println("通知おーぷん")
-            }
-
-            override fun onMessage(message: String) {
-                try {
-                    val jsonObject = JSONObject(message)
-                    //if (jsonObject.getString("type").equals("notification")) {
-                    val `object` = jsonObject.getString("payload")
-                    val payload_JsonObject = JSONObject(`object`)
-                    val type = payload_JsonObject.getString("type")
-                    val account = payload_JsonObject.getJSONObject("account")
-                    var display_name = account.getString("display_name")
-                    val acct = account.getString("acct")
-                    //カスタム絵文字
-                    if (java.lang.Boolean.valueOf(custom_emoji)) {
-                        val emojis = account.getJSONArray("emojis")
-                        for (e in 0 until emojis.length()) {
-                            val emoji = emojis.getJSONObject(e)
-                            val emoji_name = emoji.getString("shortcode")
-                            val emoji_url = emoji.getString("url")
-                            val custom_emoji_src = "<img src=\'$emoji_url\'>"
-                            display_name = display_name.replace(":$emoji_name:", custom_emoji_src)
-                        }
-                    }
-                    //トースト出す
-                    val finalDisplay_name = display_name
-
-                    //通知RecyclerView
-                    if (activity is Home) {
-                        val home = activity as Home
-                        //RecyclerViewで使うの
-                        val notificationList = home.tlQuickSettingSnackber?.recyclerViewList
-                        //配列を作成
-                        val Item = ArrayList<String>()
-                        //メモとか通知とかに
-                        Item.add("TLQSNotification")
-                        //内容
-                        Item.add(url)
-                        //ユーザー名
-                        Item.add("")
-                        //時間、クライアント名等
-                        Item.add(payload_JsonObject.toString())
-                        //ぶーすとした？
-                        Item.add("false")
-                        //ふぁぼした？
-                        Item.add("false")
-                        //Mastodon / Misskey
-                        Item.add("Mastodon")
-                        //Insatnce/AccessToken
-                        Item.add(instance ?: "")
-                        Item.add(access_token ?: "")
-                        //設定ファイルJSON
-                        Item.add(json_data ?: "")
-                        //画像表示、こんてんとわーにんぐ
-                        Item.add("false")
-                        Item.add("false")
-                        notificationList?.add(Item)
-                    }
-
-                    activity?.runOnUiThread {
-
-                        //カスタムトースト
-                        val toast = Toast(context)
-                        val inflater = layoutInflater
-                        val layout = inflater.inflate(R.layout.notification_toast_layout, null)
-                        //文字
-                        val toast_text = layout.findViewById<TextView>(R.id.notification_toast_textView)
-                        val picassoImageGetter = PicassoImageGetter(toast_text)
-                        toast_text.text = Html.fromHtml(CustomMenuRecyclerViewAdapter.toNotificationType(context, type) + "<br>" + finalDisplay_name + "@" + acct, Html.FROM_HTML_MODE_COMPACT, picassoImageGetter, null)
-                        val toast_imageview = layout.findViewById<AppCompatImageView>(R.id.notification_toast_icon_imageView)
-                        //アイコン
-                        toast_imageview.setImageDrawable(getNotificationIcon(type))
-                        //レイアウト適用
-                        toast.view = layout
-                        toast.duration = Toast.LENGTH_LONG
-                        toast.show()
-
-                        if (pref_setting!!.getBoolean("pref_notification_vibrate", true) && vibrator != null) {
-                            val pattern = longArrayOf(100, 100, 100, 100)
-                            //バイブなんか非推奨になってた（）書き直した
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                vibrator?.vibrate(
-                                        VibrationEffect.createWaveform(pattern, VibrationEffect.DEFAULT_AMPLITUDE)
-                                )
-                            } else {
-                                vibrator?.vibrate(pattern, -1)
+                override fun onMessage(message: String) {
+                    try {
+                        val jsonObject = JSONObject(message)
+                        //if (jsonObject.getString("type").equals("notification")) {
+                        val `object` = jsonObject.getString("payload")
+                        val payload_JsonObject = JSONObject(`object`)
+                        val type = payload_JsonObject.getString("type")
+                        val account = payload_JsonObject.getJSONObject("account")
+                        var display_name = account.getString("display_name")
+                        val acct = account.getString("acct")
+                        //カスタム絵文字
+                        if (java.lang.Boolean.valueOf(custom_emoji)) {
+                            val emojis = account.getJSONArray("emojis")
+                            for (e in 0 until emojis.length()) {
+                                val emoji = emojis.getJSONObject(e)
+                                val emoji_name = emoji.getString("shortcode")
+                                val emoji_url = emoji.getString("url")
+                                val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                                display_name = display_name.replace(":$emoji_name:", custom_emoji_src)
                             }
                         }
+                        //トースト出す
+                        val finalDisplay_name = display_name
 
+                        //通知RecyclerView
+                        if (activity is Home) {
+                            val home = activity as Home
+                            //RecyclerViewで使うの
+                            val notificationList = home.tlQuickSettingSnackber?.recyclerViewList
+                            //配列を作成
+                            val Item = ArrayList<String>()
+                            //メモとか通知とかに
+                            Item.add("TLQSNotification")
+                            //内容
+                            Item.add(url)
+                            //ユーザー名
+                            Item.add("")
+                            //時間、クライアント名等
+                            Item.add(payload_JsonObject.toString())
+                            //ぶーすとした？
+                            Item.add("false")
+                            //ふぁぼした？
+                            Item.add("false")
+                            //Mastodon / Misskey
+                            Item.add("Mastodon")
+                            //Insatnce/AccessToken
+                            Item.add(instance ?: "")
+                            Item.add(access_token ?: "")
+                            //設定ファイルJSON
+                            Item.add(json_data ?: "")
+                            //画像表示、こんてんとわーにんぐ
+                            Item.add("false")
+                            Item.add("false")
+                            notificationList?.add(Item)
+                        }
+
+                        activity?.runOnUiThread {
+
+                            //カスタムトースト
+                            val toast = Toast(context)
+                            val inflater = layoutInflater
+                            val layout = inflater.inflate(R.layout.notification_toast_layout, null)
+                            //文字
+                            val toast_text = layout.findViewById<TextView>(R.id.notification_toast_textView)
+                            val picassoImageGetter = PicassoImageGetter(toast_text)
+                            toast_text.text = Html.fromHtml(CustomMenuRecyclerViewAdapter.toNotificationType(context, type) + "<br>" + finalDisplay_name + "@" + acct, Html.FROM_HTML_MODE_COMPACT, picassoImageGetter, null)
+                            val toast_imageview = layout.findViewById<AppCompatImageView>(R.id.notification_toast_icon_imageView)
+                            //アイコン
+                            toast_imageview.setImageDrawable(getNotificationIcon(type))
+                            //レイアウト適用
+                            toast.view = layout
+                            toast.duration = Toast.LENGTH_LONG
+                            toast.show()
+
+                            if (pref_setting!!.getBoolean("pref_notification_vibrate", true) && vibrator != null) {
+                                val pattern = longArrayOf(100, 100, 100, 100)
+                                //バイブなんか非推奨になってた（）書き直した
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    vibrator?.vibrate(
+                                            VibrationEffect.createWaveform(pattern, VibrationEffect.DEFAULT_AMPLITUDE)
+                                    )
+                                } else {
+                                    vibrator?.vibrate(pattern, -1)
+                                }
+                            }
+
+                        }
+                        // }
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
                     }
-                    // }
-                } catch (e: JSONException) {
-                    e.printStackTrace()
+
                 }
 
-            }
+                override fun onClose(code: Int, reason: String, remote: Boolean) {
 
-            override fun onClose(code: Int, reason: String, remote: Boolean) {
+                }
 
-            }
-
-            override fun onError(ex: Exception) {
-                //404エラーは再接続？
-                //何回もAPI叩かれると困る
-                if (instance_api_streaming_api_link.isEmpty()) {
-                    getInstanceUrlsStreamingAPI()
-                    useStreamingAPI()
+                override fun onError(ex: Exception) {
+                    //404エラーは再接続？
+                    //何回もAPI叩かれると困る
+                    if (instance_api_streaming_api_link.isEmpty()) {
+                        getInstanceUrlsStreamingAPI()
+                        useStreamingAPI()
+                    }
                 }
             }
+            //接続
+            notification_WebSocketClient?.connect()
+        } catch (e: URISyntaxException) {
+            e.printStackTrace()
         }
-        //接続
-        notification_WebSocketClient?.connect()
-    } catch (e: URISyntaxException) {
-        e.printStackTrace()
+
     }
 
-}
+    /**
+     * 時間指定投稿（予約投稿）一覧読み込み
+     */
+    private fun loadScheduled_statuses(view: View) {
+        //作成
+        val url = url + "?access_token=" + access_token
+        SnackberProgress.showProgressSnackber(view, view.context, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
+        val request = Request.Builder()
+                .url(url)
+                .get()
+                .build()
+        //GETリクエスト
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
+            }
 
-/**
- * 時間指定投稿（予約投稿）一覧読み込み
- */
-private fun loadScheduled_statuses(view: View) {
-    //作成
-    val url = url + "?access_token=" + access_token
-    SnackberProgress.showProgressSnackber(view, view.context, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
-    val request = Request.Builder()
-            .url(url)
-            .get()
-            .build()
-    //GETリクエスト
-    val client = OkHttpClient()
-    client.newCall(request).enqueue(object : Callback {
-        override fun onFailure(call: Call, e: IOException) {
-            e.printStackTrace()
-            activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
-        }
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                val response_string = response.body()?.string()
+                //System.out.println(response_string);
+                if (!response.isSuccessful) {
+                    //失敗時
+                    activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                } else {
+                    try {
+                        val jsonArray = JSONArray(response_string)
+                        //無いとき
+                        if (jsonArray.length() == 0) {
+                            activity?.runOnUiThread {
+                                SnackberProgress.closeProgressSnackber()
+                                Toast.makeText(context, getString(R.string.not_fount_time_post), Toast.LENGTH_LONG).show()
+                            }
+                        } else {
+                            for (i in 0 until jsonArray.length()) {
+                                val toot_jsonObject = jsonArray.getJSONObject(i)
+                                if (activity != null && isAdded) {
+                                    //配列を作成
+                                    val Item = ArrayList<String>()
+                                    //メモとか通知とかに
+                                    Item.add("CustomMenu 時間指定投稿")
+                                    //内容
+                                    Item.add(url)
+                                    //ユーザー名
+                                    Item.add("")
+                                    //JSONObject
+                                    Item.add(toot_jsonObject.toString())
+                                    //ぶーすとした？
+                                    Item.add("false")
+                                    //ふぁぼした？
+                                    Item.add("false")
+                                    //Mastodon / Misskey
+                                    Item.add("Mastodon")
+                                    //Insatnce/AccessToken
+                                    Item.add(instance ?: "")
+                                    Item.add(access_token ?: "")
+                                    //設定ファイルJSON
+                                    Item.add(json_data ?: "")
+                                    //画像表示、こんてんとわーにんぐ
+                                    Item.add("false")
+                                    Item.add("false")
 
-        @Throws(IOException::class)
-        override fun onResponse(call: Call, response: Response) {
-            val response_string = response.body()?.string()
-            //System.out.println(response_string);
-            if (!response.isSuccessful) {
-                //失敗時
-                activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
-            } else {
-                try {
-                    val jsonArray = JSONArray(response_string)
-                    //無いとき
-                    if (jsonArray.length() == 0) {
-                        activity?.runOnUiThread {
-                            SnackberProgress.closeProgressSnackber()
-                            Toast.makeText(context, getString(R.string.not_fount_time_post), Toast.LENGTH_LONG).show()
+                                    recyclerViewList?.add(Item)
+                                    activity?.runOnUiThread {
+                                        if (recyclerViewLayoutManager != null) {
+                                            (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
+                                        }
+                                        //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                                        recyclerView?.adapter = customMenuRecyclerViewAdapter
+                                        SnackberProgress.closeProgressSnackber()
+                                    }
+                                }
+                            }
                         }
-                    } else {
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+
+                }
+            }
+        })
+    }
+
+    /**
+     * お気に入り一覧を取得
+     */
+    private fun loadFollowSuggestions(view: View) {
+        //作成
+        val url = url + "?access_token=" + access_token
+        SnackberProgress.showProgressSnackber(view, view.context, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
+        val request = Request.Builder()
+                .url(url)
+                .get()
+                .build()
+        //GETリクエスト
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                val response_string = response.body()?.string()
+                //System.out.println(response_string);
+                if (!response.isSuccessful) {
+                    //失敗時
+                    activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                } else {
+                    try {
+                        val jsonArray = JSONArray(response_string)
                         for (i in 0 until jsonArray.length()) {
                             val toot_jsonObject = jsonArray.getJSONObject(i)
                             if (activity != null && isAdded) {
                                 //配列を作成
                                 val Item = ArrayList<String>()
                                 //メモとか通知とかに
-                                Item.add("CustomMenu 時間指定投稿")
+                                Item.add("CustomMenu フォロー推奨")
                                 //内容
                                 Item.add(url)
                                 //ユーザー名
@@ -2286,328 +2367,250 @@ private fun loadScheduled_statuses(view: View) {
                                 Item.add("false")
                                 Item.add("false")
 
-                                recyclerViewList?.add(Item)
+                                recyclerViewList?.add(0, Item)
                                 activity?.runOnUiThread {
                                     if (recyclerViewLayoutManager != null) {
                                         (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
                                     }
-                                    //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
-                                    recyclerView?.adapter = customMenuRecyclerViewAdapter
+                                    //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);recyclerView.setAdapter(customMenuRecyclerViewAdapter);
                                     SnackberProgress.closeProgressSnackber()
                                 }
                             }
                         }
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
                     }
-                } catch (e: JSONException) {
-                    e.printStackTrace()
+
                 }
-
             }
+        })
+    }
+
+
+    /**
+     * 通知アイコン
+     */
+    private fun getNotificationIcon(type: String): Drawable? {
+        var drawable = context!!.getDrawable(R.drawable.ic_notifications_black_24dp)
+        when (type) {
+            "follow" -> drawable = context!!.getDrawable(R.drawable.ic_person_add_black_24dp)
+            "favourite" -> drawable = context!!.getDrawable(R.drawable.ic_star_border_black_24dp)
+            "reblog" -> drawable = context!!.getDrawable(R.drawable.ic_repeat_black_24dp)
+            "mention" -> drawable = context!!.getDrawable(R.drawable.ic_announcement_black_24dp)
+            "reaction" -> drawable = context!!.getDrawable(R.drawable.ic_audiotrack_black_24dp)
         }
-    })
-}
+        return drawable
+    }
 
-/**
- * お気に入り一覧を取得
- */
-private fun loadFollowSuggestions(view: View) {
-    //作成
-    val url = url + "?access_token=" + access_token
-    SnackberProgress.showProgressSnackber(view, view.context, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
-    val request = Request.Builder()
-            .url(url)
-            .get()
-            .build()
-    //GETリクエスト
-    val client = OkHttpClient()
-    client.newCall(request).enqueue(object : Callback {
-        override fun onFailure(call: Call, e: IOException) {
-            e.printStackTrace()
-            activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
-        }
 
-        @Throws(IOException::class)
-        override fun onResponse(call: Call, response: Response) {
-            val response_string = response.body()?.string()
-            //System.out.println(response_string);
-            if (!response.isSuccessful) {
-                //失敗時
-                activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
-            } else {
-                try {
-                    val jsonArray = JSONArray(response_string)
-                    for (i in 0 until jsonArray.length()) {
-                        val toot_jsonObject = jsonArray.getJSONObject(i)
-                        if (activity != null && isAdded) {
-                            //配列を作成
-                            val Item = ArrayList<String>()
-                            //メモとか通知とかに
-                            Item.add("CustomMenu フォロー推奨")
-                            //内容
-                            Item.add(url)
-                            //ユーザー名
-                            Item.add("")
-                            //JSONObject
-                            Item.add(toot_jsonObject.toString())
-                            //ぶーすとした？
-                            Item.add("false")
-                            //ふぁぼした？
-                            Item.add("false")
-                            //Mastodon / Misskey
-                            Item.add("Mastodon")
-                            //Insatnce/AccessToken
-                            Item.add(instance ?: "")
-                            Item.add(access_token ?: "")
-                            //設定ファイルJSON
-                            Item.add(json_data ?: "")
-                            //画像表示、こんてんとわーにんぐ
-                            Item.add("false")
-                            Item.add("false")
-
-                            recyclerViewList?.add(0, Item)
-                            activity?.runOnUiThread {
-                                if (recyclerViewLayoutManager != null) {
-                                    (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
-                                }
-                                //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);recyclerView.setAdapter(customMenuRecyclerViewAdapter);
-                                SnackberProgress.closeProgressSnackber()
-                            }
+    /**
+     * Android 10の新しいジェスチャーで戻るジェスチャーとドロワー開くジェスチャーをかぶらないようにする
+     * 端からスワイプ以外でも動作するようにする
+     */
+    private fun addNavigationOpen() {
+        //すたーと
+        val start = floatArrayOf(0f)
+        val end = floatArrayOf(0f)
+        val y_start = floatArrayOf(0f)
+        val y_end = floatArrayOf(0f)
+        recyclerView?.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    start[0] = event.x
+                    y_start[0] = event.y
+                }
+                MotionEvent.ACTION_UP -> {
+                    end[0] = event.x
+                    y_end[0] = event.y
+                    //System.out.println("end : " + y_end[0]);
+                    //System.out.println("final : " + (y_start[0] - y_end[0]));
+                    //両方揃ったら比較開始
+                    if (start[0] != end[0]) {
+                        //なんとなく400以上の誤差がないとうごかないように　と　縦スクロールが大きいと動作しないようにする（100から-100までのみ）
+                        if (end[0] - start[0] > 400 && y_start[0] - y_end[0] < 100 && y_start[0] - y_end[0] > -100) {
+                            //ドロワー開く。getActivity()あってよかた
+                            val drawer = activity?.findViewById<View>(R.id.drawer_layout) as DrawerLayout
+                            drawer.openDrawer(Gravity.LEFT)
                         }
                     }
-                } catch (e: JSONException) {
-                    e.printStackTrace()
                 }
+            }//System.out.println("start : " + y_start[0]);
 
-            }
+            false
         }
-    })
-}
-
-
-/**
- * 通知アイコン
- */
-private fun getNotificationIcon(type: String): Drawable? {
-    var drawable = context!!.getDrawable(R.drawable.ic_notifications_black_24dp)
-    when (type) {
-        "follow" -> drawable = context!!.getDrawable(R.drawable.ic_person_add_black_24dp)
-        "favourite" -> drawable = context!!.getDrawable(R.drawable.ic_star_border_black_24dp)
-        "reblog" -> drawable = context!!.getDrawable(R.drawable.ic_repeat_black_24dp)
-        "mention" -> drawable = context!!.getDrawable(R.drawable.ic_announcement_black_24dp)
-        "reaction" -> drawable = context!!.getDrawable(R.drawable.ic_audiotrack_black_24dp)
     }
-    return drawable
-}
 
+    /*ネットワークの変更を検知する*/
+    private fun setNetworkChangeCallback() {
+        val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val builder = NetworkRequest.Builder()
+        //
+        builder.addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        builder.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+        builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+        connectivityManager.registerNetworkCallback(builder.build(), object : ConnectivityManager.NetworkCallback() {
 
-/**
- * Android 10の新しいジェスチャーで戻るジェスチャーとドロワー開くジェスチャーをかぶらないようにする
- * 端からスワイプ以外でも動作するようにする
- */
-private fun addNavigationOpen() {
-    //すたーと
-    val start = floatArrayOf(0f)
-    val end = floatArrayOf(0f)
-    val y_start = floatArrayOf(0f)
-    val y_end = floatArrayOf(0f)
-    recyclerView?.setOnTouchListener { v, event ->
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> {
-                start[0] = event.x
-                y_start[0] = event.y
-            }
-            MotionEvent.ACTION_UP -> {
-                end[0] = event.x
-                y_end[0] = event.y
-                //System.out.println("end : " + y_end[0]);
-                //System.out.println("final : " + (y_start[0] - y_end[0]));
-                //両方揃ったら比較開始
-                if (start[0] != end[0]) {
-                    //なんとなく400以上の誤差がないとうごかないように　と　縦スクロールが大きいと動作しないようにする（100から-100までのみ）
-                    if (end[0] - start[0] > 400 && y_start[0] - y_end[0] < 100 && y_start[0] - y_end[0] > -100) {
-                        //ドロワー開く。getActivity()あってよかた
-                        val drawer = activity?.findViewById<View>(R.id.drawer_layout) as DrawerLayout
-                        drawer.openDrawer(Gravity.LEFT)
-                    }
-                }
-            }
-        }//System.out.println("start : " + y_start[0]);
-
-        false
-    }
-}
-
-/*ネットワークの変更を検知する*/
-private fun setNetworkChangeCallback() {
-    val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val builder = NetworkRequest.Builder()
-    //
-    builder.addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-    builder.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-    builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-    connectivityManager.registerNetworkCallback(builder.build(), object : ConnectivityManager.NetworkCallback() {
-
-        override fun onAvailable(network: Network) {
-            //最初は無視する
-            if (network_count > 0) {
-                //変更されたら
-                if (webSocketClient != null || notification_WebSocketClient != null && recyclerView != null) {
-                    //なんとなくスナックバー
-                    Snackbar.make(recyclerView!!, R.string.network_change, Snackbar.LENGTH_SHORT).show()
-                    //5秒後にストリーミングAPIに再接続する
-                    val timer = Timer()
-                    val timerTask = object : TimerTask() {
-                        override fun run() {
-                            if (webSocketClient != null) {
-                                webSocketClient?.close()
-                                //通知以外
-                                if (url?.contains("/api/v1/notifications") == false) {
-                                    loadTimeline("")
-                                    //ストリーミング
-                                    useStreamingAPI()
-                                } else {
-                                    activity?.runOnUiThread {
-                                        notificationLayout()
+            override fun onAvailable(network: Network) {
+                //最初は無視する
+                if (network_count > 0) {
+                    //変更されたら
+                    if (webSocketClient != null || notification_WebSocketClient != null && recyclerView != null) {
+                        //なんとなくスナックバー
+                        Snackbar.make(recyclerView!!, R.string.network_change, Snackbar.LENGTH_SHORT).show()
+                        //5秒後にストリーミングAPIに再接続する
+                        val timer = Timer()
+                        val timerTask = object : TimerTask() {
+                            override fun run() {
+                                if (webSocketClient != null) {
+                                    webSocketClient?.close()
+                                    //通知以外
+                                    if (url?.contains("/api/v1/notifications") == false) {
+                                        loadTimeline("")
+                                        //ストリーミング
+                                        useStreamingAPI()
+                                    } else {
+                                        activity?.runOnUiThread {
+                                            notificationLayout()
+                                        }
+                                        //普通にAPI叩く
+                                        loadNotification("")
+                                        //ストリーミング
+                                        useStreamingAPI()
                                     }
-                                    //普通にAPI叩く
-                                    loadNotification("")
-                                    //ストリーミング
-                                    useStreamingAPI()
+                                }
+                                if (notification_WebSocketClient != null) {
+                                    notification_WebSocketClient?.close()
+                                    setStreamingNotification()
                                 }
                             }
-                            if (notification_WebSocketClient != null) {
-                                notification_WebSocketClient?.close()
-                                setStreamingNotification()
-                            }
                         }
+                        timer.schedule(timerTask, 5000)
+
                     }
-                    timer.schedule(timerTask, 5000)
-
                 }
+                network_count += 1
             }
-            network_count += 1
+        })
+    }
+
+    /*ハッシュタグ（＃）を入れる*/
+    private fun setName(context: String, title: String?): String {
+        var title = title
+        if (context.contains("/api/v1/timelines/tag/") || context.contains("/api/v1/timelines/tag/?local=true")) {
+            title = "#" + title!!
         }
-    })
-}
-
-/*ハッシュタグ（＃）を入れる*/
-private fun setName(context: String, title: String?): String {
-    var title = title
-    if (context.contains("/api/v1/timelines/tag/") || context.contains("/api/v1/timelines/tag/?local=true")) {
-        title = "#" + title!!
+        return title as String
     }
-    return title as String
-}
 
-//インスタンス名を返す
-fun getInstance(): String {
-    return instance.toString()
-}
+    //インスタンス名を返す
+    fun getInstance(): String {
+        return instance.toString()
+    }
 
-//CustomMenuの名前を返す
-fun getCustomMenuName(): String {
-    return name.toString()
-}
+    //CustomMenuの名前を返す
+    fun getCustomMenuName(): String {
+        return name.toString()
+    }
 
-//読み取り専用かどうかを返す
-fun isReadOnly(): Boolean {
-    return isReadOnly.toBoolean()
-}
+    //読み取り専用かどうかを返す
+    fun isReadOnly(): Boolean {
+        return isReadOnly.toBoolean()
+    }
 
 
-override fun onStop() {
-    super.onStop()
-    //アプリが後ろに移動したらストリーミングAPI切る
-    //設定を読み込む
-    if (!pref_setting.getBoolean("pref_timeline_streaming_background", false)) {
-        if (webSocketClient?.isClosed == false) {
-            webSocketClient?.close()
+    override fun onStop() {
+        super.onStop()
+        //アプリが後ろに移動したらストリーミングAPI切る
+        //設定を読み込む
+        if (!pref_setting.getBoolean("pref_timeline_streaming_background", false)) {
+            if (webSocketClient?.isClosed == false) {
+                webSocketClient?.close()
+            }
+        }
+        //通知Ver
+        if (!pref_setting.getBoolean("pref_notification_streaming_background", false)) {
+            if (notification_WebSocketClient?.isClosed == false) {
+                notification_WebSocketClient?.close()
+            }
+        }
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+        //アプリを表示させたらストリーミングAPI接続する
+        if (webSocketClient?.isClosed == true) {
+            useStreamingAPI()
+            //Snackbar.make(view!!, "タイムラインのストリーミングAPIへ再接続しました。", Snackbar.LENGTH_SHORT).show()
+        }
+        if (notification_WebSocketClient?.isClosed == true) {
+            setStreamingNotification()
+            //Snackbar.make(view!!, "通知のストリーミングAPIへ再接続しました。", Snackbar.LENGTH_SHORT).show()
         }
     }
-    //通知Ver
-    if (!pref_setting.getBoolean("pref_notification_streaming_background", false)) {
-        if (notification_WebSocketClient?.isClosed == false) {
-            notification_WebSocketClient?.close()
+
+    //画像表示させるか
+    fun getImageLoad(): Boolean {
+        val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        //設定からアバター画像読み込まないの場合
+        if (pref_setting?.getBoolean("setting_avater_get", false) == true) {
+            return false
         }
-    }
-
-}
-
-override fun onStart() {
-    super.onStart()
-    //アプリを表示させたらストリーミングAPI接続する
-    if (webSocketClient?.isClosed == true) {
-        useStreamingAPI()
-        //Snackbar.make(view!!, "タイムラインのストリーミングAPIへ再接続しました。", Snackbar.LENGTH_SHORT).show()
-    }
-    if (notification_WebSocketClient?.isClosed == true) {
-        setStreamingNotification()
-        //Snackbar.make(view!!, "通知のストリーミングAPIへ再接続しました。", Snackbar.LENGTH_SHORT).show()
-    }
-}
-
-//画像表示させるか
-fun getImageLoad(): Boolean {
-    val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-    //設定からアバター画像読み込まないの場合
-    if (pref_setting?.getBoolean("setting_avater_get", false) == true) {
+        //Wi-Fi接続時
+        if (pref_setting?.getBoolean("setting_avater_wifi_get_info", true) != false) {
+            return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        }
+        //CustomMenuの設定で有効?
+        //今回はデフォで有効にしている。
+        if (image_load?.toBoolean() ?: true) {
+            return true
+        }
         return false
     }
-    //Wi-Fi接続時
-    if (pref_setting?.getBoolean("setting_avater_wifi_get_info", true) != false) {
-        return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+
+    fun getCustomMenuJsonParse(): CustomMenuJSONParse {
+        return customMenuJSONParse
     }
-    //CustomMenuの設定で有効?
-    //今回はデフォで有効にしている。
-    if (image_load?.toBoolean() ?: true) {
-        return true
-    }
-    return false
-}
 
-fun getCustomMenuJsonParse(): CustomMenuJSONParse {
-    return customMenuJSONParse
-}
-
-companion object {
+    companion object {
 
 
-    var url: String? = null
-        private set
+        var url: String? = null
+            private set
 
-    //フォント
-    /**
-     * フォント設定
-     */
-    lateinit var font_Typeface: Typeface
+        //フォント
+        /**
+         * フォント設定
+         */
+        lateinit var font_Typeface: Typeface
 
-    //misskey
-    /**
-     * Misskeyモードかどうか
-     */
-    var isMisskeyMode = false
-        private set
-    private var misskey_username: String? = ""
-    var account_id = ""
-        private set
+        //misskey
+        /**
+         * Misskeyモードかどうか
+         */
+        var isMisskeyMode = false
+            private set
+        private var misskey_username: String? = ""
+        var account_id = ""
+            private set
 
-    /**
-     * CustomMenu利用中かどうかを返す
-     */
-    val isUseCustomMenu: Boolean
-        get() = true
+        /**
+         * CustomMenu利用中かどうかを返す
+         */
+        val isUseCustomMenu: Boolean
+            get() = true
 
-    /**
-     * 通知かどうか
-     */
-    val isNotification: Boolean
-        get() {
-            var mode = false
-            if (url!!.contains("/api/v1/notifications")) {
-                mode = true
+        /**
+         * 通知かどうか
+         */
+        val isNotification: Boolean
+            get() {
+                var mode = false
+                if (url!!.contains("/api/v1/notifications")) {
+                    mode = true
+                }
+                return mode
             }
-            return mode
-        }
-}
+    }
 }

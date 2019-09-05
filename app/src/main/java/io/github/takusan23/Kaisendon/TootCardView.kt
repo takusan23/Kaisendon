@@ -17,6 +17,7 @@ import android.provider.MediaStore
 import android.text.Html
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -31,6 +32,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.sys1yagi.mastodon4j.api.entity.Card
 import io.github.takusan23.Kaisendon.APIJSONParse.GlideSupport
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
+import io.github.takusan23.Kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog
 import io.github.takusan23.Kaisendon.CustomMenu.UriToByte
 import io.github.takusan23.Kaisendon.PaintPOST.PaintPOSTActivity
 import kotlinx.android.synthetic.main.activity_toot.view.*
@@ -42,6 +44,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
+import java.net.URI
 import java.util.*
 
 class TootCardView(val context: Context, val isMisskey: Boolean) {
@@ -51,7 +54,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
     val pref_setting = PreferenceManager.getDefaultSharedPreferences(context)
 
     //添付画像
-    val attachMediaList = arrayListOf<String>()
+    val attachMediaList = arrayListOf<Uri>()
     //画像アップロードして出来たIDを入れる配列
     val postMediaList = arrayListOf<String>()
 
@@ -80,6 +83,20 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
 
         getAccount()
         setClickEvent()
+
+        //Misskey/Mastodon
+        if (isMisskey) {
+            linearLayout.toot_card_vote_button.visibility = View.GONE
+            linearLayout.toot_card_time_button.visibility = View.GONE
+            linearLayout.toot_card_misskey_drive.visibility = View.VISIBLE
+        } else {
+            linearLayout.toot_card_misskey_drive.visibility = View.GONE
+            linearLayout.toot_card_vote_button.visibility = View.VISIBLE
+            linearLayout.toot_card_time_button.visibility = View.VISIBLE
+        }
+
+        setTextLengthCount()
+
     }
 
     fun cardViewShow() {
@@ -114,6 +131,21 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
         linearLayout.toot_card_post_button.setOnClickListener {
             postStatus()
         }
+        //Misskeyドライブ
+        linearLayout.toot_card_misskey_drive.setOnClickListener {
+            showMisskeyDrive()
+        }
+    }
+
+    //文字数カウント
+    fun setTextLengthCount(){
+
+    }
+
+    private fun showMisskeyDrive() {
+        //Misskey Drive API を叩く
+        val dialogFragment = MisskeyDriveBottomDialog()
+        dialogFragment.show((context as AppCompatActivity).supportFragmentManager, "misskey_drive_dialog")
     }
 
     fun setAttachImage() {
@@ -284,9 +316,9 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
             //画像アップロードから
             attachMediaList.forEach {
                 if (isMisskey) {
-
+                    uploadDrivePhoto(it)
                 } else {
-
+                    uploadMastodonPhoto(it)
                 }
             }
         }
@@ -367,6 +399,85 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
             })
         }).start()
     }
+
+    /**
+     * Misskey 画像POST
+     */
+    private fun uploadDrivePhoto(uri: Uri) {
+        val instance = pref_setting.getString("misskey_main_instance", "")
+        val token = pref_setting.getString("misskey_main_token", "")
+        val username = pref_setting.getString("misskey_main_username", "")
+        val url = "https://$instance/api/drive/files/create"
+        //くるくる
+        SnackberProgress.showProgressSnackber(linearLayout.toot_card_textinput, context, context.getString(R.string.loading) + "\n" + url)
+        //ぱらめーたー
+        val requestBody = MultipartBody.Builder()
+        requestBody.setType(MultipartBody.FORM)
+        //requestBody.addFormDataPart("file", file_post.getName(), RequestBody.create(MediaType.parse("image/" + file_extn_post), file_post));
+        requestBody.addFormDataPart("i", token!!)
+        requestBody.addFormDataPart("force", "true")
+        //Android Qで動かないのでUriからBitmap変換してそれをバイトに変換してPOSTしてます
+        //お絵かき投稿Misskey対応?
+        //重いから非同期処理
+        Thread(Runnable {
+            val uri_byte = UriToByte(context);
+            try {
+                // file:// と content:// でわける
+                if (uri.scheme?.contains("file") == true) {
+                    val file_name = getFileSchemeFileName(uri)
+                    val extn = getFileSchemeFileExtension(uri)
+                    requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn!!), uri_byte.getByte(uri)))
+                } else {
+                    val file_name = getFileNameUri(uri)
+                    val extn = context.contentResolver.getType(uri)
+                    requestBody.addFormDataPart("file", file_name, RequestBody.create(MediaType.parse("image/" + extn!!), uri_byte.getByte(uri)))
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            //じゅんび
+            val request = Request.Builder()
+                    .url(url)
+                    .post(requestBody.build())
+                    .build()
+            //画像Upload
+            val okHttpClient = OkHttpClient()
+            //POST実行
+            okHttpClient.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    //失敗
+                    e.printStackTrace()
+                    (context as AppCompatActivity).runOnUiThread { Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_SHORT).show() }
+                }
+
+                @Throws(IOException::class)
+                override fun onResponse(call: Call, response: Response) {
+                    val response_string = response.body()!!.string()
+                    //System.out.println("画像POST : " + response_string);
+                    if (!response.isSuccessful) {
+                        //失敗
+                        (context as AppCompatActivity).runOnUiThread { Toast.makeText(context, context.getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                    } else {
+                        try {
+                            val jsonObject = JSONObject(response_string)
+                            val media_id_long = jsonObject.getString("id")
+                            //配列に格納
+                            postMediaList.add(media_id_long)
+                            //確認SnackBer
+                            //数確認
+                            if (postMediaList.size == attachMediaList.size) {
+                                Snackbar.make(linearLayout.toot_card_textinput, R.string.note_create_message, Snackbar.LENGTH_INDEFINITE).setAction(R.string.toot_text) { mastodonStatusesPOST() }.show()
+                            }
+                        } catch (e: JSONException) {
+                            e.printStackTrace()
+                        }
+
+                    }
+                }
+            })
+        }).start()
+    }
+
 
     /**
      * Uri→FileName
@@ -474,7 +585,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                         //EditTextを空にする
                         linearLayout.toot_card_textinput.setText("")
                         //tootTextCount = 0
-                        //TootSnackber閉じる
+                        //TootCard閉じる
                         cardView.visibility = View.GONE
                         //配列を空にする
                         attachMediaList.clear()
@@ -494,7 +605,66 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
     }
 
     private fun misskeyNoteCreatePOST() {
+        val instance = pref_setting.getString("misskey_main_instance", "")
+        val token = pref_setting.getString("misskey_main_token", "")
+        val username = pref_setting.getString("misskey_main_username", "")
+        val url = "https://$instance/api/notes/create"
+        val jsonObject = JSONObject()
+        try {
+            jsonObject.put("i", token)
+            jsonObject.put("visibility", misskeyVisibility)
+            jsonObject.put("text", linearLayout.toot_card_textinput.text.toString())
+            jsonObject.put("viaMobile", true)//スマホからなので一応
+            //添付メディア
+            if (Home.post_media_id.size >= 1) {
+                val jsonArray = JSONArray()
+                for (i in Home.post_media_id.indices) {
+                    jsonArray.put(Home.post_media_id[i])
+                }
+                jsonObject.put("fileIds", jsonArray)
+            }
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
 
+        //System.out.println(jsonObject.toString());
+        val requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString())
+        //作成
+        val request = Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build()
+
+        //GETリクエスト
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                (context as AppCompatActivity).runOnUiThread { Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_SHORT).show() }
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                val response_string = response.body()!!.string()
+                //System.out.println(response_string);
+                if (!response.isSuccessful) {
+                    //失敗
+                    (context as AppCompatActivity).runOnUiThread { Toast.makeText(context, context.getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
+                } else {
+                    (context as AppCompatActivity).runOnUiThread {
+                        //EditTextを空にする
+                        linearLayout.toot_card_textinput.setText("")
+                        //tootTextCount = 0
+                        //TootCard閉じる
+                        cardView.visibility = View.GONE
+                        //配列を空にする
+                        attachMediaList.clear()
+                        postMediaList.clear()
+                        linearLayout.toot_card_attach_linearlayout.removeAllViews()
+                    }
+                }
+            }
+        })
     }
 
 
@@ -816,5 +986,32 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
         })
     }
 
+    //添付画像を消せるようにする
+    fun setAttachImageLinearLayout() {
+        linearLayout.toot_card_attach_linearlayout.removeAllViews()
+        //取得
+        attachMediaList.forEach {
+            val uri = it
+            val imageView = ImageView(context)
+            val params = ViewGroup.LayoutParams(200, 200)
+            imageView.layoutParams = params
+            imageView.setImageURI(it)
+            //長押ししたら削除
+            imageView.setOnClickListener {
+                Toast.makeText(context, "長押しで削除できます。", Toast.LENGTH_SHORT).show()
+            }
+            imageView.setOnLongClickListener {
+                //削除
+                val pos = attachMediaList.indexOf(uri)
+                if (attachMediaList.contains(uri)) {
+                    //けす
+                    attachMediaList.removeAt(pos)
+                    //添付画像のLinearLayout作り直す
+                    setAttachImageLinearLayout()
+                }
+                false
+            }
+        }
+    }
 
 }

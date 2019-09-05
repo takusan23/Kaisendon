@@ -62,6 +62,7 @@ import io.github.takusan23.Kaisendon.Omake.ShinchokuLayout
 import io.github.takusan23.Kaisendon.PaintPOST.PaintPOSTActivity
 import kotlinx.android.synthetic.main.app_bar_home2.*
 import kotlinx.android.synthetic.main.bottom_bar_layout.*
+import kotlinx.android.synthetic.main.carview_toot_layout.view.*
 import okhttp3.*
 import org.chromium.customtabsclient.shared.CustomTabsHelper
 import org.json.JSONArray
@@ -251,7 +252,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         setContentView(R.layout.activity_home)
 
-        navigationView = findViewById(R.id.nav_view)
+        //navigationView = findViewById(R.id.nav_view)
         customMenuLoadSupport = CustomMenuLoadSupport(this, navigationView)
 
         //アプリ起動カウント
@@ -391,43 +392,25 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 if (text != null) {
                     if (title != null) {
                         text = text.toString().replace(title.toString(), "")
-                        toot_EditText.append(title)
-                        toot_EditText.append("\n")
+                        tootCardView.linearLayout.toot_card_textinput.append(title)
+                        tootCardView.linearLayout.toot_card_textinput.append("\n")
                     }
-                    toot_EditText.append(text)
+                    tootCardView.linearLayout.toot_card_textinput.append(text)
                 }
                 //画像
                 if (uri != null) {
-                    media_uri_list!!.add(uri)
-                    ImageViewClick()
+                    tootCardView.attachMediaList.add(uri)
+                    tootCardView.setAttachImageLinearLayout()
                 }
-                //0.5秒後に起動するように
-                val timer = Timer(false)
-                val task = object : TimerTask() {
-                    override fun run() {
-                        runOnUiThread {
-                            showTootShortcut()
-                            timer.cancel()
-                        }
-                    }
-                }
-                timer.schedule(task, 500)
+                //表示
+                tootCardView.cardViewShow()
             }
         }
 
         //App Shortcutから起動
         if (getIntent().getBooleanExtra("toot", false)) {
-            //0.5秒後に起動するように
-            val timer = Timer(false)
-            val task = object : TimerTask() {
-                override fun run() {
-                    runOnUiThread {
-                        showTootShortcut()
-                        timer.cancel()
-                    }
-                }
-            }
-            timer.schedule(task, 500)
+            //表示
+            tootCardView.cardViewShow()
         }
 
         //お絵かき投稿から
@@ -435,22 +418,11 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             //画像URI
             val uri = Uri.parse(intent.getStringExtra("paint_uri"))
             //画像配列に追加
-            if (uri != null) {
-                media_uri_list!!.add(uri)
-                ImageViewClick()
-                //0.5秒後に起動するように
-                val timer = Timer(false)
-                val task = object : TimerTask() {
-                    override fun run() {
-                        runOnUiThread {
-                            showTootShortcut()
-                            timer.cancel()
-                        }
-                    }
-                }
-                timer.schedule(task, 500)
-            }
+            tootCardView.attachMediaList.add(uri)
+            //表示
+            tootCardView.cardViewShow()
         }
+
 
         /*
         fab.setOnLongClickListener(new View.OnLongClickListener() {
@@ -465,7 +437,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 */
 
 
-        val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
+        //val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
         navigationView.setNavigationItemSelectedListener(this)
 
         val finalInstance = Instance
@@ -956,39 +928,15 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
 
         if (requestCode == 1)
             if (resultCode == Activity.RESULT_OK) {
-                val selectedImage = data!!.data
-                //System.out.println("値 : " + String.valueOf(resultCode) + " / " + data.getData());
-
-                //ファイルパスとか
-                val filePath = getPath(selectedImage)
-                val file_extn = filePath.substring(filePath.lastIndexOf(".") + 1)
-                val file = File(filePath)
-                val finalPath = "file:\\\\$filePath"
-                val layoutParams = LinearLayout.LayoutParams(200, 200)
-
-                if (file_extn == "img" || file_extn == "jpg" || file_extn == "jpeg" || file_extn == "gif" || file_extn == "png") {
-                    //配列に入れる
-                    media_uri_list!!.add(data.data as Uri)
-                    media_LinearLayout.removeAllViews()
-                    //配列に入れた要素をもとにImageViewを生成する
-                    for (i in media_uri_list!!.indices) {
-                        val imageView = ImageView(this@Home)
-                        imageView.layoutParams = layoutParams
-                        imageView.setImageURI(media_uri_list!![i])
-                        imageView.tag = i
-                        media_LinearLayout.addView(imageView)
-                        //押したとき
-                        imageView.setOnClickListener {
-                            //Toast.makeText(Home.this, "位置 : " + String.valueOf((Integer) imageView.getTag()), Toast.LENGTH_SHORT).show();
-                            //要素の削除
-                            //media_list.remove(0);
-                            //再生成
-                            ImageViewClick()
-                        }
-                    }
+                //がぞう追加
+                if (data?.data != null) {
+                    tootCardView.attachMediaList.add(data.data!!)
+                    //LinearLayout作り直す
+                    tootCardView.setAttachImageLinearLayout()
                 }
             }
     }
+
 
     /**
      * context://→file://へ変換する
@@ -1138,7 +1086,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             dialogFragment.setArguments(bundle);
             dialogFragment.show(getSupportFragmentManager(), "quick_setting");
         }
-*/
+    */
 
         /*
             case R.id.home_menu_login:
@@ -1234,7 +1182,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         if (id == R.id.action_settings) {
             return true;
         }
-*/
+    */
 
         return super.onOptionsItemSelected(item)
     }
@@ -1711,7 +1659,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 /*
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/progress", "progress");
                 CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/lunch_bonus", "lunch_bonus");
-*/
+    */
                 //CommandCode.commandSetNotPreference(Home.this, Home.this, toot_EditText, toot_LinearLayout, command_Button, "/life", "life");
                 //カウント
                 tootTextCount = toot_EditText.text.toString().length

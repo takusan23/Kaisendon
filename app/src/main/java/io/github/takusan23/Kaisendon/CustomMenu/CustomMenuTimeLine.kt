@@ -288,9 +288,11 @@ class CustomMenuTimeLine : Fragment() {
 
 
         //TootCardView更新
-        (activity as Home).tootCardView = TootCardView(activity!!, misskey?.toBoolean() ?: false)
-        (activity as Home).home_activity_frame_layout.removeAllViews()
-        (activity as Home).home_activity_frame_layout.addView((activity as Home).tootCardView.linearLayout)
+        if (!isReadOnly.toBoolean()){
+            (activity as Home).tootCardView = TootCardView(activity!!, misskey?.toBoolean() ?: false)
+            (activity as Home).home_activity_frame_layout.removeAllViews()
+            (activity as Home).home_activity_frame_layout.addView((activity as Home).tootCardView.linearLayout)
+        }
 
 
         //トゥートカウンター

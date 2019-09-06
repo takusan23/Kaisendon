@@ -3035,6 +3035,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         fab = findViewById<View>(R.id.fab) as FloatingActionButton
         drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
         val darkModeSupport = DarkModeSupport(this@Home)
+        val fragment = supportFragmentManager.findFragmentById(R.id.container_container)
 
         if (pref_setting.getBoolean("pref_bottom_navigation", false)) {
             // 上のバーとFabをけす
@@ -3047,13 +3048,20 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 drawer.openDrawer(Gravity.LEFT)
             }
             bottom_fab.setOnClickListener {
-
-                if (tootCardView.cardView.visibility == View.VISIBLE) {
-                    tootCardView.cardViewHide()
-                } else {
-                    tootCardView.cardViewShow()
+                val fragment = supportFragmentManager.findFragmentById(R.id.container_container)
+                if (fragment is CustomMenuTimeLine) {
+                    //読み取り専用？
+                    if (!fragment.isReadOnly()) {
+                        if (tootCardView.cardView.visibility == View.VISIBLE) {
+                            tootCardView.cardViewHide()
+                        } else {
+                            tootCardView.cardViewShow()
+                        }
+                    } else {
+                        //読み取り専用だと投稿権限ないよ！
+                        Toast.makeText(this, getString(R.string.read_only_toot), Toast.LENGTH_SHORT).show()
+                    }
                 }
-
                 //showTootShortcut()
             }
             //一応代入
@@ -3078,7 +3086,21 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     this, drawer, toolBer, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
             drawer.addDrawerListener(toggle)
             toggle.syncState()
-            fab.setOnClickListener { showTootShortcut() }
+            fab.setOnClickListener {
+                if (fragment is CustomMenuTimeLine) {
+                    //読み取り専用？
+                    if (!fragment.isReadOnly()) {
+                        if (tootCardView.cardView.visibility == View.VISIBLE) {
+                            tootCardView.cardViewHide()
+                        } else {
+                            tootCardView.cardViewShow()
+                        }
+                    } else {
+                        //読み取り専用だと投稿権限ないよ！
+                        Toast.makeText(this, getString(R.string.read_only_toot), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
             /*クイック設定*/
             toolBer.addView(setTimelinQuickSettings())
             tlQuickSettingSnackber = TLQuickSettingSnackber(this@Home, navigationView)

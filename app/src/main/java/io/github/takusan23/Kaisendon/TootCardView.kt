@@ -14,8 +14,12 @@ import android.net.Uri
 import android.os.BatteryManager
 import android.os.Build
 import android.provider.MediaStore
+import android.text.Editable
 import android.text.Html
+import android.text.TextWatcher
 import android.view.*
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -28,12 +32,16 @@ import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.Snackbar
+import com.squareup.picasso.Picasso
 import com.sys1yagi.mastodon4j.api.entity.Card
 import io.github.takusan23.Kaisendon.APIJSONParse.GlideSupport
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog
 import io.github.takusan23.Kaisendon.CustomMenu.UriToByte
+import io.github.takusan23.Kaisendon.Omake.ShinchokuLayout
 import io.github.takusan23.Kaisendon.PaintPOST.PaintPOSTActivity
 import kotlinx.android.synthetic.main.activity_toot.view.*
 import kotlinx.android.synthetic.main.carview_toot_layout.view.*
@@ -46,6 +54,7 @@ import java.io.File
 import java.io.IOException
 import java.net.URI
 import java.util.*
+import kotlin.concurrent.timerTask
 
 class TootCardView(val context: Context, val isMisskey: Boolean) {
 
@@ -73,6 +82,9 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
 
     var isShow = false
 
+    //オマケ機能
+    val shinchokuLayout = ShinchokuLayout(context)
+
     init {
         //初期化
         val laytoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -97,15 +109,40 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
 
         setTextLengthCount()
 
+        setOmake()
+
+    }
+
+    //おまけきのう
+    private fun setOmake() {
+        if (pref_setting.getBoolean("life_mode", false)) {
+            val sinchokuLL = shinchokuLayout.layout
+            linearLayout.toot_cardview_progress.addView(sinchokuLL)
+        }
     }
 
     fun cardViewShow() {
+        //表示アニメーションつける
+        val showAnimation =
+                AnimationUtils.loadAnimation(context, R.anim.tootcard_show_animation);
+        //Visibility変更
+        cardView.startAnimation(showAnimation)
         cardView.visibility = View.VISIBLE
         isShow = true
     }
 
     fun cardViewHide() {
-        cardView.visibility = View.GONE
+        //非表示アニメーションつける
+        val hideAnimation =
+                AnimationUtils.loadAnimation(context, R.anim.tootcard_hide_animation);
+        cardView.startAnimation(hideAnimation)
+        Timer().schedule(timerTask {
+            cardView.post {
+                cardView.visibility = View.GONE
+            }
+            this.cancel()
+        },1000)
+        //非表示
         isShow = false
     }
 
@@ -139,7 +176,27 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
 
     //文字数カウント
     fun setTextLengthCount() {
+        linearLayout.toot_card_textinput.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
 
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                //文字数
+                if (p0?.length ?: 0 < 0) {
+                    val text = "${p0?.length
+                            ?: 0}/500 ${context.getString(R.string.toot_text)}"
+                    linearLayout.toot_card_post_button.text = text
+                } else {
+                    linearLayout.toot_card_post_button.text = context.getString(R.string.toot_text)
+                }
+            }
+
+        })
     }
 
     private fun showMisskeyDrive() {
@@ -466,7 +523,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                             //確認SnackBer
                             //数確認
                             if (postMediaList.size == attachMediaList.size) {
-                                Snackbar.make(linearLayout.toot_card_textinput, R.string.note_create_message, Snackbar.LENGTH_INDEFINITE).setAction(R.string.toot_text) { mastodonStatusesPOST() }.show()
+                                Snackbar.make(linearLayout.toot_card_textinput, R.string.note_create_message, Snackbar.LENGTH_INDEFINITE).setAction(R.string.toot_text) {misskeyNoteCreatePOST() }.show()
                             }
                         } catch (e: JSONException) {
                             e.printStackTrace()
@@ -531,10 +588,10 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                 }
             }
             //画像
-            if (attachMediaList.size != 0) {
+            if (postMediaList.size != 0) {
                 val media = JSONArray()
-                for (i in Home.post_media_id.indices) {
-                    media.put(Home.post_media_id[i])
+                for (i in postMediaList) {
+                    media.put(i)
                 }
                 jsonObject.put("media_ids", media)
             }
@@ -593,11 +650,11 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                         linearLayout.toot_card_attach_linearlayout.removeAllViews()
 
                         //目標更新
-                        //shinchokuLayout.setTootChallenge()
+                        shinchokuLayout.setTootChallenge()
                         //JSONParseしてトゥート数変更する
                         val jsonObject = JSONObject(response_string)
                         val toot_count = jsonObject.getJSONObject("account").getInt("statuses_count").toString()
-                        //shinchokuLayout.setStatusProgress(toot_count)
+                        shinchokuLayout.setStatusProgress(toot_count)
                     }
                 }
             }
@@ -616,10 +673,10 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
             jsonObject.put("text", linearLayout.toot_card_textinput.text.toString())
             jsonObject.put("viaMobile", true)//スマホからなので一応
             //添付メディア
-            if (Home.post_media_id.size >= 1) {
+            if (postMediaList.size >= 1) {
                 val jsonArray = JSONArray()
-                for (i in Home.post_media_id.indices) {
-                    jsonArray.put(Home.post_media_id[i])
+                for (i in postMediaList) {
+                    jsonArray.put(i)
                 }
                 jsonObject.put("fileIds", jsonArray)
             }
@@ -981,7 +1038,6 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }
-
             }
         })
     }
@@ -1013,5 +1069,154 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
             }
         }
     }
+
+
+    //自分の情報を手に入れる Misskey版
+    private fun getMisskeyAccount() {
+
+        //Wi-Fi接続状況確認
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+
+        //カスタム絵文字有効/無効
+        var isEmojiShow = false
+        if (pref_setting.getBoolean("pref_custom_emoji", true)) {
+            if (pref_setting.getBoolean("pref_avater_wifi", true)) {
+                //WIFIのみ表示有効時
+                //ネットワーク未接続時はnullか出る
+                if (networkCapabilities != null) {
+                    if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        //WIFI
+                        isEmojiShow = true
+                    }
+                }
+            } else {
+                //WIFI/MOBILE DATA 関係なく表示
+                isEmojiShow = true
+            }
+        }
+
+        val glideSupport = GlideSupport()
+
+        //通信量節約
+        val setting_avater_hidden = pref_setting.getBoolean("pref_drawer_avater", false)
+        //Wi-Fi接続時は有効？
+        val setting_avater_wifi = pref_setting.getBoolean("pref_avater_wifi", true)
+        //GIFを再生するか？
+        val setting_avater_gif = pref_setting.getBoolean("pref_avater_gif", false)
+
+
+        val instance = pref_setting.getString("misskey_main_instance", "")
+        val token = pref_setting.getString("misskey_main_token", "")
+        val username = pref_setting.getString("misskey_main_username", "")
+        val url = "https://$instance/api/users/show"
+        val jsonObject = JSONObject()
+        try {
+            jsonObject.put("username", username)
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+
+        val requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString())
+        //作成
+        val request = Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build()
+
+        //GETリクエスト
+        val client_1 = OkHttpClient()
+        client_1.newCall(request).enqueue(object : Callback {
+
+            override fun onFailure(call: Call, e: IOException) {
+
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                val response_string = response.body()!!.string()
+                try {
+                    val jsonObject = JSONObject(response_string)
+                    val display_name = jsonObject.getString("name")
+                    //toot_count = jsonObject.getString("notesCount")
+                    val user_id = jsonObject.getString("username")
+                    var snackber_DisplayName = display_name
+                    //カスタム絵文字適用
+                    if (isEmojiShow) {
+                        //他のところでは一旦配列に入れてるけど今回はここでしか使ってないから省くね
+                        val emojis = jsonObject.getJSONArray("emojis")
+                        for (i in 0 until emojis.length()) {
+                            val emojiObject = emojis.getJSONObject(i)
+                            val emoji_name = emojiObject.getString("name")
+                            val emoji_url = emojiObject.getString("url")
+                            val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                            //display_name
+                            if (snackber_DisplayName.contains(emoji_name)) {
+                                //あったよ
+                                snackber_DisplayName = snackber_DisplayName.replace(":$emoji_name:", custom_emoji_src)
+                            }
+                        }
+                        if (!jsonObject.isNull("profile_emojis")) {
+                            val profile_emojis = jsonObject.getJSONArray("profile_emojis")
+                            for (i in 0 until profile_emojis.length()) {
+                                val emojiObject = profile_emojis.getJSONObject(i)
+                                val emoji_name = emojiObject.getString("name")
+                                val emoji_url = emojiObject.getString("url")
+                                val custom_emoji_src = "<img src=\'$emoji_url\'>"
+                                //display_name
+                                if (snackber_DisplayName.contains(emoji_name)) {
+                                    //あったよ
+                                    snackber_DisplayName = snackber_DisplayName.replace(":$emoji_name:", custom_emoji_src)
+                                }
+                            }
+                        }
+                    }
+                    val snackber_Name = "@$username@$instance"
+                    val snackber_Avatar = jsonObject.getString("avatarUrl")
+                    //UIスレッド
+                    (context as AppCompatActivity).runOnUiThread {
+                        //画像を入れる
+                        //表示設定
+                        if (setting_avater_hidden) {
+                            linearLayout.toot_card_account_imageview.setImageResource(R.drawable.ic_person_black_24dp)
+                            //linearLayout.toot_card_account_imageview.setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_IN)
+                        }
+/*
+                        Misskeyのときは静止画像は取れないっぽい？
+
+                        //GIF再生するか
+                        var url = snackber_Avatar
+                        if (setting_avater_gif) {
+                            //再生しない
+                            url = snackber_Avatar_notGif
+                        }
+*/
+                        //読み込む
+                        if (setting_avater_wifi && networkCapabilities != null) {
+                            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                                //角丸設定込み
+                                glideSupport.loadGlide(snackber_Avatar, linearLayout.toot_card_account_imageview)
+                            } else {
+                                //キャッシュで読み込む
+                                glideSupport.loadGlideReadFromCache(snackber_Avatar, linearLayout.toot_card_account_imageview)
+                            }
+                        } else {
+                            //キャッシュで読み込む
+                            glideSupport.loadGlideReadFromCache(snackber_Avatar, linearLayout.toot_card_account_imageview)
+                        }
+                        //テキストビューに入れる
+                        val imageGetter = PicassoImageGetter(linearLayout.toot_card_account_textview)
+                        linearLayout.toot_card_account_textview.text = Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null)
+                        linearLayout.toot_card_account_textview.append("\n" + user_id)
+                    }
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+
+            }
+        })
+    }
+
 
 }

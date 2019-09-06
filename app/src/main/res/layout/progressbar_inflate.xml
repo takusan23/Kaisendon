@@ -4,15 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".Fragment.SearchFragment">
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/progressber_textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="あと"
-        android:textColor="#ffffff" />
+        android:text="あと" />
 
     <ProgressBar
         android:id="@+id/progressber_infalte"

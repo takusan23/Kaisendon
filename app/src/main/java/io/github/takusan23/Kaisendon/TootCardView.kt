@@ -141,7 +141,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                 cardView.visibility = View.GONE
             }
             this.cancel()
-        },1000)
+        },500)
         //非表示
         isShow = false
     }
@@ -1067,6 +1067,8 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                 }
                 false
             }
+            //追加
+            linearLayout.toot_card_attach_linearlayout.addView(imageView)
         }
     }
 

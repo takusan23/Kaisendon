@@ -1,19 +1,13 @@
 package io.github.takusan23.Kaisendon.CustomMenu
 
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.SharedPreferences
+import android.content.*
 import android.content.res.Configuration
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
+import android.net.*
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -45,6 +39,7 @@ import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment
 import io.github.takusan23.Kaisendon.Theme.ColorThemeSupport
 import kotlinx.android.synthetic.main.app_bar_home2.*
+import kotlinx.android.synthetic.main.carview_toot_layout.view.*
 import okhttp3.*
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -288,10 +283,47 @@ class CustomMenuTimeLine : Fragment() {
 
 
         //TootCardView更新
-        if (!isReadOnly.toBoolean()){
-            (activity as Home).tootCardView = TootCardView(activity!!, misskey?.toBoolean() ?: false)
+        if (!isReadOnly.toBoolean()) {
+            (activity as Home).tootCardView = TootCardView(activity!!, misskey?.toBoolean()
+                    ?: false)
             (activity as Home).home_activity_frame_layout.removeAllViews()
             (activity as Home).home_activity_frame_layout.addView((activity as Home).tootCardView.linearLayout)
+
+            //共有内容
+            //共有を受け取る
+            val intent = (activity as Home).intent
+            val action_string = intent.action
+            if (Intent.ACTION_SEND == action_string) {
+                val extras = intent.extras
+                if (extras != null) {
+                    //URL
+                    var text = extras.getCharSequence(Intent.EXTRA_TEXT)
+                    //タイトル
+                    val title = extras.getCharSequence(Intent.EXTRA_SUBJECT)
+                    //画像URI
+                    val uri = extras.getParcelable<Uri>(Intent.EXTRA_STREAM)
+                    //EXTRA TEXTにタイトルが含まれているかもしれない？
+                    //含まれているときは消す
+                    println(text)
+                    if (text != null) {
+                        if (title != null) {
+                            text = text.toString().replace(title.toString(), "")
+                            (activity as Home).tootCardView.linearLayout.toot_card_textinput.append(title)
+                            (activity as Home).tootCardView.linearLayout.toot_card_textinput.append("\n")
+                        }
+                        (activity as Home).tootCardView.linearLayout.toot_card_textinput.append(text)
+                    }
+                    //画像
+                    if (uri != null) {
+                        (activity as Home).tootCardView.attachMediaList.add(uri)
+                        (activity as Home).tootCardView.setAttachImageLinearLayout()
+                    }
+                    //表示
+                    (activity as Home).tootCardView.cardViewShow()
+                }
+            }
+
+
         }
 
 

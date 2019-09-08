@@ -374,10 +374,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         setAppBar()
 
 
+/*
         //共有を受け取る
         val intent = intent
         val action_string = intent.action
-        //System.out.println(action_string);
         if (Intent.ACTION_SEND == action_string) {
             val extras = intent.extras
             if (extras != null) {
@@ -389,6 +389,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 val uri = extras.getParcelable<Uri>(Intent.EXTRA_STREAM)
                 //EXTRA TEXTにタイトルが含まれているかもしれない？
                 //含まれているときは消す
+                println(text)
                 if (text != null) {
                     if (title != null) {
                         text = text.toString().replace(title.toString(), "")
@@ -406,6 +407,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                 tootCardView.cardViewShow()
             }
         }
+*/
 
         //App Shortcutから起動
         if (getIntent().getBooleanExtra("toot", false)) {
@@ -3087,6 +3089,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             drawer.addDrawerListener(toggle)
             toggle.syncState()
             fab.setOnClickListener {
+                val fragment = supportFragmentManager.findFragmentById(R.id.container_container)
                 if (fragment is CustomMenuTimeLine) {
                     //読み取り専用？
                     if (!fragment.isReadOnly()) {

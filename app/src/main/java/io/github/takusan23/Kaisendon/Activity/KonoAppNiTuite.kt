@@ -42,7 +42,7 @@ class KonoAppNiTuite : AppCompatActivity() {
     //private val release_ver_6 = "6.0.4"
     //private val release_ver_6 = "6.1.0"
     //private val release_ver_6 = "6.2.0 Beta 1"
-    private val release_ver_6 = "6.2.0 2019/09/01"
+    private val release_ver_6 = "6.3.0 2019/10/12"
 
     private var version_TextView: TextView? = null
     private var pref_setting: SharedPreferences? = null

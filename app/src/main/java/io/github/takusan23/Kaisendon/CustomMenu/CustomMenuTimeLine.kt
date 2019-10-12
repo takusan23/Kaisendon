@@ -304,22 +304,25 @@ class CustomMenuTimeLine : Fragment() {
                     val uri = extras.getParcelable<Uri>(Intent.EXTRA_STREAM)
                     //EXTRA TEXTにタイトルが含まれているかもしれない？
                     //含まれているときは消す
-                    println(text)
-                    if (text != null) {
-                        if (title != null) {
-                            text = text.toString().replace(title.toString(), "")
-                            (activity as Home).tootCardView.linearLayout.toot_card_textinput.append(title)
-                            (activity as Home).tootCardView.linearLayout.toot_card_textinput.append("\n")
+
+                    //カスタムメニュー移動で毎回出るので対策
+                    if ((activity as Home).shareText != text.toString()) {
+                        if (text != null) {
+                            if (title != null) {
+                                text = text.toString().replace(title.toString(), "")
+                                (activity as Home).tootCardView.linearLayout.toot_card_textinput.append(title)
+                                (activity as Home).tootCardView.linearLayout.toot_card_textinput.append("\n")
+                            }
+                            (activity as Home).tootCardView.linearLayout.toot_card_textinput.append(text)
                         }
-                        (activity as Home).tootCardView.linearLayout.toot_card_textinput.append(text)
+                        //画像
+                        if (uri != null) {
+                            (activity as Home).tootCardView.attachMediaList.add(uri)
+                            (activity as Home).tootCardView.setAttachImageLinearLayout()
+                        }
+                        //表示
+                        (activity as Home).tootCardView.cardViewShow()
                     }
-                    //画像
-                    if (uri != null) {
-                        (activity as Home).tootCardView.attachMediaList.add(uri)
-                        (activity as Home).tootCardView.setAttachImageLinearLayout()
-                    }
-                    //表示
-                    (activity as Home).tootCardView.cardViewShow()
                 }
             }
 

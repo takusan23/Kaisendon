@@ -219,6 +219,9 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     //新しいトゥート画面
     lateinit var tootCardView: TootCardView
 
+    //共有Intent、投稿したら次回から表示されないように
+    var shareText = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

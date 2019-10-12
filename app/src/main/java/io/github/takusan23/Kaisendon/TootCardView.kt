@@ -649,6 +649,19 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                         Home.post_media_id.clear()
                         linearLayout.toot_card_attach_linearlayout.removeAllViews()
 
+                        //共有ちぇっく
+                        if (context is Home) {
+                            val intent = (context as Home).intent
+                            val action_string = intent.action
+                            if (Intent.ACTION_SEND == action_string) {
+                                val extras = intent.extras
+                                if (extras != null) {
+                                    //URL
+                                    var text = extras.getCharSequence(Intent.EXTRA_TEXT)
+                                    context.shareText = text.toString()
+                                }
+                            }
+                        }
                         //目標更新
                         shinchokuLayout.setTootChallenge()
                         //JSONParseしてトゥート数変更する

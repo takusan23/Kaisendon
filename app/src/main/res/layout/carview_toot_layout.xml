@@ -35,7 +35,7 @@
 
                     <androidx.cardview.widget.CardView
                         android:layout_margin="5dp"
-                        app:cardElevation="5sp"
+                        app:cardElevation="2sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 

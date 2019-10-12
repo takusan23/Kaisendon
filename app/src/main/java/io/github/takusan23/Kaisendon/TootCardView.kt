@@ -603,8 +603,6 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
             e.printStackTrace()
         }
 
-        println(jsonObject.toString())
-
         val requestBody_json = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString())
         val request = Request.Builder()
                 .url(url)

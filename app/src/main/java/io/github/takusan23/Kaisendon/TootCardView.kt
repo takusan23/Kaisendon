@@ -580,7 +580,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
             jsonObject.put("status", linearLayout.toot_card_textinput.text.toString())
             jsonObject.put("visibility", mastodonVisibility)
             //時間指定
-            if (isScheduledPOST) {
+            if (linearLayout.toot_card_scheduled_switch.isChecked) {
                 //System.out.println(post_date + "/" + post_time);
                 //nullCheck
                 if (scheduledDate.isNotEmpty() && scheduledTime.isNotEmpty()) {
@@ -602,6 +602,8 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
         } catch (e: JSONException) {
             e.printStackTrace()
         }
+
+        println(jsonObject.toString())
 
         val requestBody_json = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString())
         val request = Request.Builder()
@@ -626,7 +628,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                 } else {
                     (context as AppCompatActivity).runOnUiThread {
                         //予約投稿・通常投稿でトースト切り替え
-                        if (isScheduledPOST) {
+                        if (linearLayout.toot_card_scheduled_switch.isChecked) {
                             linearLayout.toot_card_scheduled_switch.isChecked = false
                             Toast.makeText(context, context.getString(R.string.time_post_ok), Toast.LENGTH_SHORT).show()
                             //予約投稿を無効化
@@ -637,7 +639,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                         //投票
                         if (isVotePOST) {
                             isVotePOST = false
-                            linearLayout.vote_use_switch.isChecked = false
+                            linearLayout.toot_card_vote_use_switch.isChecked = false
                         }
                         //EditTextを空にする
                         linearLayout.toot_card_textinput.setText("")
@@ -653,8 +655,10 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                         shinchokuLayout.setTootChallenge()
                         //JSONParseしてトゥート数変更する
                         val jsonObject = JSONObject(response_string)
-                        val toot_count = jsonObject.getJSONObject("account").getInt("statuses_count").toString()
-                        shinchokuLayout.setStatusProgress(toot_count)
+                        if (jsonObject.has("account")) {
+                            val toot_count = jsonObject.getJSONObject("account").getInt("statuses_count").toString()
+                            shinchokuLayout.setStatusProgress(toot_count)
+                        }
                     }
                 }
             }
@@ -899,8 +903,8 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                 jsonArray.put(linearLayout.toot_card_vote_editText_4.text.toString())
             }
             `object`.put("options", jsonArray)
-            `object`.put("expires_in", linearLayout.vote_editText_time.text.toString())
-            `object`.put("multiple", linearLayout.vote_multi_switch.isChecked)
+            `object`.put("expires_in", linearLayout.toot_card_vote_editText_time.text.toString())
+            `object`.put("multiple", linearLayout.toot_card_vote_multi_switch.isChecked)
             `object`.put("hide_totals", linearLayout.toot_card_vote_hide_switch.isChecked);
         } catch (e: JSONException) {
             e.printStackTrace()
@@ -1048,9 +1052,11 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
         //取得
         attachMediaList.forEach {
             val uri = it
+            val pos = attachMediaList.indexOf(it)
             val imageView = ImageView(context)
             val params = ViewGroup.LayoutParams(200, 200)
             imageView.layoutParams = params
+            imageView.tag = pos
             imageView.setImageURI(it)
             //長押ししたら削除
             imageView.setOnClickListener {
@@ -1058,16 +1064,17 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
             }
             imageView.setOnLongClickListener {
                 //削除
-                val pos = attachMediaList.indexOf(uri)
+                val pos = imageView.tag as Int
                 if (attachMediaList.contains(uri)) {
                     //けす
                     attachMediaList.removeAt(pos)
                     //添付画像のLinearLayout作り直す
                     setAttachImageLinearLayout()
                 }
-                false
+                true
             }
             //追加
+            println(attachMediaList)
             linearLayout.toot_card_attach_linearlayout.addView(imageView)
         }
     }

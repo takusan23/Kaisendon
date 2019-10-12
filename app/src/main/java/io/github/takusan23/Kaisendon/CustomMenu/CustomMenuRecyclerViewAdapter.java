@@ -2395,7 +2395,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
      */
     private void setTransparency(ViewHolder viewHolder, CustomMenuJSONParse setting) {
         //CardView取得
-        CardView cardView = (CardView) viewHolder.mainLinearLayout.getParent();
+        CardView cardView = (CardView) viewHolder.mainLinearLayout.getParent().getParent();
         //透明度
         //背景画像設定時のみ
         if (setting.getImage_url().length() != 0) {

@@ -95,14 +95,14 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
 
         setClickEvent()
 
-        getAccount()
-
         //Misskey/Mastodon
         if (isMisskey) {
+            getMisskeyAccount()
             linearLayout.toot_card_vote_button.visibility = View.GONE
             linearLayout.toot_card_time_button.visibility = View.GONE
             linearLayout.toot_card_misskey_drive.visibility = View.VISIBLE
         } else {
+            getAccount()
             linearLayout.toot_card_misskey_drive.visibility = View.GONE
             linearLayout.toot_card_vote_button.visibility = View.VISIBLE
             linearLayout.toot_card_time_button.visibility = View.VISIBLE
@@ -115,7 +115,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
 
     //おまけきのう
     private fun setOmake() {
-        if (pref_setting.getBoolean("life_mode", false)) {
+        if (pref_setting.getBoolean("life_mode", false) && !isMisskey) {
             val sinchokuLL = shinchokuLayout.layout
             linearLayout.toot_cardview_progress.addView(sinchokuLL)
         }
@@ -972,7 +972,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                     val jsonObject = JSONObject(response_string)
                     var display_name = jsonObject.getString("display_name")
                     val user_id = jsonObject.getString("acct")
-                    //toot_count = jsonObject.getString("statuses_count")
+                    val toot_count = jsonObject.getString("statuses_count")
                     //カスタム絵文字適用
                     if (isEmojiShow) {
                         //他のところでは一旦配列に入れてるけど今回はここでしか使ってないから省くね
@@ -1037,7 +1037,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                         linearLayout.toot_card_account_textview.text = Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null)
                         linearLayout.toot_card_account_textview.append("\n" + accountText)
                         //裏機能？
-                        //shinchokuLayout.setStatusProgress(toot_count)
+                        shinchokuLayout.setStatusProgress(toot_count)
                     }
                 } catch (e: JSONException) {
                     e.printStackTrace()

@@ -644,6 +644,9 @@ class CustomMenuTimeLine : Fragment() {
             } else {
                 url = " https://" + instance + "/api/v1/timelines/tag/" + customMenuJSONParse.name
             }
+        } else if (url?.contains("direct") == true) {
+            //Mastodon Ver 3.0 からダイレクトメッセージのAPIがかわった
+            url = "https://$instance/api/v1/conversations"
         } else {
             //ハッシュタグ以外はここから取れる
             url = desktopModeURL

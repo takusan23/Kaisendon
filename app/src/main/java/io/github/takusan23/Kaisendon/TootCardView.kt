@@ -93,8 +93,9 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
         cardView = linearLayout.toot_card_parent_cardview
         cardView.visibility = View.GONE
 
-        getAccount()
         setClickEvent()
+
+        getAccount()
 
         //Misskey/Mastodon
         if (isMisskey) {
@@ -110,7 +111,6 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
         setTextLengthCount()
 
         setOmake()
-
     }
 
     //おまけきのう
@@ -141,7 +141,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                 cardView.visibility = View.GONE
             }
             this.cancel()
-        },500)
+        }, 500)
         //非表示
         isShow = false
     }
@@ -159,7 +159,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
         linearLayout.toot_card_vote_button.setOnClickListener {
             showVote()
         }
-        linearLayout.toot_card_scheduled_time_button.setOnClickListener {
+        linearLayout.toot_card_time_button.setOnClickListener {
             showScheduled()
         }
         linearLayout.toot_card_paint_post_button.setOnClickListener {
@@ -247,9 +247,9 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                 codeName = "10"
             }
         }
-        view.setOnClickListener {
-            device_optionsMenu.show()
-        }
+
+        device_optionsMenu.show()
+
         val bm = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         device_menuBuilder.setCallback(object : MenuBuilder.Callback {
             override fun onMenuItemSelected(menuBuilder: MenuBuilder, menuItem: MenuItem): Boolean {
@@ -295,10 +295,10 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
     fun showScheduled() {
         if (linearLayout.toot_card_scheduled_linearlayout.visibility == View.GONE) {
             isScheduledPOST = true
-            linearLayout.toot_card_scheduled_linearlayout.visibility == View.VISIBLE
+            linearLayout.toot_card_scheduled_linearlayout.visibility = View.VISIBLE
         } else {
             isScheduledPOST = false
-            linearLayout.toot_card_scheduled_linearlayout.visibility == View.GONE
+            linearLayout.toot_card_scheduled_linearlayout.visibility = View.GONE
         }
         linearLayout.toot_card_scheduled_time_button.setOnClickListener {
             //時間ピッカー
@@ -313,10 +313,10 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
     fun showVote() {
         if (linearLayout.toot_card_vote_linearlayout.visibility == View.GONE) {
             isVotePOST = true
-            linearLayout.toot_card_vote_linearlayout.visibility == View.VISIBLE
+            linearLayout.toot_card_vote_linearlayout.visibility = View.VISIBLE
         } else {
             isVotePOST = false
-            linearLayout.toot_card_vote_linearlayout.visibility == View.GONE
+            linearLayout.toot_card_vote_linearlayout.visibility = View.GONE
         }
     }
 
@@ -523,7 +523,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                             //確認SnackBer
                             //数確認
                             if (postMediaList.size == attachMediaList.size) {
-                                Snackbar.make(linearLayout.toot_card_textinput, R.string.note_create_message, Snackbar.LENGTH_INDEFINITE).setAction(R.string.toot_text) {misskeyNoteCreatePOST() }.show()
+                                Snackbar.make(linearLayout.toot_card_textinput, R.string.note_create_message, Snackbar.LENGTH_INDEFINITE).setAction(R.string.toot_text) { misskeyNoteCreatePOST() }.show()
                             }
                         } catch (e: JSONException) {
                             e.printStackTrace()

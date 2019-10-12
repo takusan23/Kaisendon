@@ -147,10 +147,10 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
 
         //削除ボタン
         //ListViewから来たとき
-        if (arguments?.getBoolean("delete_button", false) ?: false) {
+        if (arguments?.getBoolean("delete_button", false) == true) {
             loadSQLite(arguments!!.getString("name"))
-            custom_menu_title_textview.setText(context?.getString(R.string.custom_menu_update_title))
-            custom_menu_save_button.setText(context?.getString(R.string.apply))
+            custom_menu_title_textview.text = context?.getString(R.string.custom_menu_update_title)
+            custom_menu_save_button.text = context?.getString(R.string.apply)
         }
 
 
@@ -251,7 +251,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                         //読み取り専用レイアウトけす
                         custom_menu_account_linearlayout.visibility = View.GONE
 
-                        when (menuItem.getItemId()) {
+                        when (menuItem.itemId) {
                             R.id.custom_menu_load_home -> {
                                 load_url = "/api/v1/timelines/home"
                                 custom_menu_load.setText(R.string.home)
@@ -297,13 +297,13 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                             R.id.custom_menu_load_hastag_tl_local -> {
                                 showHashtagMessageToast()
                                 load_url = "/api/v1/timelines/tag/?local=true"
-                                custom_menu_load.setText(getString(R.string.hash_tag_tl_local))
+                                custom_menu_load.text = getString(R.string.hash_tag_tl_local)
                                 custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_label_outline_black_24dp, 0, 0, 0)
                             }
                             R.id.custom_menu_load_hastag_tl_public -> {
                                 showHashtagMessageToast()
                                 load_url = "/api/v1/timelines/tag/"
-                                custom_menu_load.setText(getString(R.string.hash_tag_tl_public))
+                                custom_menu_load.text = getString(R.string.hash_tag_tl_public)
                                 custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_label_outline_black_24dp, 0, 0, 0)
                             }
                         }
@@ -358,12 +358,12 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                 val client_1 = OkHttpClient()
                 client_1.newCall(request).enqueue(object : Callback {
 
-                    public override fun onFailure(call: Call, e: IOException) {
+                    override fun onFailure(call: Call, e: IOException) {
 
                     }
 
                     @Throws(IOException::class)
-                    public override fun onResponse(call: Call, response: Response) {
+                    override fun onResponse(call: Call, response: Response) {
                         val response_string = response.body()!!.string()
                         try {
                             val jsonObject = JSONObject(response_string)
@@ -380,20 +380,20 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
 
         //押したときの処理
         custom_menu_account.setOnClickListener(object : View.OnClickListener {
-            public override fun onClick(v: View) {
+            override fun onClick(v: View) {
                 //追加中に押したら落ちるから回避
                 //Knzk.meなどの終了した鯖があると絶対動かないので一個以上あれば動くように修正
-                if (account_menuBuilder.size() ?: 0 >= 1) {
+                if (account_menuBuilder.size() >= 1) {
                     account_optionsMenu.show()
                     account_menuBuilder.setCallback(object : MenuBuilder.Callback {
                         override fun onMenuItemSelected(menuBuilder: MenuBuilder, menuItem: MenuItem): Boolean {
 
                             //ItemIdにマルチアカウントのカウントを入れている
-                            val position = menuItem.getItemId()
+                            val position = menuItem.itemId
 
                             instance = multi_account_instance.get(position)
                             access_token = multi_account_access_token.get(position)
-                            custom_menu_account.setText(instance)
+                            custom_menu_account.text = instance
                             return false
                         }
 
@@ -426,13 +426,13 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         val optionsMenu = MenuPopupHelper(context!!, menuBuilder, custom_menu_load)
         optionsMenu.setForceShowIcon(true)
         custom_menu_load.setOnClickListener(object : View.OnClickListener {
-            public override fun onClick(v: View) {
+            override fun onClick(v: View) {
                 //表示
                 optionsMenu.show()
                 //押したときの反応
                 menuBuilder.setCallback(object : MenuBuilder.Callback {
-                    public override fun onMenuItemSelected(menuBuilder: MenuBuilder, menuItem: MenuItem): Boolean {
-                        when (menuItem.getItemId()) {
+                    override fun onMenuItemSelected(menuBuilder: MenuBuilder, menuItem: MenuItem): Boolean {
+                        when (menuItem.itemId) {
                             R.id.misskey_custom_menu_load_home -> {
                                 load_url = "/api/notes/timeline"
                                 custom_menu_load.setText(R.string.home)
@@ -457,7 +457,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                         return false
                     }
 
-                    public override fun onMenuModeChange(menuBuilder: MenuBuilder) {
+                    override fun onMenuModeChange(menuBuilder: MenuBuilder) {
 
                     }
                 })
@@ -518,18 +518,18 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                 //GETリクエスト
                 val client_1 = OkHttpClient()
                 client_1.newCall(request).enqueue(object : Callback {
-                    public override fun onFailure(call: Call, e: IOException) {
+                    override fun onFailure(call: Call, e: IOException) {
 
                     }
 
                     @Throws(IOException::class)
-                    public override fun onResponse(call: Call, response: Response) {
+                    override fun onResponse(call: Call, response: Response) {
                         val response_string = response.body()!!.string()
                         try {
                             val jsonObject = JSONObject(response_string)
                             val display_name = jsonObject.getString("name")
                             val user_id = jsonObject.getString("username")
-                            account_menuBuilder!!.add(0, finalCount, 0, display_name + "(" + user_id + " / " + multi_instance + ")")
+                            account_menuBuilder.add(0, finalCount, 0, display_name + "(" + user_id + " / " + multi_instance + ")")
                         } catch (e: JSONException) {
                             e.printStackTrace()
                         }
@@ -541,7 +541,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
 
         //押したときの処理
         custom_menu_account.setOnClickListener(object : View.OnClickListener {
-            public override fun onClick(v: View) {
+            override fun onClick(v: View) {
                 //追加中に押したら落ちるから回避
                 if (account_menuBuilder.size() == multi_account_instance.size) {
                     account_optionsMenu.show()
@@ -549,10 +549,10 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                         override fun onMenuItemSelected(menuBuilder: MenuBuilder, menuItem: MenuItem): Boolean {
 
                             //ItemIdにマルチアカウントのカウントを入れている
-                            val position = menuItem.getItemId()
+                            val position = menuItem.itemId
                             instance = multi_account_instance.get(position)
                             access_token = multi_account_access_token.get(position)
-                            custom_menu_account.setText(instance)
+                            custom_menu_account.text = instance
                             misskey_username = multi_account_username.get(position)
                             return false
                         }
@@ -700,7 +700,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
             }
             //content://からfile://へ変換する
             typeface = Typeface.createFromFile(File(font_path))
-            font_textView.setTypeface(typeface)
+            font_textView.typeface = typeface
             custom_menu_font.text = font_path
         }
     }
@@ -732,7 +732,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                     } else {
                         //画像選択
                         val photoPickerIntent = Intent(Intent.ACTION_PICK)
-                        photoPickerIntent.setType("image/*")
+                        photoPickerIntent.type = "image/*"
                         startActivityForResult(photoPickerIntent, 1)
                         //onActivityResultで処理
                     }
@@ -741,7 +741,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         })
         //リセットボタン
         custom_background_image_reset_button.setOnClickListener(object : View.OnClickListener {
-            public override fun onClick(v: View) {
+            override fun onClick(v: View) {
                 //リンクをリセット
                 image_url = ""
                 //URI画像を入れる
@@ -782,7 +782,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
             if (files != null) {
                 //PopupMenu
                 popupMenu = PopupMenu(context, custom_menu_font)
-                val menu = popupMenu.getMenu()
+                val menu = popupMenu.menu
                 //ディレクトリの中0個
                 if (files.size == 0) {
                     file_404 = true
@@ -790,7 +790,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                     for (i in files.indices) {
                         //追加
                         //ItemIDに配列の番号を入れる
-                        menu.add(0, i, 0, files[i].getName())
+                        menu.add(0, i, 0, files[i].name)
                     }
                 }
             }
@@ -803,11 +803,11 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         val finalFiles = files
         if (popupMenu != null) {
             popupMenu.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
-                public override fun onMenuItemClick(item: MenuItem): Boolean {
-                    custom_menu_font.setText(finalFiles!![item.getItemId()].getPath())
-                    font_path = finalFiles!![item.getItemId()].getPath()
+                override fun onMenuItemClick(item: MenuItem): Boolean {
+                    custom_menu_font.text = finalFiles!![item.itemId].path
+                    font_path = finalFiles[item.itemId].path
                     typeface = Typeface.createFromFile(File(font_path))
-                    font_textView.setTypeface(typeface)
+                    font_textView.typeface = typeface
                     return false
                 }
             })
@@ -828,10 +828,10 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
 
 
         custom_menu_font_reset.setOnClickListener(object : View.OnClickListener {
-            public override fun onClick(v: View) {
+            override fun onClick(v: View) {
                 font_path = ""
-                custom_menu_font.setText("")
-                font_textView.setTypeface(TextView(context).getTypeface())
+                custom_menu_font.text = ""
+                font_textView.typeface = TextView(context).typeface
             }
         })
     }
@@ -845,52 +845,57 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         //JSON化
         val jsonObject = JSONObject()
         try {
+
+            //アクセストークンが無くてもローカルTL（読み取り専用）なら許可
+            var isReadOnly = false
+            if (access_token?.isEmpty() ?: false && load_url?.contains("/api/v1/timelines/public?local=true") ?: false) {
+                isReadOnly = true
+            }
+
             //必須項目が埋まってるか確認
-            if (custom_menu_name_edittext_edittext.getText().toString().isNotEmpty() && load_url?.isNotEmpty() ?: false) {
-                //アクセストークンが無くてもローカルTL（読み取り専用）なら許可
-                if (access_token?.isEmpty() ?: false || load_url?.contains("/api/v1/timelines/public?local=true") ?: false) {
-                    jsonObject.put("misskey", (misskey_switch.isChecked()).toString())
-                    jsonObject.put("name", custom_menu_name_edittext_edittext.getText().toString())
-                    jsonObject.put("memo", "")
-                    jsonObject.put("content", load_url)
-                    jsonObject.put("instance", getInstanceName())
-                    jsonObject.put("access_token", access_token ?: "")
-                    jsonObject.put("image_load", (custom_menu_image.isChecked()).toString())
-                    jsonObject.put("dialog", (custom_menu_dialog.isChecked()).toString())
-                    jsonObject.put("position", "")
-                    jsonObject.put("streaming", (!custom_menu_streaming.isChecked()).toString()) //反転させてONのときStereaming有効に
-                    jsonObject.put("subtitle", custom_menu_subtitle_edittext_edittext.getText().toString())
-                    jsonObject.put("image_url", image_url)
-                    jsonObject.put("background_transparency", custom_menu_background_transoarency_edittext_edittext.getText().toString())
-                    jsonObject.put("background_screen_fit", (custom_menu_background_screen_fit_switch.isChecked()).toString())
-                    jsonObject.put("quick_profile", (custom_menu_quickprofile.isChecked()).toString())
-                    jsonObject.put("toot_counter", (custom_menu_tootcounter.isChecked()).toString())
-                    jsonObject.put("custom_emoji", (custom_menu_custom_emoji.isChecked()).toString())
-                    jsonObject.put("gif", (custom_menu_gif.isChecked()).toString())
-                    jsonObject.put("font", (font_path).toString())
-                    jsonObject.put("one_hand", (custom_menu_one_hand.isChecked()).toString())
-                    jsonObject.put("misskey_username", misskey_username)
-                    jsonObject.put("read_only", custom_menu_read_only_instance_switch.isChecked.toString())
-                    jsonObject.put("setting", "")
-                    //テーマ用JSONオブジェクト
-                    val themeJsonObject = JSONObject()
-                    themeJsonObject.put("theme_darkmode", theme_darkmode_switch.isChecked().toString())
-                    themeJsonObject.put("theme_status_bar_color", theme_status_bar_color_edittext.text.toString())
-                    themeJsonObject.put("theme_nav_bar_color", theme_nav_bar_color_edittext.text.toString())
-                    themeJsonObject.put("theme_tool_bar_color", theme_tool_bar_color_edittext.text.toString())
-                    themeJsonObject.put("theme_background_color", theme_background_color_edittext.text.toString())
-                    themeJsonObject.put("theme_toot_background_color", theme_toot_background_color_edittext.text.toString())
-                    themeJsonObject.put("theme_text_icon_color", theme_text_icon_color_edittext.text.toString())
-                    themeJsonObject.put("theme_post_button_background_color", theme_post_button_background_color_edittext.text.toString())
-                    themeJsonObject.put("theme_post_button_icon_color", theme_post_button_icon_color_edittext.text.toString())
-                    jsonObject.put("theme", themeJsonObject)
-                }
+            if (custom_menu_name_edittext_edittext.text.toString().isNotEmpty() && load_url?.isNotEmpty() == true || isReadOnly) {
+                jsonObject.put("misskey", (misskey_switch.isChecked).toString())
+                jsonObject.put("name", custom_menu_name_edittext_edittext.text.toString())
+                jsonObject.put("memo", "")
+                jsonObject.put("content", load_url)
+                jsonObject.put("instance", getInstanceName())
+                jsonObject.put("access_token", access_token ?: "")
+                jsonObject.put("image_load", (custom_menu_image.isChecked).toString())
+                jsonObject.put("dialog", (custom_menu_dialog.isChecked).toString())
+                jsonObject.put("position", "")
+                jsonObject.put("streaming", (!custom_menu_streaming.isChecked).toString()) //反転させてONのときStereaming有効に
+                jsonObject.put("subtitle", custom_menu_subtitle_edittext_edittext.text.toString())
+                jsonObject.put("image_url", image_url)
+                jsonObject.put("background_transparency", custom_menu_background_transoarency_edittext_edittext.text.toString())
+                jsonObject.put("background_screen_fit", (custom_menu_background_screen_fit_switch.isChecked).toString())
+                jsonObject.put("quick_profile", (custom_menu_quickprofile.isChecked).toString())
+                jsonObject.put("toot_counter", (custom_menu_tootcounter.isChecked).toString())
+                jsonObject.put("custom_emoji", (custom_menu_custom_emoji.isChecked).toString())
+                jsonObject.put("gif", (custom_menu_gif.isChecked).toString())
+                jsonObject.put("font", (font_path).toString())
+                jsonObject.put("one_hand", (custom_menu_one_hand.isChecked).toString())
+                jsonObject.put("misskey_username", misskey_username)
+                jsonObject.put("read_only", custom_menu_read_only_instance_switch.isChecked.toString())
+                jsonObject.put("setting", "")
+                //テーマ用JSONオブジェクト
+                val themeJsonObject = JSONObject()
+                themeJsonObject.put("theme_darkmode", theme_darkmode_switch.isChecked.toString())
+                themeJsonObject.put("theme_status_bar_color", theme_status_bar_color_edittext.text.toString())
+                themeJsonObject.put("theme_nav_bar_color", theme_nav_bar_color_edittext.text.toString())
+                themeJsonObject.put("theme_tool_bar_color", theme_tool_bar_color_edittext.text.toString())
+                themeJsonObject.put("theme_background_color", theme_background_color_edittext.text.toString())
+                themeJsonObject.put("theme_toot_background_color", theme_toot_background_color_edittext.text.toString())
+                themeJsonObject.put("theme_text_icon_color", theme_text_icon_color_edittext.text.toString())
+                themeJsonObject.put("theme_post_button_background_color", theme_post_button_background_color_edittext.text.toString())
+                themeJsonObject.put("theme_post_button_icon_color", theme_post_button_icon_color_edittext.text.toString())
+                jsonObject.put("theme", themeJsonObject)
+
             }
         } catch (e: JSONException) {
             e.printStackTrace()
         }
 
-        values.put("name", custom_menu_name_edittext_edittext.getText().toString())
+        values.put("name", custom_menu_name_edittext_edittext.text.toString())
         values.put("setting", jsonObject.toString())
         db.insert("custom_menudb", null, values)
     }
@@ -903,27 +908,27 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         //JSON化
         val jsonObject = JSONObject()
         try {
-            jsonObject.put("misskey", (misskey_switch.isChecked()).toString())
-            jsonObject.put("name", custom_menu_name_edittext_edittext.getText().toString())
+            jsonObject.put("misskey", (misskey_switch.isChecked).toString())
+            jsonObject.put("name", custom_menu_name_edittext_edittext.text.toString())
             jsonObject.put("memo", "")
             jsonObject.put("content", load_url)
             jsonObject.put("instance", getInstanceName())
             jsonObject.put("access_token", access_token ?: "")
-            jsonObject.put("image_load", (custom_menu_image.isChecked()).toString())
-            jsonObject.put("dialog", (custom_menu_dialog.isChecked()).toString())
+            jsonObject.put("image_load", (custom_menu_image.isChecked).toString())
+            jsonObject.put("dialog", (custom_menu_dialog.isChecked).toString())
             //jsonObject.put("dark_mode", (custom_menu_darkmode.isChecked()).toString())
             jsonObject.put("position", "")
-            jsonObject.put("streaming", (!custom_menu_streaming.isChecked()).toString()) //反転させてONのときStereaming有効に
-            jsonObject.put("subtitle", custom_menu_subtitle_edittext_edittext.getText().toString())
+            jsonObject.put("streaming", (!custom_menu_streaming.isChecked).toString()) //反転させてONのときStereaming有効に
+            jsonObject.put("subtitle", custom_menu_subtitle_edittext_edittext.text.toString())
             jsonObject.put("image_url", image_url)
-            jsonObject.put("background_transparency", custom_menu_background_transoarency_edittext_edittext.getText().toString())
-            jsonObject.put("background_screen_fit", (custom_menu_background_screen_fit_switch.isChecked()).toString())
-            jsonObject.put("quick_profile", (custom_menu_quickprofile.isChecked()).toString())
-            jsonObject.put("toot_counter", (custom_menu_tootcounter.isChecked()).toString())
-            jsonObject.put("custom_emoji", (custom_menu_custom_emoji.isChecked()).toString())
-            jsonObject.put("gif", (custom_menu_gif.isChecked()).toString())
+            jsonObject.put("background_transparency", custom_menu_background_transoarency_edittext_edittext.text.toString())
+            jsonObject.put("background_screen_fit", (custom_menu_background_screen_fit_switch.isChecked).toString())
+            jsonObject.put("quick_profile", (custom_menu_quickprofile.isChecked).toString())
+            jsonObject.put("toot_counter", (custom_menu_tootcounter.isChecked).toString())
+            jsonObject.put("custom_emoji", (custom_menu_custom_emoji.isChecked).toString())
+            jsonObject.put("gif", (custom_menu_gif.isChecked).toString())
             jsonObject.put("font", (font_path).toString())
-            jsonObject.put("one_hand", (custom_menu_one_hand.isChecked()).toString())
+            jsonObject.put("one_hand", (custom_menu_one_hand.isChecked).toString())
             jsonObject.put("misskey_username", misskey_username)
             //jsonObject.put("no_fav_icon", no_fav_icon_path)
             //jsonObject.put("yes_fav_icon", yes_fav_icon_path)
@@ -931,7 +936,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
             jsonObject.put("setting", "")
             //テーマ用JSONオブジェクト
             val themeJsonObject = JSONObject()
-            themeJsonObject.put("theme_darkmode", theme_darkmode_switch.isChecked().toString())
+            themeJsonObject.put("theme_darkmode", theme_darkmode_switch.isChecked.toString())
             themeJsonObject.put("theme_status_bar_color", theme_status_bar_color_edittext.text.toString())
             themeJsonObject.put("theme_nav_bar_color", theme_nav_bar_color_edittext.text.toString())
             themeJsonObject.put("theme_tool_bar_color", theme_tool_bar_color_edittext.text.toString())
@@ -945,7 +950,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
             e.printStackTrace()
         }
 
-        values.put("name", custom_menu_name_edittext_edittext.getText().toString())
+        values.put("name", custom_menu_name_edittext_edittext.text.toString())
         values.put("setting", jsonObject.toString())
         db.update("custom_menudb", values, "name=?", arrayOf<String>(name!!))
     }
@@ -965,33 +970,33 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                 arrayOf<String>(name!!), null, null, null
         )
         cursor.moveToFirst()
-        for (i in 0 until cursor.getCount()) {
+        for (i in 0 until cursor.count) {
             try {
                 val jsonObject = JSONObject(cursor.getString(0))
                 val customMenuJSONParse = CustomMenuJSONParse(jsonObject.toString())
-                misskey_switch.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.misskey))
+                misskey_switch.isChecked = java.lang.Boolean.valueOf(customMenuJSONParse.misskey)
                 custom_menu_name_edittext_edittext.setText(customMenuJSONParse.name)
                 urlToContent(customMenuJSONParse.content)
                 instance = customMenuJSONParse.instance
-                custom_menu_account.setText(instance)
+                custom_menu_account.text = instance
                 access_token = customMenuJSONParse.access_token
-                custom_menu_image.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.image_load))
+                custom_menu_image.isChecked = java.lang.Boolean.valueOf(customMenuJSONParse.image_load)
                 //custom_menu_darkmode.setChecked(java.lang.Boolean.valueOf(jsonObject.getString("dark_mode")))
-                custom_menu_streaming.setChecked(!java.lang.Boolean.valueOf(customMenuJSONParse.streaming))
-                custom_menu_dialog.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.dialog))
+                custom_menu_streaming.isChecked = !java.lang.Boolean.valueOf(customMenuJSONParse.streaming)
+                custom_menu_dialog.isChecked = java.lang.Boolean.valueOf(customMenuJSONParse.dialog)
                 custom_menu_subtitle_edittext_edittext.setText(customMenuJSONParse.subtitle)
-                custom_background_image_button.setText(customMenuJSONParse.image_url)
+                custom_background_image_button.text = customMenuJSONParse.image_url
                 image_url = customMenuJSONParse.image_url
-                custom_background_image_button.setText(image_url)
+                custom_background_image_button.text = image_url
                 Glide.with(this).load(customMenuJSONParse.image_url).into(custom_background_image_imageview)
                 custom_menu_background_transoarency_edittext_edittext.setText(customMenuJSONParse.background_transparency)
-                custom_menu_background_screen_fit_switch.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.background_screen_fit))
-                custom_menu_quickprofile.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.quick_profile))
-                custom_menu_tootcounter.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.toot_counter))
-                custom_menu_custom_emoji.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.custom_emoji))
-                custom_menu_gif.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.gif))
-                custom_menu_one_hand.setChecked(java.lang.Boolean.valueOf(customMenuJSONParse.one_hand))
-                custom_menu_font.setText(customMenuJSONParse.font)
+                custom_menu_background_screen_fit_switch.isChecked = java.lang.Boolean.valueOf(customMenuJSONParse.background_screen_fit)
+                custom_menu_quickprofile.isChecked = java.lang.Boolean.valueOf(customMenuJSONParse.quick_profile)
+                custom_menu_tootcounter.isChecked = java.lang.Boolean.valueOf(customMenuJSONParse.toot_counter)
+                custom_menu_custom_emoji.isChecked = java.lang.Boolean.valueOf(customMenuJSONParse.custom_emoji)
+                custom_menu_gif.isChecked = java.lang.Boolean.valueOf(customMenuJSONParse.gif)
+                custom_menu_one_hand.isChecked = java.lang.Boolean.valueOf(customMenuJSONParse.one_hand)
+                custom_menu_font.text = customMenuJSONParse.font
                 font_path = customMenuJSONParse.font
                 isReadOnly = customMenuJSONParse.isReadOnly.toBoolean()
                 custom_menu_read_only_instance_switch.isChecked = isReadOnly
@@ -1029,7 +1034,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
 
     private fun dpToPx(dp: Int): Int {
         // https://developer.android.com/guide/practices/screens_support.html#dips-pels
-        val density = Resources.getSystem().getDisplayMetrics().density
+        val density = Resources.getSystem().displayMetrics.density
         return (dp * density + 0.5f).toInt()
     }
 
@@ -1044,29 +1049,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         display.getMetrics(displayMetrics)
         val width = if (displayMetrics.widthPixels < 1980) displayMetrics.widthPixels else 1980
         val height = -1 // MATCH_PARENT
-        dialog?.getWindow()?.setLayout(width, height)
-    }
-
-    override fun onPause() {
-        super.onPause()
-/*
-        val allClearDialog = AlertDialog.Builder(context!!)
-                .setTitle("編集画面を閉じますか？")
-                .setMessage("閉じると内容がなくなります。よろしいですか？")
-                .setPositiveButton("閉じる") { dialogInterface, i ->
-                    this@AddCustomMenuBottomFragment.dismiss()
-                }
-                .setNegativeButton(getString(R.string.cancel)) { dialogInterface: DialogInterface, i: Int ->
-                    this@AddCustomMenuBottomFragment.show(fragmentManager!!,"add_custom_menu")
-                }
-                .show()
-        //https://stackoverflow.com/questions/9467026/changing-position-of-the-dialog-on-screen-android
-        val window = allClearDialog.window
-        val layoutParams = window?.attributes
-        layoutParams?.gravity = Gravity.BOTTOM
-        layoutParams?.flags = WindowManager.LayoutParams.FLAG_DIM_BEHIND
-        window?.attributes = layoutParams
-*/
+        dialog?.window?.setLayout(width, height)
     }
 
 

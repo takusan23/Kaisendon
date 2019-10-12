@@ -37,9 +37,9 @@ class SettingFragment : PreferenceFragmentCompat() {
         //ばらまかれると嫌なので別にディレクトリ生成
         val kaisendonCacheDirectory = File(cacheDirectory, "Kaisendon-PaintCache")
         //設定項目取り出し
-        val cache_clear = findPreference("pref_paint_cache_clear")
+        val cache_clear: Preference? = findPreference("pref_paint_cache_clear")
         //チェック
-        if (kaisendonCacheDirectory.exists()){
+        if (kaisendonCacheDirectory.exists() && cache_clear != null) {
             //なんとなく枚数と容量だす。
             cache_clear.summary = cache_clear.summary.toString() + "\n枚数 : ${kaisendonCacheDirectory.listFiles().size} / 容量 : ${byteToMB(kaisendonCacheDirectory.length())} MB"
             //押した時

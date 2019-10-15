@@ -555,10 +555,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                     }
                 }
             } else {
-                //Layout Remove
-                if (((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()) != null) {
-                    ((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()).removeView(viewHolder.toot_avatar_ImageView);
-                }
+                //レイアウト非表示
+                viewHolder.toot_avatar_ImageView.setVisibility(View.GONE);
             }
         }
     }
@@ -578,10 +576,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 Glide.with(viewHolder.toot_avatar_ImageView.getContext()).load(api.getAvatar_url()).into(viewHolder.toot_avatar_ImageView);
             }
         } else {
-            //Layout Remove
-            if (((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()) != null) {
-                ((LinearLayout) viewHolder.toot_avatar_ImageView.getParent()).removeView(viewHolder.toot_avatar_ImageView);
-            }
+            //レイアウト非表示
+            viewHolder.toot_avatar_ImageView.setVisibility(View.GONE);
         }
     }
 
@@ -999,10 +995,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                             glideSupport.loadOfflineGlide(url, viewHolder.reblog_avatar_ImageView);
                         }
                     } else {
-                        //Layout Remove
-                        if (((LinearLayout) viewHolder.reblog_avatar_ImageView.getParent()) != null) {
-                            ((LinearLayout) viewHolder.reblog_avatar_ImageView.getParent()).removeView(viewHolder.reblog_avatar_ImageView);
-                        }
+                        //レイアウト非表示
+                        viewHolder.reblog_avatar_ImageView.setVisibility(View.GONE);
                     }
                 }
                 PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.reblog_toot_text_TextView);

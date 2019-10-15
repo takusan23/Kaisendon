@@ -12,11 +12,25 @@
         android:layout_height="match_parent"
         app:srcCompat="@drawable/ic_android_black_24dp" />
 
-    <TextView
-        android:id="@+id/widget_listview_layout_textview"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="JSONパース失敗　T_T"
-        android:textSize="14dp" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/widget_listview_layout_textview_account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="JSONパース失敗　T_T"
+            android:textSize="14dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_listview_layout_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="JSONパース失敗　T_T"
+            android:textSize="14dp" />
+    </LinearLayout>
 
 </LinearLayout>

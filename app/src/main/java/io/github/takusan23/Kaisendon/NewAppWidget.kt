@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.app.RemoteInput
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -35,13 +36,20 @@ class NewAppWidget : AppWidgetProvider() {
         super.onUpdate(ctx, manager, appWidgetIds)
 
         for (appWidgetId in appWidgetIds) {
-            val remoteViewsFactoryIntent = Intent(ctx, WidgetService::class.java)
             val rv = RemoteViews(ctx.packageName, R.layout.new_app_widget)
+            val remoteViewsFactoryIntent = Intent(ctx, WidgetService::class.java)
             rv.setRemoteAdapter(R.id.widget_listview, remoteViewsFactoryIntent)
 
             setOnButtonClickPendingIntent_Load(ctx, rv, appWidgetId)
             setOnButtonClickPendingIntent_Toot(ctx, rv, appWidgetId)
             setOnButtonClickPendingIntent_Lunch(ctx, rv, appWidgetId)
+
+            //タイムライン選択
+            //requestCodeはかぶんないように適当
+            rv.setOnClickPendingIntent(R.id.widget_button_home, getPendingIntent(ctx, appWidgetId, "Home", 12))
+            rv.setOnClickPendingIntent(R.id.widget_button_notification, getPendingIntent(ctx, appWidgetId, "Notification", 34))
+            rv.setOnClickPendingIntent(R.id.widget_button_local, getPendingIntent(ctx, appWidgetId, "Local", 45))
+            rv.setOnClickPendingIntent(R.id.widget_button_public, getPendingIntent(ctx, appWidgetId, "Federated", 56))
 
             val URLJumpIntent = Intent(ctx, NewAppWidget::class.java)
             val URLJumpPendingIntent = PendingIntent.getBroadcast(ctx, 30, URLJumpIntent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -54,9 +62,26 @@ class NewAppWidget : AppWidgetProvider() {
     override fun onReceive(ctx: Context, intent: Intent) {
         super.onReceive(ctx, intent)
         pref_setting = androidx.preference.PreferenceManager.getDefaultSharedPreferences(ctx)
-        val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
-        if (appWidgetId != 0) {
-            AppWidgetManager.getInstance(ctx).notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_listview)
+
+        val componentName = ComponentName(ctx, NewAppWidget::class.java)
+        val appWidgetManager = AppWidgetManager.getInstance(ctx)
+        val idList = appWidgetManager.getAppWidgetIds(componentName)
+        for (id in idList) {
+            //読み込むTLを保存する
+            val timeline = intent.getStringExtra("timeline")
+            val editor = pref_setting.edit()
+            editor.putString("WidgetTLType", timeline)
+            editor.apply()
+
+            //val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+
+            val remoteViewsFactoryIntent = Intent(ctx, WidgetService::class.java)
+            val rv = RemoteViews(ctx.packageName, R.layout.new_app_widget)
+            rv.setRemoteAdapter(R.id.widget_listview, remoteViewsFactoryIntent)
+
+            AppWidgetManager.getInstance(ctx).notifyAppWidgetViewDataChanged(id, R.id.widget_listview)
+
+
         }
 
         if (intent.getBooleanExtra("TootMode", false)) {
@@ -268,6 +293,20 @@ class NewAppWidget : AppWidgetProvider() {
         )
 
         rv.setOnClickPendingIntent(R.id.widget_button_lunch, btnClickPendingIntent)
+    }
+
+    //タイムライン選べるように。（Home/Local/Public/Notification）
+    private fun getPendingIntent(ctx: Context, appWidgetId: Int, loadTimeline: String, requestCode: Int): PendingIntent {
+        val btnClickIntent = Intent(ctx, NewAppWidget::class.java)
+        btnClickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+        btnClickIntent.putExtra("timeline", loadTimeline)
+        val btnClickPendingIntent = PendingIntent.getBroadcast(
+                ctx,
+                requestCode,
+                btnClickIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        return btnClickPendingIntent
     }
 
     companion object {

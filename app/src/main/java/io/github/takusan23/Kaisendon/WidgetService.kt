@@ -1,5 +1,7 @@
 package io.github.takusan23.Kaisendon
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -13,6 +15,7 @@ import com.bumptech.glide.Glide
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.ExecutionException
 
@@ -22,6 +25,8 @@ class WidgetService : RemoteViewsService() {
     internal var Instance: String? = null
 
     private var jsonArray = JSONArray()
+
+    var jsonString = ""
 
     private var pref_setting: SharedPreferences? = null
 
@@ -83,6 +88,7 @@ class WidgetService : RemoteViewsService() {
 
             //ここで追加
             try {
+                val jsonArray = JSONArray(jsonString)
                 //Htmlなんとか～はJSONの中のトゥートにHTMLタグがついてるため
                 if (pref_setting!!.getString("WidgetTLType", "Home")!!.contains("Notification")) {
                     val type = jsonArray.getJSONObject(position).getString("type")
@@ -92,8 +98,8 @@ class WidgetService : RemoteViewsService() {
                     val avater_url = jsonArray.getJSONObject(position).getJSONObject("account").getString("avatar")
                     toot_url = jsonArray.getJSONObject(position).getJSONObject("status").getString("url")
 
-                    remoteViews.setTextViewText(R.id.widget_listview_layout_textview, Html.fromHtml("$type\r\n$display_name / @$account\r\n$content", Html.FROM_HTML_MODE_COMPACT))
-
+                    remoteViews.setTextViewText(R.id.widget_listview_layout_textview_account, "$type / $display_name @$account")
+                    remoteViews.setTextViewText(R.id.widget_listview_layout_textview, Html.fromHtml(content, Html.FROM_HTML_MODE_COMPACT))
 
                     //Glideは神！！！！！！！！！！！！！！！！！！！！！！！！！！！
                     if (avater_show) {
@@ -106,8 +112,8 @@ class WidgetService : RemoteViewsService() {
                         } catch (e: InterruptedException) {
                             e.printStackTrace()
                         }
-
                     }
+
 
                 } else {
                     val content = jsonArray.getJSONObject(position).getString("content")
@@ -116,7 +122,8 @@ class WidgetService : RemoteViewsService() {
                     val avater_url = jsonArray.getJSONObject(position).getJSONObject("account").getString("avatar")
                     toot_url = jsonArray.getJSONObject(position).getString("url")
 
-                    remoteViews.setTextViewText(R.id.widget_listview_layout_textview, Html.fromHtml("$display_name / @$account\r\n$content", Html.FROM_HTML_MODE_COMPACT))
+                    remoteViews.setTextViewText(R.id.widget_listview_layout_textview_account, "$display_name @$account")
+                    remoteViews.setTextViewText(R.id.widget_listview_layout_textview, Html.fromHtml(content, Html.FROM_HTML_MODE_COMPACT))
 
                     //Glideは神！！！！！！！！！！！！！！！！！！！！！！！！！！！
                     if (avater_show) {
@@ -140,12 +147,111 @@ class WidgetService : RemoteViewsService() {
 
                 remoteViews.setOnClickFillInIntent(R.id.widget_listview_layout_textview, btnClickIntent)
 
-
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
 
             return remoteViews
+        }
+
+
+        fun setItem(position: Int) {
+            //ここでListViewに追加する
+            var remoteViews: RemoteViews? = null
+            remoteViews = RemoteViews(applicationContext.packageName, R.layout.widget_listview_layout)
+            pref_setting = getDefaultSharedPreferences(Preference_ApplicationContext.context)
+            //URL
+            var toot_url: String? = null
+            //画像を表示するかの判断]
+            var avater_show = false
+            //通信量節約
+            val setting_avater_hidden = pref_setting!!.getBoolean("pref_avater", false)
+            val setting_avater_wifi = pref_setting!!.getBoolean("pref_avater_wifi", true)
+            //Wi-Fi接続状況確認
+            val connectivityManager = applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+            var networkCapabilities: NetworkCapabilities? = null
+            if (connectivityManager != null) {
+                networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            }
+            //Wi-Fi
+            if (setting_avater_wifi) {
+                if (networkCapabilities != null) {
+                    if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        avater_show = true
+                    } else {
+                        avater_show = false
+                    }//Wi-Fi no Connection
+                }
+            } else {
+                avater_show = false
+            }
+
+
+            //ここで追加
+            try {
+                //val jsonArray = JSONArray(jsonString)
+                //Htmlなんとか～はJSONの中のトゥートにHTMLタグがついてるため
+                if (pref_setting!!.getString("WidgetTLType", "Home")!!.contains("Notification")) {
+                    val type = jsonArray.getJSONObject(position).getString("type")
+                    val content = jsonArray.getJSONObject(position).getJSONObject("status").getString("content")
+                    val account = jsonArray.getJSONObject(position).getJSONObject("account").getString("acct")
+                    val display_name = jsonArray.getJSONObject(position).getJSONObject("account").getString("display_name")
+                    val avater_url = jsonArray.getJSONObject(position).getJSONObject("account").getString("avatar")
+                    toot_url = jsonArray.getJSONObject(position).getJSONObject("status").getString("url")
+
+                    remoteViews.setTextViewText(R.id.widget_listview_layout_textview_account, "$type / $display_name / @$account");
+                    remoteViews.setTextViewText(R.id.widget_listview_layout_textview, Html.fromHtml(content, Html.FROM_HTML_MODE_COMPACT))
+
+                    //Glideは神！！！！！！！！！！！！！！！！！！！！！！！！！！！
+                    if (avater_show) {
+                        try {
+                            //アバター
+                            val bitmap = Glide.with(applicationContext).asBitmap().load(avater_url).submit(100, 100).get()
+                            remoteViews.setImageViewBitmap(R.id.widget_listview_layout_imageview, bitmap)
+                        } catch (e: ExecutionException) {
+                            e.printStackTrace()
+                        } catch (e: InterruptedException) {
+                            e.printStackTrace()
+                        }
+                    }
+
+
+                } else {
+                    val content = jsonArray.getJSONObject(position).getString("content")
+                    val account = jsonArray.getJSONObject(position).getJSONObject("account").getString("acct")
+                    val display_name = jsonArray.getJSONObject(position).getJSONObject("account").getString("display_name")
+                    val avater_url = jsonArray.getJSONObject(position).getJSONObject("account").getString("avatar")
+                    toot_url = jsonArray.getJSONObject(position).getString("url")
+
+                    remoteViews.setTextViewText(R.id.widget_listview_layout_textview_account, "$display_name / @$account");
+                    //remoteViews.setTextViewText(R.id.widget_listview_layout_textview, Html.fromHtml(content, Html.FROM_HTML_MODE_COMPACT))
+
+                    //Glideは神！！！！！！！！！！！！！！！！！！！！！！！！！！！
+                    if (avater_show) {
+                        try {
+                            val bitmap = Glide.with(applicationContext).asBitmap().load(avater_url).submit(100, 100).get()
+                            remoteViews.setImageViewBitmap(R.id.widget_listview_layout_imageview, bitmap)
+                        } catch (e: ExecutionException) {
+                            e.printStackTrace()
+                        } catch (e: InterruptedException) {
+                            e.printStackTrace()
+                        }
+
+                    }
+                }
+
+
+                //ListViewの項目をクリックできるようにする
+                val btnClickIntent = Intent(applicationContext, NewAppWidget::class.java)
+                btnClickIntent.putExtra("URL", toot_url)
+                btnClickIntent.putExtra("ListViewClick", true)
+
+                remoteViews.setOnClickFillInIntent(R.id.widget_listview_layout_textview, btnClickIntent)
+
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
         }
 
         override fun getItemId(position: Int): Long {
@@ -227,6 +333,16 @@ class WidgetService : RemoteViewsService() {
 
             //GETリクエスト
             val client = OkHttpClient()
+            val response = client.newCall(request).execute()
+            val responce_string = response.body()!!.string()
+            //同期処理で少しはましになった？
+            try {
+                jsonArray = JSONArray(responce_string)
+                jsonString = responce_string
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+/*
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
 
@@ -238,12 +354,14 @@ class WidgetService : RemoteViewsService() {
                     //System.out.println(responce_string);
                     try {
                         jsonArray = JSONArray(responce_string)
+                        jsonString = responce_string
                     } catch (e: JSONException) {
                         e.printStackTrace()
                     }
 
                 }
             })
+*/
         }
     }
 }

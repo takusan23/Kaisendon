@@ -556,7 +556,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 }
             } else {
                 //レイアウト非表示
-                viewHolder.toot_avatar_ImageView.setVisibility(View.GONE);
+                if(viewHolder.toot_avatar_ImageView.getParent() instanceof CardView) {
+                    ((CardView)viewHolder.toot_avatar_ImageView.getParent()).setVisibility(View.GONE);
+                }
             }
         }
     }
@@ -577,7 +579,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             }
         } else {
             //レイアウト非表示
-            viewHolder.toot_avatar_ImageView.setVisibility(View.GONE);
+            if(viewHolder.toot_avatar_ImageView.getParent() instanceof CardView) {
+                ((CardView)viewHolder.toot_avatar_ImageView.getParent()).setVisibility(View.GONE);
+            }
         }
     }
 
@@ -996,7 +1000,9 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                         }
                     } else {
                         //レイアウト非表示
-                        viewHolder.reblog_avatar_ImageView.setVisibility(View.GONE);
+                        if(viewHolder.toot_avatar_ImageView.getParent() instanceof CardView) {
+                            ((CardView)viewHolder.reblog_avatar_ImageView.getParent()).setVisibility(View.GONE);
+                        }
                     }
                 }
                 PicassoImageGetter toot_ImageGetter = new PicassoImageGetter(viewHolder.reblog_toot_text_TextView);

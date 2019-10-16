@@ -10,7 +10,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.BitmapFactory
+import android.graphics.*
+import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -59,6 +60,12 @@ class NewAppWidget : AppWidgetProvider() {
         }
     }
 
+    fun getColorIcon(ctx: Context, resource: Int): Icon? {
+        val icon = Icon.createWithResource(ctx, resource)
+        icon.setTint(ctx.getColor(R.color.colorPrimaryDark))
+        return icon
+    }
+
     override fun onReceive(ctx: Context, intent: Intent) {
         super.onReceive(ctx, intent)
         pref_setting = androidx.preference.PreferenceManager.getDefaultSharedPreferences(ctx)
@@ -66,23 +73,47 @@ class NewAppWidget : AppWidgetProvider() {
         val componentName = ComponentName(ctx, NewAppWidget::class.java)
         val appWidgetManager = AppWidgetManager.getInstance(ctx)
         val idList = appWidgetManager.getAppWidgetIds(componentName)
-        for (id in idList) {
-            //読み込むTLを保存する
-            val timeline = intent.getStringExtra("timeline")
-            val editor = pref_setting.edit()
-            editor.putString("WidgetTLType", timeline)
-            editor.apply()
 
-            //val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+        val widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, 0)
 
-            val remoteViewsFactoryIntent = Intent(ctx, WidgetService::class.java)
-            val rv = RemoteViews(ctx.packageName, R.layout.new_app_widget)
-            rv.setRemoteAdapter(R.id.widget_listview, remoteViewsFactoryIntent)
+        //読み込むTLを保存する
+        val timeline = intent.getStringExtra("timeline")
+        val editor = pref_setting.edit()
+        editor.putString("WidgetTLType", timeline)
+        editor.apply()
 
-            AppWidgetManager.getInstance(ctx).notifyAppWidgetViewDataChanged(id, R.id.widget_listview)
+        //val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
 
+        val remoteViews = RemoteViews(ctx.packageName, R.layout.new_app_widget)
+        // val remoteViewsFactoryIntent = Intent(ctx, WidgetService::class.java)
+        // rv.setRemoteAdapter(R.id.widget_listview, remoteViewsFactoryIntent)
 
+        appWidgetManager.notifyAppWidgetViewDataChanged(widgetId, R.id.widget_listview)
+
+        //アイコンの色を戻す
+        remoteViews.setImageViewResource(R.id.widget_button_home, R.drawable.ic_home_black_24dp)
+        remoteViews.setImageViewResource(R.id.widget_button_notification, R.drawable.ic_notifications_black_24dp)
+        remoteViews.setImageViewResource(R.id.widget_button_local, R.drawable.ic_train_black_24dp)
+        remoteViews.setImageViewResource(R.id.widget_button_public, R.drawable.ic_flight_black_24dp)
+        //選択したタイムラインに色を付ける
+        when (timeline) {
+            "Home" -> {
+                remoteViews.setImageViewIcon(R.id.widget_button_home, getColorIcon(ctx, R.drawable.ic_home_black_24dp))
+            }
+            "Notification" -> {
+                remoteViews.setImageViewIcon(R.id.widget_button_notification, getColorIcon(ctx, R.drawable.ic_notifications_black_24dp))
+            }
+            "Local" -> {
+                remoteViews.setImageViewIcon(R.id.widget_button_local, getColorIcon(ctx, R.drawable.ic_train_black_24dp))
+            }
+            "Federated" -> {
+                remoteViews.setImageViewIcon(R.id.widget_button_public, getColorIcon(ctx, R.drawable.ic_flight_black_24dp))
+            }
         }
+        //更新
+        appWidgetManager.updateAppWidget(widgetId, remoteViews)
+
+
 
         if (intent.getBooleanExtra("TootMode", false)) {
             val channel = "notification_toot"

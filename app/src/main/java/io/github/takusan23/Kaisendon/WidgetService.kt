@@ -12,6 +12,8 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONException
@@ -105,7 +107,7 @@ class WidgetService : RemoteViewsService() {
                     if (avater_show) {
                         try {
                             //アバター
-                            val bitmap = Glide.with(applicationContext).asBitmap().load(avater_url).submit(100, 100).get()
+                            val bitmap = Glide.with(applicationContext).asBitmap().apply(RequestOptions.bitmapTransform(RoundedCorners(30))).load(avater_url).submit(100, 100).get()
                             remoteViews.setImageViewBitmap(R.id.widget_listview_layout_imageview, bitmap)
                         } catch (e: ExecutionException) {
                             e.printStackTrace()
@@ -128,7 +130,7 @@ class WidgetService : RemoteViewsService() {
                     //Glideは神！！！！！！！！！！！！！！！！！！！！！！！！！！！
                     if (avater_show) {
                         try {
-                            val bitmap = Glide.with(applicationContext).asBitmap().load(avater_url).submit(100, 100).get()
+                            val bitmap = Glide.with(applicationContext).asBitmap().apply(RequestOptions.bitmapTransform(RoundedCorners(30))).load(avater_url).submit(100, 100).get()
                             remoteViews.setImageViewBitmap(R.id.widget_listview_layout_imageview, bitmap)
                         } catch (e: ExecutionException) {
                             e.printStackTrace()
@@ -145,7 +147,7 @@ class WidgetService : RemoteViewsService() {
                 btnClickIntent.putExtra("URL", toot_url)
                 btnClickIntent.putExtra("ListViewClick", true)
 
-                remoteViews.setOnClickFillInIntent(R.id.widget_listview_layout_textview, btnClickIntent)
+                remoteViews.setOnClickFillInIntent(R.id.widget_listview_item_linearLayout, btnClickIntent)
 
             } catch (e: JSONException) {
                 e.printStackTrace()

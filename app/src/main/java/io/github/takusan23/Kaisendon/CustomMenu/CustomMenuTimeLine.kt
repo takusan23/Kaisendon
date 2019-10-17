@@ -284,49 +284,48 @@ class CustomMenuTimeLine : Fragment() {
 
         //TootCardView更新
         if (!isReadOnly.toBoolean()) {
-            (activity as Home).tootCardView = TootCardView(activity!!, misskey?.toBoolean()
-                    ?: false)
-            (activity as Home).home_activity_frame_layout.removeAllViews()
-            (activity as Home).home_activity_frame_layout.addView((activity as Home).tootCardView.linearLayout)
+            if (activity is Home) {
+                (activity as Home).tootCardView = TootCardView(activity!!, misskey?.toBoolean()
+                        ?: false)
+                (activity as Home).home_activity_frame_layout.removeAllViews()
+                (activity as Home).home_activity_frame_layout.addView((activity as Home).tootCardView.linearLayout)
+                //共有内容
+                //共有を受け取る
+                val intent = (activity as Home).intent
+                val action_string = intent.action
+                if (Intent.ACTION_SEND == action_string) {
+                    val extras = intent.extras
+                    if (extras != null) {
+                        //URL
+                        var text = extras.getCharSequence(Intent.EXTRA_TEXT)
+                        //タイトル
+                        val title = extras.getCharSequence(Intent.EXTRA_SUBJECT)
+                        //画像URI
+                        val uri = extras.getParcelable<Uri>(Intent.EXTRA_STREAM)
+                        //EXTRA TEXTにタイトルが含まれているかもしれない？
+                        //含まれているときは消す
 
-            //共有内容
-            //共有を受け取る
-            val intent = (activity as Home).intent
-            val action_string = intent.action
-            if (Intent.ACTION_SEND == action_string) {
-                val extras = intent.extras
-                if (extras != null) {
-                    //URL
-                    var text = extras.getCharSequence(Intent.EXTRA_TEXT)
-                    //タイトル
-                    val title = extras.getCharSequence(Intent.EXTRA_SUBJECT)
-                    //画像URI
-                    val uri = extras.getParcelable<Uri>(Intent.EXTRA_STREAM)
-                    //EXTRA TEXTにタイトルが含まれているかもしれない？
-                    //含まれているときは消す
-
-                    //カスタムメニュー移動で毎回出るので対策
-                    if ((activity as Home).shareText != text.toString()) {
-                        if (text != null) {
-                            if (title != null) {
-                                text = text.toString().replace(title.toString(), "")
-                                (activity as Home).tootCardView.linearLayout.toot_card_textinput.append(title)
-                                (activity as Home).tootCardView.linearLayout.toot_card_textinput.append("\n")
+                        //カスタムメニュー移動で毎回出るので対策
+                        if ((activity as Home).shareText != text.toString()) {
+                            if (text != null) {
+                                if (title != null) {
+                                    text = text.toString().replace(title.toString(), "")
+                                    (activity as Home).tootCardView.linearLayout.toot_card_textinput.append(title)
+                                    (activity as Home).tootCardView.linearLayout.toot_card_textinput.append("\n")
+                                }
+                                (activity as Home).tootCardView.linearLayout.toot_card_textinput.append(text)
                             }
-                            (activity as Home).tootCardView.linearLayout.toot_card_textinput.append(text)
+                            //画像
+                            if (uri != null) {
+                                (activity as Home).tootCardView.attachMediaList.add(uri)
+                                (activity as Home).tootCardView.setAttachImageLinearLayout()
+                            }
+                            //表示
+                            (activity as Home).tootCardView.cardViewShow()
                         }
-                        //画像
-                        if (uri != null) {
-                            (activity as Home).tootCardView.attachMediaList.add(uri)
-                            (activity as Home).tootCardView.setAttachImageLinearLayout()
-                        }
-                        //表示
-                        (activity as Home).tootCardView.cardViewShow()
                     }
                 }
             }
-
-
         }
 
 

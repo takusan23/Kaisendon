@@ -31,6 +31,8 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import androidx.preference.PreferenceManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -39,6 +41,7 @@ import com.squareup.picasso.Picasso
 import com.sys1yagi.mastodon4j.api.entity.Card
 import io.github.takusan23.Kaisendon.APIJSONParse.GlideSupport
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
+import io.github.takusan23.Kaisendon.CustomMenu.Dialog.AccountChangeBottomSheetFragment
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog
 import io.github.takusan23.Kaisendon.CustomMenu.UriToByte
 import io.github.takusan23.Kaisendon.Omake.ShinchokuLayout
@@ -86,6 +89,10 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
     val shinchokuLayout = ShinchokuLayout(context)
 
     init {
+        init()
+    }
+
+    fun init() {
         //初期化
         val laytoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         laytoutInflater.inflate(R.layout.carview_toot_layout, linearLayout)
@@ -113,10 +120,17 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
         setOmake()
     }
 
+    //アカウント切り替えボタン。デスクトップモード利用時に投稿できないので
+    fun showAccountChangeBottomFragment() {
+        val accountChangeBottomSheetFragment = AccountChangeBottomSheetFragment()
+        accountChangeBottomSheetFragment.show((context as AppCompatActivity).supportFragmentManager, "account_change")
+    }
+
     //おまけきのう
     private fun setOmake() {
         if (pref_setting.getBoolean("life_mode", false) && !isMisskey) {
             val sinchokuLL = shinchokuLayout.layout
+            linearLayout.toot_cardview_progress.removeAllViews()
             linearLayout.toot_cardview_progress.addView(sinchokuLL)
         }
     }
@@ -126,6 +140,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
         val showAnimation =
                 AnimationUtils.loadAnimation(context, R.anim.tootcard_show_animation);
         //Visibility変更
+        showAnimation.interpolator = FastOutSlowInInterpolator()
         cardView.startAnimation(showAnimation)
         cardView.visibility = View.VISIBLE
         isShow = true
@@ -135,6 +150,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
         //非表示アニメーションつける
         val hideAnimation =
                 AnimationUtils.loadAnimation(context, R.anim.tootcard_hide_animation);
+        hideAnimation.interpolator = LinearOutSlowInInterpolator()
         cardView.startAnimation(hideAnimation)
         Timer().schedule(timerTask {
             cardView.post {
@@ -167,6 +183,9 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
         }
         linearLayout.toot_card_post_button.setOnClickListener {
             postStatus()
+        }
+        linearLayout.toot_card_account_change_button.setOnClickListener {
+            showAccountChangeBottomFragment()
         }
         //Misskeyドライブ
         linearLayout.toot_card_misskey_drive.setOnClickListener {
@@ -643,7 +662,8 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                         linearLayout.toot_card_textinput.setText("")
                         //tootTextCount = 0
                         //TootCard閉じる
-                        cardView.visibility = View.GONE
+                        cardViewHide()
+
                         //配列を空にする
                         attachMediaList.clear()
                         Home.post_media_id.clear()

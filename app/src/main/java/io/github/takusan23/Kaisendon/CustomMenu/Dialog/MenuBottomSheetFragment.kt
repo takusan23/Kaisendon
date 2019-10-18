@@ -1,9 +1,10 @@
-package io.github.takusan23.Kaisendon.CustomMenu
+package io.github.takusan23.Kaisendon.CustomMenu.Dialog
 
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -21,7 +22,9 @@ import io.github.takusan23.Kaisendon.APIJSONParse.CustomMenuJSONParse
 import io.github.takusan23.Kaisendon.Activity.KonoAppNiTuite
 import io.github.takusan23.Kaisendon.Activity.LoginActivity
 import io.github.takusan23.Kaisendon.Activity.UserActivity
-import io.github.takusan23.Kaisendon.CustomMenu.Dialog.InstanceInfoBottomFragment
+import io.github.takusan23.Kaisendon.CustomMenu.AddCustomMenuBottomFragment
+import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSwipeSwitch
+import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
 import io.github.takusan23.Kaisendon.DesktopTL.DesktopFragment
 import io.github.takusan23.Kaisendon.FloatingTL.FloatingTL
 import io.github.takusan23.Kaisendon.FloatingTL.KaisendonMiniView
@@ -34,7 +37,8 @@ import org.chromium.customtabsclient.shared.CustomTabsHelper
 
 class MenuBottomSheetFragment : BottomSheetDialogFragment() {
 
-    lateinit var pref_setting:SharedPreferences
+    lateinit var pref_setting: SharedPreferences
+    var navColor: Int? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.bottom_fragment_menu, container, false)
@@ -43,15 +47,27 @@ class MenuBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        pref_setting  = PreferenceManager.getDefaultSharedPreferences(context)
+        navColor = activity?.window?.navigationBarColor
+        activity?.window?.navigationBarColor = Color.parseColor("#ffffff")
+
+        pref_setting = PreferenceManager.getDefaultSharedPreferences(context)
 
         menu_bottom_sheet_bottom_nav.setOnNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.tl_qs_edit -> {
-                    showCustomMenuEditor()
-                }
+                R.id.tl_qs_account -> setAccountPopupMenu()
+                R.id.tl_qs_bookmark -> setBookmark()
+                R.id.tl_qs_edit -> showCustomMenuEditor()
+                R.id.tl_qs_display_method -> showDisplayMethodMenu()
+                R.id.tl_qs_sonota -> setSonotaMenu()
             }
             true
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (navColor != null) {
+            activity?.window?.navigationBarColor = navColor as Int
         }
     }
 
@@ -118,7 +134,7 @@ class MenuBottomSheetFragment : BottomSheetDialogFragment() {
     /*その他のメニュー*/
     @SuppressLint("RestrictedApi")
     private fun setSonotaMenu() {
-        if(context!=null) {
+        if (context != null) {
             //ポップアップメニュー作成
             val menuBuilder = MenuBuilder(context!!)
             val inflater = MenuInflater(context)
@@ -265,7 +281,7 @@ class MenuBottomSheetFragment : BottomSheetDialogFragment() {
     private fun showFloatingMenu() {
         //QのユーザーはBubbleかPiPか選べるように
         //ポップアップメニュー作成
-        if(context != null) {
+        if (context != null) {
             val menuBuilder = MenuBuilder(context!!)
             val inflater = MenuInflater(context)
             inflater.inflate(R.menu.floating_tl_menu, menuBuilder)
@@ -355,24 +371,25 @@ class MenuBottomSheetFragment : BottomSheetDialogFragment() {
 
     /*Android Pie以前ユーザー用にダークモードスイッチを用意する*/
     private fun setDarkmodeSwitch() {
-        if(context!=null){
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            val sw = Switch(context)
-            sw.text = context!!.getText(R.string.darkmode)
-            sw.setTextColor(context!!.getColor(R.color.white))
-            sw.isChecked = pref_setting!!.getBoolean("darkmode", false)
-            val editor = pref_setting!!.edit()
-            sw.setOnCheckedChangeListener { compoundButton, b ->
-                if (b) {
-                    editor.putBoolean("darkmode", true)
-                } else {
-                    editor.putBoolean("darkmode", false)
+        if (context != null) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                val sw = Switch(context)
+                sw.text = context!!.getText(R.string.darkmode)
+                sw.setTextColor(context!!.getColor(R.color.white))
+                sw.isChecked = pref_setting!!.getBoolean("darkmode", false)
+                val editor = pref_setting!!.edit()
+                sw.setOnCheckedChangeListener { compoundButton, b ->
+                    if (b) {
+                        editor.putBoolean("darkmode", true)
+                    } else {
+                        editor.putBoolean("darkmode", false)
+                    }
+                    context?.startActivity(Intent(context, Home::class.java))
+                    editor.apply()
                 }
-                context?.startActivity(Intent(context, Home::class.java))
-                editor.apply()
+                switch_LinearLayout.addView(sw)
             }
-            //switch_LinearLayout!!.addView(sw)
-        }}
+        }
     }
 
 

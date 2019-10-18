@@ -55,7 +55,7 @@ class DesktopFragment : Fragment() {
         isDesktopFragment = true
 
         //投稿に関しての注意書き
-        Toast.makeText(context, getString(R.string.desktop_create_menu_message), Toast.LENGTH_LONG).show()
+        //Toast.makeText(context, getString(R.string.desktop_create_menu_message), Toast.LENGTH_LONG).show()
 
         if (helper ==
                 null) {

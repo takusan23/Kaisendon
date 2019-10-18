@@ -358,7 +358,8 @@ class CustomMenuTimeLine : Fragment() {
         }
 
         //最終的なURL
-        url = "https://$instance$url"
+        url = "https://$instance${customMenuJSONParse.content}"
+
 
         val toot_list = ArrayList<ListItem>()
         adapter = HomeTimeLineAdapter(context!!, R.layout.timeline_item, toot_list)
@@ -694,7 +695,7 @@ class CustomMenuTimeLine : Fragment() {
                                 //メモとか通知とかに
                                 Item.add("CustomMenu Local")
                                 //内容
-                                Item.add(url ?: "")
+                                Item.add(customMenuJSONParse.content)
                                 //ユーザー名
                                 Item.add("")
                                 //JSONObject
@@ -1285,13 +1286,12 @@ class CustomMenuTimeLine : Fragment() {
     private fun timelineJSONParse(toot_jsonObject: JSONObject, streaming: Boolean) {
         val toot_account: JSONObject? = null
         if (activity != null && isAdded) {
-
             //配列を作成
             val Item = ArrayList<String>()
             //メモとか通知とかに
             Item.add("CustomMenu")
             //内容
-            Item.add(url ?: "")
+            Item.add(customMenuJSONParse.content)
             //ユーザー名
             Item.add("")
             //時間、クライアント名等
@@ -1404,7 +1404,6 @@ class CustomMenuTimeLine : Fragment() {
     private fun notificationJSONPase(toot_text_account: JSONObject, toot_text_jsonObject: JSONObject, type: String, streaming: Boolean) {
 
         if (activity != null && isAdded) {
-
             //配列を作成
             val Item = ArrayList<String>()
             //メモとか通知とかに
@@ -1669,7 +1668,7 @@ class CustomMenuTimeLine : Fragment() {
             //メモとか通知とかに
             Item.add("CustomMenu")
             //内容
-            Item.add(url ?: "")
+            Item.add(customMenuJSONParse.content)
             //ユーザー名
             Item.add("")
             //時間、クライアント名等

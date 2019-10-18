@@ -34,10 +34,10 @@
                     android:padding="5sp">
 
                     <androidx.cardview.widget.CardView
-                        android:layout_margin="5dp"
-                        app:cardElevation="2sp"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        app:cardElevation="2sp">
 
                         <ImageView
                             android:id="@+id/toot_card_account_imageview"
@@ -50,7 +50,8 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:orientation="vertical">
 
                         <TextView
@@ -60,6 +61,15 @@
                             android:text="アカウント" />
 
                     </LinearLayout>
+
+                    <ImageButton
+                        android:id="@+id/toot_card_account_change_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:padding="5sp"
+                        android:src="@drawable/ic_transfer_within_a_station_black_24dp" />
 
                 </LinearLayout>
             </LinearLayout>

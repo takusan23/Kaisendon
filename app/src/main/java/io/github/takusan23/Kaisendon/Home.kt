@@ -1,6 +1,7 @@
 package io.github.takusan23.Kaisendon
 
 import android.Manifest
+import android.animation.ObjectAnimator
 import androidx.appcompat.app.AlertDialog
 import android.annotation.SuppressLint
 import android.app.*
@@ -12,7 +13,6 @@ import android.database.Cursor
 import android.database.CursorIndexOutOfBoundsException
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.*
-import android.graphics.drawable.Animatable
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
@@ -52,6 +52,7 @@ import com.squareup.picasso.Picasso
 import io.github.takusan23.Kaisendon.APIJSONParse.GlideSupport
 import io.github.takusan23.Kaisendon.Activity.LoginActivity
 import io.github.takusan23.Kaisendon.CustomMenu.*
+import io.github.takusan23.Kaisendon.CustomMenu.Dialog.MenuBottomSheetFragment
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.MisskeyDriveBottomDialog
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.TLQuickSettingSnackber
 import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
@@ -62,7 +63,6 @@ import io.github.takusan23.Kaisendon.Omake.ShinchokuLayout
 import io.github.takusan23.Kaisendon.PaintPOST.PaintPOSTActivity
 import kotlinx.android.synthetic.main.app_bar_home2.*
 import kotlinx.android.synthetic.main.bottom_bar_layout.*
-import kotlinx.android.synthetic.main.carview_toot_layout.view.*
 import okhttp3.*
 import org.chromium.customtabsclient.shared.CustomTabsHelper
 import org.json.JSONArray
@@ -2994,23 +2994,35 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     @SuppressLint("RestrictedApi")
     private fun setTimelinQuickSettings(): ImageView {
         val qs = ImageView(this)
-        qs.setImageResource(R.drawable.tl_quick_setting_icon)
+        qs.setImageResource(R.drawable.ic_settings_black_24dp)
+        qs.imageTintList = ColorStateList.valueOf(Color.parseColor("#ffffff"))
         qs.setPadding(50, 10, 50, 10)
+
+        //回転する
+        val objectAnimator = ObjectAnimator.ofFloat(qs, "rotation", 360f)
+        objectAnimator.duration = 1000
+
         qs.setOnClickListener {
-            val drawable = qs.drawable
-            if (drawable is Animatable) {
-                (drawable as Animatable).start()
-                (drawable as Animatable).start()
-            }
-            val list = ArrayList<String>()
-            list.add(account_id)
+            /*
+                        val drawable = qs.drawable
+                        if (drawable is Animatable) {
+                            (drawable as Animatable).start()
+                            (drawable as Animatable).start()
+                        }
+                        val list = ArrayList<String>()
+                        list.add(account_id)
+            */
+
+            //回転アニメーション
+            objectAnimator.start()
+
 
             val bundle = Bundle()
-            bundle.putString("account",account_id)
+            bundle.putString("account", account_id)
 
             val menuBottomSheetFragment = MenuBottomSheetFragment()
             menuBottomSheetFragment.arguments = bundle
-            menuBottomSheetFragment.show(supportFragmentManager,"timeline_setting")
+            menuBottomSheetFragment.show(supportFragmentManager, "timeline_setting")
 
 /*
             tlQuickSettingSnackber!!.setList(list)
@@ -3076,7 +3088,15 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                         //読み取り専用だと投稿権限ないよ！
                         Toast.makeText(this, getString(R.string.read_only_toot), Toast.LENGTH_SHORT).show()
                     }
+                } else if (fragment is DesktopFragment) {
+                    //デスクトップモードでも利用可能
+                    if (tootCardView.cardView.visibility == View.VISIBLE) {
+                        tootCardView.cardViewHide()
+                    } else {
+                        tootCardView.cardViewShow()
+                    }
                 }
+
                 //showTootShortcut()
             }
             //一応代入
@@ -3114,6 +3134,13 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
                     } else {
                         //読み取り専用だと投稿権限ないよ！
                         Toast.makeText(this, getString(R.string.read_only_toot), Toast.LENGTH_SHORT).show()
+                    }
+                } else if (fragment is DesktopFragment) {
+                    //デスクトップモードでも利用可能
+                    if (tootCardView.cardView.visibility == View.VISIBLE) {
+                        tootCardView.cardViewHide()
+                    } else {
+                        tootCardView.cardViewShow()
                     }
                 }
             }

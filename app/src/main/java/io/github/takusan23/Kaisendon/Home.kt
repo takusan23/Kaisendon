@@ -3004,12 +3004,22 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
             val list = ArrayList<String>()
             list.add(account_id)
+
+            val bundle = Bundle()
+            bundle.putString("account",account_id)
+
+            val menuBottomSheetFragment = MenuBottomSheetFragment()
+            menuBottomSheetFragment.arguments = bundle
+            menuBottomSheetFragment.show(supportFragmentManager,"timeline_setting")
+
+/*
             tlQuickSettingSnackber!!.setList(list)
             if (tlQuickSettingSnackber!!.snackbar.isShown) {
                 tlQuickSettingSnackber!!.dismissSnackBer()
             } else {
                 tlQuickSettingSnackber!!.showSnackBer()
             }
+*/
         }
         return qs
     }

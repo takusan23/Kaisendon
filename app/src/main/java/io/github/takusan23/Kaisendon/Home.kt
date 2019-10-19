@@ -222,6 +222,10 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     //共有Intent、投稿したら次回から表示されないように
     var shareText = ""
 
+    //カスタムメニューを切り替えるとintentの内容のせいでもう一度作成される問題
+    var tmpOkekakiList = arrayListOf<String>()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

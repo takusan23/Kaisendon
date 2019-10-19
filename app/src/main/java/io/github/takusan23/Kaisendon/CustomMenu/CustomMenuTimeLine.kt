@@ -181,6 +181,8 @@ class CustomMenuTimeLine : Fragment() {
     //設定内容
     private var settings_jsonString: String = ""
     lateinit var customMenuJSONParse: CustomMenuJSONParse
+
+
 /*
     //ストリーミングのときに同じ内容が増えないようにするために
     //追加前とこの変数と比較して、内容が増えてればnotifyItemInserted(0)を呼ぶことにする
@@ -268,12 +270,12 @@ class CustomMenuTimeLine : Fragment() {
             //タイトル
             (context as AppCompatActivity).title = setName(url!!, customMenuJSONParse.name)
             if (!isMisskeyMode) {
-                val editor = pref_setting!!.edit()
+                val editor = pref_setting.edit()
                 editor.putString("main_instance", instance)
                 editor.putString("main_token", access_token)
                 editor.apply()
             } else {
-                val editor = pref_setting!!.edit()
+                val editor = pref_setting.edit()
                 editor.putString("misskey_main_instance", instance)
                 editor.putString("misskey_main_token", access_token)
                 editor.putString("misskey_main_username", misskey_username)
@@ -328,6 +330,24 @@ class CustomMenuTimeLine : Fragment() {
             }
         }
 
+        //App Shortcutから起動
+        if (activity?.intent?.getBooleanExtra("toot", false) == true) {
+            //表示
+            (activity as Home).tootCardView.cardViewShow()
+        }
+
+        //お絵かき投稿から
+        if (activity?.intent?.getBooleanExtra("paint_data", false) == true) {
+            val uri = Uri.parse(activity?.intent?.getStringExtra("paint_uri"))
+            if (!(activity as Home).tmpOkekakiList.contains(uri.path)) {
+                //画像URI
+                //画像配列に追加
+                (activity as Home).tootCardView.attachMediaList.add(uri)
+                (activity as Home).tootCardView.setAttachImageLinearLayout()
+                //表示
+                (activity as Home).tootCardView.cardViewShow()
+            }
+        }
 
         //トゥートカウンター
         countTextView = TextView(context)
@@ -380,7 +400,7 @@ class CustomMenuTimeLine : Fragment() {
         }
 
         //ToolBerをクリックしたら一番上に移動するようにする
-        if (pref_setting!!.getBoolean("pref_listview_top", true)) {
+        if (pref_setting.getBoolean("pref_listview_top", true)) {
             try {
                 (activity as Home).toolBer.setOnClickListener {
                     //これ一番上に移動するやつ
@@ -590,7 +610,7 @@ class CustomMenuTimeLine : Fragment() {
                 })
 
                 //通知
-                if (pref_setting!!.getBoolean("pref_notification_toast", true)) {
+                if (pref_setting.getBoolean("pref_notification_toast", true)) {
                     setStreamingNotification()
                 }
             }
@@ -789,7 +809,7 @@ class CustomMenuTimeLine : Fragment() {
                         val avatarUrl = jsonObject.getString("avatarUrl")
                         val avatarUrlnotGif = jsonObject.getString("avatarUrl")
                         val bannerUrl = jsonObject.getString("bannerUrl")
-                        if (pref_setting?.getBoolean("pref_custom_emoji", true) != false || java.lang.Boolean.valueOf(custom_emoji)) {
+                        if (pref_setting.getBoolean("pref_custom_emoji", true) != false || java.lang.Boolean.valueOf(custom_emoji)) {
                             val emoji = jsonObject.getJSONArray("emojis")
                             for (e in 0 until emoji.length()) {
                                 val emoji_jsonObject = emoji.getJSONObject(e)
@@ -865,7 +885,7 @@ class CustomMenuTimeLine : Fragment() {
                         val headerNotGif = jsonObject.getString("header_static")
                         account_JsonObject = jsonObject
                         //カスタム絵文字
-                        if (java.lang.Boolean.valueOf(custom_emoji) || pref_setting?.getBoolean("pref_custom_emoji", true) != false) {
+                        if (java.lang.Boolean.valueOf(custom_emoji) || pref_setting.getBoolean("pref_custom_emoji", true) != false) {
                             val emojis = jsonObject.getJSONArray("emojis")
                             for (i in 0 until emojis.length()) {
                                 val emojiObject = emojis.getJSONObject(i)
@@ -882,7 +902,7 @@ class CustomMenuTimeLine : Fragment() {
                         if (activity != null) {
                             activity?.runOnUiThread {
                                 //ドロワー
-                                if (pref_setting?.getBoolean("pref_avater_gif", true) != false) {
+                                if (pref_setting.getBoolean("pref_avater_gif", true) != false) {
                                     avatar = avatarNotGif
                                     header = headerNotGif
                                 }
@@ -1819,7 +1839,7 @@ class CustomMenuTimeLine : Fragment() {
         toot_text_time = getCreatedAtFormat(toot_text_time)
 
         //カスタム絵文字
-        if (pref_setting!!.getBoolean("pref_custom_emoji", true) || java.lang.Boolean.valueOf(custom_emoji)) {
+        if (pref_setting.getBoolean("pref_custom_emoji", true) || java.lang.Boolean.valueOf(custom_emoji)) {
 
             try {
                 //本文
@@ -2080,13 +2100,13 @@ class CustomMenuTimeLine : Fragment() {
             //一応Nullチェック
             if (header_imageView != null) {
                 //画像読み込むか
-                if (pref_setting?.getBoolean("pref_drawer_avater", false) == true) {
+                if (pref_setting.getBoolean("pref_drawer_avater", false) == true) {
                     //読み込まない
                     avater_imageView?.setImageResource(R.drawable.ic_person_black_24dp)
                     header_imageView?.setBackgroundColor(Color.parseColor("#c8c8c8"))
                 }
                 //Wi-Fi時は読み込む
-                if (pref_setting?.getBoolean("pref_avater_wifi", true) != false) {
+                if (pref_setting.getBoolean("pref_avater_wifi", true) != false) {
                     //既定でGIFは再生しない方向で
                     //GIF/GIFじゃないは引数に入れる前から判断してる
                     glideSupport.loadGlide(avatarUrl, avater_imageView!!)
@@ -2111,13 +2131,13 @@ class CustomMenuTimeLine : Fragment() {
         var createdAt = createdAt
         //フォーマットを規定の設定にする？
         //ここtrueにした
-        if (pref_setting!!.getBoolean("pref_custom_time_format", true)) {
+        if (pref_setting.getBoolean("pref_custom_time_format", true)) {
             //時差計算？
             if (simpleDateFormat == null && japanDateFormat == null && calendar == null) {
                 simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                 simpleDateFormat?.timeZone = TimeZone.getTimeZone("UTC")
                 //日本用フォーマット
-                japanDateFormat = SimpleDateFormat(pref_setting!!.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS")!!)
+                japanDateFormat = SimpleDateFormat(pref_setting.getString("pref_custom_time_format_text", "yyyy/MM/dd HH:mm:ss.SSS")!!)
                 japanDateFormat?.timeZone = TimeZone.getTimeZone(TimeZone.getDefault().id)
                 calendar = Calendar.getInstance()
             }
@@ -2126,7 +2146,7 @@ class CustomMenuTimeLine : Fragment() {
                 calendar?.time = date!!
                 //タイムゾーンを設定
                 //calendar.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().getID()));
-                calendar?.add(Calendar.HOUR, +Integer.valueOf(pref_setting!!.getString("pref_time_add", "9")!!))
+                calendar?.add(Calendar.HOUR, +Integer.valueOf(pref_setting.getString("pref_time_add", "9")!!))
                 //System.out.println("時間 : " + japanDateFormat.format(calendar.getTime()));
                 createdAt = japanDateFormat?.format(calendar!!.time)
             } catch (e: ParseException) {
@@ -2228,7 +2248,7 @@ class CustomMenuTimeLine : Fragment() {
                             toast.duration = Toast.LENGTH_LONG
                             toast.show()
 
-                            if (pref_setting!!.getBoolean("pref_notification_vibrate", true) && vibrator != null) {
+                            if (pref_setting.getBoolean("pref_notification_vibrate", true) && vibrator != null) {
                                 val pattern = longArrayOf(100, 100, 100, 100)
                                 //バイブなんか非推奨になってた（）書き直した
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -2598,16 +2618,16 @@ class CustomMenuTimeLine : Fragment() {
         val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         //設定からアバター画像読み込まないの場合
-        if (pref_setting?.getBoolean("setting_avater_get", false) == true) {
+        if (pref_setting.getBoolean("setting_avater_get", false) == true) {
             return false
         }
         //Wi-Fi接続時
-        if (pref_setting?.getBoolean("setting_avater_wifi_get_info", true) != false) {
+        if (pref_setting.getBoolean("setting_avater_wifi_get_info", true) != false) {
             return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
         }
         //CustomMenuの設定で有効?
         //今回はデフォで有効にしている。
-        if (image_load?.toBoolean() ?: true) {
+        if (image_load?.toBoolean() != false) {
             return true
         }
         return false

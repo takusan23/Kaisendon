@@ -664,13 +664,11 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                         //TootCard閉じる
                         cardViewHide()
 
-                        //配列を空にする
-                        attachMediaList.clear()
-                        Home.post_media_id.clear()
-                        linearLayout.toot_card_attach_linearlayout.removeAllViews()
-
                         //共有ちぇっく
                         if (context is Home) {
+                            attachMediaList.forEach {
+                                (context as Home).tmpOkekakiList.add(it.path ?: "")
+                            }
                             val intent = (context as Home).intent
                             val action_string = intent.action
                             if (Intent.ACTION_SEND == action_string) {
@@ -682,6 +680,13 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                                 }
                             }
                         }
+
+                        //配列を空にする
+                        attachMediaList.clear()
+                        Home.post_media_id.clear()
+                        linearLayout.toot_card_attach_linearlayout.removeAllViews()
+
+
                         //目標更新
                         shinchokuLayout.setTootChallenge()
                         //JSONParseしてトゥート数変更する
@@ -750,6 +755,12 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                         //TootCard閉じる
                         cardView.visibility = View.GONE
                         //配列を空にする
+                        //共有ちぇっく
+                        if (context is Home) {
+                            attachMediaList.forEach {
+                                (context as Home).tmpOkekakiList.add(it.path ?: "")
+                            }
+                        }
                         attachMediaList.clear()
                         postMediaList.clear()
                         linearLayout.toot_card_attach_linearlayout.removeAllViews()
@@ -1105,7 +1116,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                 true
             }
             //追加
-            println(attachMediaList)
+            //println(attachMediaList)
             linearLayout.toot_card_attach_linearlayout.addView(imageView)
         }
     }

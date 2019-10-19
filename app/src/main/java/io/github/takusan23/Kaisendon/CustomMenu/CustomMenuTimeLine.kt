@@ -754,7 +754,7 @@ class CustomMenuTimeLine : Fragment() {
     private fun loadMisskeyAccountName() {
         val jsonObject = JSONObject()
         try {
-            jsonObject.put("username", misskey_username)
+            jsonObject.put("i", access_token)
         } catch (e: JSONException) {
             e.printStackTrace()
         }
@@ -762,7 +762,7 @@ class CustomMenuTimeLine : Fragment() {
         val requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonObject.toString())
         //作成
         val request = Request.Builder()
-                .url("https://$instance/api/users/show")
+                .url("https://$instance/api/i")
                 .post(requestBody)
                 .build()
         //GETリクエスト

@@ -4,11 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.os.Handler
-import android.os.Looper
 import android.text.Html
 import android.widget.TextView
-
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 
@@ -22,8 +19,7 @@ class PicassoImageGetter(target: TextView) : Html.ImageGetter {
 
     override fun getDrawable(source: String): Drawable {
         val drawable = BitmapDrawablePlaceHolder()
-        val uiHandler = Handler(Looper.getMainLooper())
-        uiHandler.post {
+        textView?.post {
             Picasso.get()
                     .load(source)
                     .placeholder(R.drawable.ic_sync_black_24dp)
@@ -58,7 +54,7 @@ class PicassoImageGetter(target: TextView) : Html.ImageGetter {
             setDrawable(BitmapDrawable(textView!!.resources, bitmap))
         }
 
-        override fun onBitmapFailed(e: Exception, errorDrawable: Drawable) {
+        override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
 
         }
 

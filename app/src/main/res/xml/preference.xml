@@ -203,7 +203,8 @@
 
     -->
 
-    <!--ウィジェット設定-->
+<!--
+    &lt;!&ndash;ウィジェット設定&ndash;&gt;
     <PreferenceCategory
         android:key="preference_setting"
         android:title="@string/widget_setting">
@@ -217,6 +218,7 @@
             android:title="@string/setting_widget_load_message" />
 
     </PreferenceCategory>
+-->
 
 
     <!--ストリーミング設定-->

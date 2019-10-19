@@ -1150,10 +1150,10 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
         val instance = pref_setting.getString("misskey_main_instance", "")
         val token = pref_setting.getString("misskey_main_token", "")
         val username = pref_setting.getString("misskey_main_username", "")
-        val url = "https://$instance/api/users/show"
+        val url = "https://$instance/api/i"
         val jsonObject = JSONObject()
         try {
-            jsonObject.put("username", username)
+            jsonObject.put("i", token)
         } catch (e: JSONException) {
             e.printStackTrace()
         }
@@ -1247,7 +1247,7 @@ class TootCardView(val context: Context, val isMisskey: Boolean) {
                         }
                         //テキストビューに入れる
                         val imageGetter = PicassoImageGetter(linearLayout.toot_card_account_textview)
-                        linearLayout.toot_card_account_textview.text = Html.fromHtml(display_name, Html.FROM_HTML_MODE_LEGACY, imageGetter, null)
+                        linearLayout.toot_card_account_textview.text = Html.fromHtml(snackber_DisplayName, Html.FROM_HTML_MODE_LEGACY, imageGetter, null)
                         linearLayout.toot_card_account_textview.append("\n" + user_id)
                     }
                 } catch (e: JSONException) {

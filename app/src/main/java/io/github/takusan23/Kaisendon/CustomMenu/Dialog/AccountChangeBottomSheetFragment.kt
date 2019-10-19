@@ -112,8 +112,8 @@ class AccountChangeBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun getMisskeyMultiAccount() {
-        val instance_instance_string = pref_setting.getString("instance_list", "")
-        val account_instance_string = pref_setting.getString("access_list", "")
+        val instance_instance_string = pref_setting.getString("misskey_instance_list", "")
+        val account_instance_string = pref_setting.getString("misskey_access_list", "")
         if (instance_instance_string != "") {
             try {
                 val instance_array = JSONArray(instance_instance_string)
@@ -152,7 +152,7 @@ class AccountChangeBottomSheetFragment : BottomSheetDialogFragment() {
                             val display_name = jsonObject.getString("name")
                             val acct = jsonObject.getString("username")
                             //ボタン動的生成
-                            val button = Button(context)
+                            val button = MaterialButton(context!!)
                             button.text = "$display_name @$acct@$instance"
                             val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                             (layoutParams as ViewGroup.MarginLayoutParams).setMargins(10, 10, 10, 10)

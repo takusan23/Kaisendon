@@ -379,11 +379,14 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
             "/api/v1/suggestions" -> drawable = context.getDrawable(R.drawable.ic_outline_person_add_24px)
             "/api/v1/timelines/tag/" -> drawable = context.getDrawable(R.drawable.ic_label_outline_black_24dp)
             "/api/v1/timelines/tag/?local=true" -> drawable = context.getDrawable(R.drawable.ic_label_outline_black_24dp)
-            "/api/v1/accounts/:id/statuses" -> drawable = context.getDrawable(R.drawable.ic_outline_account_box_24px)
             "/api/notes/timeline" -> drawable = context.getDrawable(R.drawable.ic_outline_home_24px)
             "/api/i/notifications" -> drawable = context.getDrawable(R.drawable.ic_outline_notifications_24px)
             "/api/notes/local-timeline" -> drawable = context.getDrawable(R.drawable.ic_outline_train_24px)
             "/api/notes/global-timeline" -> drawable = context.getDrawable(R.drawable.ic_outline_flight_24px)
+        }
+        if (url.contains("/api/v1/accounts/")) {
+            //アカウントの場合は部分一致で（urlの後ろにアカウントIDが含まれるため）
+            drawable = context.getDrawable(R.drawable.ic_outline_account_box_24px)
         }
         return drawable
     }

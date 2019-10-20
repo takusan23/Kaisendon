@@ -16,6 +16,7 @@ import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 import com.woxthebox.draglistview.DragItemAdapter
+import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
 import java.util.*
 
@@ -197,5 +198,10 @@ internal class ItemAdapter(activity: AppCompatActivity, list: ArrayList<Pair<Lon
         val transaction = (context as AppCompatActivity).supportFragmentManager.beginTransaction()
         transaction.replace(R.id.container_container, CustomMenuSettingFragment())
         transaction.commit()
+        if (context is Home) {
+            (context as Home).navigationView.menu.clear()
+            (context as Home).navigationView.inflateMenu(R.menu.custom_menu)
+            (context as Home).customMenuLoadSupport?.loadCustomMenu(null)
+        }
     }
 }

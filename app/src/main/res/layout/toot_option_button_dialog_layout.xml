@@ -23,6 +23,19 @@
             android:text="@string/account" />
 
         <TextView
+            android:id="@+id/toot_option_custom_menu_add_account_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:drawableStart="@drawable/ic_outline_account_box_24px"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:padding="10dp"
+            android:text="@string/add_custom_menu_account" />
+
+
+        <TextView
             android:id="@+id/toot_option_bookmark_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

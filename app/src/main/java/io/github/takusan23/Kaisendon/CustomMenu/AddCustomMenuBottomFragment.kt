@@ -147,6 +147,7 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
 
         //削除ボタン
         //ListViewから来たとき
+        //並び替え・メニューの編集から来たらここ
         if (arguments?.getBoolean("delete_button", false) == true) {
             loadSQLite(arguments!!.getString("name"))
             custom_menu_title_textview.text = context?.getString(R.string.custom_menu_update_title)
@@ -239,6 +240,15 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
         val optionsMenu = MenuPopupHelper(context!!, menuBuilder, custom_menu_load)
         optionsMenu.setForceShowIcon(true)
 
+        //アカウント情報を表示するカスタムメニューの場合は
+        //インスタンス・アクセストークン・を固定してカスタムメニューもアカウント以外いじれないようにする
+        if (arguments?.getString("add_account_id") != null) {
+            loadAccountCustomMenu()
+        } else {
+            menuBuilder.findItem(R.id.custom_menu_load_account).isVisible = false
+        }
+
+
         custom_menu_load.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View) {
                 //表示
@@ -255,29 +265,29 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                             R.id.custom_menu_load_home -> {
                                 load_url = "/api/v1/timelines/home"
                                 custom_menu_load.setText(R.string.home)
-                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_home_black_24dp, 0, 0, 0)
+                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_home_24px, 0, 0, 0)
                             }
                             R.id.custom_menu_load_notification -> {
                                 load_url = "/api/v1/notifications"
                                 custom_menu_load.setText(R.string.notifications)
-                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_notifications_black_24dp, 0, 0, 0)
+                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_notifications_24px, 0, 0, 0)
                             }
                             R.id.custom_menu_load_local -> {
                                 load_url = "/api/v1/timelines/public?local=true"
                                 custom_menu_load.setText(R.string.public_time_line)
-                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_train_black_24dp, 0, 0, 0)
+                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_train_24px, 0, 0, 0)
                                 //ローカルTLのみ読み取り専用を許可する
                                 custom_menu_account_linearlayout.visibility = View.VISIBLE
                             }
                             R.id.custom_menu_load_federated -> {
                                 load_url = "/api/v1/timelines/public"
                                 custom_menu_load.setText(R.string.federated_timeline)
-                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_flight_black_24dp, 0, 0, 0)
+                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_flight_24px, 0, 0, 0)
                             }
                             R.id.custom_menu_load_direct -> {
                                 load_url = "/api/v1/timelines/direct"
                                 custom_menu_load.setText(R.string.direct_message)
-                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_assignment_ind_black_24dp, 0, 0, 0)
+                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_assignment_ind_24px, 0, 0, 0)
                             }
                             R.id.custom_menu_load_scheduled_statuses -> {
                                 load_url = "/api/v1/scheduled_statuses"
@@ -287,12 +297,12 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                             R.id.custom_menu_load_favourite_list -> {
                                 load_url = "/api/v1/favourites"
                                 custom_menu_load.setText(R.string.favourite_list)
-                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_star_black_24dp, 0, 0, 0)
+                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_star_border_black_24dp, 0, 0, 0)
                             }
                             R.id.custom_menu_load_follow_suggestions -> {
                                 load_url = "/api/v1/suggestions"
                                 custom_menu_load.setText(R.string.follow_suggestions)
-                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_person_add_black_24dp, 0, 0, 0)
+                                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_person_add_24px, 0, 0, 0)
                             }
                             R.id.custom_menu_load_hastag_tl_local -> {
                                 showHashtagMessageToast()
@@ -306,6 +316,22 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                                 custom_menu_load.text = getString(R.string.hash_tag_tl_public)
                                 custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_label_outline_black_24dp, 0, 0, 0)
                             }
+/*
+                            R.id.custom_menu_load_account -> {
+                                //ID受け取る
+                                if (arguments?.getString("add_account_id") != null) {
+                                    val id = arguments?.getString("id")
+                                    load_url = "/api/v1/accounts/$id"
+                                    custom_menu_load.setText(R.string.add_custom_menu_account)
+                                    custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_account_box_24px, 0, 0, 0)
+                                    //アカウントIDはインスタンスごとに作られている（インスタンスごとにアカウントのIDが違う）のでインスタンスを合わせる
+                                    instance = arguments?.getString("instance")
+                                    access_token = arguments?.getString("token")
+                                    //ボタンを押せないように
+                                    custom_menu_account.isClickable = false
+                                }
+                            }
+*/
                         }
                         return false
                     }
@@ -407,6 +433,25 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                 }
             }
         })
+    }
+
+    fun loadAccountCustomMenu() {
+        //アカウント情報を表示するカスタムメニューの場合は
+        //インスタンス・アクセストークン・を固定してカスタムメニューもアカウント以外いじれないようにする
+        val id = arguments?.getString("add_account_id")
+        val display_name = arguments?.getString("display_name")
+        load_url = "/api/v1/accounts/$id"
+        custom_menu_load.setText(R.string.custom_menu_api_account)
+        custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_account_box_24px, 0, 0, 0)
+        //アカウントIDはインスタンスごとに作られている（インスタンスごとにアカウントのIDが違う）のでインスタンスを合わせる
+        instance = arguments?.getString("instance")
+        access_token = arguments?.getString("token")
+        custom_menu_account.text = instance
+        //アカウント名
+        custom_menu_name_edittext_edittext.setText(display_name)
+        //ボタンを押せないように
+        custom_menu_account.isEnabled = false
+        custom_menu_load.isEnabled = false
     }
 
     /*ハッシュタグ用の警告。名前欄にハッシュタグを入れてねっていうメッセージ*/
@@ -628,6 +673,11 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                 load_url = "api/v1/timelines/tag/"
                 custom_menu_load.setText(R.string.hash_tag_tl_public)
                 custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_label_outline_black_24dp, 0, 0, 0)
+            }
+            "/api/v1/accounts/" -> {
+                //アカウント情報のカスタムメニューはifのところでload_url決めてます。
+                custom_menu_load.setText(R.string.add_custom_menu_account)
+                custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_account_box_24px, 0, 0, 0)
             }
             "/api/notes/timeline" -> {
                 load_url = "/api/notes/timeline"
@@ -1011,6 +1061,18 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
                 theme_text_icon_color_edittext.setText(customMenuJSONParse.theme_text_icon_color)
                 theme_post_button_background_color_edittext.setText(customMenuJSONParse.theme_post_button_background_color)
                 theme_post_button_icon_color_edittext.setText(customMenuJSONParse.theme_post_button_icon_color)
+
+                //アカウント情報のカスタムメニューに対応させる
+                if (customMenuJSONParse.content.contains("/api/v1/accounts/")) {
+                    //URLはこのまま。（urlToContent()でID変わってしまうので
+                    load_url = customMenuJSONParse.content
+                    //表示コンテンツの中身埋める
+                    custom_menu_load.setText(R.string.custom_menu_api_account)
+                    custom_menu_load.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_account_box_24px, 0, 0, 0)
+                    //ボタンを押せないように
+                    custom_menu_account.isEnabled = false
+                    custom_menu_load.isEnabled = false
+                }
             } catch (e: JSONException) {
                 e.printStackTrace()
             }

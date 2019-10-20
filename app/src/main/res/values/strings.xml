@@ -673,5 +673,7 @@
     <string name="custom_menu_editor_required">Required settings</string>
     <string name="custom_menu_editor_theme">Appearance</string>
     <string name="custom_menu_editor_details">Details</string>
+    <string name="add_custom_menu_account">Add an account to a custom menu (experimental)</string>
+    <string name="custom_menu_api_account">Account (experimental)</string>
 
 </resources>

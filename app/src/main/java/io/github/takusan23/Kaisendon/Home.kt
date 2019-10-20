@@ -200,7 +200,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     var tlQuickSettingSnackber: TLQuickSettingSnackber? = null
         private set
 
-    private var customMenuLoadSupport: CustomMenuLoadSupport? = null
+    var customMenuLoadSupport: CustomMenuLoadSupport? = null
 
     //裏機能？
     internal lateinit var shinchokuLayout: ShinchokuLayout

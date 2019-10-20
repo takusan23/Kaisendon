@@ -182,6 +182,11 @@ class CustomMenuTimeLine : Fragment() {
     private var settings_jsonString: String = ""
     lateinit var customMenuJSONParse: CustomMenuJSONParse
 
+    //読み込む内容がユーザーの時
+    // /api/v1/accounts/:id/status など
+    //将来的にはフォロー・フォロワーも取りたい。
+    var isAPIAccount = false
+
 
 /*
     //ストリーミングのときに同じ内容が増えないようにするために
@@ -401,13 +406,11 @@ class CustomMenuTimeLine : Fragment() {
 
         //ToolBerをクリックしたら一番上に移動するようにする
         if (pref_setting.getBoolean("pref_listview_top", true)) {
-            try {
+            if (activity is Home) {
                 (activity as Home).toolBer.setOnClickListener {
                     //これ一番上に移動するやつ
                     recyclerView?.smoothScrollToPosition(0)
                 }
-            } catch (e: ClassCastException) {
-                e.printStackTrace()
             }
         }
 
@@ -429,7 +432,10 @@ class CustomMenuTimeLine : Fragment() {
         if (url!!.contains("/api/v1/suggestions")) {
             isFollowSuggestions = true
         }
-
+        //ユーザーの投稿取得(/api/v1/accounts/:id/statuses など)
+        if (url!!.contains("/api/v1/accounts/")) {
+            isAPIAccount = true
+        }
 
         recyclerViewList = ArrayList()
         //ここから下三行必須
@@ -450,7 +456,8 @@ class CustomMenuTimeLine : Fragment() {
         //TL読み込み
         //APIがTL取得のみに
         //TL と Favourite List
-        if (!isScheduled_statuses && !isFollowSuggestions) {
+        //時間指定投稿　と　フォロー推奨ユーザー　と　ユーザーの詳細（/api/v1/accounts/系） は読み込まない
+        if (!isScheduled_statuses && !isFollowSuggestions && !isAPIAccount) {
             //Misskey
             if (isMisskeyMode) {
                 loadMisskeyAccountName()
@@ -636,6 +643,39 @@ class CustomMenuTimeLine : Fragment() {
             }
             //フォロー推奨ユーザーを読み込む
             loadFollowSuggestions(view)
+        } else if (isAPIAccount) {
+            //アカウント情報を表示させる。
+            //とりあえず今はstatusesのみ
+            //読み取り専用は利用しない
+            if (!isReadOnly()) {
+                loadAccountName()
+            }
+            // api/v1/account/:id/statusesを読み込む
+            loadAccountStatuses(null)
+
+            //追加読み込みをサポート
+            //最後までスクロール
+            recyclerView!!.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    if (!url!!.contains("/api/v1/favourites")) {
+                        val firstVisibleItem = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+                        val visibleItemCount = (recyclerView.layoutManager as LinearLayoutManager).childCount
+                        val totalItemCount = (recyclerView.layoutManager as LinearLayoutManager).itemCount
+                        //最後までスクロールしたときの処理
+                        if (firstVisibleItem + visibleItemCount == totalItemCount && !scroll) {
+                            position = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                            y = recyclerView.getChildAt(0).top
+                            if (recyclerViewList!!.size >= 20) {
+                                loadAccountStatuses(max_id)
+                            }
+                        }
+                    }
+                }
+            })
+
+
         }
         //ネットワーク変更を検知する
         setNetworkChangeCallback()
@@ -2445,6 +2485,89 @@ class CustomMenuTimeLine : Fragment() {
                         e.printStackTrace()
                     }
 
+                }
+            }
+        })
+    }
+
+    //  /api/v1/accounts/:id/statuses を叩く。
+    // max_id_id は追加読込しないならnullでおっけー。
+    fun loadAccountStatuses(max_id_id: String?) {
+        //作成
+        var url = "$url/statuses?access_token=$access_token&limit=40"
+        if (max_id != null) {
+            url += "&max_id=$max_id_id"
+        }
+        SnackberProgress.showProgressSnackber(recyclerView, recyclerView!!.context, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
+        val request = Request.Builder()
+                .url(url)
+                .get()
+                .build()
+        //GETリクエスト
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error), Toast.LENGTH_SHORT).show() }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                //成功時
+                if (response.isSuccessful) {
+                    val response_string = response.body()?.string()
+                    var jsonArray: JSONArray? = null
+                    jsonArray = JSONArray(response_string)
+                    for (i in 0 until jsonArray.length()) {
+                        val toot_jsonObject = jsonArray.getJSONObject(i)
+                        if (activity != null && isAdded) {
+                            //配列を作成
+                            val Item = ArrayList<String>()
+                            //メモとか通知とかに
+                            Item.add("CustomMenu Account")
+                            //内容
+                            Item.add(customMenuJSONParse.content)
+                            //ユーザー名
+                            Item.add("")
+                            //JSONObject
+                            Item.add(toot_jsonObject.toString())
+                            //ぶーすとした？
+                            Item.add("false")
+                            //ふぁぼした？
+                            Item.add("false")
+                            //Mastodon / Misskey
+                            Item.add("Mastodon")
+                            //Insatnce/AccessToken
+                            Item.add(instance ?: "")
+                            Item.add(access_token ?: "")
+                            //設定ファイルJSON
+                            Item.add(json_data ?: "")
+                            //画像表示、こんてんとわーにんぐ
+                            Item.add("false")
+                            Item.add("false")
+
+                            //ListItem listItem = new ListItem(Item);
+                            recyclerViewList?.add(Item)
+                        }
+                    }
+                    //Adapter更新
+                    activity?.runOnUiThread {
+                        if (recyclerViewLayoutManager != null) {
+                            (recyclerViewLayoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, y)
+                        }
+                        //CustomMenuRecyclerViewAdapter customMenuRecyclerViewAdapter = new CustomMenuRecyclerViewAdapter(recyclerViewList);
+                        //recyclerView?.adapter = customMenuRecyclerViewAdapter
+                        customMenuRecyclerViewAdapter?.notifyDataSetChanged()
+                        SnackberProgress.closeProgressSnackber()
+                        scroll = false
+                    }
+                    //最後のIDを更新する
+                    val last_toot = jsonArray.getJSONObject(39)
+                    max_id = last_toot.getString("id")
+                    if (swipeRefreshLayout?.isRefreshing == true) {
+                        activity?.runOnUiThread { swipeRefreshLayout?.isRefreshing = false }
+                    }
+                } else {
+                    //失敗時
+                    activity?.runOnUiThread { Toast.makeText(context, getString(R.string.error) + "\n" + response.code().toString(), Toast.LENGTH_SHORT).show() }
                 }
             }
         })

@@ -570,5 +570,7 @@
     <string name="custom_menu_editor_details">詳細</string>
     <string name="custom_menu_editor_required">必須設定</string>
     <string name="custom_menu_editor_theme">見た目</string>
+    <string name="add_custom_menu_account">カスタムメニューにアカウントを追加する（試験的）</string>
+    <string name="custom_menu_api_account">アカウント（試験的）</string>
 
 </resources>

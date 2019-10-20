@@ -13,19 +13,23 @@ import android.view.*
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.preference.PreferenceManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.navigation.NavigationView
+import io.github.takusan23.Kaisendon.APIJSONParse.MastodonTLAPIJSONParse
 import io.github.takusan23.Kaisendon.Activity.UserActivity
+import io.github.takusan23.Kaisendon.CustomMenu.AddCustomMenuBottomFragment
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuLoadSupport
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuSQLiteHelper
 import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
 import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.R
 import io.github.takusan23.Kaisendon.TootBookmark_SQLite
+import kotlinx.android.synthetic.main.toot_option_button_dialog_layout.*
 import org.chromium.customtabsclient.shared.CustomTabsHelper
 import org.json.JSONException
 import org.json.JSONObject
@@ -34,7 +38,7 @@ import java.util.regex.Pattern
 
 class TootOptionBottomDialog : BottomSheetDialogFragment() {
 
-    private var pref_setting: SharedPreferences? = null
+    lateinit var pref_setting: SharedPreferences
     private var view_: View? = null
     private var toot_option_LinearLayout: LinearLayout? = null
     private var account_Button: TextView? = null
@@ -207,6 +211,32 @@ class TootOptionBottomDialog : BottomSheetDialogFragment() {
             (lockback_TextView!!.parent as LinearLayout).removeView(lockback_TextView!!)
         }
 
+        toot_option_custom_menu_add_account_button.setOnClickListener {
+            addCustomMenuAccount()
+        }
+
+    }
+
+    //カスタムメニューにアカウントを追加する
+    private fun addCustomMenuAccount() {
+        //アカウント情報（インスタンス・アクセストークン
+        val instance = pref_setting.getString("main_instance", "")
+        val token = pref_setting.getString("main_token", "")
+        //DisplayName
+        //JSONをパースする
+        val fragment = (context as AppCompatActivity).supportFragmentManager.findFragmentById(R.id.container_container)
+        if (fragment is CustomMenuTimeLine) {
+            val status = MastodonTLAPIJSONParse(context!!, arguments?.getString("json")
+                    ?: "", fragment.customMenuJSONParse, 0)
+            val addCustomMenuBottomFragment = AddCustomMenuBottomFragment()
+            val bundle = Bundle()
+            bundle.putString("instance", instance)
+            bundle.putString("token", token)
+            bundle.putString("add_account_id", arguments?.getString("user_id") ?: "")
+            bundle.putString("display_name", status.display_name)
+            addCustomMenuBottomFragment.arguments = bundle
+            addCustomMenuBottomFragment.show((activity as AppCompatActivity).supportFragmentManager, "add_custommenu")
+        }
     }
 
     //ハッシュタグ

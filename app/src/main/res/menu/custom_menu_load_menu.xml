@@ -39,5 +39,8 @@
         android:id="@+id/custom_menu_load_hastag_tl_public"
         android:icon="@drawable/ic_label_outline_black_24dp"
         android:title="@string/hash_tag_tl_public"></item>
-
+    <item
+        android:id="@+id/custom_menu_load_account"
+        android:icon="@drawable/ic_outline_account_box_24px"
+        android:title="@string/custom_menu_api_account"></item>
 </menu>

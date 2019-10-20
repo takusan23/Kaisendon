@@ -91,23 +91,23 @@ class NewAppWidget : AppWidgetProvider() {
         appWidgetManager.notifyAppWidgetViewDataChanged(widgetId, R.id.widget_listview)
 
         //アイコンの色を戻す
-        remoteViews.setImageViewResource(R.id.widget_button_home, R.drawable.ic_home_black_24dp)
-        remoteViews.setImageViewResource(R.id.widget_button_notification, R.drawable.ic_notifications_black_24dp)
-        remoteViews.setImageViewResource(R.id.widget_button_local, R.drawable.ic_train_black_24dp)
-        remoteViews.setImageViewResource(R.id.widget_button_public, R.drawable.ic_flight_black_24dp)
+        remoteViews.setImageViewResource(R.id.widget_button_home, R.drawable.ic_outline_home_24px)
+        remoteViews.setImageViewResource(R.id.widget_button_notification, R.drawable.ic_outline_notifications_24px)
+        remoteViews.setImageViewResource(R.id.widget_button_local, R.drawable.ic_outline_train_24px)
+        remoteViews.setImageViewResource(R.id.widget_button_public, R.drawable.ic_outline_flight_24px)
         //選択したタイムラインに色を付ける
         when (timeline) {
             "Home" -> {
-                remoteViews.setImageViewIcon(R.id.widget_button_home, getColorIcon(ctx, R.drawable.ic_home_black_24dp))
+                remoteViews.setImageViewIcon(R.id.widget_button_home, getColorIcon(ctx, R.drawable.ic_outline_home_24px))
             }
             "Notification" -> {
-                remoteViews.setImageViewIcon(R.id.widget_button_notification, getColorIcon(ctx, R.drawable.ic_notifications_black_24dp))
+                remoteViews.setImageViewIcon(R.id.widget_button_notification, getColorIcon(ctx, R.drawable.ic_outline_notifications_24px))
             }
             "Local" -> {
-                remoteViews.setImageViewIcon(R.id.widget_button_local, getColorIcon(ctx, R.drawable.ic_train_black_24dp))
+                remoteViews.setImageViewIcon(R.id.widget_button_local, getColorIcon(ctx, R.drawable.ic_outline_train_24px))
             }
             "Federated" -> {
-                remoteViews.setImageViewIcon(R.id.widget_button_public, getColorIcon(ctx, R.drawable.ic_flight_black_24dp))
+                remoteViews.setImageViewIcon(R.id.widget_button_public, getColorIcon(ctx, R.drawable.ic_outline_flight_24px))
             }
         }
         //更新

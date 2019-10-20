@@ -139,6 +139,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                     val name = jsonObject.getString("name")
                     val content = jsonObject.getString("content")
                     val item = navigationView.menu.add(getDrawerMenuTitle(content, name)).setIcon(urlToContent(content))
+                    item.isCheckable = true
                     item.setOnMenuItemClickListener {
                         //チェック外し
                         for (count in 0..navigationView.menu.size() - 1) {
@@ -146,7 +147,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                             unCheckItem.isChecked = false
                         }
                         //チェックつける
-                        item.isChecked = true
+                        it.isChecked = true
                         //Fragment切り替え
                         //受け渡す
                         val bundle = Bundle()
@@ -170,6 +171,7 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
                     val name = jsonObject.getString("name")
                     val content = jsonObject.getString("content")
                     val item = navigationView.menu.add(getDrawerMenuTitle(content, name)).setIcon(urlToContent(content))
+                    item.isCheckable = true
                     item.setOnMenuItemClickListener {
                         //チェック外し
                         for (count in 0..navigationView.menu.size()) {
@@ -365,22 +367,23 @@ class CustomMenuLoadSupport(private val context: Context, //private FragmentTran
 
     /*アイコンを返す*/
     private fun urlToContent(url: String): Drawable? {
-        var drawable = context.getDrawable(R.drawable.ic_home_black_24dp)
+        var drawable = context.getDrawable(R.drawable.ic_outline_home_24px)
         when (url) {
-            "/api/v1/timelines/home" -> drawable = context.getDrawable(R.drawable.ic_home_black_24dp)
-            "/api/v1/notifications" -> drawable = context.getDrawable(R.drawable.ic_notifications_black_24dp)
-            "/api/v1/timelines/public?local=true" -> drawable = context.getDrawable(R.drawable.ic_train_black_24dp)
-            "/api/v1/timelines/public" -> drawable = context.getDrawable(R.drawable.ic_flight_black_24dp)
-            "/api/v1/timelines/direct" -> drawable = context.getDrawable(R.drawable.ic_assignment_ind_black_24dp)
-            "/api/v1/favourites" -> drawable = context.getDrawable(R.drawable.ic_star_black_24dp)
+            "/api/v1/timelines/home" -> drawable = context.getDrawable(R.drawable.ic_outline_home_24px)
+            "/api/v1/notifications" -> drawable = context.getDrawable(R.drawable.ic_outline_notifications_24px)
+            "/api/v1/timelines/public?local=true" -> drawable = context.getDrawable(R.drawable.ic_outline_train_24px)
+            "/api/v1/timelines/public" -> drawable = context.getDrawable(R.drawable.ic_outline_flight_24px)
+            "/api/v1/timelines/direct" -> drawable = context.getDrawable(R.drawable.ic_outline_assignment_ind_24px)
+            "/api/v1/favourites" -> drawable = context.getDrawable(R.drawable.ic_star_border_black_24dp)
             "/api/v1/scheduled_statuses" -> drawable = context.getDrawable(R.drawable.ic_access_alarm_black_24dp)
-            "/api/v1/suggestions" -> drawable = context.getDrawable(R.drawable.ic_person_add_black_24dp)
+            "/api/v1/suggestions" -> drawable = context.getDrawable(R.drawable.ic_outline_person_add_24px)
             "/api/v1/timelines/tag/" -> drawable = context.getDrawable(R.drawable.ic_label_outline_black_24dp)
             "/api/v1/timelines/tag/?local=true" -> drawable = context.getDrawable(R.drawable.ic_label_outline_black_24dp)
-            "/api/notes/timeline" -> drawable = context.getDrawable(R.drawable.ic_home_black_24dp)
-            "/api/i/notifications" -> drawable = context.getDrawable(R.drawable.ic_notifications_black_24dp)
-            "/api/notes/local-timeline" -> drawable = context.getDrawable(R.drawable.ic_train_black_24dp)
-            "/api/notes/global-timeline" -> drawable = context.getDrawable(R.drawable.ic_flight_black_24dp)
+            "/api/v1/accounts/:id/statuses" -> drawable = context.getDrawable(R.drawable.ic_outline_account_box_24px)
+            "/api/notes/timeline" -> drawable = context.getDrawable(R.drawable.ic_outline_home_24px)
+            "/api/i/notifications" -> drawable = context.getDrawable(R.drawable.ic_outline_notifications_24px)
+            "/api/notes/local-timeline" -> drawable = context.getDrawable(R.drawable.ic_outline_train_24px)
+            "/api/notes/global-timeline" -> drawable = context.getDrawable(R.drawable.ic_outline_flight_24px)
         }
         return drawable
     }

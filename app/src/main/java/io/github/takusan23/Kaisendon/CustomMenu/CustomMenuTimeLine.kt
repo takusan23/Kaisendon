@@ -267,10 +267,12 @@ class CustomMenuTimeLine : Fragment() {
         //Misskeyは設定しないように
         //デスクトップモード時も設定しないように
         //読み取り専用モード時も設定しないように
-        if (activity!!.supportFragmentManager.findFragmentById(R.id.container_container) is DesktopFragment || isReadOnly.toBoolean()) {
+        if (activity!!.supportFragmentManager.findFragmentById(R.id.container_container) is DesktopFragment) {
             //タイトル
             isDesktopMode = true
             (context as AppCompatActivity).title = getString(R.string.desktop_mode)
+        } else if (isReadOnly.toBoolean()) {
+            (context as AppCompatActivity).title = customMenuJSONParse.name
         } else {
             //タイトル
             (context as AppCompatActivity).title = setName(url!!, customMenuJSONParse.name)

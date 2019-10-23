@@ -18,10 +18,11 @@
             android:orientation="horizontal">
 
             <androidx.cardview.widget.CardView
-                android:layout_margin="5dp"
-                app:cardElevation="10dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:visibility="visible"
+                app:cardElevation="10dp">
 
                 <ImageView
                     android:id="@+id/custom_menu_adapter_main_avatar"

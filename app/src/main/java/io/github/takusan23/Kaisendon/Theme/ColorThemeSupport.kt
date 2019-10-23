@@ -46,7 +46,7 @@ class ColorThemeSupport(val activity: AppCompatActivity, val customMenuJSONParse
             activity.window?.statusBarColor = convertColorInt(customMenuJSONParse.theme_status_bar_color)
         } else {
             //未設定
-            activity.window?.statusBarColor = activity.getColor(android.R.color.transparent)
+            //activity.window?.statusBarColor = activity.getColor(android.R.color.transparent)
         }
     }
 

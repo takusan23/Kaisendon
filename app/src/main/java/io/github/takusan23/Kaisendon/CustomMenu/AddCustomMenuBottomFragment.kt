@@ -898,11 +898,12 @@ class AddCustomMenuBottomFragment : BottomSheetDialogFragment() {
 
             //アクセストークンが無くてもローカルTL（読み取り専用）なら許可
             var isReadOnly = false
-            if (access_token?.isEmpty() ?: false && load_url?.contains("/api/v1/timelines/public?local=true") ?: false) {
+            if (access_token?.isEmpty() ?: false && load_url?.contains("/api/v1/timelines/public") ?: false) {
                 isReadOnly = true
             }
 
             //必須項目が埋まってるか確認
+            //isReadOnlyはアクセストークン無しで見れるモード。
             if (custom_menu_name_edittext_edittext.text.toString().isNotEmpty() && load_url?.isNotEmpty() == true || isReadOnly) {
                 jsonObject.put("misskey", (misskey_switch.isChecked).toString())
                 jsonObject.put("name", custom_menu_name_edittext_edittext.text.toString())

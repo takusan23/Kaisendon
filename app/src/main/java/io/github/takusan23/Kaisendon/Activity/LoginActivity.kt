@@ -4,7 +4,9 @@ import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -12,11 +14,13 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import com.google.android.material.textfield.TextInputLayout
+import io.github.takusan23.Kaisendon.CustomMenu.CustomMenuTimeLine
 import io.github.takusan23.Kaisendon.CustomMenu.Dialog.CreateDefaultCustomMenuBottomFragment
 import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.R
 import io.github.takusan23.Kaisendon.SnackberProgress
+import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.*
 import org.chromium.customtabsclient.shared.CustomTabsHelper
 import org.json.JSONArray
@@ -63,6 +67,8 @@ class LoginActivity : AppCompatActivity() {
     var access_token_custom_menu = ""
     var instance_custom_menu = ""
 
+    lateinit var darkModeSupport: DarkModeSupport
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,9 +78,12 @@ class LoginActivity : AppCompatActivity() {
         editor = pref_setting!!.edit()
 
         //ダークテーマに切り替える機能
-        val darkModeSupport = DarkModeSupport(this)
+        darkModeSupport = DarkModeSupport(this)
         darkModeSupport.setActivityTheme(this)
         setContentView(R.layout.activity_login)
+
+        //背景にタイムラインを流す（実験要素
+        setBackTimeline()
 
         //ログイン画面再構築
         client_name_EditText = findViewById(R.id.client_name_textbox_textbox)
@@ -155,6 +164,7 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }
+
     }
 
     /*
@@ -379,9 +389,9 @@ class LoginActivity : AppCompatActivity() {
         //データ渡す
         val bundle = Bundle()
         bundle.putString("name", instance)
-        bundle.putString("token",access_token)
+        bundle.putString("token", access_token)
         createDefaultCustomMenuBottomFragment.setArguments(bundle)
-        createDefaultCustomMenuBottomFragment.show(supportFragmentManager,"create_custommenu")
+        createDefaultCustomMenuBottomFragment.show(supportFragmentManager, "create_custommenu")
 
     }
 
@@ -738,6 +748,36 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    //CustomMenuTimelineのFragmentを借りてログイン画面の背景にローカルTLを流す
+    fun setBackTimeline() {
+        //必要項目を埋める。
+        val jsonObject = JSONObject()
+        jsonObject.put("name", getString(R.string.login_nemu))
+        //ここの値の変更はRootとってSharedPreferenceの値を書き換えないと無理。ハードコートしてるので。
+        jsonObject.put("instance", pref_setting?.getString("login_activity_background_timeline_instance", "best-friends.chat"))
+        jsonObject.put("content", pref_setting?.getString("login_activity_background_timeline_content", "/api/v1/timelines/public"))
+        jsonObject.put("read_only", "true")
+        jsonObject.put("streaming", "true")
+        //受け渡す
+        val bundle = Bundle()
+        bundle.putString("setting_json", jsonObject.toString())
+        val customMenuTimeLine = CustomMenuTimeLine()
+        customMenuTimeLine.arguments = bundle
+        //Fragment設置
+        val trans = supportFragmentManager.beginTransaction()
+        trans.replace(R.id.login_activity_back_timeline, customMenuTimeLine)
+        trans.commit()
+        //ダークモードの時
+        if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
+            login_activity_back_timeline_alpha.setBackgroundColor(Color.parseColor("#E6000000"))
+        }
+        //タッチ判定が行かないようにする
+        login_activity_back_timeline_alpha.setOnTouchListener { view, motionEvent ->
+            true
+        }
+
     }
 
 

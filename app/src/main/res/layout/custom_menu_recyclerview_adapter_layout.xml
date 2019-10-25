@@ -64,29 +64,8 @@
                             android:orientation="horizontal">
 
                             <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:layout_weight="1"
-                                android:orientation="horizontal">
-
-                                <ImageView
-                                    android:id="@+id/date_icon_imageview"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="match_parent"
-                                    app:srcCompat="@drawable/ic_today_black_24dp" />
-
-                                <TextView
-                                    android:id="@+id/custom_menu_adapter_createAt"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:text="yyyy/mm/dd"
-                                    android:textSize="10dp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:layout_weight="1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:orientation="horizontal">
 
                                 <ImageView
@@ -99,33 +78,57 @@
                                     android:id="@+id/custom_menu_adapter_visibility"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:textSize="10dp" />
+                                    android:textSize="10sp"
+                                    android:visibility="visible" />
                             </LinearLayout>
 
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:id="@+id/client_icon_imageview"
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                app:srcCompat="@drawable/ic_devices_black_24dp" />
+                                android:layout_weight="1"
+                                android:orientation="horizontal">
 
-                            <TextView
-                                android:id="@+id/custom_menu_adapter_via"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="かいせんどん"
-                                android:textSize="10dp" />
+                                <ImageView
+                                    android:id="@+id/date_icon_imageview"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    app:srcCompat="@drawable/ic_today_black_24dp" />
 
-                            <ImageView
-                                android:id="@+id/pinned_icon_imageview"
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent" />
+                                <TextView
+                                    android:id="@+id/custom_menu_adapter_createAt"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:maxLines="1"
+                                    android:text="yyyy/mm/dd"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:id="@+id/client_icon_imageview"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    app:srcCompat="@drawable/ic_devices_black_24dp" />
+
+                                <TextView
+                                    android:id="@+id/custom_menu_adapter_via"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:maxLines="1"
+                                    android:text="かいせんどん"
+                                    android:textSize="10sp" />
+
+                                <ImageView
+                                    android:id="@+id/pinned_icon_imageview"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent" />
+
+                            </LinearLayout>
 
                         </LinearLayout>
 

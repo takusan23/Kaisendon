@@ -403,7 +403,7 @@
         -->
 
         <CheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="pref_custom_time_format"
             android:summary="@string/setting_timeFormat_check_info"
             android:title="@string/setting_timeFormat_check_info" />

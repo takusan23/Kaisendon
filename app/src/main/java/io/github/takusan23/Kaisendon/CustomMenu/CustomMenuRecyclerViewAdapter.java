@@ -556,8 +556,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                 }
             } else {
                 //レイアウト非表示
-                if(viewHolder.toot_avatar_ImageView.getParent() instanceof CardView) {
-                    ((CardView)viewHolder.toot_avatar_ImageView.getParent()).setVisibility(View.GONE);
+                if (viewHolder.toot_avatar_ImageView.getParent() instanceof CardView) {
+                    ((CardView) viewHolder.toot_avatar_ImageView.getParent()).setVisibility(View.GONE);
                 }
             }
         }
@@ -579,8 +579,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             }
         } else {
             //レイアウト非表示
-            if(viewHolder.toot_avatar_ImageView.getParent() instanceof CardView) {
-                ((CardView)viewHolder.toot_avatar_ImageView.getParent()).setVisibility(View.GONE);
+            if (viewHolder.toot_avatar_ImageView.getParent() instanceof CardView) {
+                ((CardView) viewHolder.toot_avatar_ImageView.getParent()).setVisibility(View.GONE);
             }
         }
     }
@@ -944,12 +944,7 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
             viewHolder.card_TextView.setText(api.getCardTitle() + "\n");
             viewHolder.card_TextView.append(Html.fromHtml(api.getCardDescription(), Html.FROM_HTML_MODE_LEGACY));
             //クリック
-            viewHolder.toot_card_LinearLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    useCustomTabs(api.getCardURL());
-                }
-            });
+            viewHolder.toot_card_LinearLayout.setOnClickListener(v -> useCustomTabs(api.getCardURL()));
         }
     }
 
@@ -1000,8 +995,8 @@ public class CustomMenuRecyclerViewAdapter extends RecyclerView.Adapter<CustomMe
                         }
                     } else {
                         //レイアウト非表示
-                        if(viewHolder.toot_avatar_ImageView.getParent() instanceof CardView) {
-                            ((CardView)viewHolder.reblog_avatar_ImageView.getParent()).setVisibility(View.GONE);
+                        if (viewHolder.toot_avatar_ImageView.getParent() instanceof CardView) {
+                            ((CardView) viewHolder.reblog_avatar_ImageView.getParent()).setVisibility(View.GONE);
                         }
                     }
                 }

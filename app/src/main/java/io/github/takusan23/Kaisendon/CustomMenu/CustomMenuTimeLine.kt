@@ -387,7 +387,6 @@ class CustomMenuTimeLine : Fragment() {
         //最終的なURL
         url = "https://$instance${customMenuJSONParse.content}"
 
-
         val toot_list = ArrayList<ListItem>()
         adapter = HomeTimeLineAdapter(context!!, R.layout.timeline_item, toot_list)
 
@@ -677,7 +676,12 @@ class CustomMenuTimeLine : Fragment() {
                 }
             })
 
-
+            //引っ張って更新
+            swipeRefreshLayout!!.setOnRefreshListener {
+                // api/v1/account/:id/statusesを読み込む
+                recyclerViewList!!.clear()
+                loadAccountStatuses(null)
+            }
         }
         //ネットワーク変更を検知する
         setNetworkChangeCallback()
@@ -2497,7 +2501,7 @@ class CustomMenuTimeLine : Fragment() {
     fun loadAccountStatuses(max_id_id: String?) {
         //作成
         var url = "$url/statuses?access_token=$access_token&limit=40"
-        if (max_id != null) {
+        if (max_id_id != null) {
             url += "&max_id=$max_id_id"
         }
         SnackberProgress.showProgressSnackber(recyclerView, recyclerView!!.context, getString(R.string.loading) + "\n" + customMenuJSONParse.content)
@@ -2562,7 +2566,7 @@ class CustomMenuTimeLine : Fragment() {
                         scroll = false
                     }
                     //最後のIDを更新する
-                    val last_toot = jsonArray.getJSONObject(39)
+                    val last_toot = jsonArray.getJSONObject(jsonArray?.length() - 1)
                     max_id = last_toot.getString("id")
                     if (swipeRefreshLayout?.isRefreshing == true) {
                         activity?.runOnUiThread { swipeRefreshLayout?.isRefreshing = false }

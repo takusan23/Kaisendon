@@ -3,6 +3,7 @@ package io.github.takusan23.Kaisendon.CustomMenu.Dialog
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
@@ -32,6 +33,7 @@ import io.github.takusan23.Kaisendon.Fragment.*
 import io.github.takusan23.Kaisendon.Home
 import io.github.takusan23.Kaisendon.Omake.KaisendonLife
 import io.github.takusan23.Kaisendon.R
+import io.github.takusan23.Kaisendon.Theme.DarkModeSupport
 import kotlinx.android.synthetic.main.bottom_fragment_menu.*
 import org.chromium.customtabsclient.shared.CustomTabsHelper
 
@@ -39,6 +41,16 @@ class MenuBottomSheetFragment : BottomSheetDialogFragment() {
 
     lateinit var pref_setting: SharedPreferences
     var navColor: Int? = null
+
+    /*はじっこを丸くする*/
+    override fun getTheme(): Int {
+        var theme = R.style.BottomSheetDialogThemeAppTheme
+        val darkModeSupport = DarkModeSupport(context!!)
+        if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
+            theme = R.style.BottomSheetDialogThemeDarkTheme
+        }
+        return theme
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.bottom_fragment_menu, container, false)

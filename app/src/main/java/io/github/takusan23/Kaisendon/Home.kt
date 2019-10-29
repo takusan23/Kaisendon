@@ -63,6 +63,8 @@ import io.github.takusan23.Kaisendon.Omake.ShinchokuLayout
 import io.github.takusan23.Kaisendon.PaintPOST.PaintPOSTActivity
 import kotlinx.android.synthetic.main.app_bar_home2.*
 import kotlinx.android.synthetic.main.bottom_bar_layout.*
+import kotlinx.android.synthetic.main.content_account_info_update.*
+import kotlinx.android.synthetic.main.list_item.view.*
 import okhttp3.*
 import org.chromium.customtabsclient.shared.CustomTabsHelper
 import org.json.JSONArray
@@ -2994,11 +2996,40 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
         }
     }
 
+    //カスタムメニュー設定ボタン
+    //独立させよう
+    fun setCustomMenuEditButton(): ImageView {
+        //押したアニメーション
+        val typedValue = TypedValue()
+        theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, typedValue, true)
+        val button = ImageView(this)
+        button.setImageResource(R.drawable.ic_check_box_black_24dp)
+        button.setBackgroundResource(typedValue.resourceId)
+        button.imageTintList = ColorStateList.valueOf(Color.parseColor("#ffffff"))
+        button.setPadding(50, 10, 50, 10)
+        button.setOnClickListener {
+            val fragment = supportFragmentManager.findFragmentById(R.id.container_container)
+            if (fragment is CustomMenuTimeLine) {
+                val customMenuBottomFragment = AddCustomMenuBottomFragment()
+                val bundle = Bundle()
+                bundle.putBoolean("delete_button", true)
+                bundle.putString("name", fragment.customMenuJSONParse.name)
+                customMenuBottomFragment.arguments = bundle
+                customMenuBottomFragment.show(supportFragmentManager, "add_custom_menu")
+            }
+        }
+        return button
+    }
+
     /*タイムラインクイック設定ボタン生成*/
     @SuppressLint("RestrictedApi")
     private fun setTimelinQuickSettings(): ImageView {
+        //押したアニメーション
+        val typedValue = TypedValue()
+        theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, typedValue, true)
         val qs = ImageView(this)
-        qs.setImageResource(R.drawable.ic_settings_black_24dp)
+        qs.setImageResource(R.drawable.ic_more_vert_black_24dp)
+        qs.setBackgroundResource(typedValue.resourceId)
         qs.imageTintList = ColorStateList.valueOf(Color.parseColor("#ffffff"))
         qs.setPadding(50, 10, 50, 10)
 
@@ -3018,7 +3049,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             */
 
             //回転アニメーション
-            objectAnimator.start()
+           // objectAnimator.start()
 
 
             val bundle = Bundle()
@@ -3107,6 +3138,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             fab = bottom_fab
             //追加されてなければ追加
             bottomAppBar.addView(setTimelinQuickSettings())
+            bottomAppBar.addView(setCustomMenuEditButton())
             tlQuickSettingSnackber = TLQuickSettingSnackber(this@Home, navigationView)
             // ダークモード対応
             if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
@@ -3150,6 +3182,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
             /*クイック設定*/
             toolBer.addView(setTimelinQuickSettings())
+            toolBer.addView(setCustomMenuEditButton())
             tlQuickSettingSnackber = TLQuickSettingSnackber(this@Home, navigationView)
             //ActionBarの色設定
             if (darkModeSupport.nightMode == Configuration.UI_MODE_NIGHT_YES) {
